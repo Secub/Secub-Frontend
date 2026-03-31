@@ -1,6 +1,13 @@
 import AccessPage from "../pages/access/AccessPage";
 import LandingPage from "../pages/landing/LandingPage";
-import PanelDemoPage from "../pages/panel/PanelDemoPage";
+import DashboardPage from "../pages/panel/dashboard/DashboardPage";
+import PerfilEgresoPage from "../pages/panel/perfil-egreso/PerfilEgresoPage";
+import PropositoFormacionPage from "../pages/panel/proposito-formacion/PropositoFormacionPage";
+import CompetenciasRAPage from "../pages/panel/competencias-ra/CompetenciasRAPage";
+import MapeoCompetenciasPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasPage";
+import CicloPage from "../pages/panel/ciclo/CicloPage";
+import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
+import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
 import { ROUTES, normalizePathname } from "./routes";
 
 function isAccessRoute(pathname: string) {
@@ -17,9 +24,25 @@ export default function AppRouter() {
     return <AccessPage />;
   }
 
-  if (normalizedPath === ROUTES.panelDemo) {
-    return <PanelDemoPage />;
+  switch (normalizedPath) {
+    case ROUTES.panel:
+    case ROUTES.panelDashboard:
+      return <DashboardPage />;
+    case ROUTES.panelPerfilEgreso:
+      return <PerfilEgresoPage />;
+    case ROUTES.panelPropositoFormacion:
+      return <PropositoFormacionPage />;
+    case ROUTES.panelCompetenciasRa:
+      return <CompetenciasRAPage />;
+    case ROUTES.panelMapeoCompetencias:
+      return <MapeoCompetenciasPage />;
+    case ROUTES.panelCiclo:
+      return <CicloPage />;
+    case ROUTES.panelAsignarRa:
+      return <AsignarRAPage />;
+    case ROUTES.panelMedicionRa:
+      return <MedicionRAPage />;
+    default:
+      return <LandingPage />;
   }
-
-  return <LandingPage />;
 }
