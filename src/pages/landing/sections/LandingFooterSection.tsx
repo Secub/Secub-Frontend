@@ -1,83 +1,110 @@
+import { GoChevronUp } from "react-icons/go";
+import LogoUSBFooter from "../../../assets/logos/LogoAltaCalidad.png";
+import LogoAltaCalidad from "../../../assets/logos/LogoUSBFooter.png";
+
 export default function LandingFooterSection() {
   return (
     <footer className="mt-0">
-      <section className="border-t border-[var(--color-gray-6)] bg-[var(--color-footer-light)]">
-        <div className="container-secub py-8 md:py-10">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-            <div className="partner-logo-box">ALIADO 1</div>
-            <div className="partner-logo-box">ALIADO 2</div>
-            <div className="partner-logo-box">ALIADO 3</div>
-            <div className="partner-logo-box">ALIADO 4</div>
-            <div className="partner-logo-box">ALIADO 5</div>
-          </div>
-        </div>
-      </section>
+      <section className="bg-[#1f1f22] text-white">
+        <div className="container-secub py-14 lg:py-16">
+          <div className="grid gap-12 lg:grid-cols-[1.35fr_0.75fr_0.55fr] lg:items-start">
+            <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-10">
 
-      <section className="bg-[var(--color-footer-dark)] text-white">
-        <div className="container-secub py-10 md:py-14">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.9fr_0.7fr]">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="rounded-[24px] border border-white/10 bg-white/5 p-6">
-                <div className="footer-image-placeholder h-24">LOGO USB</div>
-                <p className="mt-4 text-sm leading-6 text-white/75">
-                  Reemplaza este bloque por el logo institucional oficial.
-                </p>
+              <div className="flex items-center">
+                <img
+                  src={LogoAltaCalidad}
+                  alt="Acreditación Institucional de Alta Calidad Multicampus"
+                  className="h-auto w-[240px] max-w-full object-contain"
+                />
+              </div>
+              
+              <div className="flex items-center">
+                <img
+                  src={LogoUSBFooter}
+                  alt="Universidad de San Buenaventura"
+                  className="h-auto w-[300px] max-w-full object-contain"
+                />
               </div>
 
-              <div className="rounded-[24px] border border-white/10 bg-white/5 p-6">
-                <div className="footer-image-placeholder h-24">SELLO</div>
-                <p className="mt-4 text-sm leading-6 text-white/75">
-                  Reemplaza este bloque por el sello o insignia institucional.
-                </p>
-              </div>
+              
             </div>
 
             <div>
-              <h3 className="font-heading text-2xl font-semibold text-white">
+              <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-white">
                 Universidad de San Buenaventura
               </h3>
 
-              <div className="mt-5 space-y-3 text-base leading-7 text-white/80">
-                <p>
-                  <span className="font-heading font-semibold text-white">
-                    Dirección:
-                  </span>{" "}
-                  Cra 9 # 123 - 76 Of. 602 - 603
-                </p>
+              <div className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-white">
+                <p className="font-heading font-semibold">Dirección:</p>
+                <p>Cra 9 # 123 - 76 Of. 602 - 603</p>
 
-                <p>
-                  <span className="font-heading font-semibold text-white">
-                    Email información:
-                  </span>{" "}
-                  webmaster@usb.edu.co
+                <p className="font-heading pt-1 font-semibold">
+                  Email información:
                 </p>
+                <p>webmaster@usb.edu.co</p>
 
-                <p>
-                  <span className="font-heading font-semibold text-white">
-                    Contacto SECUB:
-                  </span>{" "}
-                  soporte.secub@usb.edu.co
+                <p className="font-heading pt-1 font-semibold">
+                  Trabaje con nosotros:
                 </p>
-
                 <p>
-                  <span className="font-heading font-semibold text-white">
-                    Trabaje con nosotros:
-                  </span>{" "}
-                  ¡Conoce nuestras ofertas laborales!
+                  <a
+                    href="https://fa-ewdp-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/es/sites/Portal-USB"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    ¡Conoce nuestras ofertas laborales!
+                  </a>
                 </p>
               </div>
             </div>
 
             <div>
-              <h3 className="font-heading text-2xl font-semibold text-white">
+              <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-white">
                 Sede y seccionales
               </h3>
 
-              <ul className="mt-5 space-y-3 text-base leading-7 text-white/80">
-                <li>- Bogotá</li>
-                <li>- Medellín</li>
-                <li>- Cali</li>
-                <li>- Cartagena</li>
+              <ul className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-white">
+                <li>
+                  <a
+                    href="https://www.usbbog.edu.co/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    - Bogotá
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.usbmed.edu.co/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    - Medellín
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://usbcali.edu.co/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    - Cali
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="http://Cartagena"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    - Cartagena
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -85,17 +112,34 @@ export default function LandingFooterSection() {
       </section>
 
       <section className="bg-[var(--color-primary)] text-white">
-        <div className="container-secub flex flex-col gap-4 py-5 text-center md:flex-row md:items-center md:justify-between md:text-left">
-          <p className="text-sm leading-6 md:text-base">
-            Copyright © 2026 Universidad de San Buenaventura
+        <div className="container-secub flex flex-col gap-4 py-5 md:flex-row md:items-center md:justify-between">
+          <p className="text-left text-[0.98rem] leading-6">
+            Copyright © 2023 Universidad de San Buenaventura
           </p>
 
-          <div className="flex flex-col gap-2 text-sm font-semibold md:flex-row md:gap-6 md:text-base">
-            <a href="#" className="footer-bottom-link">
-              Políticas de uso y privacidad
-            </a>
-            <a href="#" className="footer-bottom-link">
-              Términos y condiciones
+          <div className="flex items-center justify-between gap-6 md:justify-end">
+            <div className="text-left text-[0.92rem] font-bold leading-6">
+              <a
+                href="/politicas-de-uso-y-privacidad/"
+                className="transition-opacity hover:opacity-80"
+              >
+                Políticas de uso y privacidad
+              </a>
+              <span className="mx-2">|</span>
+              <a
+                href="/terminos-y-condiciones/"
+                className="transition-opacity hover:opacity-80"
+              >
+                Términos y condiciones
+              </a>
+            </div>
+
+            <a
+              href="#inicio"
+              aria-label="Volver arriba"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+            >
+              <GoChevronUp className="text-[24px]" />
             </a>
           </div>
         </div>
