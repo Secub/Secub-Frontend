@@ -1,3 +1,5 @@
+import { Button } from "../../../components/ui";
+
 export default function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-gray-6)] bg-white/90 backdrop-blur">
@@ -28,12 +30,16 @@ export default function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <a href="#acerca" className="button-secondary hidden sm:inline-flex">
-            Conocer más
+          <a href="#acerca" className="hidden sm:block">
+            <Button variant="outline" size="md" className="rounded-full">
+              Conocer más
+            </Button>
           </a>
 
-          <a href="/acceder" className="button-primary">
-            Acceder
+          <a href="/acceder">
+            <Button variant="accent" size="md" className="rounded-full">
+              Acceder
+            </Button>
           </a>
         </div>
       </div>

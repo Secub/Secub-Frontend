@@ -1,3 +1,5 @@
+import { Button } from "../../../components/ui";
+
 export default function ContactSection() {
   return (
     <section
@@ -21,12 +23,16 @@ export default function ContactSection() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <a href="mailto:soporte.secub@usb.edu.co" className="button-primary">
-              Contactar soporte
+            <a href="mailto:soporte.secub@usb.edu.co">
+              <Button variant="accent" size="md" className="rounded-full">
+                Contactar soporte
+              </Button>
             </a>
 
-            <a href="/acceder" className="button-secondary">
-              Ir al acceso
+            <a href="/acceder">
+              <Button variant="outline" size="md" className="rounded-full">
+                Ir al acceso
+              </Button>
             </a>
           </div>
         </div>
@@ -34,7 +40,7 @@ export default function ContactSection() {
         <div className="rounded-[32px] border border-[var(--color-gray-6)] bg-[var(--color-gray-7)] p-8 md:p-10">
           <div className="grid gap-6">
             <div className="rounded-[24px] bg-white p-6">
-              <p className="text-sm font-heading font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">
+              <p className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">
                 Correo de soporte
               </p>
               <a
@@ -61,8 +67,8 @@ export default function ContactSection() {
                   Flujo por roles
                 </p>
                 <p className="mt-3 text-sm leading-7 text-[var(--color-gray-3)]">
-                  La experiencia se adapta según el rol del usuario y las acciones
-                  habilitadas en cada etapa.
+                  La experiencia se adapta según el rol del usuario y las
+                  acciones habilitadas en cada etapa.
                 </p>
               </div>
             </div>

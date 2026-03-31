@@ -1,4 +1,5 @@
 import CampusMosaic from "../../../components/shared/CampusMosaic";
+import { Button } from "../../../components/ui";
 
 export default function HeroSection() {
   return (
@@ -20,8 +21,6 @@ export default function HeroSection() {
         <div className="absolute right-[9%] top-[12%] h-[210px] w-[150px] rotate-[8deg] rounded-full bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.7)_0px,rgba(255,255,255,0.7)_2px,transparent_2px,transparent_11px)] opacity-35" />
 
         <div className="absolute left-[6%] bottom-[14%] h-[150px] w-[140px] rounded-[24px] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.92)_0px,rgba(255,255,255,0.92)_2px,transparent_3px)] [background-size:24px_24px] opacity-68" />
-
-        
 
         <div className="absolute right-[8%] bottom-[18%] flex gap-4">
           {Array.from({ length: 5 }).map((_, index) => (
@@ -50,15 +49,20 @@ export default function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href="/acceder" className="button-primary justify-center">
-              Acceder
+            <a href="/acceder">
+              <Button variant="accent" size="lg" className="rounded-full">
+                Acceder
+              </Button>
             </a>
 
-            <a
-              href="#modulos"
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/40 bg-white/10 px-6 py-3 font-heading text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/18"
-            >
-              Ver módulos
+            <a href="#modulos">
+              <Button
+                variant="ghost"
+                size="md"
+                className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20"
+              >
+                Ver módulos
+              </Button>
             </a>
           </div>
         </div>

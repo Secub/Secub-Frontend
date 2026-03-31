@@ -1,5 +1,6 @@
 import { GoChevronLeft } from "react-icons/go";
 import LogoUSB from "../../../assets/LogoUSB.png";
+import { Button } from "../../../components/ui";
 
 export default function AccessPanelSection() {
   const microsoftLoginUrl = "#";
@@ -35,19 +36,22 @@ export default function AccessPanelSection() {
         </div>
 
         <div className="mt-6">
-        
-          <a
-            href={microsoftLoginUrl}
-            className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-[var(--color-primary)] px-6 py-4 text-center font-heading text-base font-semibold text-white shadow-[0_12px_24px_rgba(248,129,29,0.26)] transition-all duration-200 hover:-translate-y-[1px] hover:opacity-95"
-          >
-            <span className="grid grid-cols-2 gap-[2px] rounded-[4px] bg-white/15 p-[3px]">
-              <span className="h-2.5 w-2.5 bg-[#f25022]" />
-              <span className="h-2.5 w-2.5 bg-[#7fba00]" />
-              <span className="h-2.5 w-2.5 bg-[#00a4ef]" />
-              <span className="h-2.5 w-2.5 bg-[#ffb900]" />
-            </span>
-
-            Iniciar sesión con Microsoft
+          <a href={microsoftLoginUrl} className="block">
+            <Button
+              variant="accent"
+              size="lg"
+              fullWidth
+              leftIcon={
+                <span className="grid grid-cols-2 gap-[2px] rounded-[4px] bg-white/15 p-[3px]">
+                  <span className="h-2.5 w-2.5 bg-[#f25022]" />
+                  <span className="h-2.5 w-2.5 bg-[#7fba00]" />
+                  <span className="h-2.5 w-2.5 bg-[#00a4ef]" />
+                  <span className="h-2.5 w-2.5 bg-[#ffb900]" />
+                </span>
+              }
+            >
+              Iniciar sesión con Microsoft
+            </Button>
           </a>
         </div>
 
@@ -57,8 +61,6 @@ export default function AccessPanelSection() {
             validar tu correo corporativo y acceder a la plataforma.
           </p>
         </div>
-
-
 
         <div className="mt-8 text-sm leading-7 text-[var(--color-gray-3)]">
           <p>

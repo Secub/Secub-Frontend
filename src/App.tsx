@@ -1,18 +1,7 @@
-import LandingPage from "./pages/landing/LandingPage";
-import AccessPage from "./pages/access/AccessPage";
+import AppRouter from "./app/router";
 
 function App() {
-  const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
-
-  if (
-    normalizedPath === "/acceder" ||
-    normalizedPath === "/login" ||
-    normalizedPath === "/auth"
-  ) {
-    return <AccessPage />;
-  }
-
-  return <LandingPage />;
+  return <AppRouter />;
 }
 
 export default App;
