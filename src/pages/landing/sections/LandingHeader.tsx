@@ -1,14 +1,20 @@
+import LogoUSB from "../../../assets/logos/LogoUSB.png";
 import { Button } from "../../../components/ui";
 
 export default function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-gray-6)] bg-white/90 backdrop-blur">
       <div className="container-secub flex h-20 items-center justify-between gap-6">
-        <a
-          href="#inicio"
-          className="font-heading text-xl font-semibold tracking-[0.04em] text-[var(--color-secondary-4)]"
-        >
-          SECUB
+        <a href="#inicio" className="flex items-center gap-3">
+          <img
+            src={LogoUSB}
+            alt="Universidad de San Buenaventura"
+            className="h-10 w-auto object-contain"
+          />
+
+          <span className="font-heading text-xl font-semibold tracking-[0.04em] text-[var(--color-secondary-4)]">
+            SECUB
+          </span>
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">

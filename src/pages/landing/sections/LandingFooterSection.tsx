@@ -6,7 +6,7 @@ export default function LandingFooterSection() {
   return (
     <footer className="mt-0">
       <section className="bg-[#1f1f22] text-white">
-        <div className="container-secub py-14 lg:py-16">
+        <div className="container-secub py-14 lg:py-10">
           <div className="grid gap-12 lg:grid-cols-[1.35fr_0.75fr_0.55fr] lg:items-start">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-10">
 
@@ -17,7 +17,7 @@ export default function LandingFooterSection() {
                   className="h-auto w-[240px] max-w-full object-contain"
                 />
               </div>
-              
+
               <div className="flex items-center">
                 <img
                   src={LogoUSBFooter}
@@ -34,7 +34,7 @@ export default function LandingFooterSection() {
                 Universidad de San Buenaventura
               </h3>
 
-              <div className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-white">
+              <div className="mt-2 space-y-0.1 text-[0.98rem] leading-5 text-white">
                 <p className="font-heading font-semibold">Dirección:</p>
                 <p>Cra 9 # 123 - 76 Of. 602 - 603</p>
 
