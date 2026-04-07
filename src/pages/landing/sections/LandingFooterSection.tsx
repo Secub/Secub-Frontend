@@ -1,6 +1,6 @@
 import { GoChevronUp } from "react-icons/go";
-import LogoUSBFooter   from "../../../assets/logos/logo-alta-calidad.png";
-import LogoAltaCalidad from "../../../assets/logos/logo-usb-footer.png";
+import LogoUsbFooter from "../../../assets/logos/logo-usb-footer.png";
+import LogoAltaCalidad from "../../../assets/logos/logo-alta-calidad.png";
 
 export default function LandingFooterSection() {
   return (
@@ -20,7 +20,7 @@ export default function LandingFooterSection() {
 
               <div className="flex items-center">
                 <img
-                  src={LogoUSBFooter}
+                  src={LogoUsbFooter}
                   alt="Universidad de San Buenaventura"
                   className="h-auto w-[300px] max-w-full object-contain"
                 />

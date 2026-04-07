@@ -1,4 +1,4 @@
-import LogoUSB from "../../../assets/logos/LogoUSB.png";
+import LogoUSB from "../../../assets/logos/logo-usb.png";
 import { Button } from "../../../components/ui";
 
 export default function LandingHeader() {

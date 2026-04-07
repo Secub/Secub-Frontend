@@ -8,7 +8,7 @@ import MapeoCompetenciasPage from "../pages/panel/mapeo-competencias/MapeoCompet
 import CicloPage from "../pages/panel/ciclo/CicloPage";
 import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
 import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
-import { ROUTES, normalizePathname } from "./routes";
+import { ROUTES, normalizePathname } from "./appRoutes";
 
 function isAccessRoute(pathname: string) {
   return (
