@@ -1,6 +1,6 @@
 import { GoChevronUp } from "react-icons/go";
-import LogoUSBFooter from "../../../assets/logos/LogoAltaCalidad.png";
-import LogoAltaCalidad from "../../../assets/logos/LogoUSBFooter.png";
+import LogoUSBFooter   from "../../../assets/logos/logo-alta-calidad.png";
+import LogoAltaCalidad from "../../../assets/logos/logo-usb-footer.png";
 
 export default function LandingFooterSection() {
   return (

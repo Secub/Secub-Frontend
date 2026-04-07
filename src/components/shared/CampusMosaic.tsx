@@ -1,7 +1,7 @@
-import seccionalCali from "../../assets/seccionales/Seccional-Cali.jpg";
-import seccionalMedellin from "../../assets/seccionales/Seccional-Medellin.jpg";
-import seccionalBogota from "../../assets/seccionales/Seccional-Bogota.jpg";
-import seccionalCartagena from "../../assets/seccionales/Seccional-Cartagena.webp";
+import seccionalCali     from "../../assets/seccionales/seccional-cali.jpg";
+import seccionalMedellin from "../../assets/seccionales/seccional-medellin.jpg";
+import seccionalBogota   from "../../assets/seccionales/seccional-bogota.jpg";
+import seccionalCartagena from "../../assets/seccionales/seccional-cartagena.webp";
 
 type CampusMosaicProps = {
   className?: string;
