@@ -12,7 +12,7 @@ export default function HeroSection() {
       </div>
 
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(134,0,95,0.82)_0%,rgba(179,0,110,0.80)_24%,rgba(209,58,90,0.68)_48%,rgba(240,106,47,0.68)_74%,rgba(248,129,29,0.72)_100%)]" />
-
+      
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_18%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.07),transparent_15%)]" />
 
       <div className="absolute inset-0">
@@ -38,12 +38,11 @@ export default function HeroSection() {
       <div className="container-secub relative z-10 flex min-h-[calc(100vh-80px)] items-center justify-center py-16 lg:py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="font-heading text-4xl font-semibold leading-[1.05] text-white md:text-6xl xl:text-7xl">
-            SECUB: Sistema de evalución Bonaventuriano
+            SECUB: Sistema de evalución Curricular Bonaventuriano
           </h1>
 
           <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/90 md:text-xl">
-            La plataforma de la Vicerrectoría Académica de la USB Cali apoya la
-            implementación del Decreto 1330 de 2019, facilitando la gestión,
+            La plataforma de medición de resultados de aprendizaje que responde al Decreto 1330 de 2019, facilitando la gestión,
             trazabilidad y medición de los procesos académicos asociados al
             aseguramiento de la calidad.
           </p>
