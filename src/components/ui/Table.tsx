@@ -1,0 +1,131 @@
+import type { ReactNode } from "react";
+
+export interface TableColumn<T> {
+  key: string;
+  title: string;
+  render: (row: T) => ReactNode;
+  className?: string;
+  headerClassName?: string;
+}
+
+export interface TableAction<T> {
+  key: string;
+  label: string;
+  onClick: (row: T) => void;
+  icon?: ReactNode;
+  show?: (row: T) => boolean;
+  variant?: "default" | "danger";
+}
+
+interface TableProps<T> {
+  columns: TableColumn<T>[];
+  data: T[];
+  rowKey: (row: T, index: number) => string;
+  actions?: TableAction<T>[];
+  emptyMessage?: string;
+}
+
+export function Table<T>({
+  columns,
+  data,
+  rowKey,
+  actions = [],
+  emptyMessage = "No hay datos disponibles.",
+}: TableProps<T>) {
+  const hasActions = actions.length > 0;
+
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-separate border-spacing-0">
+          <thead className="bg-[var(--color-surface-soft)]">
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={[
+                    "border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]",
+                    column.headerClassName ?? "",
+                  ].join(" ")}
+                >
+                  {column.title}
+                </th>
+              ))}
+
+              {hasActions ? (
+                <th className="border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
+                  Acciones
+                </th>
+              ) : null}
+            </tr>
+          </thead>
+
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length + (hasActions ? 1 : 0)}
+                  className="px-5 py-10 text-center text-sm text-[var(--color-gray-4)]"
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : (
+              data.map((row, index) => (
+                <tr key={rowKey(row, index)} className="bg-white">
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={[
+                        "border-b border-[var(--color-gray-6)] px-5 py-4 text-sm text-[var(--color-gray-2)] align-middle",
+                        column.className ?? "",
+                      ].join(" ")}
+                    >
+                      {column.render(row)}
+                    </td>
+                  ))}
+
+                  {hasActions ? (
+                    <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-middle">
+                      <div className="flex items-center gap-2">
+                        {actions.map((action) => {
+                          const isVisible = action.show ? action.show(row) : true;
+
+                          if (!isVisible) return null;
+
+                          return (
+                            <button
+                              key={action.key}
+                              type="button"
+                              onClick={() => action.onClick(row)}
+                              className={[
+                                "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200",
+                                action.variant === "danger"
+                                  ? "text-[var(--color-error)] hover:bg-[color:rgba(235,87,87,0.10)]"
+                                  : "text-[var(--color-gray-4)] hover:bg-[var(--color-surface-soft)]",
+                              ].join(" ")}
+                              aria-label={action.label}
+                              title={action.label}
+                            >
+                              {action.icon ?? (
+                                <span className="text-xs font-medium">
+                                  {action.label}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </td>
+                  ) : null}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export default Table;
