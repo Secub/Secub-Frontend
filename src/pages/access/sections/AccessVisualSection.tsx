@@ -3,13 +3,16 @@ import CampusMosaic from "../../../components/shared/CampusMosaic";
 export default function AccessVisualSection() {
   return (
     <section className="relative hidden min-h-screen overflow-hidden bg-[#f4f4f4] lg:block">
-      <div className="absolute inset-0 opacity-[0.24] mix-blend-multiply">
-        <CampusMosaic hideTitles layout="fill" className="h-full w-full" />
+      <div className="absolute inset-0">
+        <CampusMosaic
+          hideTitles
+          overlay={false}
+          layout="fill"
+          className="h-full w-full"
+        />
       </div>
 
-      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(134,0,95,0.82)_0%,rgba(179,0,110,0.80)_24%,rgba(209,58,90,0.68)_48%,rgba(240,106,47,0.68)_74%,rgba(248,129,29,0.72)_100%)]" />
-
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_18%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.07),transparent_15%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.82)_0%,rgba(0,0,0,0.72)_28%,rgba(0,0,0,0.48)_52%,rgba(0,0,0,0.18)_72%,rgba(0,0,0,0)_100%)]" />
 
       <div className="absolute inset-0">
         <div className="absolute left-[4%] top-[15%] h-[180px] w-[130px] rotate-[-8deg] rounded-full bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.7)_0px,rgba(255,255,255,0.7)_2px,transparent_2px,transparent_11px)] opacity-35" />

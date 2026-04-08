@@ -1,6 +1,6 @@
 import { GoGear, GoSignOut } from "react-icons/go";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
-
+import LogoSecub from "../../assets/logos/logo-secub.png";
 interface PanelSidebarProps {
   currentStep: PanelStepKey;
 }
@@ -12,19 +12,15 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
   return (
     <aside className="hidden h-screen w-[300px] shrink-0 flex-col border-r border-[var(--color-gray-6)] bg-white xl:flex">
       <div className="border-b border-[var(--color-gray-6)] px-6 py-6">
-        <a href="/panel/dashboard" className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-secondary-4)] text-lg font-bold text-white shadow-[0_12px_30px_rgba(24,34,51,0.18)]">
-            S
+        <div>
+            <a href="#inicio" className="flex items-center gap-3">
+              <img
+                src={LogoSecub}
+                alt="Universidad de San Buenaventura"
+                className="h-10 w-30 object-contain mx-auto"
+              />
+            </a>
           </div>
-          <div>
-            <p className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
-              SECUB
-            </p>
-            <p className="text-xs text-[var(--color-gray-4)]">
-              Sistema Bonaventuriano
-            </p>
-          </div>
-        </a>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-5">

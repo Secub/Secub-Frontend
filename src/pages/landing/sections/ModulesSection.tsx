@@ -1,29 +1,42 @@
 import SectionIntro from "./SectionIntro";
 
+import PerfilEgresoImg from "../../../assets/modulos/perfil-egreso.png";
+import PropositoFormacionImg from "../../../assets/modulos/proposito-formacion.png";
+import CompetenciasResultadosImg from "../../../assets/modulos/competencias-resultados.png";
+import MapeoCurricularImg from "../../../assets/modulos/mapeo-curricular.png";
+
 const services = [
   {
     step: "01",
     title: "Gestión de perfil de egreso",
     description:
       "Proceso institucional mediante el cual la universidad define, actualiza, implementa y evalúa las competencias, conocimientos, actitudes y valores que debe tener un estudiante al terminar su programa académico.",
+      image: PerfilEgresoImg,
+      alt: "Gestión de perfil de egreso",
   },
   {
     step: "02",
     title: "Propósito de formación",
     description:
       "Declara de forma clara para qué se forma un profesional en un programa académico y cuál es el perfil profesional que se busca desarrollar.",
+    image: PropositoFormacionImg,
+    alt: "Propósito de formación",
   },
   {
     step: "03",
     title: "Competencias y resultados de aprendizaje",
     description:
       "Organiza la estructura pedagógica del programa, conectando competencias y resultados de aprendizaje con el plan de estudios.",
+    image: CompetenciasResultadosImg,
+    alt: "Competencias y resultados de aprendizaje",
   },
   {
     step: "04",
     title: "Mapeo curricular y medición",
     description:
       "Relaciona competencias y resultados con las asignaturas del plan de estudios y permite recoger evidencias para medir el logro de los aprendizajes.",
+    image: MapeoCurricularImg,
+    alt: "Mapeo curricular y medición",
   },
 ];
 
@@ -31,16 +44,27 @@ function ServiceCard({
   step,
   title,
   description,
+  image,
+  alt,
 }: {
   step: string;
   title: string;
   description: string;
+  image: string;
+  alt: string;
 }) {
   return (
-    <article className="rounded-[28px] border border-[var(--color-gray-6)] bg-white p-6 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-8">
-      <div className="mb-6 flex items-center justify-between">
+    <article className="mx-auto w-full max-w-[520px] rounded-[28px] border border-[var(--color-gray-6)] bg-white p-5 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-6">  <div className="mb-6">
+        <img
+          src={image}
+          alt={alt}
+          className="mx-auto block h-auto w-60" 
+        />
+      </div>
+
+      <div className="mb-4 flex items-center justify-between">
         <span className="font-heading text-sm font-semibold tracking-[0.18em] text-[var(--color-primary)]">
-          PASO {step}
+          MODULO {step}
         </span>
 
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-lg font-semibold text-white">
@@ -58,7 +82,6 @@ function ServiceCard({
     </article>
   );
 }
-
 export default function ModulesSection() {
   return (
     <section

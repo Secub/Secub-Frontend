@@ -32,7 +32,6 @@ const campuses = [
 export default function CampusMosaic({
   className = "",
   hideTitles = false,
-  overlay = true,
   layout = "square",
 }: CampusMosaicProps) {
   const isFill = layout === "fill";
@@ -52,10 +51,6 @@ export default function CampusMosaic({
               alt={campus.title}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-
-            {overlay && (
-              <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(24,34,51,0.42),rgba(24,34,51,0.06),transparent)]" />
-            )}
 
             {!hideTitles && (
               <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">

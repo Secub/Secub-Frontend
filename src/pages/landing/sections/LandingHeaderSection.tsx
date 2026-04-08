@@ -1,4 +1,5 @@
 import LogoUSB from "../../../assets/logos/logo-usb.png";
+import LogoSecub from "../../../assets/logos/logo-secub.png";
 import { Button } from "../../../components/ui";
 
 export default function LandingHeader() {
@@ -11,10 +12,11 @@ export default function LandingHeader() {
             alt="Universidad de San Buenaventura"
             className="h-10 w-auto object-contain"
           />
-
-          <span className="font-heading text-xl font-semibold tracking-[0.04em] text-[var(--color-secondary-4)]">
-            SECUB
-          </span>
+           <img
+            src={LogoSecub}
+            alt="Universidad de San Buenaventura"
+            className="h-10 w-25 object-contain"
+          />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">
