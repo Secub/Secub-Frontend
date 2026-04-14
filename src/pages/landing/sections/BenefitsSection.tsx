@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import SectionIntro from "./SectionIntro";
 
 const benefits = [
@@ -21,12 +22,20 @@ const benefits = [
 function BenefitCard({
   title,
   description,
+  delay = 0,
 }: {
   title: string;
   description: string;
+  delay?: number;
 }) {
   return (
-    <article className="rounded-[28px] border border-[var(--color-gray-6)] bg-white p-8">
+    <motion.article
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.55, delay, ease: "easeOut" }}
+      className="rounded-[28px] border border-[var(--color-gray-6)] bg-white p-8"
+    >
       <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-lg font-semibold text-white">
         ✓
       </div>
@@ -38,7 +47,7 @@ function BenefitCard({
       <p className="mt-4 text-base leading-7 text-[var(--color-gray-3)]">
         {description}
       </p>
-    </article>
+    </motion.article>
   );
 }
 
@@ -46,15 +55,26 @@ export default function BenefitsSection() {
   return (
     <section id="beneficios" className="section-space">
       <div className="container-secub">
-        <SectionIntro
-          eyebrow="Beneficios"
-          title="Una plataforma pensada para hacer más claro el proceso"
-          description="SECUB permite que la información académica se gestione de forma ordenada y útil para el seguimiento institucional."
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+        >
+          <SectionIntro
+            eyebrow="Beneficios"
+            title="Una plataforma pensada para hacer más claro el proceso"
+            description="SECUB permite que la información académica se gestione de forma ordenada y útil para el seguimiento institucional."
+          />
+        </motion.div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {benefits.map((benefit) => (
-            <BenefitCard key={benefit.title} {...benefit} />
+          {benefits.map((benefit, index) => (
+            <BenefitCard
+              key={benefit.title}
+              {...benefit}
+              delay={index * 0.08}
+            />
           ))}
         </div>
       </div>

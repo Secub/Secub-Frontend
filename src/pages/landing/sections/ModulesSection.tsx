@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import SectionIntro from "./SectionIntro";
 
 import PerfilEgresoImg from "../../../assets/modulos/perfil-egreso.png";
@@ -46,15 +47,23 @@ function ServiceCard({
   description,
   image,
   alt,
+  delay = 0,
 }: {
   step: string;
   title: string;
   description: string;
   image: string;
   alt: string;
+  delay?: number;
 }) {
   return (
-    <article className="w-full rounded-[24px] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-5">
+    <motion.article
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.55, delay, ease: "easeOut" }}
+      className="w-full rounded-[24px] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-5"
+    >
       <div className="mb-5">
         <img
           src={image}
@@ -80,7 +89,7 @@ function ServiceCard({
       <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)] xl:text-[15px]">
         {description}
       </p>
-    </article>
+    </motion.article>
   );
 }
 
@@ -91,15 +100,26 @@ export default function ModulesSection() {
       className="section-space border-y border-[var(--color-gray-6)] bg-white"
     >
       <div className="container-secub">
-        <SectionIntro
-          eyebrow="Módulos principales"
-          title="Procesos que acompaña SECUB"
-          description="La plataforma reúne los componentes clave del proceso académico para facilitar una gestión más clara, conectada y trazable."
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+        >
+          <SectionIntro
+            eyebrow="Módulos principales"
+            title="Procesos que acompaña SECUB"
+            description="La plataforma reúne los componentes clave del proceso académico para facilitar una gestión más clara, conectada y trazable."
+          />
+        </motion.div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {services.map((service) => (
-            <ServiceCard key={service.step} {...service} />
+          {services.map((service, index) => (
+            <ServiceCard
+              key={service.step}
+              {...service}
+              delay={index * 0.08}
+            />
           ))}
         </div>
       </div>

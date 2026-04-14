@@ -1,12 +1,11 @@
 import { useState } from "react";
+import { motion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import SectionIntro from "./SectionIntro";
-
 
 import GestionEstructuradaImg from "../../../assets/modulos/gestion-estructurada.webp";
 import SeguimientoContinuoImg from "../../../assets/modulos/seguimiento-continuo.webp";
 import SoporteCalidadImg from "../../../assets/modulos/soporte-calidad_1.webp";
-
 
 type Slide = {
   title: string;
@@ -51,6 +50,11 @@ const slides: Slide[] = [
   },
 ];
 
+const viewportConfig = {
+  once: true,
+  amount: 0.2,
+};
+
 export default function AboutSection() {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -65,20 +69,36 @@ export default function AboutSection() {
   const activeSlide = slides[activeIndex];
 
   return (
-    <section
-      id="acerca"
-      className="section-space bg-[var(--color-gray-7)]"
-    >
+    <section id="acerca" className="section-space bg-[var(--color-gray-7)]">
       <div className="container-secub">
-        <SectionIntro
-          eyebrow="¿Qué es SECUB?"
-          title="Una plataforma para organizar, evaluar y dar seguimiento a los procesos académicos"
-          description="SECUB centraliza la gestión de perfil de egreso, propósito de formación, competencias, resultados de aprendizaje, mapeo curricular y medición, permitiendo una visión clara y estructurada de los procesos formativos."
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportConfig}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+        >
+          <SectionIntro
+            eyebrow="¿Qué es SECUB?"
+            title="Una plataforma para organizar, evaluar y dar seguimiento a los procesos académicos"
+            description="SECUB centraliza la gestión de perfil de egreso, propósito de formación, competencias, resultados de aprendizaje, mapeo curricular y medición, permitiendo una visión clara y estructurada de los procesos formativos."
+          />
+        </motion.div>
 
-        <div className="mt-12 overflow-hidden rounded-[28px] border border-[var(--color-gray-6)] bg-white shadow-[0_20px_50px_-36px_rgba(15,23,42,0.22)]">
+        <motion.div
+          className="mt-12 overflow-hidden rounded-[28px] border border-[var(--color-gray-6)] bg-white shadow-[0_20px_50px_-36px_rgba(15,23,42,0.22)]"
+          initial={{ opacity: 0, y: 36 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportConfig}
+          transition={{ duration: 0.6, delay: 0.08, ease: "easeOut" }}
+        >
           <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="relative min-h-[260px] overflow-hidden bg-[var(--color-gray-6)] sm:min-h-[320px] lg:min-h-[430px]">
+            <motion.div
+              className="relative min-h-[260px] overflow-hidden bg-[var(--color-gray-6)] sm:min-h-[320px] lg:min-h-[430px]"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={viewportConfig}
+              transition={{ duration: 0.55, delay: 0.12, ease: "easeOut" }}
+            >
               {slides.map((slide, index) => (
                 <img
                   key={slide.title}
@@ -111,9 +131,15 @@ export default function AboutSection() {
               >
                 <ChevronRight size={18} />
               </button>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col justify-center p-6 sm:p-7 lg:p-8">
+            <motion.div
+              className="flex flex-col justify-center p-6 sm:p-7 lg:p-8"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={viewportConfig}
+              transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
+            >
               <span className="inline-flex w-fit rounded-full bg-[var(--color-primary)]/10 px-3 py-1.5 text-sm font-semibold text-[var(--color-primary)]">
                 0{activeIndex + 1}
               </span>
@@ -127,18 +153,29 @@ export default function AboutSection() {
               </p>
 
               <div className="mt-6 space-y-3">
-                {activeSlide.highlights.map((item) => (
-                  <div key={item} className="flex items-start gap-3">
+                {activeSlide.highlights.map((item, index) => (
+                  <motion.div
+                    key={item}
+                    className="flex items-start gap-3"
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewportConfig}
+                    transition={{
+                      duration: 0.4,
+                      delay: 0.22 + index * 0.06,
+                      ease: "easeOut",
+                    }}
+                  >
                     <span className="mt-3 h-2 w-2 shrink-0 rounded-full bg-[var(--color-primary)]" />
                     <p className="text-base leading-7 text-[var(--color-gray-3)]">
                       {item}
                     </p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
