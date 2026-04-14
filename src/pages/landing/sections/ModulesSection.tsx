@@ -11,8 +11,8 @@ const services = [
     title: "Gestión de perfil de egreso",
     description:
       "Proceso institucional mediante el cual la universidad define, actualiza, implementa y evalúa las competencias, conocimientos, actitudes y valores que debe tener un estudiante al terminar su programa académico.",
-      image: PerfilEgresoImg,
-      alt: "Gestión de perfil de egreso",
+    image: PerfilEgresoImg,
+    alt: "Gestión de perfil de egreso",
   },
   {
     step: "02",
@@ -54,34 +54,36 @@ function ServiceCard({
   alt: string;
 }) {
   return (
-    <article className="mx-auto w-full max-w-[520px] rounded-[28px] border border-[var(--color-gray-6)] bg-white p-5 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-6">  <div className="mb-6">
+    <article className="w-full rounded-[24px] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-5">
+      <div className="mb-5">
         <img
           src={image}
           alt={alt}
-          className="mx-auto block h-auto w-60" 
+          className="mx-auto block h-auto w-40 lg:w-36 xl:w-40"
         />
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
-        <span className="font-heading text-sm font-semibold tracking-[0.18em] text-[var(--color-primary)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <span className="font-heading text-xs font-semibold tracking-[0.16em] text-[var(--color-primary)] sm:text-sm">
           MODULO {step}
         </span>
 
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-lg font-semibold text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-base font-semibold text-white">
           {step}
         </div>
       </div>
 
-      <h3 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
+      <h3 className="font-heading text-xl font-semibold leading-snug text-[var(--color-secondary-4)] xl:text-[22px]">
         {title}
       </h3>
 
-      <p className="mt-4 text-base leading-7 text-[var(--color-gray-3)]">
+      <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)] xl:text-[15px]">
         {description}
       </p>
     </article>
   );
 }
+
 export default function ModulesSection() {
   return (
     <section
@@ -95,7 +97,7 @@ export default function ModulesSection() {
           description="La plataforma reúne los componentes clave del proceso académico para facilitar una gestión más clara, conectada y trazable."
         />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-2">
+        <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {services.map((service) => (
             <ServiceCard key={service.step} {...service} />
           ))}
