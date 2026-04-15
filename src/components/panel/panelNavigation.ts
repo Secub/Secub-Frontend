@@ -71,7 +71,7 @@ export const panelNavigation: PanelNavigationItem[] = [
   },
   {
     key: "ciclo",
-    label: "Ciclo",
+    label: "Creación del ciclo",
     description: "Paso 5",
     href: "/panel/ciclo",
     icon: GoProject,

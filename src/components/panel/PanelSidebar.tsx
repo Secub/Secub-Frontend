@@ -1,117 +1,216 @@
-import { GoGear, GoSignOut } from "react-icons/go";
+import { useMemo } from "react";
+import {
+
+  GoChevronRight,
+
+
+} from "react-icons/go";
+import { HiCheck } from "react-icons/hi";
+import { LuCircleDot } from "react-icons/lu";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
-import LogoSecub from "../../assets/logos/logo-secub.png";
+import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
+
 interface PanelSidebarProps {
   currentStep: PanelStepKey;
 }
 
+type NavigationItem = (typeof panelNavigation)[number];
+
+const academicLabels = [
+  "Perfil de Egreso",
+  "Propósito de Formación",
+  "Competencias y RA",
+  "Mapeo de Competencias",
+  "Creación del ciclo",
+  "Asignar RA",
+];
+
 export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
-  const dashboardItem = panelNavigation[0];
-  const workflowSteps = panelNavigation.slice(1);
+  const dashboardItem =
+    panelNavigation.find((item) => item.label === "Dashboard") ??
+    panelNavigation[0];
+
+  const academicItems = academicLabels
+    .map((label) => panelNavigation.find((item) => item.label === label))
+    .filter((item): item is NavigationItem => Boolean(item));
+
+  const measurementItem = panelNavigation.find((item) => {
+    const label = item.label.toLowerCase();
+    return label === "medición ra" || label === "medicion ra";
+  });
+
+  const currentAcademicIndex = academicItems.findIndex(
+    (item) => item.key === currentStep,
+  );
+
+  const goTo = (href: string) => {
+    window.location.href = href;
+  };
+
+  const userName = "Usuario demo";
+
+  const academicProgress = useMemo(() => {
+    return academicItems.map((item, index) => {
+      const isCurrent = item.key === currentStep;
+      const isCompleted =
+        currentAcademicIndex !== -1 && index < currentAcademicIndex;
+      const isPending =
+        currentAcademicIndex === -1 || index > currentAcademicIndex;
+
+      return {
+        ...item,
+        stepNumber: index + 1,
+        isCurrent,
+        isCompleted,
+        isPending,
+      };
+    });
+  }, [academicItems, currentAcademicIndex, currentStep]);
 
   return (
-    <aside className="hidden h-screen w-[300px] shrink-0 flex-col border-r border-[var(--color-gray-6)] bg-white xl:flex">
-      <div className="border-b border-[var(--color-gray-6)] px-6 py-6">
-        <div>
-            <a href="#inicio" className="flex items-center gap-3">
-              <img
-                src={LogoSecub}
-                alt="Universidad de San Buenaventura"
-                className="h-10 w-30 object-contain mx-auto"
-              />
-            </a>
-          </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 py-5">
-        <a
-          href={dashboardItem.href}
-          className={[
-            "flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200",
-            currentStep === dashboardItem.key
-              ? "bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]"
-              : "text-[var(--color-gray-3)] hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)]",
-          ].join(" ")}
-        >
-          <dashboardItem.icon className="text-lg" />
-          <div>
-            <p className="text-sm font-semibold">{dashboardItem.label}</p>
-            <p className="text-xs opacity-70">{dashboardItem.description}</p>
-          </div>
-        </a>
-
-        <div className="mt-7">
-          <p className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-gray-4)]">
-            Workflow académico
-          </p>
-
-          <div className="mt-4 space-y-2">
-            {workflowSteps.map((item) => {
-              const isActive = currentStep === item.key;
-
-              return (
-                <a
-                  key={item.key}
-                  href={item.href}
-                  className={[
-                    "group flex items-start gap-3 rounded-2xl px-4 py-3 transition-all duration-200",
-                    isActive
-                      ? "bg-[color:rgba(14,101,217,0.10)]"
-                      : "hover:bg-[var(--color-surface-soft)]",
-                  ].join(" ")}
-                >
-                  <div
-                    className={[
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors duration-200",
-                      isActive
-                        ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-white"
-                        : "border-[var(--color-gray-6)] bg-white text-[var(--color-gray-4)] group-hover:border-[var(--color-secondary-2)] group-hover:text-[var(--color-secondary-1)]",
-                    ].join(" ")}
-                  >
-                    <item.icon className="text-lg" />
-                  </div>
-
-                  <div className="min-w-0 pt-0.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
-                      {item.description}
-                    </p>
-                    <p
-                      className={[
-                        "mt-1 text-sm font-medium leading-5",
-                        isActive
-                          ? "text-[var(--color-secondary-1)]"
-                          : "text-[var(--color-secondary-4)]",
-                      ].join(" ")}
-                    >
-                      {item.label}
-                    </p>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-[var(--color-gray-6)] p-4">
-        <div className="rounded-2xl border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
-          <p className="text-xs text-[var(--color-gray-4)]">Usuario actual</p>
-          <p className="mt-1 font-medium text-[var(--color-secondary-4)]">
-            Usuario Demo
-          </p>
-          <p className="mt-1 text-xs text-[var(--color-gray-4)]">
-            Director de Programa
-          </p>
+    <aside className="hidden h-screen w-[320px] shrink-0 flex-col bg-[#11203A] text-white xl:flex">
+      <div className="flex h-full flex-col overflow-hidden rounded-r-[32px] border-r border-white/10">
+        <div className="px-6 pb-6 pt-8">
+          <a href="#inicio" className="flex items-center gap-3">
+            <img
+              src={LogoSecub}
+              alt="SECUB"
+              className="h-10 w-auto object-contain"
+            />
+          </a>
         </div>
 
-        <div className="mt-4 space-y-1">
-          <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)]">
-            <GoGear className="text-lg" />
-            Configuración
-          </button>
-          <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--color-gray-3)] transition-colors hover:bg-[color:rgba(235,87,87,0.08)] hover:text-[var(--color-error)]">
-            <GoSignOut className="text-lg" />
-            Cerrar sesión
+        <div className="sidebar-scroll flex-1 overflow-y-auto px-6 pb-6">
+          <nav className="space-y-6">
+            <button
+              type="button"
+              onClick={() => goTo(dashboardItem.href)}
+              className={[
+                "flex w-full items-center rounded-full px-5 py-3 text-left text-[1rem] font-medium transition-colors",
+                currentStep === dashboardItem.key
+                  ? "bg-[#E8EBF3] text-[#0E65D9]"
+                  : "text-[#D8DFEC] hover:bg-white/10",
+              ].join(" ")}
+            >
+              Dashboard
+            </button>
+
+            <div>
+              <button
+                type="button"
+                onClick={() => academicItems[0] && goTo(academicItems[0].href)}
+                className="text-left text-[1.05rem] font-medium text-[#D8DFEC] transition-colors hover:text-white"
+              >
+                Gestión Académica
+              </button>
+
+              <div className="mt-6 pl-12">
+                <div className="space-y-0">
+                  {academicProgress.map((item, index) => {
+                    const ItemIcon = item.icon;
+                    const showConnector = index < academicProgress.length - 1;
+
+                    return (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => goTo(item.href)}
+                        className="group flex w-full items-start gap-4 text-left"
+                      >
+                        <div className="flex w-8 flex-col items-center">
+                          <div
+                            className={[
+                              "flex h-7 w-7 items-center justify-center rounded-full border transition-colors",
+                              item.isCompleted
+                                ? "border-[#27D7B0] bg-[#27D7B0] text-[#11203A]"
+                                : item.isCurrent
+                                  ? "border-[#0E65D9] bg-[#0E65D9] text-white"
+                                  : "border-[#D9DDE5] bg-transparent text-[#D9DDE5]",
+                            ].join(" ")}
+                          >
+                            {item.isCompleted ? (
+                              <HiCheck className="text-base" />
+                            ) : item.isCurrent ? (
+                              <ItemIcon className="text-[0.9rem]" />
+                            ) : (
+                              <LuCircleDot className="text-[0.9rem]" />
+                            )}
+                          </div>
+
+                          {showConnector && (
+                            <div
+                              className={[
+                                "my-1 h-8 w-px",
+                                item.isCompleted || item.isCurrent
+                                  ? "bg-[#27D7B0]"
+                                  : "bg-[#D9DDE5]",
+                              ].join(" ")}
+                            />
+                          )}
+                        </div>
+
+                        <div className="pt-0.5">
+                          <p className="text-[0.52rem] uppercase tracking-[0.16em] text-white/55">
+                            Paso {item.stepNumber}
+                          </p>
+                          <p
+                            className={[
+                              "max-w-[150px] text-[1rem] leading-[1.2] transition-colors",
+                              item.isCurrent
+                                ? "text-white"
+                                : "text-[#D8DFEC] group-hover:text-white",
+                            ].join(" ")}
+                          >
+                            {item.label}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {measurementItem && (
+              <button
+                type="button"
+                onClick={() => goTo(measurementItem.href)}
+                className={[
+                  "flex w-full items-center rounded-full px-5 py-3 text-left text-[1rem] font-medium transition-colors",
+                  currentStep === measurementItem.key
+                    ? "bg-[#E8EBF3] text-[#0E65D9]"
+                    : "text-[#D8DFEC] hover:bg-white/10 hover:text-white",
+                ].join(" ")}
+              >
+                Medición RA
+              </button>
+            )}
+
+
+          </nav>
+        </div>
+
+
+
+        <div className="mt-auto border-t border-white/20 px-6 py-5">
+          <button
+            type="button"
+            className="flex w-full items-center gap-4 rounded-2xl transition-colors hover:bg-white/5"
+          >
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-[#FFC928] text-[#11203A]">
+              <span className="text-lg font-bold">
+                {userName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-sm text-[#D8DFEC]">Bienvenido de nuevo</p>
+              <p className="truncate text-[1.1rem] font-medium text-white">
+                {userName}
+              </p>
+            </div>
+
+            <GoChevronRight className="text-lg text-white/70" />
           </button>
         </div>
       </div>
