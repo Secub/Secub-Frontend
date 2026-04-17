@@ -1,10 +1,5 @@
 import { useMemo } from "react";
-import {
-
-  GoChevronRight,
-
-
-} from "react-icons/go";
+import { GoChevronRight } from "react-icons/go";
 import { HiCheck } from "react-icons/hi";
 import { LuCircleDot } from "react-icons/lu";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
@@ -68,9 +63,8 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
   }, [academicItems, currentAcademicIndex, currentStep]);
 
   return (
-    <aside className="hidden h-screen w-[320px] shrink-0 flex-col bg-[#11203A] text-white xl:flex">
-      <div className="flex h-full flex-col overflow-hidden rounded-r-[32px] border-r border-white/10">
-        <div className="px-6 pb-6 pt-8">
+    <aside className="sticky top-0 hidden h-screen w-[320px] shrink-0 self-start xl:flex">
+      <div className="flex h-screen w-full flex-col overflow-hidden border-r border-white/10 bg-[#11203A] text-white"> <div className="px-6 pb-6 pt-8">
           <a href="#inicio" className="flex items-center gap-3">
             <img
               src={LogoSecub}
@@ -185,12 +179,8 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                 Medición RA
               </button>
             )}
-
-
           </nav>
         </div>
-
-
 
         <div className="mt-auto border-t border-white/20 px-6 py-5">
           <button

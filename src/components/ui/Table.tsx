@@ -14,6 +14,8 @@ export interface TableAction<T> {
   onClick: (row: T) => void;
   icon?: ReactNode;
   show?: (row: T) => boolean;
+  disabled?: (row: T) => boolean;
+  disabledReason?: (row: T) => string;
   variant?: "default" | "danger";
 }
 
@@ -93,19 +95,33 @@ export function Table<T>({
 
                           if (!isVisible) return null;
 
+                          const isDisabled = action.disabled
+                            ? action.disabled(row)
+                            : false;
+
+                          const title = isDisabled
+                            ? action.disabledReason?.(row) ?? action.label
+                            : action.label;
+
                           return (
                             <button
                               key={action.key}
                               type="button"
-                              onClick={() => action.onClick(row)}
+                              onClick={() => {
+                                if (!isDisabled) {
+                                  action.onClick(row);
+                                }
+                              }}
+                              disabled={isDisabled}
                               className={[
                                 "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200",
+                                "disabled:cursor-not-allowed disabled:opacity-45",
                                 action.variant === "danger"
                                   ? "text-[var(--color-error)] hover:bg-[color:rgba(235,87,87,0.10)]"
                                   : "text-[var(--color-gray-4)] hover:bg-[var(--color-surface-soft)]",
                               ].join(" ")}
-                              aria-label={action.label}
-                              title={action.label}
+                              aria-label={title}
+                              title={title}
                             >
                               {action.icon ?? (
                                 <span className="text-xs font-medium">

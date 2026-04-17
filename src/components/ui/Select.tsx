@@ -22,6 +22,7 @@ export function Select({
   helperText,
   id,
   className = "",
+  value,
   ...props
 }: SelectProps) {
   const generatedId = React.useId();
@@ -46,7 +47,7 @@ export function Select({
         <select
           id={selectId}
           aria-invalid={!!error}
-          defaultValue=""
+          value={value}
           className={[
             "w-full appearance-none rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
             "focus:outline-none focus:ring-4",
@@ -56,9 +57,7 @@ export function Select({
           ].join(" ")}
           {...props}
         >
-          <option value="" disabled>
-            {placeholder}
-          </option>
+          <option value="">{placeholder}</option>
 
           {options.map((option) => (
             <option key={option.value} value={option.value}>
