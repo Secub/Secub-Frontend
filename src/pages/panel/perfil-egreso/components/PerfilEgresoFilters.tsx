@@ -1,40 +1,33 @@
 import { GoX } from "react-icons/go";
 import { Button, Select } from "../../../../components/ui";
 import type {
-  CurrentUser,
-  PropositoEnriched,
-  PropositoFilters as PropositoFiltersState,
+  PerfilEgresoFilters as PerfilEgresoFiltersState,
   RolePermissions,
-} from "../proposito-formacion.types";
+} from "../perfil-egreso.types";
 
-interface PropositoFiltersProps {
-  user: CurrentUser;
+interface PerfilEgresoFiltersProps {
   permissions: RolePermissions;
-  filters: PropositoFiltersState;
+  filters: PerfilEgresoFiltersState;
   filterOptions: {
     seccionales: { id: string; nombre: string }[];
     facultades: { id: string; nombre: string }[];
-    lugares: { id: string; nombre: string }[];
     programas: { id: string; nombre: string }[];
     planes: { id: string; nombre: string }[];
   };
-  filteredCount: number;
-  totalCount: number;
-  onFilterChange: <K extends keyof PropositoFiltersState>(
+  onFilterChange: <K extends keyof PerfilEgresoFiltersState>(
     key: K,
-    value: PropositoFiltersState[K],
+    value: PerfilEgresoFiltersState[K],
   ) => void;
   onReset: () => void;
-  activeRecords: PropositoEnriched[];
 }
 
-export function PropositoFilters({
+export function PerfilEgresoFilters({
   permissions,
   filters,
   filterOptions,
   onFilterChange,
   onReset,
-}: PropositoFiltersProps) {
+}: PerfilEgresoFiltersProps) {
   return (
     <div className="surface-card p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -43,7 +36,7 @@ export function PropositoFilters({
             Filtros
           </h3>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Ajusta la lista según el alcance permitido para el usuario en sesión.
+            Visualiza y filtra los perfiles de egreso según el alcance del rol autenticado.
           </p>
         </div>
 
@@ -57,14 +50,12 @@ export function PropositoFilters({
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-5">
         {permissions.canFilterBySeccional ? (
           <Select
-            label="Seccional"
+            label="Lugar de desarrollo"
             value={filters.seccionalId}
-            onChange={(event) =>
-              onFilterChange("seccionalId", event.target.value)
-            }
+            onChange={(event) => onFilterChange("seccionalId", event.target.value)}
             options={filterOptions.seccionales.map((item) => ({
               label: item.nombre,
               value: item.id,
@@ -77,9 +68,7 @@ export function PropositoFilters({
           <Select
             label="Facultad"
             value={filters.facultadId}
-            onChange={(event) =>
-              onFilterChange("facultadId", event.target.value)
-            }
+            onChange={(event) => onFilterChange("facultadId", event.target.value)}
             options={filterOptions.facultades.map((item) => ({
               label: item.nombre,
               value: item.id,
@@ -88,24 +77,11 @@ export function PropositoFilters({
           />
         ) : null}
 
-        <Select
-          label="Lugar de desarrollo"
-          value={filters.lugarId}
-          onChange={(event) => onFilterChange("lugarId", event.target.value)}
-          options={filterOptions.lugares.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Todos los lugares"
-        />
-
         {permissions.canFilterByPrograma ? (
           <Select
             label="Programa académico"
             value={filters.programaId}
-            onChange={(event) =>
-              onFilterChange("programaId", event.target.value)
-            }
+            onChange={(event) => onFilterChange("programaId", event.target.value)}
             options={filterOptions.programas.map((item) => ({
               label: item.nombre,
               value: item.id,
@@ -134,7 +110,7 @@ export function PropositoFilters({
             onChange={(event) =>
               onFilterChange(
                 "estado",
-                event.target.value as PropositoFiltersState["estado"],
+                event.target.value as PerfilEgresoFiltersState["estado"],
               )
             }
             options={[
@@ -149,4 +125,4 @@ export function PropositoFilters({
   );
 }
 
-export default PropositoFilters;
+export default PerfilEgresoFilters;

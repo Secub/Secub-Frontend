@@ -2,16 +2,15 @@ import type {
   Catalogs,
   CurrentUser,
   FormState,
-  PropositoEnriched,
-  PropositoEstado,
-  PropositoFilters,
-  PropositoFormacionRecord,
-} from "./proposito-formacion.types";
+  PerfilEgresoEnriched,
+  PerfilEgresoEstado,
+  PerfilEgresoFilters,
+  PerfilEgresoRecord,
+} from "./perfil-egreso.types";
 
-export const INITIAL_FILTERS: PropositoFilters = {
+export const INITIAL_FILTERS: PerfilEgresoFilters = {
   seccionalId: "",
   facultadId: "",
-  lugarId: "",
   programaId: "",
   planId: "",
   estado: "",
@@ -25,10 +24,10 @@ export function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export function enrichPropositos(
-  records: PropositoFormacionRecord[],
+export function enrichPerfilesEgreso(
+  records: PerfilEgresoRecord[],
   catalogs: Catalogs,
-): PropositoEnriched[] {
+): PerfilEgresoEnriched[] {
   return records.map((record) => {
     const seccional = catalogs.seccionales.find(
       (item) => item.id === record.seccionalId,
@@ -36,7 +35,6 @@ export function enrichPropositos(
     const facultad = catalogs.facultades.find(
       (item) => item.id === record.facultadId,
     );
-    const lugar = catalogs.lugares.find((item) => item.id === record.lugarId);
     const programa = catalogs.programas.find(
       (item) => item.id === record.programaId,
     );
@@ -44,10 +42,8 @@ export function enrichPropositos(
 
     return {
       ...record,
-      lugarId: record.lugarId ?? "",
       seccionalNombre: seccional?.nombre ?? "Sin seccional",
       facultadNombre: facultad?.nombre ?? "Sin facultad",
-      lugarNombre: lugar?.nombre ?? "Sin lugar",
       programaNombre: programa?.nombre ?? "Sin programa",
       planNombre: plan?.nombre ?? "Sin plan",
     };
@@ -55,9 +51,9 @@ export function enrichPropositos(
 }
 
 export function applyRoleScope(
-  records: PropositoEnriched[],
+  records: PerfilEgresoEnriched[],
   user: CurrentUser,
-): PropositoEnriched[] {
+): PerfilEgresoEnriched[] {
   return records.filter((record) => {
     if (user.scope.seccionalId && record.seccionalId !== user.scope.seccionalId) {
       return false;
@@ -76,16 +72,14 @@ export function applyRoleScope(
 }
 
 export function applyFilters(
-  records: PropositoEnriched[],
-  filters: PropositoFilters,
-): PropositoEnriched[] {
+  records: PerfilEgresoEnriched[],
+  filters: PerfilEgresoFilters,
+): PerfilEgresoEnriched[] {
   return records.filter((record) => {
     const matchesSeccional =
       !filters.seccionalId || record.seccionalId === filters.seccionalId;
     const matchesFacultad =
       !filters.facultadId || record.facultadId === filters.facultadId;
-    const matchesLugar =
-      !filters.lugarId || record.lugarId === filters.lugarId;
     const matchesPrograma =
       !filters.programaId || record.programaId === filters.programaId;
     const matchesPlan = !filters.planId || record.planId === filters.planId;
@@ -94,7 +88,6 @@ export function applyFilters(
     return (
       matchesSeccional &&
       matchesFacultad &&
-      matchesLugar &&
       matchesPrograma &&
       matchesPlan &&
       matchesEstado
@@ -103,9 +96,9 @@ export function applyFilters(
 }
 
 export function buildAvailableFilters(
-  records: PropositoEnriched[],
+  records: PerfilEgresoEnriched[],
   catalogs: Catalogs,
-  filters: PropositoFilters,
+  filters: PerfilEgresoFilters,
 ) {
   const seccionales = catalogs.seccionales.filter((item) =>
     records.some((record) => record.seccionalId === item.id),
@@ -117,24 +110,6 @@ export function buildAvailableFilters(
     }
 
     return records.some((record) => record.facultadId === item.id);
-  });
-
-  const lugares = catalogs.lugares.filter((item) => {
-    return records.some((record) => {
-      if (filters.seccionalId && record.seccionalId !== filters.seccionalId) {
-        return false;
-      }
-
-      if (filters.facultadId && record.facultadId !== filters.facultadId) {
-        return false;
-      }
-
-      if (filters.programaId && record.programaId !== filters.programaId) {
-        return false;
-      }
-
-      return record.lugarId === item.id;
-    });
   });
 
   const programas = catalogs.programas.filter((item) => {
@@ -159,10 +134,6 @@ export function buildAvailableFilters(
         return false;
       }
 
-      if (filters.lugarId && record.lugarId !== filters.lugarId) {
-        return false;
-      }
-
       if (filters.programaId && record.programaId !== filters.programaId) {
         return false;
       }
@@ -174,23 +145,21 @@ export function buildAvailableFilters(
   return {
     seccionales,
     facultades,
-    lugares,
     programas,
     planes,
   };
 }
 
 export function sanitizeFilters(
-  filters: PropositoFilters,
+  filters: PerfilEgresoFilters,
   available: ReturnType<typeof buildAvailableFilters>,
-): PropositoFilters {
+): PerfilEgresoFilters {
   const hasSeccional = available.seccionales.some(
     (item) => item.id === filters.seccionalId,
   );
   const hasFacultad = available.facultades.some(
     (item) => item.id === filters.facultadId,
   );
-  const hasLugar = available.lugares.some((item) => item.id === filters.lugarId);
   const hasPrograma = available.programas.some(
     (item) => item.id === filters.programaId,
   );
@@ -200,7 +169,6 @@ export function sanitizeFilters(
     ...filters,
     seccionalId: hasSeccional ? filters.seccionalId : "",
     facultadId: hasFacultad ? filters.facultadId : "",
-    lugarId: hasLugar ? filters.lugarId : "",
     programaId: hasPrograma ? filters.programaId : "",
     planId: hasPlan ? filters.planId : "",
   };
@@ -217,7 +185,7 @@ export function getEmptyFormState(user: CurrentUser): FormState {
   };
 }
 
-export function mapRecordToForm(record: PropositoEnriched): FormState {
+export function mapRecordToForm(record: PerfilEgresoEnriched): FormState {
   return {
     seccionalId: record.seccionalId,
     facultadId: record.facultadId,
@@ -230,15 +198,14 @@ export function mapRecordToForm(record: PropositoEnriched): FormState {
 
 export function buildRecordFromForm(
   form: FormState,
-  original: PropositoEnriched | null,
-): PropositoFormacionRecord {
+  original: PerfilEgresoEnriched | null,
+): PerfilEgresoRecord {
   const now = new Date().toISOString();
 
   return {
-    id: original?.id ?? `pf-${Math.random().toString(36).slice(2, 8)}`,
+    id: original?.id ?? `pe-${Math.random().toString(36).slice(2, 8)}`,
     seccionalId: form.seccionalId,
     facultadId: form.facultadId,
-    lugarId: original?.lugarId ?? form.seccionalId,
     programaId: form.programaId,
     planId: form.planId,
     estado: form.estado,
@@ -248,16 +215,15 @@ export function buildRecordFromForm(
   };
 }
 
-export function getEstadoBadgeVariant(estado: PropositoEstado) {
+export function getEstadoBadgeVariant(estado: PerfilEgresoEstado) {
   return estado === "activo" ? "success" : "neutral";
 }
 
-export function buildCsvLikeExcel(records: PropositoEnriched[]) {
+export function buildCsvLikeExcel(records: PerfilEgresoEnriched[]) {
   const rows = [
     [
       "Seccional",
       "Facultad",
-      "Lugar de desarrollo",
       "Programa académico",
       "Plan de estudio",
       "Estado",
@@ -266,7 +232,6 @@ export function buildCsvLikeExcel(records: PropositoEnriched[]) {
     ...records.map((record) => [
       record.seccionalNombre,
       record.facultadNombre,
-      record.lugarNombre,
       record.programaNombre,
       record.planNombre,
       record.estado,
@@ -288,12 +253,11 @@ function escapePdfText(value: string) {
     .replace(/\)/g, "\\)");
 }
 
-export function buildSimplePdf(records: PropositoEnriched[], title: string) {
+export function buildSimplePdf(records: PerfilEgresoEnriched[], title: string) {
   const lines = [title, " "];
 
   records.forEach((record, index) => {
     lines.push(`${index + 1}. ${record.programaNombre} - ${record.planNombre}`);
-    lines.push(`Lugar: ${record.lugarNombre}`);
     lines.push(`Estado: ${record.estado}`);
     lines.push(record.descripcion.slice(0, 90));
     lines.push(" ");

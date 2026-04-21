@@ -18,6 +18,11 @@ export interface Facultad {
   seccionalId: string;
 }
 
+export interface LugarDesarrollo {
+  id: string;
+  nombre: string;
+}
+
 export interface ProgramaAcademico {
   id: string;
   nombre: string;
@@ -30,19 +35,15 @@ export interface PlanEstudio {
   nombre: string;
 }
 
-export interface PropositoFormacionRecord {
-  id: string;
-  seccionalId: string;
-  facultadId: string;
-  programaId: string;
-  planId: string;
-  estado: PropositoEstado;
-  descripcion: string;
-  createdAt: string;
-  updatedAt: string;
+export interface Catalogs {
+  seccionales: Seccional[];
+  facultades: Facultad[];
+  lugares: LugarDesarrollo[];
+  programas: ProgramaAcademico[];
+  planes: PlanEstudio[];
 }
 
-export interface CurrentUserScope {
+export interface UserScope {
   seccionalId?: string;
   facultadId?: string;
   programaId?: string;
@@ -53,15 +54,46 @@ export interface CurrentUser {
   nombre: string;
   cargo: string;
   role: PropositoFormacionRole;
-  scope: CurrentUserScope;
+  scope: UserScope;
+}
+
+export interface PropositoFormacionRecord {
+  id: string;
+  seccionalId: string;
+  facultadId: string;
+  lugarId?: string;
+  programaId: string;
+  planId: string;
+  estado: PropositoEstado;
+  descripcion: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PropositoEnriched extends PropositoFormacionRecord {
+  seccionalNombre: string;
+  facultadNombre: string;
+  lugarNombre: string;
+  programaNombre: string;
+  planNombre: string;
 }
 
 export interface PropositoFilters {
   seccionalId: string;
   facultadId: string;
+  lugarId: string;
   programaId: string;
   planId: string;
   estado: "" | PropositoEstado;
+}
+
+export interface FormState {
+  seccionalId: string;
+  facultadId: string;
+  programaId: string;
+  planId: string;
+  estado: PropositoEstado;
+  descripcion: string;
 }
 
 export interface RolePermissions {
@@ -76,27 +108,4 @@ export interface RolePermissions {
   canFilterByPrograma: boolean;
   canFilterByPlan: boolean;
   canFilterByEstado: boolean;
-}
-
-export interface PropositoEnriched extends PropositoFormacionRecord {
-  seccionalNombre: string;
-  facultadNombre: string;
-  programaNombre: string;
-  planNombre: string;
-}
-
-export interface Catalogs {
-  seccionales: Seccional[];
-  facultades: Facultad[];
-  programas: ProgramaAcademico[];
-  planes: PlanEstudio[];
-}
-
-export interface FormState {
-  seccionalId: string;
-  facultadId: string;
-  programaId: string;
-  planId: string;
-  estado: PropositoEstado;
-  descripcion: string;
 }
