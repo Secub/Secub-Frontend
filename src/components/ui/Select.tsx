@@ -33,7 +33,7 @@ export function Select({
     : "border-[var(--color-gray-6)] focus:border-[var(--color-secondary-1)] focus:ring-[color:rgba(14,101,217,0.16)]";
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0">
       {label ? (
         <label
           htmlFor={selectId}
@@ -43,13 +43,13 @@ export function Select({
         </label>
       ) : null}
 
-      <div className="relative">
+      <div className="relative min-w-0">
         <select
           id={selectId}
           aria-invalid={!!error}
           value={value}
           className={[
-            "w-full appearance-none rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
+            "w-full min-w-0 appearance-none rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
             "focus:outline-none focus:ring-4",
             "disabled:cursor-not-allowed disabled:bg-[var(--color-gray-7)] disabled:text-[var(--color-gray-4)]",
             stateClass,
@@ -72,7 +72,9 @@ export function Select({
       {error ? (
         <p className="mt-1.5 text-sm text-[var(--color-error)]">{error}</p>
       ) : helperText ? (
-        <p className="mt-1.5 text-sm text-[var(--color-gray-4)]">{helperText}</p>
+        <p className="mt-1.5 text-sm text-[var(--color-gray-4)]">
+          {helperText}
+        </p>
       ) : null}
     </div>
   );

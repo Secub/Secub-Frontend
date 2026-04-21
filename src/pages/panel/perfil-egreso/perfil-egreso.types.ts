@@ -12,6 +12,12 @@ export interface Seccional {
   nombre: string;
 }
 
+export interface LugarDesarrollo {
+  id: string;
+  nombre: string;
+  seccionalId: string;
+}
+
 export interface Facultad {
   id: string;
   nombre: string;
@@ -33,6 +39,7 @@ export interface PlanEstudio {
 export interface PerfilEgresoRecord {
   id: string;
   seccionalId: string;
+  lugarId: string;
   facultadId: string;
   programaId: string;
   planId: string;
@@ -58,6 +65,7 @@ export interface CurrentUser {
 
 export interface PerfilEgresoFilters {
   seccionalId: string;
+  lugarId: string;
   facultadId: string;
   programaId: string;
   planId: string;
@@ -80,6 +88,7 @@ export interface RolePermissions {
 
 export interface PerfilEgresoEnriched extends PerfilEgresoRecord {
   seccionalNombre: string;
+  lugarNombre: string;
   facultadNombre: string;
   programaNombre: string;
   planNombre: string;
@@ -87,6 +96,7 @@ export interface PerfilEgresoEnriched extends PerfilEgresoRecord {
 
 export interface Catalogs {
   seccionales: Seccional[];
+  lugares: LugarDesarrollo[];
   facultades: Facultad[];
   programas: ProgramaAcademico[];
   planes: PlanEstudio[];
@@ -94,6 +104,7 @@ export interface Catalogs {
 
 export interface FormState {
   seccionalId: string;
+  lugarId: string;
   facultadId: string;
   programaId: string;
   planId: string;

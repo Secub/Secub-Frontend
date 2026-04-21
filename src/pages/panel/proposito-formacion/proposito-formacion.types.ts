@@ -21,6 +21,7 @@ export interface Facultad {
 export interface LugarDesarrollo {
   id: string;
   nombre: string;
+  seccionalId: string;
 }
 
 export interface ProgramaAcademico {
@@ -61,7 +62,7 @@ export interface PropositoFormacionRecord {
   id: string;
   seccionalId: string;
   facultadId: string;
-  lugarId?: string;
+  lugarId: string;
   programaId: string;
   planId: string;
   estado: PropositoEstado;
@@ -90,6 +91,7 @@ export interface PropositoFilters {
 export interface FormState {
   seccionalId: string;
   facultadId: string;
+  lugarId: string;
   programaId: string;
   planId: string;
   estado: PropositoEstado;

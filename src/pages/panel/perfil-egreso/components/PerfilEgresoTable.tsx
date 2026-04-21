@@ -38,30 +38,40 @@ export function PerfilEgresoTable({
     {
       key: "facultad",
       title: "Facultad",
-      render: (row) => <span>{row.facultadNombre}</span>,
-      className: "min-w-[180px]",
+      render: (row) => (
+        <span className="panel-table-cell-wrap">{row.facultadNombre}</span>
+      ),
+      className: "w-[16%]",
+      headerClassName: "w-[16%]",
     },
     {
       key: "programa",
       title: "Programa académico",
-      render: (row) => <span>{row.programaNombre}</span>,
-      className: "min-w-[220px]",
+      render: (row) => (
+        <span className="panel-table-cell-wrap">{row.programaNombre}</span>
+      ),
+      className: "w-[20%]",
+      headerClassName: "w-[20%]",
     },
     {
       key: "plan",
       title: "Plan de estudios",
-      render: (row) => <span>{row.planNombre}</span>,
-      className: "min-w-[150px]",
+      render: (row) => (
+        <span className="panel-table-cell-wrap">{row.planNombre}</span>
+      ),
+      className: "w-[14%]",
+      headerClassName: "w-[14%]",
     },
     {
       key: "descripcion",
       title: "Descripción",
       render: (row) => (
-        <p className="max-w-[460px] text-sm leading-6 text-[var(--color-gray-3)]">
+        <p className="panel-table-cell-wrap text-sm leading-6 text-[var(--color-gray-3)]">
           {row.descripcion}
         </p>
       ),
-      className: "min-w-[360px]",
+      className: "w-[38%]",
+      headerClassName: "w-[38%]",
     },
     {
       key: "estado",
@@ -71,7 +81,8 @@ export function PerfilEgresoTable({
           {row.estado === "activo" ? "Activo" : "Inactivo"}
         </Badge>
       ),
-      className: "min-w-[120px]",
+      className: "w-[12%] whitespace-nowrap",
+      headerClassName: "w-[12%]",
     },
   ];
 
@@ -91,7 +102,6 @@ export function PerfilEgresoTable({
       disabledReason: (row) => getEditDisabledReason(role, row),
       show: () => permissions.canUpdate,
     },
-    
     {
       key: "delete",
       label: "Eliminar perfil",
@@ -100,7 +110,6 @@ export function PerfilEgresoTable({
       show: () => canDeletePerfil(role),
       variant: "danger",
     },
-
   ];
 
   return (

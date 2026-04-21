@@ -56,7 +56,7 @@ export const rolePermissions: Record<PropositoFormacionRole, RolePermissions> = 
     canRead: true,
     canCreate: true,
     canUpdate: true,
-    canDelete: true,
+    canDelete: false,
     canExportPdf: true,
     canExportExcel: true,
     canFilterBySeccional: false,

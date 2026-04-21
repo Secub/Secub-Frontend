@@ -3,6 +3,7 @@ import type {
   Catalogs,
   CurrentUser,
   Facultad,
+  LugarDesarrollo,
   PerfilEgresoRecord,
   PerfilEgresoRole,
   PlanEstudio,
@@ -14,9 +15,18 @@ export const DEFAULT_ROLE: PerfilEgresoRole = "admin";
 
 export const seccionales: Seccional[] = [
   { id: "cali", nombre: "Seccional Cali" },
-  { id: "bogota", nombre: "Seccional Bogotá" },
+  { id: "bogota", nombre: "Sede Bogotá" },
   { id: "medellin", nombre: "Seccional Medellín" },
   { id: "cartagena", nombre: "Seccional Cartagena" },
+];
+
+export const lugares: LugarDesarrollo[] = [
+  { id: "cali", nombre: "Cali", seccionalId: "cali" },
+  { id: "bogota", nombre: "Bogotá", seccionalId: "bogota" },
+  { id: "medellin", nombre: "Medellín", seccionalId: "medellin" },
+  { id: "bello", nombre: "Bello", seccionalId: "medellin" },
+  { id: "armenia", nombre: "Armenia", seccionalId: "medellin" },
+  { id: "cartagena", nombre: "Cartagena", seccionalId: "cartagena" },
 ];
 
 export const facultades: Facultad[] = [
@@ -90,6 +100,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-001",
     seccionalId: "cali",
+    lugarId: "cali",
     facultadId: "ing-cali",
     programaId: "sis-cali",
     planId: "plan-2024-2",
@@ -102,6 +113,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-002",
     seccionalId: "cali",
+    lugarId: "cali",
     facultadId: "ing-cali",
     programaId: "ind-cali",
     planId: "plan-2024-2",
@@ -114,6 +126,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-003",
     seccionalId: "cali",
+    lugarId: "cali",
     facultadId: "artes-cali",
     programaId: "danza-cali",
     planId: "plan-2024-1",
@@ -126,6 +139,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-004",
     seccionalId: "bogota",
+    lugarId: "bogota",
     facultadId: "ing-bog",
     programaId: "sis-bog",
     planId: "plan-2024-2",
@@ -138,6 +152,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-005",
     seccionalId: "bogota",
+    lugarId: "bogota",
     facultadId: "ing-bog",
     programaId: "multimedia-bog",
     planId: "plan-2024-2",
@@ -150,6 +165,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-006",
     seccionalId: "bogota",
+    lugarId: "bogota",
     facultadId: "salud-bog",
     programaId: "biomedica-bog",
     planId: "plan-2015-1",
@@ -162,6 +178,7 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   {
     id: "pe-007",
     seccionalId: "medellin",
+    lugarId: "medellin",
     facultadId: "ing-med",
     programaId: "agro-med",
     planId: "plan-2018-2",
@@ -173,7 +190,34 @@ export const mockPerfilesEgreso: PerfilEgresoRecord[] = [
   },
   {
     id: "pe-008",
+    seccionalId: "medellin",
+    lugarId: "bello",
+    facultadId: "ing-med",
+    programaId: "agro-med",
+    planId: "plan-2024-1",
+    estado: "activo",
+    descripcion:
+      "El egresado aplicará herramientas de innovación, logística y sostenibilidad para fortalecer procesos agroindustriales en contextos regionales.",
+    createdAt: "2026-03-07T07:30:00",
+    updatedAt: "2026-03-19T18:00:00",
+  },
+  {
+    id: "pe-009",
+    seccionalId: "medellin",
+    lugarId: "armenia",
+    facultadId: "ing-med",
+    programaId: "agro-med",
+    planId: "plan-2024-2",
+    estado: "inactivo",
+    descripcion:
+      "El egresado podrá liderar proyectos de transformación productiva y de gestión de calidad con enfoque territorial y visión de cadena de valor.",
+    createdAt: "2026-03-09T10:15:00",
+    updatedAt: "2026-03-22T11:00:00",
+  },
+  {
+    id: "pe-010",
     seccionalId: "cartagena",
+    lugarId: "cartagena",
     facultadId: "ing-ctg",
     programaId: "meca-ctg",
     planId: "plan-2024-1",
@@ -266,6 +310,7 @@ export function getCurrentUser(): CurrentUser {
 export function getCatalogs(): Catalogs {
   return {
     seccionales,
+    lugares,
     facultades,
     programas,
     planes,

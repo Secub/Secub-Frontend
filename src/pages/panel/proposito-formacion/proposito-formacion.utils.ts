@@ -25,6 +25,12 @@ export function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+export function getDefaultLugarBySeccional(seccionalId: string) {
+  if (!seccionalId) return "";
+  if (seccionalId === "medellin") return "medellin";
+  return seccionalId;
+}
+
 export function enrichPropositos(
   records: PropositoFormacionRecord[],
   catalogs: Catalogs,
@@ -44,7 +50,6 @@ export function enrichPropositos(
 
     return {
       ...record,
-      lugarId: record.lugarId ?? "",
       seccionalNombre: seccional?.nombre ?? "Sin seccional",
       facultadNombre: facultad?.nombre ?? "Sin facultad",
       lugarNombre: lugar?.nombre ?? "Sin lugar",
@@ -84,8 +89,7 @@ export function applyFilters(
       !filters.seccionalId || record.seccionalId === filters.seccionalId;
     const matchesFacultad =
       !filters.facultadId || record.facultadId === filters.facultadId;
-    const matchesLugar =
-      !filters.lugarId || record.lugarId === filters.lugarId;
+    const matchesLugar = !filters.lugarId || record.lugarId === filters.lugarId;
     const matchesPrograma =
       !filters.programaId || record.programaId === filters.programaId;
     const matchesPlan = !filters.planId || record.planId === filters.planId;
@@ -111,30 +115,29 @@ export function buildAvailableFilters(
     records.some((record) => record.seccionalId === item.id),
   );
 
+  const lugares = catalogs.lugares.filter((item) => {
+    if (filters.seccionalId && item.seccionalId !== filters.seccionalId) {
+      return false;
+    }
+
+    return records.some((record) => record.lugarId === item.id);
+  });
+
   const facultades = catalogs.facultades.filter((item) => {
     if (filters.seccionalId && item.seccionalId !== filters.seccionalId) {
       return false;
     }
 
+    if (filters.lugarId) {
+      const hasLugar = records.some(
+        (record) =>
+          record.lugarId === filters.lugarId && record.facultadId === item.id,
+      );
+
+      if (!hasLugar) return false;
+    }
+
     return records.some((record) => record.facultadId === item.id);
-  });
-
-  const lugares = catalogs.lugares.filter((item) => {
-    return records.some((record) => {
-      if (filters.seccionalId && record.seccionalId !== filters.seccionalId) {
-        return false;
-      }
-
-      if (filters.facultadId && record.facultadId !== filters.facultadId) {
-        return false;
-      }
-
-      if (filters.programaId && record.programaId !== filters.programaId) {
-        return false;
-      }
-
-      return record.lugarId === item.id;
-    });
   });
 
   const programas = catalogs.programas.filter((item) => {
@@ -146,7 +149,13 @@ export function buildAvailableFilters(
       return false;
     }
 
-    return records.some((record) => record.programaId === item.id);
+    return records.some((record) => {
+      if (filters.lugarId && record.lugarId !== filters.lugarId) {
+        return false;
+      }
+
+      return record.programaId === item.id;
+    });
   });
 
   const planes = catalogs.planes.filter((item) => {
@@ -155,11 +164,11 @@ export function buildAvailableFilters(
         return false;
       }
 
-      if (filters.facultadId && record.facultadId !== filters.facultadId) {
+      if (filters.lugarId && record.lugarId !== filters.lugarId) {
         return false;
       }
 
-      if (filters.lugarId && record.lugarId !== filters.lugarId) {
+      if (filters.facultadId && record.facultadId !== filters.facultadId) {
         return false;
       }
 
@@ -187,10 +196,10 @@ export function sanitizeFilters(
   const hasSeccional = available.seccionales.some(
     (item) => item.id === filters.seccionalId,
   );
+  const hasLugar = available.lugares.some((item) => item.id === filters.lugarId);
   const hasFacultad = available.facultades.some(
     (item) => item.id === filters.facultadId,
   );
-  const hasLugar = available.lugares.some((item) => item.id === filters.lugarId);
   const hasPrograma = available.programas.some(
     (item) => item.id === filters.programaId,
   );
@@ -199,17 +208,24 @@ export function sanitizeFilters(
   return {
     ...filters,
     seccionalId: hasSeccional ? filters.seccionalId : "",
+    lugarId: hasLugar
+      ? filters.lugarId
+      : hasSeccional
+        ? getDefaultLugarBySeccional(filters.seccionalId)
+        : "",
     facultadId: hasFacultad ? filters.facultadId : "",
-    lugarId: hasLugar ? filters.lugarId : "",
     programaId: hasPrograma ? filters.programaId : "",
     planId: hasPlan ? filters.planId : "",
   };
 }
 
 export function getEmptyFormState(user: CurrentUser): FormState {
+  const seccionalId = user.scope.seccionalId ?? "";
+
   return {
-    seccionalId: user.scope.seccionalId ?? "",
+    seccionalId,
     facultadId: user.scope.facultadId ?? "",
+    lugarId: getDefaultLugarBySeccional(seccionalId),
     programaId: user.scope.programaId ?? "",
     planId: "",
     estado: "activo",
@@ -221,6 +237,7 @@ export function mapRecordToForm(record: PropositoEnriched): FormState {
   return {
     seccionalId: record.seccionalId,
     facultadId: record.facultadId,
+    lugarId: record.lugarId,
     programaId: record.programaId,
     planId: record.planId,
     estado: record.estado,
@@ -238,7 +255,7 @@ export function buildRecordFromForm(
     id: original?.id ?? `pf-${Math.random().toString(36).slice(2, 8)}`,
     seccionalId: form.seccionalId,
     facultadId: form.facultadId,
-    lugarId: original?.lugarId ?? form.seccionalId,
+    lugarId: form.lugarId,
     programaId: form.programaId,
     planId: form.planId,
     estado: form.estado,
@@ -255,9 +272,9 @@ export function getEstadoBadgeVariant(estado: PropositoEstado) {
 export function buildCsvLikeExcel(records: PropositoEnriched[]) {
   const rows = [
     [
-      "Seccional",
-      "Facultad",
+      "Seccional / Sede",
       "Lugar de desarrollo",
+      "Facultad",
       "Programa académico",
       "Plan de estudio",
       "Estado",
@@ -265,8 +282,8 @@ export function buildCsvLikeExcel(records: PropositoEnriched[]) {
     ],
     ...records.map((record) => [
       record.seccionalNombre,
-      record.facultadNombre,
       record.lugarNombre,
+      record.facultadNombre,
       record.programaNombre,
       record.planNombre,
       record.estado,
@@ -292,8 +309,9 @@ export function buildSimplePdf(records: PropositoEnriched[], title: string) {
   const lines = [title, " "];
 
   records.forEach((record, index) => {
-    lines.push(`${index + 1}. ${record.programaNombre} - ${record.planNombre}`);
-    lines.push(`Lugar: ${record.lugarNombre}`);
+    lines.push(
+      `${index + 1}. ${record.programaNombre} - ${record.planNombre} - ${record.lugarNombre}`,
+    );
     lines.push(`Estado: ${record.estado}`);
     lines.push(record.descripcion.slice(0, 90));
     lines.push(" ");

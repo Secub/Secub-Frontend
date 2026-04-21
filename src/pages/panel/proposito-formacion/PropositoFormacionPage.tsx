@@ -20,6 +20,7 @@ import {
   buildAvailableFilters,
   buildRecordFromForm,
   enrichPropositos,
+  getDefaultLugarBySeccional,
   getEmptyFormState,
   mapRecordToForm,
   sanitizeFilters,
@@ -72,6 +73,7 @@ export default function PropositoFormacionPage() {
 
       if (
         sanitized.seccionalId === current.seccionalId &&
+        sanitized.lugarId === current.lugarId &&
         sanitized.facultadId === current.facultadId &&
         sanitized.programaId === current.programaId &&
         sanitized.planId === current.planId &&
@@ -107,6 +109,22 @@ export default function PropositoFormacionPage() {
     setDetailOpen(true);
   };
 
+  const handleDelete = (record: PropositoEnriched) => {
+    const confirmed = window.confirm(
+      `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos mock actuales.`,
+    );
+
+    if (!confirmed) return;
+
+    setRecords((current) => current.filter((item) => item.id !== record.id));
+
+    if (selectedRecord?.id === record.id) {
+      setSelectedRecord(null);
+      setDetailOpen(false);
+      setFormOpen(false);
+    }
+  };
+
   const handleFilterChange = <K extends keyof FiltersState>(
     key: K,
     value: FiltersState[K],
@@ -115,6 +133,12 @@ export default function PropositoFormacionPage() {
       const next = { ...current, [key]: value };
 
       if (key === "seccionalId") {
+        next.lugarId = getDefaultLugarBySeccional(String(value));
+        next.facultadId = "";
+        next.programaId = "";
+      }
+
+      if (key === "lugarId") {
         next.facultadId = "";
         next.programaId = "";
       }
@@ -149,19 +173,16 @@ export default function PropositoFormacionPage() {
 
   const pageActions = (
     <div className="flex flex-wrap gap-3">
-      <Button
-        variant="primary"
-        leftIcon={<GoPlus className="text-lg" />}
-        onClick={openCreateModal}
-        disabled={!permissions.canCreate}
-        title={
-          permissions.canCreate
-            ? "Crear un nuevo propósito de formación"
-            : "Tu rol no tiene permiso para crear propósitos."
-        }
-      >
-        Nuevo propósito
-      </Button>
+      {permissions.canCreate ? (
+        <Button
+          variant="primary"
+          leftIcon={<GoPlus className="text-lg" />}
+          onClick={openCreateModal}
+          title="Crear un nuevo propósito de formación"
+        >
+          Nuevo propósito
+        </Button>
+      ) : null}
 
       <Button
         variant="outline"
@@ -237,6 +258,7 @@ export default function PropositoFormacionPage() {
             permissions={permissions}
             onView={openDetailModal}
             onEdit={openEditModal}
+            onDelete={handleDelete}
           />
         </div>
       </div>

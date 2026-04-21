@@ -43,9 +43,9 @@ export function PropositoDetailModal({
           </div>
         </div>
         <DetailItem label="Plan de estudios" value={record.planNombre} />
-        <DetailItem label="Seccional" value={record.seccionalNombre} />
+        <DetailItem label="Seccional / Sede" value={record.seccionalNombre} />
+        <DetailItem label="Lugar de desarrollo" value={record.lugarNombre} />
         <DetailItem label="Facultad" value={record.facultadNombre} />
-        <div />
       </div>
 
       <div className="mt-8 rounded-[24px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">

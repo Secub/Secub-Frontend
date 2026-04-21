@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Modal, Select, Textarea, Input } from "../../../../components/ui";
-import { formatDate } from "../perfil-egreso.utils";
+import { formatDate, getDefaultLugarBySeccional } from "../perfil-egreso.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -21,6 +21,7 @@ interface PerfilEgresoFormModalProps {
 
 interface FormErrors {
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   planId?: string;
@@ -44,6 +45,13 @@ export function PerfilEgresoFormModal({
     setForm(initialValues);
     setErrors({});
   }, [initialValues, open]);
+
+  const lugaresDisponibles = useMemo(() => {
+    return catalogs.lugares.filter((item) => {
+      if (!form.seccionalId) return true;
+      return item.seccionalId === form.seccionalId;
+    });
+  }, [catalogs.lugares, form.seccionalId]);
 
   const facultadesDisponibles = useMemo(() => {
     return catalogs.facultades.filter((item) => {
@@ -81,6 +89,7 @@ export function PerfilEgresoFormModal({
       const next = { ...current, [key]: value };
 
       if (key === "seccionalId") {
+        next.lugarId = getDefaultLugarBySeccional(String(value));
         next.facultadId = user.scope.facultadId ?? "";
         next.programaId = user.scope.programaId ?? "";
       }
@@ -97,6 +106,7 @@ export function PerfilEgresoFormModal({
     const nextErrors: FormErrors = {};
 
     if (!form.seccionalId) nextErrors.seccionalId = "Selecciona una seccional.";
+    if (!form.lugarId) nextErrors.lugarId = "Selecciona un lugar de desarrollo.";
     if (!form.facultadId) nextErrors.facultadId = "Selecciona una facultad.";
     if (!form.programaId) nextErrors.programaId = "Selecciona un programa.";
     if (!form.planId) nextErrors.planId = "Selecciona un plan de estudios.";
@@ -120,7 +130,7 @@ export function PerfilEgresoFormModal({
       title={mode === "create" ? "Crear perfil de egreso" : "Editar perfil de egreso"}
       description={
         mode === "create"
-          ? "Registra un nuevo perfil de egreso asociado a una seccional, facultad, programa y plan específico."
+          ? "Registra un nuevo perfil de egreso asociado a una seccional, lugar de desarrollo, facultad, programa y plan específico."
           : "En edición solo se modifica el estado y el texto descriptivo, manteniendo el programa y el plan de estudios bloqueados."
       }
       size="lg"
@@ -147,6 +157,19 @@ export function PerfilEgresoFormModal({
           placeholder="Selecciona una seccional"
           disabled={!canEditStructure || !!user.scope.seccionalId}
           error={errors.seccionalId}
+        />
+
+        <Select
+          label="Lugar de desarrollo"
+          value={form.lugarId}
+          onChange={(event) => updateField("lugarId", event.target.value)}
+          options={lugaresDisponibles.map((item) => ({
+            label: item.nombre,
+            value: item.id,
+          }))}
+          placeholder="Selecciona un lugar"
+          disabled={!canEditStructure}
+          error={errors.lugarId}
         />
 
         <Select
@@ -203,7 +226,11 @@ export function PerfilEgresoFormModal({
 
         <Input
           label="Fecha de creación"
-          value={mode === "create" ? formatDate(new Date().toISOString()) : formatDate(record?.createdAt ?? new Date().toISOString())}
+          value={
+            mode === "create"
+              ? formatDate(new Date().toISOString())
+              : formatDate(record?.createdAt ?? new Date().toISOString())
+          }
           disabled
           helperText="Se almacena automáticamente al crear el perfil de egreso."
         />

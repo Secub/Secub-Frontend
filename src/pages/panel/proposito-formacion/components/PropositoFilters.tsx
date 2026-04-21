@@ -57,92 +57,104 @@ export function PropositoFilters({
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-6">
+      <div className="panel-filters-grid">
         {permissions.canFilterBySeccional ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Seccional/Sede"
+              value={filters.seccionalId}
+              onChange={(event) =>
+                onFilterChange("seccionalId", event.target.value)
+              }
+              options={filterOptions.seccionales.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todas las seccionales y sede"
+            />
+          </div>
+        ) : null}
+
+        <div className="panel-filter-item">
           <Select
-            label="Seccional/Sede"
-            value={filters.seccionalId}
-            onChange={(event) =>
-              onFilterChange("seccionalId", event.target.value)
-            }
-            options={filterOptions.seccionales.map((item) => ({
+            label="Lugar de desarrollo"
+            value={filters.lugarId}
+            onChange={(event) => onFilterChange("lugarId", event.target.value)}
+            options={filterOptions.lugares.map((item) => ({
               label: item.nombre,
               value: item.id,
             }))}
-            placeholder="Todas las seccionales"
+            placeholder="Todos los lugares"
           />
-        ) : null}
+        </div>
 
         {permissions.canFilterByFacultad ? (
-          <Select
-            label="Facultad"
-            value={filters.facultadId}
-            onChange={(event) =>
-              onFilterChange("facultadId", event.target.value)
-            }
-            options={filterOptions.facultades.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Todas las facultades"
-          />
+          <div className="panel-filter-item">
+            <Select
+              label="Facultad"
+              value={filters.facultadId}
+              onChange={(event) =>
+                onFilterChange("facultadId", event.target.value)
+              }
+              options={filterOptions.facultades.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todas las facultades"
+            />
+          </div>
         ) : null}
 
-        <Select
-          label="Lugar de desarrollo"
-          value={filters.lugarId}
-          onChange={(event) => onFilterChange("lugarId", event.target.value)}
-          options={filterOptions.lugares.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Todos los lugares"
-        />
-
         {permissions.canFilterByPrograma ? (
-          <Select
-            label="Programa académico"
-            value={filters.programaId}
-            onChange={(event) =>
-              onFilterChange("programaId", event.target.value)
-            }
-            options={filterOptions.programas.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Todos los programas"
-          />
+          <div className="panel-filter-item">
+            <Select
+              label="Programa académico"
+              value={filters.programaId}
+              onChange={(event) =>
+                onFilterChange("programaId", event.target.value)
+              }
+              options={filterOptions.programas.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todos los programas"
+            />
+          </div>
         ) : null}
 
         {permissions.canFilterByPlan ? (
-          <Select
-            label="Plan de estudios"
-            value={filters.planId}
-            onChange={(event) => onFilterChange("planId", event.target.value)}
-            options={filterOptions.planes.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Todos los planes"
-          />
+          <div className="panel-filter-item">
+            <Select
+              label="Plan de estudios"
+              value={filters.planId}
+              onChange={(event) => onFilterChange("planId", event.target.value)}
+              options={filterOptions.planes.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todos los planes"
+            />
+          </div>
         ) : null}
 
         {permissions.canFilterByEstado ? (
-          <Select
-            label="Estado"
-            value={filters.estado}
-            onChange={(event) =>
-              onFilterChange(
-                "estado",
-                event.target.value as PropositoFiltersState["estado"],
-              )
-            }
-            options={[
-              { label: "Activo", value: "activo" },
-              { label: "Inactivo", value: "inactivo" },
-            ]}
-            placeholder="Todos los estados"
-          />
+          <div className="panel-filter-item">
+            <Select
+              label="Estado"
+              value={filters.estado}
+              onChange={(event) =>
+                onFilterChange(
+                  "estado",
+                  event.target.value as PropositoFiltersState["estado"],
+                )
+              }
+              options={[
+                { label: "Activo", value: "activo" },
+                { label: "Inactivo", value: "inactivo" },
+              ]}
+              placeholder="Todos los estados"
+            />
+          </div>
         ) : null}
       </div>
     </div>

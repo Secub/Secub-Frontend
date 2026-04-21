@@ -21,11 +21,12 @@ export const seccionales: Seccional[] = [
 ];
 
 export const lugares: LugarDesarrollo[] = [
-
-  { id: "medellin", nombre: "Medellín" },
-  
-  { id: "armenia", nombre: "Armenia" },
-  { id: "bello", nombre: "Bello" },
+  { id: "cali", nombre: "Cali", seccionalId: "cali" },
+  { id: "bogota", nombre: "Bogotá", seccionalId: "bogota" },
+  { id: "medellin", nombre: "Medellín", seccionalId: "medellin" },
+  { id: "bello", nombre: "Bello", seccionalId: "medellin" },
+  { id: "armenia", nombre: "Armenia", seccionalId: "medellin" },
+  { id: "cartagena", nombre: "Cartagena", seccionalId: "cartagena" },
 ];
 
 export const facultades: Facultad[] = [
@@ -35,8 +36,6 @@ export const facultades: Facultad[] = [
   { id: "salud-bog", nombre: "Facultad de Salud", seccionalId: "bogota" },
   { id: "ing-med", nombre: "Facultad de Ingeniería", seccionalId: "medellin" },
   { id: "ing-cart", nombre: "Facultad de Ingeniería", seccionalId: "cartagena" },
-  { id: "ing-arm", nombre: "Facultad de Ingeniería", seccionalId: "armenia" },
-  { id: "ing-bello", nombre: "Facultad de Ingeniería", seccionalId: "bello" },
 ];
 
 export const programas: ProgramaAcademico[] = [
@@ -87,18 +86,6 @@ export const programas: ProgramaAcademico[] = [
     nombre: "Ingeniería de Sistemas",
     facultadId: "ing-cart",
     seccionalId: "cartagena",
-  },
-  {
-    id: "sis-arm",
-    nombre: "Ingeniería de Sistemas",
-    facultadId: "ing-arm",
-    seccionalId: "armenia",
-  },
-  {
-    id: "ind-bello",
-    nombre: "Ingeniería Industrial",
-    facultadId: "ing-bello",
-    seccionalId: "bello",
   },
 ];
 
@@ -203,6 +190,32 @@ export const mockPropositos: PropositoFormacionRecord[] = [
   },
   {
     id: "pf-008",
+    seccionalId: "medellin",
+    facultadId: "ing-med",
+    lugarId: "bello",
+    programaId: "agro-med",
+    planId: "plan-2024-1",
+    estado: "activo",
+    descripcion:
+      "El egresado aplicará herramientas de innovación, logística y sostenibilidad para fortalecer procesos agroindustriales en contextos regionales.",
+    createdAt: "2026-03-12T09:00:00",
+    updatedAt: "2026-03-19T09:40:00",
+  },
+  {
+    id: "pf-009",
+    seccionalId: "medellin",
+    facultadId: "ing-med",
+    lugarId: "armenia",
+    programaId: "agro-med",
+    planId: "plan-2024-2",
+    estado: "inactivo",
+    descripcion:
+      "El egresado podrá liderar proyectos de transformación productiva y de gestión de calidad con enfoque territorial y visión de cadena de valor.",
+    createdAt: "2026-03-16T08:20:00",
+    updatedAt: "2026-03-22T10:00:00",
+  },
+  {
+    id: "pf-010",
     seccionalId: "cartagena",
     facultadId: "ing-cart",
     lugarId: "cartagena",
@@ -213,32 +226,6 @@ export const mockPropositos: PropositoFormacionRecord[] = [
       "El egresado será capaz de diseñar, implementar y evaluar soluciones tecnológicas orientadas a la transformación digital y al desarrollo regional.",
     createdAt: "2026-03-22T09:00:00",
     updatedAt: "2026-03-22T09:00:00",
-  },
-  {
-    id: "pf-009",
-    seccionalId: "armenia",
-    facultadId: "ing-arm",
-    lugarId: "armenia",
-    programaId: "sis-arm",
-    planId: "plan-2024-1",
-    estado: "activo",
-    descripcion:
-      "El egresado integrará pensamiento sistémico, desarrollo de software y análisis de datos para responder a retos del entorno empresarial y social.",
-    createdAt: "2026-03-23T10:10:00",
-    updatedAt: "2026-03-23T10:10:00",
-  },
-  {
-    id: "pf-010",
-    seccionalId: "bello",
-    facultadId: "ing-bello",
-    lugarId: "bello",
-    programaId: "ind-bello",
-    planId: "plan-2015-2",
-    estado: "activo",
-    descripcion:
-      "El egresado podrá optimizar operaciones, modelar procesos y liderar iniciativas de mejora continua en contextos industriales y logísticos.",
-    createdAt: "2026-03-24T08:30:00",
-    updatedAt: "2026-03-24T08:30:00",
   },
 ];
 

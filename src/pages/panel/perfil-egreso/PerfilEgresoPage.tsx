@@ -19,6 +19,7 @@ import {
   applyRoleScope,
   buildAvailableFilters,
   buildRecordFromForm,
+  getDefaultLugarBySeccional,
   enrichPerfilesEgreso,
   getEmptyFormState,
   mapRecordToForm,
@@ -72,6 +73,7 @@ export default function PerfilEgresoPage() {
 
       if (
         sanitized.seccionalId === current.seccionalId &&
+        sanitized.lugarId === current.lugarId &&
         sanitized.facultadId === current.facultadId &&
         sanitized.programaId === current.programaId &&
         sanitized.planId === current.planId &&
@@ -131,6 +133,12 @@ export default function PerfilEgresoPage() {
       const next = { ...current, [key]: value };
 
       if (key === "seccionalId") {
+        next.lugarId = getDefaultLugarBySeccional(String(value));
+        next.facultadId = "";
+        next.programaId = "";
+      }
+
+      if (key === "lugarId") {
         next.facultadId = "";
         next.programaId = "";
       }
@@ -170,9 +178,9 @@ export default function PerfilEgresoPage() {
           variant="primary"
           leftIcon={<GoPlus className="text-lg" />}
           onClick={openCreateModal}
-          title="Crear un nuevo perfil de egreso"
+          title="Crear un nuevo propósito de formación"
         >
-          Nuevo perfil
+          Nuevo propósito
         </Button>
       ) : null}
 

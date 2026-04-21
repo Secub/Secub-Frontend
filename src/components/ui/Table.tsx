@@ -38,8 +38,8 @@ export function Table<T>({
 
   return (
     <div className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-separate border-spacing-0">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full table-fixed border-separate border-spacing-0">
           <thead className="bg-[var(--color-surface-soft)]">
             <tr>
               {columns.map((column) => (
@@ -55,7 +55,7 @@ export function Table<T>({
               ))}
 
               {hasActions ? (
-                <th className="border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
+                <th className="w-[110px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
                   Acciones
                 </th>
               ) : null}
@@ -79,7 +79,7 @@ export function Table<T>({
                     <td
                       key={column.key}
                       className={[
-                        "border-b border-[var(--color-gray-6)] px-5 py-4 text-sm text-[var(--color-gray-2)] align-middle",
+                        "border-b border-[var(--color-gray-6)] px-5 py-4 align-top text-sm text-[var(--color-gray-2)]",
                         column.className ?? "",
                       ].join(" ")}
                     >
@@ -88,7 +88,7 @@ export function Table<T>({
                   ))}
 
                   {hasActions ? (
-                    <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-middle">
+                    <td className="w-[110px] border-b border-[var(--color-gray-6)] px-5 py-4 align-middle">
                       <div className="flex items-center gap-2">
                         {actions.map((action) => {
                           const isVisible = action.show ? action.show(row) : true;

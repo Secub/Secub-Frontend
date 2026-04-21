@@ -204,3 +204,20 @@ textarea {
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
+/* Responsive escritorio panel */
+.panel-filters-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.panel-filter-item {
+  min-width: 0;
+}
+
+.panel-table-cell-wrap {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
