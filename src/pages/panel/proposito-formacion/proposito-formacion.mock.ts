@@ -18,6 +18,7 @@ export const seccionales: Seccional[] = [
   { id: "cali", nombre: "Seccional Cali" },
   { id: "bogota", nombre: "Seccional Bogotá" },
   { id: "medellin", nombre: "Seccional Medellín" },
+  { id: "cartagena", nombre: "Seccional Cartagena" },
 ];
 
 export const facultades: Facultad[] = [
