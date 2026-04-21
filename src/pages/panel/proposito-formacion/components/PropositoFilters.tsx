@@ -60,7 +60,7 @@ export function PropositoFilters({
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-6">
         {permissions.canFilterBySeccional ? (
           <Select
-            label="Seccional"
+            label="Seccional/Sede"
             value={filters.seccionalId}
             onChange={(event) =>
               onFilterChange("seccionalId", event.target.value)
