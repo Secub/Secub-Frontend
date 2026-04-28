@@ -12,7 +12,6 @@ interface PropositoFiltersProps {
   permissions: RolePermissions;
   filters: PropositoFiltersState;
   filterOptions: {
-    seccionales: { id: string; nombre: string }[];
     facultades: { id: string; nombre: string }[];
     lugares: { id: string; nombre: string }[];
     programas: { id: string; nombre: string }[];
@@ -58,23 +57,6 @@ export function PropositoFilters({
       </div>
 
       <div className="panel-filters-grid">
-        {permissions.canFilterBySeccional ? (
-          <div className="panel-filter-item">
-            <Select
-              label="Seccional/Sede"
-              value={filters.seccionalId}
-              onChange={(event) =>
-                onFilterChange("seccionalId", event.target.value)
-              }
-              options={filterOptions.seccionales.map((item) => ({
-                label: item.nombre,
-                value: item.id,
-              }))}
-              placeholder="Todas las seccionales y sede"
-            />
-          </div>
-        ) : null}
-
         <div className="panel-filter-item">
           <Select
             label="Lugar de desarrollo"

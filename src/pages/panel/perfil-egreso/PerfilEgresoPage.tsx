@@ -180,7 +180,7 @@ export default function PerfilEgresoPage() {
           onClick={openCreateModal}
           title="Crear un nuevo propósito de formación"
         >
-          Nuevo propósito
+          Nuevo Perfil
         </Button>
       ) : null}
 

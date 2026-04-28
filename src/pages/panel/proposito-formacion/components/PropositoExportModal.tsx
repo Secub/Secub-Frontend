@@ -153,27 +153,7 @@ export function PropositoExportModal({
       }
     >
       <div className="rounded-[24px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">
-        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-5">
-          {permissions.canFilterBySeccional ? (
-            <Select
-              label="Seccional"
-              value={filters.seccionalId}
-              onChange={(event) =>
-                setFilters((current) => ({
-                  ...current,
-                  seccionalId: event.target.value,
-                  facultadId: "",
-                  programaId: "",
-                }))
-              }
-              options={filterOptions.seccionales.map((item) => ({
-                label: item.nombre,
-                value: item.id,
-              }))}
-              placeholder="Todas las seccionales"
-            />
-          ) : null}
-
+        <div className="panel-filters-grid">
           {permissions.canFilterByFacultad ? (
             <Select
               label="Facultad"
