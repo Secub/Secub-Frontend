@@ -1,0 +1,223 @@
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  /* Tipografías */
+  --font-heading: "Onest", sans-serif;
+  --font-body: "Onest", sans-serif;
+
+  /* Colores de marca */
+  --color-primary: #f8811d;
+  --color-secondary-1: #0e65d9;
+  --color-secondary-2: #b3cee2;
+  --color-secondary-3: #d9dde7;
+  --color-secondary-4: #182233;
+
+  /* Escala de grises */
+  --color-black: #000000;
+  --color-gray-1: #1f2937;
+  --color-gray-2: #374151;
+  --color-gray-3: #4b5563;
+  --color-gray-4: #6b7280;
+  --color-gray-5: #9ca3af;
+  --color-gray-6: #d1d5db;
+  --color-gray-7: #f3f4f6;
+  --color-white: #ffffff;
+
+  /* Estados */
+  --color-info: #a0c3ff;
+  --color-success: #76ca66;
+  --color-warning: #fbc756;
+  --color-error: #eb5757;
+
+  /* Superficies */
+  --color-surface: #f3f4f6;
+  --color-surface-soft: #f8fafc;
+  --color-surface-card: #ffffff;
+  --color-footer-light: #eef2f6;
+  --color-footer-dark: #182233;
+
+  /* Bordes */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Sombras */
+  --shadow-sm: 0 4px 10px rgba(24, 34, 51, 0.06);
+  --shadow-md: 0 10px 25px rgba(24, 34, 51, 0.08);
+  --shadow-lg: 0 16px 40px rgba(24, 34, 51, 0.12);
+
+  /* Layout */
+  --container-max: 1280px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-gray-1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Utilidades globales del proyecto */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.container-secub {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.section-space {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 1024px) {
+  .section-space {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+.nav-link {
+  color: var(--color-gray-3);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-secondary-4);
+}
+
+.surface-card {
+  border: 1px solid var(--color-gray-6);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-secondary-4);
+}
+
+.section-text {
+  color: var(--color-gray-3);
+}
+
+.partner-logo-box {
+  display: flex;
+  min-height: 5.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--color-gray-5);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-gray-3);
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.footer-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.footer-bottom-link {
+  transition: opacity 0.2s ease;
+}
+
+.footer-bottom-link:hover {
+  opacity: 0.85;
+}
+
+/* Scroll */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(216, 223, 236, 0.35) transparent;
+}
+
+/* Chrome, Edge, Safari */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(216, 223, 236, 0.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(216, 223, 236, 0.45);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Responsive escritorio panel */
+.panel-filters-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.panel-filter-item {
+  min-width: 0;
+}
+
+.panel-table-cell-wrap {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
