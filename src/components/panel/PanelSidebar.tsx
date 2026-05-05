@@ -22,50 +22,47 @@ const academicLabels = [
 
 export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
   const dashboardItem =
-    panelNavigation.find((item) => item.label === "Dashboard") ??
+    panelNavigation.find((item) => item.key === "dashboard") ??
     panelNavigation[0];
 
   const academicItems = academicLabels
     .map((label) => panelNavigation.find((item) => item.label === label))
     .filter((item): item is NavigationItem => Boolean(item));
 
-  const measurementItem = panelNavigation.find((item) => {
-    const label = item.label.toLowerCase();
-    return label === "medición ra" || label === "medicion ra";
-  });
+  const measurementItem = panelNavigation.find(
+    (item) => item.key === "medicion-ra",
+  );
 
   const currentAcademicIndex = academicItems.findIndex(
     (item) => item.key === currentStep,
   );
 
+  const userName = "Usuario demo";
+
   const goTo = (href: string) => {
     window.location.href = href;
   };
-
-  const userName = "Usuario demo";
 
   const academicProgress = useMemo(() => {
     return academicItems.map((item, index) => {
       const isCurrent = item.key === currentStep;
       const isCompleted =
         currentAcademicIndex !== -1 && index < currentAcademicIndex;
-      const isPending =
-        currentAcademicIndex === -1 || index > currentAcademicIndex;
 
       return {
         ...item,
         stepNumber: index + 1,
         isCurrent,
         isCompleted,
-        isPending,
       };
     });
   }, [academicItems, currentAcademicIndex, currentStep]);
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[320px] shrink-0 self-start xl:flex">
-      <div className="flex h-screen w-full flex-col overflow-hidden border-r border-white/10 bg-[#11203A] text-white"> <div className="px-6 pb-6 pt-8">
-          <a href="#inicio" className="flex items-center gap-3">
+      <div className="flex h-screen w-full flex-col overflow-hidden border-r border-[var(--color-secondary-4)] bg-[var(--color-footer-dark)] text-[var(--color-white)]">
+        <div className="shrink-0 px-7 pb-4 pt-6">
+          <a href="/panel/dashboard" className="flex items-center">
             <img
               src={LogoSecub}
               alt="SECUB"
@@ -74,16 +71,16 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
           </a>
         </div>
 
-        <div className="sidebar-scroll flex-1 overflow-y-auto px-6 pb-6">
-          <nav className="space-y-6">
+        <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto px-7 pb-4">
+          <nav className="space-y-4">
             <button
               type="button"
               onClick={() => goTo(dashboardItem.href)}
               className={[
-                "flex w-full items-center rounded-full px-5 py-3 text-left text-[1rem] font-medium transition-colors",
+                "flex w-full items-center rounded-[var(--radius-pill)] px-4 py-2.5 text-left text-[0.95rem] font-medium transition-colors",
                 currentStep === dashboardItem.key
-                  ? "bg-[#E8EBF3] text-[#0E65D9]"
-                  : "text-[#D8DFEC] hover:bg-white/10",
+                  ? "bg-[var(--color-secondary-3)] text-[var(--color-secondary-1)]"
+                  : "text-[var(--color-secondary-3)] hover:bg-[var(--color-secondary-4)] hover:text-[var(--color-white)]",
               ].join(" ")}
             >
               Dashboard
@@ -93,12 +90,12 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
               <button
                 type="button"
                 onClick={() => academicItems[0] && goTo(academicItems[0].href)}
-                className="text-left text-[1.05rem] font-medium text-[#D8DFEC] transition-colors hover:text-white"
+                className="text-left text-[0.95rem] font-medium text-[var(--color-secondary-3)] transition-colors hover:text-[var(--color-white)]"
               >
                 Gestión Académica
               </button>
 
-              <div className="mt-6 pl-12">
+              <div className="mt-5 pl-10">
                 <div className="space-y-0">
                   {academicProgress.map((item, index) => {
                     const ItemIcon = item.icon;
@@ -109,50 +106,51 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                         key={item.key}
                         type="button"
                         onClick={() => goTo(item.href)}
-                        className="group flex w-full items-start gap-4 text-left"
+                        className="group flex w-full items-start gap-3 text-left"
                       >
-                        <div className="flex w-8 flex-col items-center">
+                        <div className="flex w-7 flex-col items-center">
                           <div
                             className={[
-                              "flex h-7 w-7 items-center justify-center rounded-full border transition-colors",
+                              "flex h-6 w-6 items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
                               item.isCompleted
-                                ? "border-[#27D7B0] bg-[#27D7B0] text-[#11203A]"
+                                ? "border-[var(--color-success)] bg-[var(--color-success)] text-[var(--color-secondary-4)]"
                                 : item.isCurrent
-                                  ? "border-[#0E65D9] bg-[#0E65D9] text-white"
-                                  : "border-[#D9DDE5] bg-transparent text-[#D9DDE5]",
+                                  ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-[var(--color-white)]"
+                                  : "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)]",
                             ].join(" ")}
                           >
                             {item.isCompleted ? (
-                              <HiCheck className="text-base" />
+                              <HiCheck className="text-sm" />
                             ) : item.isCurrent ? (
-                              <ItemIcon className="text-[0.9rem]" />
+                              <ItemIcon className="text-[0.78rem]" />
                             ) : (
-                              <LuCircleDot className="text-[0.9rem]" />
+                              <LuCircleDot className="text-[0.78rem]" />
                             )}
                           </div>
 
-                          {showConnector && (
+                          {showConnector ? (
                             <div
                               className={[
-                                "my-1 h-8 w-px",
+                                "my-1 h-7 w-px",
                                 item.isCompleted || item.isCurrent
-                                  ? "bg-[#27D7B0]"
-                                  : "bg-[#D9DDE5]",
+                                  ? "bg-[var(--color-success)]"
+                                  : "bg-[var(--color-secondary-3)]",
                               ].join(" ")}
                             />
-                          )}
+                          ) : null}
                         </div>
 
-                        <div className="pt-0.5">
-                          <p className="text-[0.52rem] uppercase tracking-[0.16em] text-white/55">
+                        <div className="min-w-0 pt-0">
+                          <p className="text-[0.48rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-secondary-2)]">
                             Paso {item.stepNumber}
                           </p>
+
                           <p
                             className={[
-                              "max-w-[150px] text-[1rem] leading-[1.2] transition-colors",
+                              "max-w-[155px] font-heading text-[0.9rem] font-medium leading-[1.15] transition-colors",
                               item.isCurrent
-                                ? "text-white"
-                                : "text-[#D8DFEC] group-hover:text-white",
+                                ? "text-[var(--color-white)]"
+                                : "text-[var(--color-secondary-3)] group-hover:text-[var(--color-white)]",
                             ].join(" ")}
                           >
                             {item.label}
@@ -165,42 +163,45 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
               </div>
             </div>
 
-            {measurementItem && (
+            {measurementItem ? (
               <button
                 type="button"
                 onClick={() => goTo(measurementItem.href)}
                 className={[
-                  "flex w-full items-center rounded-full px-5 py-3 text-left text-[1rem] font-medium transition-colors",
+                  "flex w-full items-center rounded-[var(--radius-pill)] px-4 py-2.5 text-left text-[0.95rem] font-medium transition-colors",
                   currentStep === measurementItem.key
-                    ? "bg-[#E8EBF3] text-[#0E65D9]"
-                    : "text-[#D8DFEC] hover:bg-white/10 hover:text-white",
+                    ? "bg-[var(--color-secondary-3)] text-[var(--color-secondary-1)]"
+                    : "text-[var(--color-secondary-3)] hover:bg-[var(--color-secondary-4)] hover:text-[var(--color-white)]",
                 ].join(" ")}
               >
                 Medición RA
               </button>
-            )}
+            ) : null}
           </nav>
         </div>
 
-        <div className="mt-auto border-t border-white/20 px-6 py-5">
+        <div className="shrink-0 border-t border-[var(--color-secondary-4)] px-6 py-4">
           <button
             type="button"
-            className="flex w-full items-center gap-4 rounded-2xl transition-colors hover:bg-white/5"
+            className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] transition-colors hover:bg-[var(--color-secondary-4)]"
           >
-            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-[#FFC928] text-[#11203A]">
-              <span className="text-lg font-bold">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-warning)] text-[var(--color-secondary-4)]">
+              <span className="text-base font-bold">
                 {userName.charAt(0).toUpperCase()}
               </span>
             </div>
 
             <div className="min-w-0 flex-1 text-left">
-              <p className="text-sm text-[#D8DFEC]">Bienvenido de nuevo</p>
-              <p className="truncate text-[1.1rem] font-medium text-white">
+              <p className="text-[0.78rem] text-[var(--color-secondary-3)]">
+                Bienvenido de nuevo
+              </p>
+
+              <p className="truncate font-heading text-[0.95rem] font-semibold text-[var(--color-white)]">
                 {userName}
               </p>
             </div>
 
-            <GoChevronRight className="text-lg text-white/70" />
+            <GoChevronRight className="shrink-0 text-base text-[var(--color-secondary-3)]" />
           </button>
         </div>
       </div>
