@@ -23,7 +23,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
-import { Button } from "../../../components/ui";
+import { Button } from "../../../components/ui/Button";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
 import CompetenciasRaExportModal from "./components/CompetenciasRaExportModal";
 import CompetenciasRaFiltersPanel from "./components/CompetenciasRaFilters";

@@ -34,7 +34,7 @@ export default function CompetenciasRaCardGrid({
   }
 
   return (
-    <div className="grid auto-rows-max grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="grid auto-rows-max grid-cols-1 gap-6">
       {data.map((record) => (
         <CompetenciasRaCard
           key={record.id}

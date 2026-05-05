@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GoChevronDown, GoChevronUp, GoEye, GoPencil, GoTrash } from "react-icons/go";
-import { Badge } from "../../../../components/ui";
+import { Badge, Button } from "../../../../components/ui";
 import { getEstadoBadgeVariant } from "../CompetenciasRa.utils";
 import type { CompetenciasRaEnriched } from "../CompetenciasRa.types";
 
@@ -93,20 +93,21 @@ export default function CompetenciasRaCard({
 
       {/* Resultados de Aprendizaje */}
       <div className="mt-auto">
-        <button
+        <Button
           onClick={() => setExpandedRAs(!expandedRAs)}
-          className="flex items-center gap-2 rounded-md bg-[var(--color-gray-5)] px-3 py-2 text-sm font-medium text-[var(--color-secondary-1)] transition-colors hover:bg-[var(--color-gray-4)]"
-          type="button"
+          className="w-full"
         >
-          {expandedRAs ? (
-            <GoChevronUp className="text-base" />
-          ) : (
-            <GoChevronDown className="text-base" />
-          )}
-          <span>
-            {raCount} Resultado{raCount !== 1 ? "s" : ""} de Aprendizaje
-          </span>
-        </button>
+          <div className="flex w-full flex-row items-center justify-center gap-2">
+            {expandedRAs ? (
+              <GoChevronUp className="flex-shrink-0" />
+            ) : (
+              <GoChevronDown className="flex-shrink-0" />
+            )}
+            <span className="truncate">
+              {raCount} Resultado{raCount !== 1 ? "s" : ""} de Aprendizaje
+            </span>
+          </div>
+        </Button>
 
         {/* RAs expandidos */}
         {expandedRAs && raCount > 0 && (
