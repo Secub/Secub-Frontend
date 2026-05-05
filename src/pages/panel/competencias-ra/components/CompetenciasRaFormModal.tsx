@@ -127,21 +127,10 @@ export function CompetenciasRaFormModal({
     onSubmit(form);
   };
 
-  const handleClose = () => {
-    if (form.numeroRA < 1) {
-      setErrors((prev) => ({
-        ...prev,
-        numeroRA: "Debes seleccionar al menos 1 RA.",
-      }));
-      return;
-    }
-    onClose();
-  };
-
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       title={
         mode === "create"
           ? "Crear Competencias y Ra"
@@ -155,7 +144,7 @@ export function CompetenciasRaFormModal({
       size="lg"
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="ghost" onClick={handleClose}>
+          <Button variant="ghost" onClick={onClose}>
             Cancelar
           </Button>
           <Button variant="primary" onClick={handleSubmit}>

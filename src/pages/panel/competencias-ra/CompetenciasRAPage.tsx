@@ -200,6 +200,16 @@ export default function CompetenciasRaFormacionPage() {
       );
     });
 
+    // Aplicar los filtros del formulario
+    setFilters({
+      seccionalId: values.seccionalId,
+      lugarId: values.lugarId,
+      facultadId: values.facultadId,
+      programaId: values.programaId,
+      planId: values.planId,
+      estado: "activo",
+    });
+
     setFormOpen(false);
     setSelectedRecord(null);
   };
