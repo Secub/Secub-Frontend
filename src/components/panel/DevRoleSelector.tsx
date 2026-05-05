@@ -1,6 +1,6 @@
 const devRoles = [
-  { value: "admin", label: "Admin" },
-  { value: "vice", label: "Vice" },
+  { value: "admin", label: "Super Admin" },
+  { value: "vice", label: "Vice/Admin" },
   { value: "decano", label: "Decano" },
   { value: "director", label: "Director" },
   { value: "docente", label: "Docente" },
@@ -8,7 +8,7 @@ const devRoles = [
 
 export default function DevRoleSelector() {
   const params = new URLSearchParams(window.location.search);
-  const currentRole = params.get("role") ?? "docente";
+  const currentRole = params.get("role") ?? "admin";
 
   const handleChange = (role: string) => {
     const nextParams = new URLSearchParams(window.location.search);

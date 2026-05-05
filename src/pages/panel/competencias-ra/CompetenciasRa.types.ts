@@ -117,6 +117,7 @@ export interface RolePermissions {
   canExportPdf: boolean;
   canExportExcel: boolean;
   canFilterBySeccional: boolean;
+  canFilterByLugar: boolean;
   canFilterByFacultad: boolean;
   canFilterByPrograma: boolean;
   canFilterByPlan: boolean;

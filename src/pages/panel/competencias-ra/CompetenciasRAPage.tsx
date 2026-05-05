@@ -22,6 +22,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
+// import DevRoleSelector from "../../../components/panel/DevRoleSelector";
 import { PanelLayout } from "../../../components/panel";
 import { Button } from "../../../components/ui/Button";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
@@ -215,7 +216,8 @@ export default function CompetenciasRaFormacionPage() {
   };
 
   const pageActions = (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap items-center gap-3">
+
       {permissions.canCreate ? (
         <Button
           variant="primary"

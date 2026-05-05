@@ -57,18 +57,20 @@ export function CompetenciasRaFilters({
       </div>
 
       <div className="panel-filters-grid">
-        <div className="panel-filter-item">
-          <Select
-            label="Lugar de desarrollo"
-            value={filters.lugarId}
-            onChange={(event) => onFilterChange("lugarId", event.target.value)}
-            options={filterOptions.lugares.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Todos los lugares"
-          />
-        </div>
+        {permissions.canFilterByLugar ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Lugar de desarrollo"
+              value={filters.lugarId}
+              onChange={(event) => onFilterChange("lugarId", event.target.value)}
+              options={filterOptions.lugares.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todos los lugares"
+            />
+          </div>
+        ) : null}
 
         {permissions.canFilterByFacultad ? (
           <div className="panel-filter-item">
