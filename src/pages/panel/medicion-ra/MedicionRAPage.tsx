@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoCheckCircle, GoClock } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
-import { Badge, Button } from "../../../components/ui";
+import { Badge, Button, ConfirmDialog } from "../../../components/ui";
 import CompetenceStepper from "./components/CompetenceStepper";
 import CourseSelector from "./components/CourseSelector";
 import EvaluationInstructions from "./components/EvaluationInstructions";
@@ -22,8 +22,10 @@ import {
   normalizeEvaluationMatrix,
   normalizeInstrumentState,
   validateBeforeClosing,
+  validateCourseBeforeFinalizing,
 } from "./medicion-ra.utils";
 import type {
+  Competence,
   EvaluationMatrix,
   EvidenceState,
   ImprovementPlanState,
@@ -41,6 +43,9 @@ const emptyImprovementPlan: ImprovementPlanState = {
   analysis: "",
   actions: "",
 };
+
+const LOCKED_TOOLTIP =
+  "Esta información ya fue guardada y bloqueada. No puedes modificarla después de finalizar la evaluación.";
 
 export default function MedicionRAPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(mockCourses[0].id);
@@ -64,6 +69,9 @@ export default function MedicionRAPage() {
     Record<string, ImprovementPlanState>
   >({});
 
+  const [completedCompetenceIds, setCompletedCompetenceIds] = useState<string[]>([]);
+  const [isEvaluationLocked, setIsEvaluationLocked] = useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
   const [feedback, setFeedback] = useState<ValidationFeedback | null>(null);
 
   const selectedCourse = useMemo(() => {
@@ -75,6 +83,9 @@ export default function MedicionRAPage() {
 
   useEffect(() => {
     setActiveCompetenceId(selectedCourse.competences[0]?.id ?? "");
+    setCompletedCompetenceIds([]);
+    setIsEvaluationLocked(false);
+    setShowFinishModal(false);
     setFeedback(null);
   }, [selectedCourse.id, selectedCourse.competences]);
 
@@ -85,6 +96,18 @@ export default function MedicionRAPage() {
       ) ?? selectedCourse.competences[0]
     );
   }, [activeCompetenceId, selectedCourse.competences]);
+
+  const activeCompetenceIndex = useMemo(() => {
+    return Math.max(
+      0,
+      selectedCourse.competences.findIndex(
+        (competence) => competence.id === activeCompetence.id,
+      ),
+    );
+  }, [activeCompetence.id, selectedCourse.competences]);
+
+  const isLastCompetence =
+    activeCompetenceIndex === selectedCourse.competences.length - 1;
 
   const activeCompetenceStorageKey = useMemo(() => {
     return getCompetenceStorageKey(selectedCourse.id, activeCompetence.id);
@@ -126,8 +149,74 @@ export default function MedicionRAPage() {
     return getCompletionPercentage(selectedCourse, evaluations);
   }, [evaluations, selectedCourse]);
 
+  const subProgressSteps = useMemo(() => {
+    const totalCells = selectedCourse.students.length * activeCompetence.learningResults.length;
+    const completedCells = selectedCourse.students.reduce((total, student) => {
+      const completedByStudent = activeCompetence.learningResults.filter((ra) =>
+        Boolean(evaluations[student.id]?.[ra.id]),
+      ).length;
+
+      return total + completedByStudent;
+    }, 0);
+
+    const evaluationsCompleted = totalCells > 0 && completedCells === totalCells;
+    const instrumentsCompleted = activeCompetence.learningResults.every((ra) =>
+      Boolean(instruments[ra.id]?.description?.trim()),
+    );
+    const evidenceCompleted = Boolean(evidence.fileName);
+
+    const steps = [
+      {
+        id: "evaluations",
+        label: "Calificaciones",
+        completed: evaluationsCompleted,
+        active: !evaluationsCompleted,
+      },
+      {
+        id: "instruments",
+        label: "Instrumentos",
+        completed: instrumentsCompleted,
+        active: evaluationsCompleted && !instrumentsCompleted,
+      },
+      {
+        id: "evidence",
+        label: "Evidencia",
+        completed: evidenceCompleted,
+        active: evaluationsCompleted && instrumentsCompleted && !evidenceCompleted,
+      },
+    ];
+
+    if (evaluationsCompleted && instrumentsCompleted && evidenceCompleted) {
+      return steps.map((step) => ({ ...step, active: false }));
+    }
+
+    return steps;
+  }, [activeCompetence.learningResults, evaluations, evidence.fileName, instruments, selectedCourse.students]);
+
+  const getEvidenceFileNameByCompetence = (competence: Competence) => {
+    const key = getCompetenceStorageKey(selectedCourse.id, competence.id);
+    return evidenceByCompetence[key]?.fileName ?? "";
+  };
+
+  const validateCurrentCompetence = () => {
+    return validateBeforeClosing({
+      course: selectedCourse,
+      activeCompetence,
+      evaluations,
+      instruments,
+      evidenceFileName: evidence.fileName,
+    });
+  };
+
+  const markActiveCompetenceAsCompleted = () => {
+    setCompletedCompetenceIds((current) => {
+      if (current.includes(activeCompetence.id)) return current;
+      return [...current, activeCompetence.id];
+    });
+  };
+
   const handleCourseChange = (courseId: string) => {
-    if (!courseId) return;
+    if (!courseId || isEvaluationLocked) return;
 
     setSelectedCourseId(courseId);
   };
@@ -137,6 +226,8 @@ export default function MedicionRAPage() {
     raId: string,
     level: PerformanceLevel,
   ) => {
+    if (isEvaluationLocked) return;
+
     setEvaluationsByCourse((current) => {
       const currentCourseMatrix = normalizeEvaluationMatrix(
         selectedCourse,
@@ -159,6 +250,8 @@ export default function MedicionRAPage() {
   };
 
   const handleInstrumentDescriptionChange = (raId: string, value: string) => {
+    if (isEvaluationLocked) return;
+
     setInstrumentsByCourse((current) => {
       const currentCourseInstruments = normalizeInstrumentState(
         selectedCourse,
@@ -181,6 +274,8 @@ export default function MedicionRAPage() {
   };
 
   const handleEvidenceChange = (nextEvidence: Partial<EvidenceState>) => {
+    if (isEvaluationLocked) return;
+
     setEvidenceByCompetence((current) => ({
       ...current,
       [activeCompetenceStorageKey]: {
@@ -196,6 +291,8 @@ export default function MedicionRAPage() {
     key: keyof ImprovementPlanState,
     value: string,
   ) => {
+    if (isEvaluationLocked) return;
+
     setImprovementByCompetence((current) => ({
       ...current,
       [activeCompetenceStorageKey]: {
@@ -208,6 +305,16 @@ export default function MedicionRAPage() {
   };
 
   const handleSaveProgress = () => {
+    if (isEvaluationLocked) return;
+
+    const result = validateCurrentCompetence();
+
+    if (result.type === "error") {
+      setFeedback(result);
+      return;
+    }
+
+    markActiveCompetenceAsCompleted();
     setFeedback({
       type: "info",
       title: "Progreso guardado",
@@ -216,16 +323,55 @@ export default function MedicionRAPage() {
     });
   };
 
-  const handleFinishEvaluation = () => {
-    const result = validateBeforeClosing({
+  const handlePrimaryAction = () => {
+    if (isEvaluationLocked) return;
+
+    const result = validateCurrentCompetence();
+
+    if (result.type === "error") {
+      setFeedback(result);
+      return;
+    }
+
+    markActiveCompetenceAsCompleted();
+
+    if (!isLastCompetence) {
+      const nextCompetence = selectedCourse.competences[activeCompetenceIndex + 1];
+      setActiveCompetenceId(nextCompetence.id);
+      setFeedback({
+        type: "success",
+        title: "Competencia guardada",
+        message:
+          "El progreso de la competencia actual quedó guardado. Continúa con la siguiente competencia.",
+      });
+      return;
+    }
+
+    const courseValidation = validateCourseBeforeFinalizing({
       course: selectedCourse,
-      activeCompetence,
       evaluations,
       instruments,
-      evidenceFileName: evidence.fileName,
+      getEvidenceFileName: getEvidenceFileNameByCompetence,
     });
 
-    setFeedback(result);
+    if (courseValidation.type === "error") {
+      setFeedback(courseValidation);
+      return;
+    }
+
+    setShowFinishModal(true);
+  };
+
+  const handleConfirmFinishEvaluation = () => {
+    setCompletedCompetenceIds(selectedCourse.competences.map((competence) => competence.id));
+    setIsEvaluationLocked(true);
+    setShowFinishModal(false);
+    setFeedback({
+      type: "success",
+      title: "Evaluación finalizada",
+      message:
+        "La evaluación quedó guardada y bloqueada. Ya no es posible modificar la información registrada.",
+    });
   };
 
   const pageActions = (
@@ -240,6 +386,12 @@ export default function MedicionRAPage() {
       >
         Avance {completionPercentage}%
       </Badge>
+
+      {isEvaluationLocked ? (
+        <Badge variant="success" className="px-4 py-2">
+          Evaluación bloqueada
+        </Badge>
+      ) : null}
     </div>
   );
 
@@ -255,12 +407,16 @@ export default function MedicionRAPage() {
           courses={mockCourses}
           selectedCourseId={selectedCourseId}
           completionPercentage={completionPercentage}
+          disabled={isEvaluationLocked}
+          lockedTooltip={LOCKED_TOOLTIP}
           onCourseChange={handleCourseChange}
         />
 
         <CompetenceStepper
           competences={selectedCourse.competences}
           activeCompetenceId={activeCompetence.id}
+          completedCompetenceIds={completedCompetenceIds}
+          subProgressSteps={subProgressSteps}
           onChange={setActiveCompetenceId}
         />
 
@@ -269,6 +425,8 @@ export default function MedicionRAPage() {
         <InstrumentSection
           activeCompetence={activeCompetence}
           instruments={instruments}
+          disabled={isEvaluationLocked}
+          lockedTooltip={LOCKED_TOOLTIP}
           onDescriptionChange={handleInstrumentDescriptionChange}
         />
 
@@ -276,6 +434,8 @@ export default function MedicionRAPage() {
           activeCompetence={activeCompetence}
           students={selectedCourse.students}
           evaluations={evaluations}
+          disabled={isEvaluationLocked}
+          lockedTooltip={LOCKED_TOOLTIP}
           onLevelChange={handleLevelChange}
         />
 
@@ -289,6 +449,8 @@ export default function MedicionRAPage() {
           evidence={evidence}
           improvementPlan={improvementPlan}
           results={activeRaResults}
+          disabled={isEvaluationLocked}
+          lockedTooltip={LOCKED_TOOLTIP}
           onEvidenceFileChange={(fileName) =>
             handleEvidenceChange({ fileName })
           }
@@ -300,6 +462,16 @@ export default function MedicionRAPage() {
       <ValidationBanner
         feedback={feedback}
         onClose={() => setFeedback(null)}
+      />
+
+      <ConfirmDialog
+        open={showFinishModal}
+        title="¿Estás seguro de que deseas finalizar la evaluación?"
+        description="Después de finalizarla, la información registrada quedará bloqueada y no podrás editar ni modificar las competencias evaluadas."
+        confirmLabel="Sí, finalizar evaluación"
+        variant="warning"
+        onCancel={() => setShowFinishModal(false)}
+        onConfirm={handleConfirmFinishEvaluation}
       />
 
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-6 py-4 shadow-[var(--shadow-lg)] xl:left-[320px]">
@@ -314,6 +486,8 @@ export default function MedicionRAPage() {
               variant="outline"
               leftIcon={<GoClock className="text-lg" />}
               onClick={handleSaveProgress}
+              disabled={isEvaluationLocked}
+              title={isEvaluationLocked ? LOCKED_TOOLTIP : undefined}
               className="min-w-[220px]"
             >
               Guardar progreso
@@ -322,10 +496,16 @@ export default function MedicionRAPage() {
             <Button
               variant="primary"
               leftIcon={<GoCheckCircle className="text-lg" />}
-              onClick={handleFinishEvaluation}
+              onClick={handlePrimaryAction}
+              disabled={isEvaluationLocked}
+              title={isEvaluationLocked ? LOCKED_TOOLTIP : undefined}
               className="min-w-[240px]"
             >
-              Finalizar evaluación
+              {isEvaluationLocked
+                ? "Evaluación finalizada"
+                : isLastCompetence
+                  ? "Finalizar evaluación"
+                  : "Siguiente competencia"}
             </Button>
           </div>
         </div>

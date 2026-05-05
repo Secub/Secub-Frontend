@@ -213,8 +213,49 @@ export function validateBeforeClosing({
 
   return {
     type: "success",
-    title: "Competencia lista para cierre",
+    title: "Competencia lista",
     message:
-      "La competencia seleccionada tiene sus RA evaluados, los instrumentos definidos y la evidencia obligatoria cargada. En integración real aquí se enviaría el cierre al backend.",
+      "La competencia seleccionada tiene sus RA evaluados, los instrumentos definidos y la evidencia obligatoria cargada.",
+  };
+}
+
+export function validateCourseBeforeFinalizing({
+  course,
+  evaluations,
+  instruments,
+  getEvidenceFileName,
+}: {
+  course: CourseRecord;
+  evaluations: EvaluationMatrix;
+  instruments: InstrumentByRa;
+  getEvidenceFileName: (competence: Competence) => string;
+}): ValidationFeedback {
+  const details = course.competences.flatMap((competence) => {
+    const validation = validateBeforeClosing({
+      course,
+      activeCompetence: competence,
+      evaluations,
+      instruments,
+      evidenceFileName: getEvidenceFileName(competence),
+    });
+
+    return validation.details ?? [];
+  });
+
+  if (details.length > 0) {
+    return {
+      type: "error",
+      title: "No se puede finalizar todavía",
+      message:
+        "Corrige los puntos pendientes antes de cerrar definitivamente la evaluación.",
+      details,
+    };
+  }
+
+  return {
+    type: "success",
+    title: "Evaluación lista para cierre",
+    message:
+      "Todas las competencias cumplen con la información necesaria para finalizar la evaluación.",
   };
 }

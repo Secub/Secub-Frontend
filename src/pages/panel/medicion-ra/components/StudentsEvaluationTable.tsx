@@ -15,6 +15,8 @@ interface StudentsEvaluationTableProps {
   activeCompetence: Competence;
   students: Student[];
   evaluations: EvaluationMatrix;
+  disabled?: boolean;
+  lockedTooltip?: string;
   onLevelChange: (
     studentId: string,
     raId: string,
@@ -38,6 +40,8 @@ export default function StudentsEvaluationTable({
   activeCompetence,
   students,
   evaluations,
+  disabled = false,
+  lockedTooltip,
   onLevelChange,
 }: StudentsEvaluationTableProps) {
   const [selectedRa, setSelectedRa] = useState<LearningResult | null>(null);
@@ -141,9 +145,11 @@ export default function StudentsEvaluationTable({
                     <td
                       key={ra.id}
                       className="border-b border-[var(--color-gray-6)] px-5 py-4 align-middle"
+                      title={disabled ? lockedTooltip : undefined}
                     >
                       <select
                         value={selectedLevel}
+                        disabled={disabled}
                         onChange={(event) =>
                           onLevelChange(
                             student.id,
@@ -153,7 +159,7 @@ export default function StudentsEvaluationTable({
                         }
                         aria-label={`Nivel de ${student.name} para ${ra.code}`}
                         className={[
-                          "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)]",
+                          "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed",
                           selectTone[selectedLevel],
                         ].join(" ")}
                       >

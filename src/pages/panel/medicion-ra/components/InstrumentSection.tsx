@@ -4,12 +4,16 @@ import type { Competence, InstrumentByRa } from "../medicion-ra.types";
 interface InstrumentSectionProps {
   activeCompetence: Competence;
   instruments: InstrumentByRa;
+  disabled?: boolean;
+  lockedTooltip?: string;
   onDescriptionChange: (raId: string, value: string) => void;
 }
 
 export default function InstrumentSection({
   activeCompetence,
   instruments,
+  disabled = false,
+  lockedTooltip,
   onDescriptionChange,
 }: InstrumentSectionProps) {
   return (
@@ -40,6 +44,7 @@ export default function InstrumentSection({
             <article
               key={ra.id}
               className="rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-5 shadow-[var(--shadow-sm)]"
+              title={disabled ? lockedTooltip : undefined}
             >
               <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
@@ -62,6 +67,7 @@ export default function InstrumentSection({
               <Textarea
                 label="Descripción del instrumento"
                 value={instrument.description}
+                disabled={disabled}
                 onChange={(event) =>
                   onDescriptionChange(ra.id, event.target.value)
                 }

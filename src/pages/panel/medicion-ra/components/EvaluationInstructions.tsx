@@ -49,7 +49,7 @@ export default function EvaluationInstructions() {
             <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
               {level.label}
             </h3>
-            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gray-4)]">
+            <p className="mt-2 text-xs font-bold text-[var(--color-gray-4)]">
               {level.gradeRange}
             </p>
             <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)]">

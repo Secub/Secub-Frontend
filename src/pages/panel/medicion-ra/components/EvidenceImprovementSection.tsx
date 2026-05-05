@@ -1,5 +1,6 @@
-import { GoAlert, GoFile, GoLink, GoUpload } from "react-icons/go";
-import { Input, Textarea } from "../../../../components/ui";
+import { useState } from "react";
+import { GoAlert, GoFile, GoLink, GoTrash, GoUpload } from "react-icons/go";
+import { Button, ConfirmDialog, Input, Textarea } from "../../../../components/ui";
 import { ACCEPTED_FILE_FORMATS } from "../medicion-ra.mock";
 import type {
   Competence,
@@ -13,6 +14,8 @@ interface EvidenceImprovementSectionProps {
   evidence: EvidenceState;
   improvementPlan: ImprovementPlanState;
   results: RaResultSummary[];
+  disabled?: boolean;
+  lockedTooltip?: string;
   onEvidenceFileChange: (fileName: string) => void;
   onEvidenceLinkChange: (value: string) => void;
   onImprovementPlanChange: (
@@ -21,17 +24,34 @@ interface EvidenceImprovementSectionProps {
   ) => void;
 }
 
+type DeleteTarget = "file" | "link" | null;
+
 export default function EvidenceImprovementSection({
   activeCompetence,
   evidence,
   improvementPlan,
   results,
+  disabled = false,
+  lockedTooltip,
   onEvidenceFileChange,
   onEvidenceLinkChange,
   onImprovementPlanChange,
 }: EvidenceImprovementSectionProps) {
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
   const underTargetResults = results.filter((result) => !result.reachedTarget);
   const hasUnderTargetResults = underTargetResults.length > 0;
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget === "file") {
+      onEvidenceFileChange("");
+    }
+
+    if (deleteTarget === "link") {
+      onEvidenceLinkChange("");
+    }
+
+    setDeleteTarget(null);
+  };
 
   return (
     <section className="grid gap-6 xl:grid-cols-2">
@@ -52,7 +72,10 @@ export default function EvidenceImprovementSection({
           </p>
         </div>
 
-        <div className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">
+        <div
+          className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5"
+          title={disabled ? lockedTooltip : undefined}
+        >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-3">
               <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-white)] text-[var(--color-secondary-1)]">
@@ -69,19 +92,39 @@ export default function EvidenceImprovementSection({
               </div>
             </div>
 
-            <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-secondary-1)] px-5 py-3 text-sm font-semibold text-[var(--color-white)] transition-opacity hover:opacity-95">
-              <GoUpload className="text-lg" />
-              Examinar
-              <input
-                type="file"
-                accept={ACCEPTED_FILE_FORMATS}
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  onEvidenceFileChange(file?.name ?? "");
-                }}
-              />
-            </label>
+            <div className="flex flex-wrap gap-3">
+              <label
+                className={[
+                  "inline-flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-secondary-1)] px-5 py-3 text-sm font-semibold text-[var(--color-white)] transition-opacity hover:opacity-95",
+                  disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+                ].join(" ")}
+              >
+                <GoUpload className="text-lg" />
+                Examinar
+                <input
+                  type="file"
+                  accept={ACCEPTED_FILE_FORMATS}
+                  className="sr-only"
+                  disabled={disabled}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    onEvidenceFileChange(file?.name ?? "");
+                  }}
+                />
+              </label>
+
+              {evidence.fileName ? (
+                <Button
+                  variant="outline"
+                  leftIcon={<GoTrash className="text-lg" />}
+                  disabled={disabled}
+                  title={disabled ? lockedTooltip : undefined}
+                  onClick={() => setDeleteTarget("file")}
+                >
+                  Eliminar archivo
+                </Button>
+              ) : null}
+            </div>
           </div>
 
           <div className="mt-4 rounded-[var(--radius-md)] bg-[var(--color-white)] px-4 py-3 text-sm text-[var(--color-gray-3)]">
@@ -92,15 +135,30 @@ export default function EvidenceImprovementSection({
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5" title={disabled ? lockedTooltip : undefined}>
           <Input
             label="Enlace de evidencia (opcional)"
             value={evidence.link}
+            disabled={disabled}
             onChange={(event) => onEvidenceLinkChange(event.target.value)}
             placeholder="https://"
             leftIcon={<GoLink className="text-lg" />}
             helperText="Puedes pegar un enlace a Drive, repositorio, prototipo o carpeta institucional."
           />
+
+          {evidence.link ? (
+            <div className="mt-3 flex justify-end">
+              <Button
+                variant="outline"
+                leftIcon={<GoTrash className="text-lg" />}
+                disabled={disabled}
+                title={disabled ? lockedTooltip : undefined}
+                onClick={() => setDeleteTarget("link")}
+              >
+                Eliminar enlace
+              </Button>
+            </div>
+          ) : null}
         </div>
       </article>
 
@@ -134,10 +192,11 @@ export default function EvidenceImprovementSection({
           </div>
         ) : null}
 
-        <div className="space-y-5">
+        <div className="space-y-5" title={disabled ? lockedTooltip : undefined}>
           <Textarea
             label="1. Análisis de los resultados obtenidos"
             value={improvementPlan.analysis}
+            disabled={disabled}
             onChange={(event) =>
               onImprovementPlanChange("analysis", event.target.value)
             }
@@ -150,6 +209,7 @@ export default function EvidenceImprovementSection({
           <Textarea
             label="2. Acciones propuestas para próximas mediciones"
             value={improvementPlan.actions}
+            disabled={disabled}
             onChange={(event) =>
               onImprovementPlanChange("actions", event.target.value)
             }
@@ -160,6 +220,16 @@ export default function EvidenceImprovementSection({
           />
         </div>
       </article>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="¿Estás seguro de que deseas eliminar este elemento?"
+        description="Esta acción puede modificar la información registrada en la evaluación."
+        confirmLabel="Sí, eliminar"
+        variant="danger"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </section>
   );
 }

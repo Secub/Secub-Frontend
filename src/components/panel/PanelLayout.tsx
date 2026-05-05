@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Breadcrumb, type BreadcrumbItem } from "../ui";
+import DevRoleSelector from "./DevRoleSelector";
 import PanelSidebar from "./PanelSidebar";
 import type { PanelStepKey } from "./panelNavigation";
 
@@ -8,7 +10,12 @@ interface PanelLayoutProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  breadcrumbItems?: BreadcrumbItem[];
 }
+
+// Selector temporal de roles para desarrollo.
+// Cambiar a false o eliminar este bloque cuando el rol venga desde autenticación/backend.
+const SHOW_DEV_ROLE_SELECTOR = true;
 
 export default function PanelLayout({
   children,
@@ -16,6 +23,7 @@ export default function PanelLayout({
   title,
   description,
   actions,
+  breadcrumbItems,
 }: PanelLayoutProps) {
   return (
     <div className="min-h-screen bg-[var(--color-surface)] text-[var(--color-gray-1)]">
@@ -26,6 +34,8 @@ export default function PanelLayout({
           <header className="sticky top-0 z-30 border-b border-[var(--color-gray-6)] bg-[var(--color-white)]" />
 
           <main className="px-6 py-6 lg:px-8 lg:py-8">
+            <Breadcrumb items={breadcrumbItems} />
+
             <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div>
                 <h1 className="font-heading text-3xl font-semibold tracking-tight text-[var(--color-secondary-4)] md:text-[2rem]">
@@ -39,7 +49,12 @@ export default function PanelLayout({
                 ) : null}
               </div>
 
-              {actions ? <div className="shrink-0">{actions}</div> : null}
+              {(actions || SHOW_DEV_ROLE_SELECTOR) ? (
+                <div className="flex shrink-0 flex-wrap items-center gap-3">
+                  {actions}
+                  {SHOW_DEV_ROLE_SELECTOR ? <DevRoleSelector /> : null}
+                </div>
+              ) : null}
             </div>
 
             {children}
