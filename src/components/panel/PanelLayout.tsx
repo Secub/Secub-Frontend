@@ -1,7 +1,4 @@
 import type { ReactNode } from "react";
-/*import {
-  GoBell,
-} from "react-icons/go";*/
 import PanelSidebar from "./PanelSidebar";
 import type { PanelStepKey } from "./panelNavigation";
 
@@ -21,18 +18,12 @@ export default function PanelLayout({
   actions,
 }: PanelLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#f6f8fb] text-[var(--color-gray-1)]">
+    <div className="min-h-screen bg-[var(--color-surface)] text-[var(--color-gray-1)]">
       <div className="flex min-h-screen items-start">
         <PanelSidebar currentStep={currentStep} />
 
         <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-[var(--color-gray-6)] bg-white/85 backdrop-blur">
-            {/*  <div className="flex items-center gap-3">
-                <button className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--color-gray-6)] bg-white text-[var(--color-gray-4)] transition-colors hover:text-[var(--color-secondary-4)]">
-                  <GoBell className="text-lg" />
-                </button>
-              </div> */}
-          </header>
+          <header className="sticky top-0 z-30 border-b border-[var(--color-gray-6)] bg-[var(--color-white)]" />
 
           <main className="px-6 py-6 lg:px-8 lg:py-8">
             <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
