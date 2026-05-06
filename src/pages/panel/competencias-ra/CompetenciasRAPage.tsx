@@ -201,7 +201,7 @@ export default function CompetenciasRaFormacionPage() {
       );
     });
 
-    // Aplicar los filtros del formulario
+    // Aplicar los filtros del formulario al crear nueva competencia
     setFilters({
       seccionalId: values.seccionalId,
       lugarId: values.lugarId,
