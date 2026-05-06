@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "accent" | "outline" | "ghost" | "danger";
+type ButtonVariant = "primary" | "accent" | "outline" | "ghost" | "danger" | "primary_soft";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,6 +18,8 @@ const baseStyles =
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "bg-[var(--color-secondary-1)] text-white border border-[var(--color-secondary-1)] hover:opacity-95 focus:ring-[var(--color-secondary-1)]",
+  primary_soft:
+    "bg-[var(--color-secondary-1)]/5 text-black border border-[var(--color-secondary-1)] hover:opacity-80 focus:ring-[var(--color-secondary-1)]",
   accent:
     "bg-[var(--color-primary)] text-white border border-[var(--color-primary)] hover:opacity-95 focus:ring-[var(--color-primary)]",
   outline:

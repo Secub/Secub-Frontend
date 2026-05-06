@@ -96,6 +96,7 @@ export default function CompetenciasRaCard({
         <Button
           onClick={() => setExpandedRAs(!expandedRAs)}
           className="w-full"
+          variant="primary_soft"
         >
           <div className="flex w-full flex-row items-center justify-center gap-2">
             {expandedRAs ? (
