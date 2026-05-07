@@ -29,6 +29,23 @@ export interface ProgramaAcademico {
   nombre: string;
   facultadId: string;
   seccionalId: string;
+  numeroSemestres: number;
+  semestres: ProgramaAcademicoSemestre[];
+}
+
+export interface ProgramaAcademicoSemestre {
+  numero: number;
+  cursos: ProgramaAcademicoCurso[];
+}
+
+export interface ProgramaAcademicoCurso {
+  id: string;
+  codigo: string;
+  nombre: string;
+  creditos: number;
+  horasSemanales: number;
+  nucleo: "fundamentacion" | "profesionalizacion" | "sintesis";
+  descripcion: string;
 }
 
 export interface PlanEstudio {

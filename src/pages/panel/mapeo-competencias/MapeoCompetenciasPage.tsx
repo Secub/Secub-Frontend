@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import { GoDownload, GoFile, GoPlus } from "react-icons/go";
+import { GoPencil, GoPlus, GoTrash } from "react-icons/go";
 import { Button } from "../../../components/ui/Button";
 import { PanelLayout } from "../../../components/panel";
-import CompetenciasRaExportModal from "./components/CompetenciasRaExportModal";
-import MapeoCompetenciasCardGrid from "./components/MapeoCompetenciasCardGrid";
+import MapeoCompetenciasExportModal from "./components/MapeoCompetenciasExportModal";
 import MapeoCompetenciasDeleteModal from "./components/MapeoCompetenciasDeleteModal";
 import MapeoCompetenciasFilters from "./components/MapeoCompetenciasFilters";
+import MapeoCompetenciasSemestreCompromisoCard from "./components/MapeoCompetenciasSemestreCompromisoCard";
 import {
   getCatalogs,
   getCurrentUser,
@@ -71,6 +71,7 @@ export default function MapeoCompetenciasPage() {
     () => applyFilters(roleScopedRecords, sanitizedFilters),
     [roleScopedRecords, sanitizedFilters],
   );
+  const selectedMapeoForActions = filteredRecords[0] ?? null;
 
   const summaryStats = useMemo(() => {
     const activeRecords = roleScopedRecords.filter((record) => record.estado === "activo");
@@ -154,55 +155,45 @@ export default function MapeoCompetenciasPage() {
     }, 400);
   };
 
-  const pageActions = (
-    <div className="flex flex-wrap items-center gap-3">
-      {permissions.canCreate ? (
-        <Button
-          variant="primary"
-          leftIcon={<GoPlus className="text-lg" />}
-          onClick={handleCreateClick}
-          title="Crear nuevo mapeo de competencias"
-        >
-          Crear Mapeo
-        </Button>
-      ) : null}
+  // const pageActions = (
+  //   <div className="flex flex-wrap items-center gap-3">
 
-      <Button
-        variant="outline"
-        leftIcon={<GoFile className="text-lg" />}
-        onClick={() => setExportFormat("pdf")}
-        disabled={!permissions.canExportPdf || filteredRecords.length === 0}
-        title={
-          permissions.canExportPdf
-            ? "Exportar resultados filtrados en PDF"
-            : "Tu rol no tiene permiso para exportar en PDF."
-        }
-      >
-        PDF
-      </Button>
+  //     <Button
+  //       variant="outline"
+  //       leftIcon={<GoFile className="text-lg" />}
+  //       onClick={() => setExportFormat("pdf")}
+  //       disabled={!permissions.canExportPdf || filteredRecords.length === 0}
+  //       title={
+  //         permissions.canExportPdf
+  //           ? "Exportar resultados filtrados en PDF"
+  //           : "Tu rol no tiene permiso para exportar en PDF."
+  //       }
+  //     >
+  //       PDF
+  //     </Button>
 
-      <Button
-        variant="outline"
-        leftIcon={<GoDownload className="text-lg" />}
-        onClick={() => setExportFormat("excel")}
-        disabled={!permissions.canExportExcel || filteredRecords.length === 0}
-        title={
-          permissions.canExportExcel
-            ? "Exportar resultados filtrados en Excel"
-            : "Tu rol no tiene permiso para exportar en Excel."
-        }
-      >
-        Excel
-      </Button>
-    </div>
-  );
+  //     <Button
+  //       variant="outline"
+  //       leftIcon={<GoDownload className="text-lg" />}
+  //       onClick={() => setExportFormat("excel")}
+  //       disabled={!permissions.canExportExcel || filteredRecords.length === 0}
+  //       title={
+  //         permissions.canExportExcel
+  //           ? "Exportar resultados filtrados en Excel"
+  //           : "Tu rol no tiene permiso para exportar en Excel."
+  //       }
+  //     >
+  //       Excel
+  //     </Button>
+  //   </div>
+  // );
 
   return (
     <PanelLayout
       currentStep="mapeo-competencias"
       title="Mapeo de Competencias"
       description="Asignacion I-R-A y visualizacion de la malla curricular por semestres y cursos."
-      actions={pageActions}
+      // actions={pageActions}
     >
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3">
@@ -243,6 +234,51 @@ export default function MapeoCompetenciasPage() {
           </article>
         </div>
 
+        <div className="flex justify-end gap-4">
+
+          {permissions.canCreate ? (
+            <Button
+              variant="primary"
+              leftIcon={<GoPlus className="text-lg" />}
+              onClick={handleCreateClick}
+              title="Crear nuevo mapeo de competencias"
+            >
+              Crear Mapeo
+            </Button>
+          ) : null}
+
+          {permissions.canUpdate ? (
+            <Button
+              variant="primary_soft"
+              leftIcon={<GoPencil className="text-lg" />}
+              onClick={() => {
+                if (selectedMapeoForActions) handleEditClick(selectedMapeoForActions);
+              }}
+              disabled={!selectedMapeoForActions}
+              title="Editar el mapeo visible con los filtros actuales"
+            >
+              Editar Mapeo
+            </Button>
+          ) : null}
+
+          {permissions.canDelete ? (
+            <Button
+              variant="danger_soft"
+              leftIcon={<GoTrash className="text-lg" />}
+              onClick={() => {
+                if (selectedMapeoForActions) handleDeleteClick(selectedMapeoForActions);
+              }}
+              disabled={!selectedMapeoForActions}
+              title="Eliminar el mapeo visible con los filtros actuales"
+            >
+              Eliminar Mapeo
+            </Button>
+          ) : null}
+
+        </div>
+
+
+
         <MapeoCompetenciasFilters
           user={currentUser}
           permissions={permissions}
@@ -276,29 +312,29 @@ export default function MapeoCompetenciasPage() {
           activeRecords={filteredRecords}
         />
 
+
         <div className="surface-card rounded-lg p-6 md:p-8">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h3 className="text-xl font-semibold text-[var(--color-secondary-4)]">
-                Mapeos de Competencias
+                Semestres
               </h3>
-              <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+              {/* <p className="mt-1 text-sm text-[var(--color-gray-3)]">
                 {filteredRecords.length} mapeo{filteredRecords.length !== 1 ? "s" : ""} disponible
                 {filteredRecords.length !== 1 ? "s" : ""}
-              </p>
+              </p> */}
             </div>
           </div>
 
-          <MapeoCompetenciasCardGrid
-            records={filteredRecords}
-            role={currentUser.role}
-            permissions={permissions}
-            onEdit={handleEditClick}
-            onDelete={handleDeleteClick}
+          <MapeoCompetenciasSemestreCompromisoCard
+            catalogs={catalogs}
+            filters={sanitizedFilters}
+            mapeos={filteredRecords}
           />
+
         </div>
 
-        <CompetenciasRaExportModal
+        <MapeoCompetenciasExportModal
           open={exportFormat === "pdf"}
           title="Exportacion de Mapeos de Competencias en PDF"
           format="pdf"
@@ -309,7 +345,7 @@ export default function MapeoCompetenciasPage() {
           onClose={() => setExportFormat(null)}
         />
 
-        <CompetenciasRaExportModal
+        <MapeoCompetenciasExportModal
           open={exportFormat === "excel"}
           title="Exportacion de Mapeos de Competencias en Excel"
           format="excel"

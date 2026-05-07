@@ -6,6 +6,7 @@ import type {
   LugarDesarrollo,
   PlanEstudio,
   ProgramaAcademico,
+  ProgramaAcademicoSemestre,
   MapeoCompetenciasRecord,
   MapeoCompetenciasRole,
   Seccional,
@@ -148,7 +149,226 @@ export const facultades: Facultad[] = [
   { id: "ing-cart", nombre: "Facultad de Ingeniería", seccionalId: "cartagena" },
 ];
 
-export const programas: ProgramaAcademico[] = [
+const courseCatalogByArea: Record<string, string[]> = {
+  sistemas: [
+    "Logica Matematica",
+    "Programacion I",
+    "Calculo Diferencial",
+    "Algebra Lineal",
+    "Humanidades I",
+    "Programacion II",
+    "Calculo Integral",
+    "Fisica Mecanica",
+    "Estructuras de Datos",
+    "Arquitectura de Computadores",
+    "Bases de Datos",
+    "Ingenieria de Software I",
+    "Sistemas Operativos",
+    "Redes de Computadores",
+    "Estadistica Aplicada",
+    "Analisis de Algoritmos",
+    "Ingenieria de Software II",
+    "Gestion de Proyectos TI",
+    "Seguridad Informatica",
+    "Inteligencia Artificial",
+    "Arquitectura de Software",
+    "Computacion en la Nube",
+    "Electiva Profesional I",
+    "Practica Profesional",
+    "Proyecto de Grado",
+    "Etica Profesional",
+    "Emprendimiento Tecnologico",
+    "Electiva Profesional II",
+  ],
+  industrial: [
+    "Introduccion a la Ingenieria Industrial",
+    "Calculo Diferencial",
+    "Quimica General",
+    "Dibujo de Ingenieria",
+    "Comunicacion Oral y Escrita",
+    "Calculo Integral",
+    "Fisica Mecanica",
+    "Probabilidad y Estadistica",
+    "Procesos Industriales",
+    "Costos y Presupuestos",
+    "Investigacion de Operaciones",
+    "Gestion de Calidad",
+    "Logistica y Cadena de Suministro",
+    "Ergonomia",
+    "Simulacion de Procesos",
+    "Planeacion de la Produccion",
+    "Gestion Ambiental",
+    "Finanzas para Ingenieros",
+    "Gerencia de Operaciones",
+    "Analitica de Datos Industriales",
+    "Mejoramiento Continuo",
+    "Gestion del Talento Humano",
+    "Practica Empresarial",
+    "Proyecto Integrador",
+  ],
+  artes: [
+    "Fundamentos de Movimiento",
+    "Historia de la Danza",
+    "Musica y Ritmo",
+    "Expresion Corporal",
+    "Lectura Critica",
+    "Tecnica Clasica",
+    "Tecnica Contemporanea",
+    "Improvisacion",
+    "Pedagogia Artistica",
+    "Composicion Escenica",
+    "Investigacion Creacion",
+    "Gestion Cultural",
+    "Didactica de la Danza",
+    "Produccion Escenica",
+    "Practica Docente",
+    "Proyecto Coreografico",
+    "Seminario de Performance",
+    "Electiva Artistica",
+  ],
+  multimedia: [
+    "Diseno Basico",
+    "Narrativa Digital",
+    "Programacion Creativa",
+    "Matematicas Discretas",
+    "Comunicacion Visual",
+    "Modelado 3D",
+    "Animacion Digital",
+    "Interfaces Interactivas",
+    "Audio y Video Digital",
+    "Experiencia de Usuario",
+    "Desarrollo Web",
+    "Realidad Virtual",
+    "Produccion Multimedia",
+    "Videojuegos",
+    "Analitica de Producto",
+    "Proyecto Multimedia",
+    "Gestion de Contenidos",
+    "Practica Profesional",
+  ],
+  biomedica: [
+    "Biologia Celular",
+    "Calculo Diferencial",
+    "Quimica General",
+    "Fisica Biomedica",
+    "Anatomia",
+    "Bioquimica",
+    "Circuitos Electricos",
+    "Biomecanica",
+    "Senales Biomedicas",
+    "Instrumentacion Biomedica",
+    "Imagenes Medicas",
+    "Biomateriales",
+    "Diseno de Dispositivos Medicos",
+    "Gestion Hospitalaria",
+    "Regulacion Sanitaria",
+    "Practica Clinica",
+    "Proyecto Biomedico",
+  ],
+  agroindustrial: [
+    "Biologia General",
+    "Quimica Organica",
+    "Calculo Diferencial",
+    "Introduccion Agroindustrial",
+    "Suelos y Cultivos",
+    "Microbiologia",
+    "Procesos Agroindustriales",
+    "Termodinamica",
+    "Estadistica Aplicada",
+    "Conservacion de Alimentos",
+    "Gestion de Calidad Agroindustrial",
+    "Logistica Agroalimentaria",
+    "Biotecnologia",
+    "Economia Rural",
+    "Innovacion Agroindustrial",
+    "Practica Empresarial",
+    "Proyecto Agroindustrial",
+  ],
+};
+
+function getNucleoBySemester(
+  semesterNumber: number,
+  totalSemesters: number,
+): "fundamentacion" | "profesionalizacion" | "sintesis" {
+  if (semesterNumber <= 3) return "fundamentacion";
+  if (semesterNumber >= totalSemesters - 1) return "sintesis";
+  return "profesionalizacion";
+}
+
+function buildProgramaSemestres(
+  programaId: string,
+  totalSemesters: number,
+  area: keyof typeof courseCatalogByArea,
+): ProgramaAcademicoSemestre[] {
+  const courseNames = courseCatalogByArea[area];
+
+  return Array.from({ length: totalSemesters }, (_, semesterIndex) => {
+    const semesterNumber = semesterIndex + 1;
+    const courseCount = semesterNumber % 2 === 0 ? 6 : 5;
+    const nucleo = getNucleoBySemester(semesterNumber, totalSemesters);
+
+    return {
+      numero: semesterNumber,
+      cursos: Array.from({ length: courseCount }, (_, courseIndex) => {
+        const sequence = semesterIndex * 6 + courseIndex;
+        const courseName = courseNames[sequence % courseNames.length];
+        const courseNumber = courseIndex + 1;
+
+        return {
+          id: `${programaId}-sem-${semesterNumber}-curso-${courseNumber}`,
+          codigo: `${programaId.toUpperCase().replace(/-/g, "")}-${String(
+            semesterNumber,
+          ).padStart(2, "0")}${String(courseNumber).padStart(2, "0")}`,
+          nombre: courseName,
+          creditos: courseIndex === 4 ? 2 : 3,
+          horasSemanales: courseIndex === 4 ? 3 : 4,
+          nucleo,
+          descripcion: `${courseName} fortalece el nucleo de ${nucleo} del semestre ${semesterNumber}.`,
+        };
+      }),
+    };
+  });
+}
+
+const programaAcademicoDetalles: Record<
+  string,
+  Pick<ProgramaAcademico, "numeroSemestres" | "semestres">
+> = {
+  "sis-cali": {
+    numeroSemestres: 10,
+    semestres: buildProgramaSemestres("sis-cali", 10, "sistemas"),
+  },
+  "ind-cali": {
+    numeroSemestres: 10,
+    semestres: buildProgramaSemestres("ind-cali", 10, "industrial"),
+  },
+  "danza-cali": {
+    numeroSemestres: 8,
+    semestres: buildProgramaSemestres("danza-cali", 8, "artes"),
+  },
+  "sis-bog": {
+    numeroSemestres: 10,
+    semestres: buildProgramaSemestres("sis-bog", 10, "sistemas"),
+  },
+  "multimedia-bog": {
+    numeroSemestres: 9,
+    semestres: buildProgramaSemestres("multimedia-bog", 9, "multimedia"),
+  },
+  "biomedica-bog": {
+    numeroSemestres: 10,
+    semestres: buildProgramaSemestres("biomedica-bog", 10, "biomedica"),
+  },
+  "agro-med": {
+    numeroSemestres: 9,
+    semestres: buildProgramaSemestres("agro-med", 9, "agroindustrial"),
+  },
+  "sis-cart": {
+    numeroSemestres: 10,
+    semestres: buildProgramaSemestres("sis-cart", 10, "sistemas"),
+  },
+};
+
+const programasBase = [
   {
     id: "sis-cali",
     nombre: "Ingeniería de Sistemas",
@@ -198,6 +418,11 @@ export const programas: ProgramaAcademico[] = [
     seccionalId: "cartagena",
   },
 ];
+
+export const programas: ProgramaAcademico[] = programasBase.map((programa) => ({
+  ...programa,
+  ...programaAcademicoDetalles[programa.id],
+}));
 
 export const planes: PlanEstudio[] = [
   { id: "plan-2024-2", nombre: "Plan 2024-2" },
