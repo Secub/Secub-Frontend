@@ -1,4 +1,3 @@
-// import { GoTrash } from "react-icons/go";
 import { ConfirmDialog } from "../../../../components/ui";
 import type { MapeoCompetenciasEnriched } from "../MapeoCompetencias.types";
 
@@ -23,7 +22,7 @@ export function MapeoCompetenciasDeleteModal({
     <ConfirmDialog
       open={open}
       title="Eliminar Mapeo de Competencias"
-      description={`¿Estás seguro de que deseas eliminar el mapeo de "${record.programaNombre}" en el plan "${record.planNombre}"? Esta acción no se puede deshacer.`}
+      description={`Estas seguro de que deseas eliminar el mapeo de "${record.programaNombre}" en el plan "${record.planNombre}"? Esta accion no se puede deshacer.`}
       confirmLabel="Eliminar"
       cancelLabel="Cancelar"
       variant="danger"

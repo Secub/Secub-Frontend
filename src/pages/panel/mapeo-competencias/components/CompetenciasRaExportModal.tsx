@@ -47,7 +47,13 @@ export function MapeoCompetenciasExportModal({
   const [filters, setFilters] = useState<MapeoCompetenciasFilters>(initialFilters);
 
   useEffect(() => {
-    setFilters(initialFilters);
+    if (!open) return;
+
+    const timer = window.setTimeout(() => {
+      setFilters(initialFilters);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [initialFilters, open]);
 
   const filterOptions = useMemo(() => {

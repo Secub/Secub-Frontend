@@ -13,7 +13,115 @@ import type {
 
 export const DEFAULT_ROLE: MapeoCompetenciasRole = "admin";
 
-export const mockMapeoCompetencias: MapeoCompetenciasRecord[] = [];
+export const mockMapeoCompetencias: MapeoCompetenciasRecord[] = [
+  {
+    id: "mapeo-sis-cali-2024-2",
+    seccionalId: "cali",
+    facultadId: "ing-cali",
+    lugarId: "cali",
+    programaId: "sis-cali",
+    planId: "plan-2024-2",
+    estado: "activo",
+    descripcion:
+      "Mapeo curricular del programa de Ingenieria de Sistemas para clasificar competencias por nucleos de formacion y semestres.",
+    nombre: "Mapeo Sistemas 2024-2",
+    numero: 1,
+    semestres: [
+      {
+        semesterId: "sem-1",
+        semesterNumber: 1,
+        competencias: [
+          {
+            id: "comp-fund-1",
+            numero: 1,
+            descripcion: "Pensamiento logico y resolucion de problemas",
+            resultadosAprendizaje: [
+              {
+                id: "ra-fund-1",
+                numero: 1,
+                descripcion:
+                  "Aplica estructuras logicas para modelar problemas basicos de programacion.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        semesterId: "sem-4",
+        semesterNumber: 4,
+        competencias: [
+          {
+            id: "comp-prof-1",
+            numero: 1,
+            descripcion: "Diseno e implementacion de soluciones de software",
+            resultadosAprendizaje: [
+              {
+                id: "ra-prof-1",
+                numero: 1,
+                descripcion:
+                  "Construye componentes de software aplicando buenas practicas de arquitectura.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    createdAt: "2026-03-20T09:20:00",
+    updatedAt: "2026-03-20T09:20:00",
+  },
+  {
+    id: "mapeo-sis-bog-2024-2",
+    seccionalId: "bogota",
+    facultadId: "ing-bog",
+    lugarId: "bogota",
+    programaId: "sis-bog",
+    planId: "plan-2024-2",
+    estado: "activo",
+    descripcion:
+      "Relacion de competencias, resultados de aprendizaje y asignaturas del plan de estudios vigente.",
+    nombre: "Mapeo Sistemas Bogota",
+    numero: 2,
+    semestres: [
+      {
+        semesterId: "sem-1",
+        semesterNumber: 1,
+        competencias: [
+          {
+            id: "comp-bog-1",
+            numero: 1,
+            descripcion: "Fundamentos de ingenieria y pensamiento computacional",
+            resultadosAprendizaje: [
+              {
+                id: "ra-bog-1",
+                numero: 1,
+                descripcion:
+                  "Reconoce conceptos fundamentales de computacion y solucion de problemas.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    createdAt: "2026-03-22T10:00:00",
+    updatedAt: "2026-03-22T10:00:00",
+  },
+  {
+    id: "mapeo-ind-cali-2024-2",
+    seccionalId: "cali",
+    facultadId: "ing-cali",
+    lugarId: "cali",
+    programaId: "ind-cali",
+    planId: "plan-2024-2",
+    estado: "inactivo",
+    descripcion:
+      "Version historica del mapeo de competencias del programa de Ingenieria Industrial.",
+    nombre: "Mapeo Industrial 2024-2",
+    numero: 3,
+    semestres: [],
+    createdAt: "2026-02-28T09:50:00",
+    updatedAt: "2026-03-12T13:00:00",
+  },
+];
 
 export const seccionales: Seccional[] = [
   { id: "cali", nombre: "Seccional Cali" },

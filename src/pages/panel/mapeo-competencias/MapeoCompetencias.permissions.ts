@@ -85,23 +85,27 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   },
 };
 
-export function canEditCompetenciasRa(
+export function canEditMapeoCompetencias(
   role: MapeoCompetenciasRole,
-  CompetenciasRa: MapeoCompetenciasEnriched,
+  mapeo: MapeoCompetenciasEnriched,
 ) {
-  return rolePermissions[role].canUpdate && CompetenciasRa.estado === "activo";
+  return rolePermissions[role].canUpdate && mapeo.estado === "activo";
+}
+
+export function canDeleteMapeoCompetencias(role: MapeoCompetenciasRole) {
+  return rolePermissions[role].canDelete;
 }
 
 export function getEditDisabledReason(
   role: MapeoCompetenciasRole,
-  CompetenciasRa: MapeoCompetenciasEnriched,
+  mapeo: MapeoCompetenciasEnriched,
 ) {
   if (!rolePermissions[role].canUpdate) {
-    return "Tu rol no tiene permiso para editar esta competencia Ra.";
+    return "Tu rol no tiene permiso para editar este mapeo.";
   }
 
-  if (CompetenciasRa.estado !== "activo") {
-    return "Solo se permite editar competencias Ra asociadas a programas activos.";
+  if (mapeo.estado !== "activo") {
+    return "Solo se permite editar mapeos activos.";
   }
 
   return "";

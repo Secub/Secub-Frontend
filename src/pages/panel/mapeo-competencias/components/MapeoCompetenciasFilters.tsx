@@ -12,6 +12,7 @@ interface MapeoCompetenciasFiltersProps {
   permissions: RolePermissions;
   filters: MapeoCompetenciasFiltersState;
   filterOptions: {
+    seccionales: { id: string; nombre: string }[];
     facultades: { id: string; nombre: string }[];
     lugares: { id: string; nombre: string }[];
     programas: { id: string; nombre: string }[];
@@ -57,6 +58,23 @@ export function MapeoCompetenciasFilters({
       </div>
 
       <div className="panel-filters-grid">
+        {permissions.canFilterBySeccional ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Seccional"
+              value={filters.seccionalId}
+              onChange={(event) =>
+                onFilterChange("seccionalId", event.target.value)
+              }
+              options={filterOptions.seccionales.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todas las seccionales"
+            />
+          </div>
+        ) : null}
+
         {permissions.canFilterByLugar ? (
           <div className="panel-filter-item">
             <Select

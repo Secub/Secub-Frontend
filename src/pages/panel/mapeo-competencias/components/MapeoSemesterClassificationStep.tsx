@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { GoChevronRight, GoChevronLeft } from "react-icons/go";
-import { Button, Textarea, Select } from "../../../../components/ui";
-import type { FormState, Catalogs, RolePermissions } from "../MapeoCompetencias.types";
+import { GoChevronLeft, GoChevronRight } from "react-icons/go";
+import { Button, Select, Textarea } from "../../../../components/ui";
+import type {
+  Catalogs,
+  FormState,
+  RolePermissions,
+} from "../MapeoCompetencias.types";
 
 interface MapeoSemesterClassificationStepProps {
   step: number;
@@ -31,50 +35,63 @@ export function MapeoSemesterClassificationStep({
   canProceed,
 }: MapeoSemesterClassificationStepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const canEditStructure = permissions.canCreate || permissions.canUpdate;
 
-  const validateStep = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateCurrentStep = () => {
+    const nextErrors: Record<string, string> = {};
 
-    if (!formValues.programaId) {
-      newErrors.programaId = "El programa académico es requerido";
-    }
-    if (!formValues.planId) {
-      newErrors.planId = "El plan de estudios es requerido";
-    }
-    if (!formValues.lugarId) {
-      newErrors.lugarId = "El lugar de desarrollo es requerido";
+    if (step === 1) {
+      if (!formValues.seccionalId) nextErrors.seccionalId = "La seccional es requerida";
+      if (!formValues.lugarId) nextErrors.lugarId = "El lugar de desarrollo es requerido";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (step === 2 && !formValues.facultadId) {
+      nextErrors.facultadId = "La facultad es requerida";
+    }
+
+    if (step === 3 && !formValues.programaId) {
+      nextErrors.programaId = "El programa academico es requerido";
+    }
+
+    if (step === 4) {
+      if (!formValues.planId) nextErrors.planId = "El plan de estudios es requerido";
+      if (!formValues.descripcion.trim()) {
+        nextErrors.descripcion = "La descripcion del mapeo es requerida";
+      }
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
   const handleNext = () => {
-    if (validateStep()) {
-      onNext();
+    if (validateCurrentStep()) onNext();
+  };
+
+  const handleFieldChange = (field: keyof FormState, value: string) => {
+    setErrors((current) => ({ ...current, [field]: "" }));
+    onFormChange(field, value);
+  };
+
+  const availableLugares = catalogs.lugares.filter((lugar) => {
+    if (!formValues.seccionalId) return true;
+    return lugar.seccionalId === formValues.seccionalId;
+  });
+
+  const availableFacultades = catalogs.facultades.filter((facultad) => {
+    if (!formValues.seccionalId) return true;
+    return facultad.seccionalId === formValues.seccionalId;
+  });
+
+  const availableProgramas = catalogs.programas.filter((programa) => {
+    if (formValues.facultadId && programa.facultadId !== formValues.facultadId) {
+      return false;
     }
-  };
-
-  const getAvailableLugares = () => {
-    if (!formValues.seccionalId) return [];
-    return catalogs.lugares.filter(
-      (l) => l.seccionalId === formValues.seccionalId
-    );
-  };
-
-  const getAvailableFacultades = () => {
-    if (!formValues.seccionalId) return [];
-    return catalogs.facultades.filter(
-      (f) => f.seccionalId === formValues.seccionalId
-    );
-  };
-
-  const getAvailableProgramas = () => {
-    if (!formValues.facultadId) return [];
-    return catalogs.programas.filter(
-      (p) => p.facultadId === formValues.facultadId
-    );
-  };
+    if (formValues.seccionalId && programa.seccionalId !== formValues.seccionalId) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -85,53 +102,67 @@ export function MapeoSemesterClassificationStep({
         <p className="mt-1 text-sm text-[var(--color-gray-3)]">{description}</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Select
-          label="Lugar de Desarrollo"
+          label="Seccional"
+          value={formValues.seccionalId}
+          onChange={(event) => handleFieldChange("seccionalId", event.target.value)}
+          options={catalogs.seccionales.map((item) => ({
+            label: item.nombre,
+            value: item.id,
+          }))}
+          placeholder="Selecciona una seccional"
+          error={errors.seccionalId}
+          required
+          disabled={!canEditStructure}
+        />
+
+        <Select
+          label="Lugar de desarrollo"
           value={formValues.lugarId}
-          onChange={(e) => onFormChange("lugarId", e.target.value)}
-          options={getAvailableLugares().map((item) => ({
+          onChange={(event) => handleFieldChange("lugarId", event.target.value)}
+          options={availableLugares.map((item) => ({
             label: item.nombre,
             value: item.id,
           }))}
           placeholder="Selecciona un lugar"
           error={errors.lugarId}
           required
-          disabled={!permissions.canCreate && !permissions.canUpdate}
+          disabled={!canEditStructure}
         />
 
         <Select
           label="Facultad"
           value={formValues.facultadId}
-          onChange={(e) => onFormChange("facultadId", e.target.value)}
-          options={getAvailableFacultades().map((item) => ({
+          onChange={(event) => handleFieldChange("facultadId", event.target.value)}
+          options={availableFacultades.map((item) => ({
             label: item.nombre,
             value: item.id,
           }))}
           placeholder="Selecciona una facultad"
           error={errors.facultadId}
           required
-          disabled={!permissions.canCreate && !permissions.canUpdate}
+          disabled={!canEditStructure}
         />
 
         <Select
-          label="Programa Académico"
+          label="Programa academico"
           value={formValues.programaId}
-          onChange={(e) => onFormChange("programaId", e.target.value)}
-          options={getAvailableProgramas().map((item) => ({
+          onChange={(event) => handleFieldChange("programaId", event.target.value)}
+          options={availableProgramas.map((item) => ({
             label: item.nombre,
             value: item.id,
           }))}
           placeholder="Selecciona un programa"
           error={errors.programaId}
           required
-          disabled={!permissions.canCreate && !permissions.canUpdate}
+          disabled={!canEditStructure || !formValues.facultadId}
         />
 
         <Select
-          label="Plan de Estudios"
+          label="Plan de estudios"
           value={formValues.planId}
-          onChange={(e) => onFormChange("planId", e.target.value)}
+          onChange={(event) => handleFieldChange("planId", event.target.value)}
           options={catalogs.planes.map((item) => ({
             label: item.nombre,
             value: item.id,
@@ -139,20 +170,22 @@ export function MapeoSemesterClassificationStep({
           placeholder="Selecciona un plan"
           error={errors.planId}
           required
-          disabled={!permissions.canCreate && !permissions.canUpdate}
+          disabled={!canEditStructure}
         />
 
         <Textarea
-          label="Descripción"
+          label="Descripcion"
           value={formValues.descripcion}
-          onChange={(e) => onFormChange("descripcion", e.target.value)}
-          placeholder="Descripción del mapeo"
+          onChange={(event) => handleFieldChange("descripcion", event.target.value)}
+          placeholder="Descripcion del mapeo"
           rows={4}
-          disabled={!permissions.canCreate && !permissions.canUpdate}
+          error={errors.descripcion}
+          disabled={!canEditStructure}
+          className="lg:col-span-2"
         />
       </div>
 
-      <div className="flex items-center justify-between gap-4 pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-4">
         <div className="text-sm text-[var(--color-gray-3)]">
           Paso {step} de {totalSteps}
         </div>
@@ -167,24 +200,14 @@ export function MapeoSemesterClassificationStep({
             Anterior
           </Button>
 
-          {step === totalSteps ? (
-            <Button
-              variant="primary"
-              onClick={onNext}
-              disabled={!canProceed || !validateStep()}
-            >
-              Finalizar Clasificación
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              rightIcon={<GoChevronRight />}
-              onClick={handleNext}
-              disabled={!canProceed}
-            >
-              Siguiente
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            rightIcon={step === totalSteps ? undefined : <GoChevronRight />}
+            onClick={handleNext}
+            disabled={!canProceed}
+          >
+            {step === totalSteps ? "Finalizar clasificacion" : "Siguiente"}
+          </Button>
         </div>
       </div>
     </div>

@@ -58,6 +58,25 @@ export interface CurrentUser {
   scope: UserScope;
 }
 
+export interface MapeoResultadoAprendizaje {
+  id: string;
+  numero: number;
+  descripcion: string;
+}
+
+export interface MapeoCompetencia {
+  id: string;
+  numero: number;
+  descripcion: string;
+  resultadosAprendizaje: MapeoResultadoAprendizaje[];
+}
+
+export interface MapeoSemesterData {
+  semesterId: string;
+  semesterNumber: number;
+  competencias: MapeoCompetencia[];
+}
+
 export interface MapeoCompetenciasRecord {
   id: string;
   seccionalId: string;
@@ -69,6 +88,7 @@ export interface MapeoCompetenciasRecord {
   descripcion: string;
   nombre: string;
   numero: number;
+  semestres?: MapeoSemesterData[];
   createdAt: string;
   updatedAt: string;
 }

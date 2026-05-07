@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui";
 import { PanelLayout } from "../../../components/panel";
 import MapeoSemesterClassificationStep from "./components/MapeoSemesterClassificationStep";
@@ -36,7 +36,7 @@ const CLASSIFICATION_STEPS = [
 ];
 
 export default function MapeoCompetenciasClassificationCreatePage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const currentUser = getCurrentUser();
   const catalogs = getCatalogs();
   const permissions = rolePermissions[currentUser.role];
@@ -68,6 +68,11 @@ export default function MapeoCompetenciasClassificationCreatePage() {
       const next = { ...prev, [field]: value };
 
       // Cascading logic
+      if (field === "seccionalId") {
+        next.lugarId = "";
+        next.facultadId = "";
+        next.programaId = "";
+      }
       if (field === "lugarId") {
         next.facultadId = "";
         next.programaId = "";
@@ -96,7 +101,8 @@ export default function MapeoCompetenciasClassificationCreatePage() {
       setShowProgress(true);
       setTimeout(() => {
         setShowProgress(false);
-        navigate("/panel/mapeo-competencias/crear");
+        // navigate("/panel/mapeo-competencias/crear");
+        window.location.href = "/panel/mapeo-competencias/crear";
       }, 2000);
     }
   };
@@ -110,7 +116,7 @@ export default function MapeoCompetenciasClassificationCreatePage() {
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return !!formValues.lugarId;
+        return !!(formValues.seccionalId && formValues.lugarId);
       case 1:
         return !!formValues.facultadId;
       case 2:
@@ -132,7 +138,8 @@ export default function MapeoCompetenciasClassificationCreatePage() {
       actions={
         <Button
           variant="outline"
-          onClick={() => navigate("/panel/mapeo-competencias")}
+          // onClick={() => navigate("/panel/mapeo-competencias")}
+          onClick={() => window.location.href = "/panel/mapeo-competencias"}
         >
           Cancelar
         </Button>
@@ -158,7 +165,8 @@ export default function MapeoCompetenciasClassificationCreatePage() {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={() => navigate("/panel/mapeo-competencias")}
+            // onClick={() => navigate("/panel/mapeo-competencias")}
+            onClick={() => window.location.href = "/panel/mapeo-competencias"}
             className="flex-1 sm:flex-none"
           >
             Cancelar y volver

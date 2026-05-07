@@ -6,7 +6,11 @@ import type {
   MapeoCompetenciasEstado,
   MapeoCompetenciasFilters,
   MapeoCompetenciasRecord,
+  MapeoSemesterData,
 } from "./MapeoCompetencias.types";
+
+export const MAPEO_COMPETENCIAS_STORAGE_KEY =
+  "secub.mapeoCompetencias.records";
 
 export const INITIAL_FILTERS: MapeoCompetenciasFilters = {
   seccionalId: "",
@@ -324,6 +328,66 @@ export function triggerBrowserDownload(
   URL.revokeObjectURL(url);
 }
 
+function canUseStorage() {
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+export function readStoredMapeoRecords(
+  fallbackRecords: MapeoCompetenciasRecord[] = [],
+): MapeoCompetenciasRecord[] {
+  if (!canUseStorage()) return fallbackRecords;
+
+  try {
+    const rawRecords = localStorage.getItem(MAPEO_COMPETENCIAS_STORAGE_KEY);
+    if (!rawRecords) return fallbackRecords;
+
+    const parsed = JSON.parse(rawRecords);
+    if (!Array.isArray(parsed)) return fallbackRecords;
+
+    return parsed as MapeoCompetenciasRecord[];
+  } catch {
+    return fallbackRecords;
+  }
+}
+
+export function writeStoredMapeoRecords(records: MapeoCompetenciasRecord[]) {
+  if (!canUseStorage()) return;
+  localStorage.setItem(MAPEO_COMPETENCIAS_STORAGE_KEY, JSON.stringify(records));
+}
+
+export function findStoredMapeoRecord(
+  id: string | undefined,
+  fallbackRecords: MapeoCompetenciasRecord[] = [],
+) {
+  if (!id) return null;
+  return readStoredMapeoRecords(fallbackRecords).find((record) => record.id === id) ?? null;
+}
+
+export function upsertStoredMapeoRecord(
+  record: MapeoCompetenciasRecord,
+  fallbackRecords: MapeoCompetenciasRecord[] = [],
+) {
+  const records = readStoredMapeoRecords(fallbackRecords);
+  const exists = records.some((item) => item.id === record.id);
+  const nextRecords = exists
+    ? records.map((item) => (item.id === record.id ? record : item))
+    : [record, ...records];
+
+  writeStoredMapeoRecords(nextRecords);
+  return nextRecords;
+}
+
+export function deleteStoredMapeoRecord(
+  id: string,
+  fallbackRecords: MapeoCompetenciasRecord[] = [],
+) {
+  const nextRecords = readStoredMapeoRecords(fallbackRecords).filter(
+    (record) => record.id !== id,
+  );
+  writeStoredMapeoRecords(nextRecords);
+  return nextRecords;
+}
+
 export function getEmptyFormState(user: CurrentUser): FormState {
   return {
     seccionalId: user.scope.seccionalId || "",
@@ -356,6 +420,7 @@ export function buildRecordFromForm(
   formValues: FormState,
   existingRecord: MapeoCompetenciasEnriched | null,
   allRecords: MapeoCompetenciasRecord[],
+  semestres?: MapeoSemesterData[],
 ): MapeoCompetenciasRecord {
   const now = new Date().toISOString();
   const id = existingRecord?.id || `mapeo-${Date.now()}`;
@@ -372,6 +437,7 @@ export function buildRecordFromForm(
     descripcion: formValues.descripcion,
     nombre: `Mapeo ${numero}`,
     numero,
+    semestres: semestres ?? existingRecord?.semestres,
     createdAt: existingRecord?.createdAt || now,
     updatedAt: now,
   };

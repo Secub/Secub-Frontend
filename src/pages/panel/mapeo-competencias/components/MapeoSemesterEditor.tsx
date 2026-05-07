@@ -262,7 +262,7 @@ export function MapeoSemesterEditor({
               onClick={onFinalize}
               disabled={isFinalizing}
             >
-              {isFinalizing ? "Finalizando..." : "Finalizar Evaluación"}
+              {isFinalizing ? "Finalizando..." : "Finalizar Mapeo"}
             </Button>
           ) : (
             <Button

@@ -1,83 +1,66 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+// import { useNavigate, useParams } from "react-router-dom";
+import {useParams } from "react-router-dom";
 import { Button } from "../../../components/ui";
 import { PanelLayout } from "../../../components/panel";
-import MapeoSemesterEditor from "./components/MapeoSemesterEditor";
 import MapeoCompetenciasProgressModal from "./components/MapeoCompetenciasProgressModal";
+import MapeoSemesterEditor from "./components/MapeoSemesterEditor";
 import {
-  getCurrentUser
-//   getCatalogs,
+  getCurrentUser,
+  mockMapeoCompetencias,
 } from "./MapeoCompetencias.mock";
 import { rolePermissions } from "./MapeoCompetencias.permissions";
+import {
+  findStoredMapeoRecord,
+  upsertStoredMapeoRecord,
+} from "./MapeoCompetencias.utils";
+import type {
+  MapeoCompetenciasRecord,
+  MapeoSemesterData,
+} from "./MapeoCompetencias.types";
 
-interface SemesterData {
-  semesterId: string;
-  semesterNumber: number;
-  competencias: Array<{
-    id: string;
-    numero: number;
-    descripcion: string;
-    resultadosAprendizaje: Array<{
-      id: string;
-      numero: number;
-      descripcion: string;
-    }>;
-  }>;
+const TOTAL_SEMESTERS = 10;
+
+function buildEmptySemesters(): MapeoSemesterData[] {
+  return Array.from({ length: TOTAL_SEMESTERS }, (_, index) => ({
+    semesterId: `sem-${index + 1}`,
+    semesterNumber: index + 1,
+    competencias: [],
+  }));
 }
 
-const TOTAL_SEMESTERS = 8;
+function normalizeSemesters(semesters?: MapeoSemesterData[]) {
+  const existing = semesters ?? [];
+  return buildEmptySemesters().map((semester) => {
+    return existing.find((item) => item.semesterNumber === semester.semesterNumber) ?? semester;
+  });
+}
 
 export default function MapeoCompetenciasEditPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { mapeoId } = useParams();
   const currentUser = getCurrentUser();
-//   const catalogs = getCatalogs();
   const permissions = rolePermissions[currentUser.role];
+  const initialRecord = findStoredMapeoRecord(mapeoId, mockMapeoCompetencias);
 
+  const [record, setRecord] = useState<MapeoCompetenciasRecord | null>(
+    initialRecord,
+  );
   const [currentSemesterIndex, setCurrentSemesterIndex] = useState(0);
-  const [semesters, setSemesters] = useState<SemesterData[]>([]);
+  const [semesters, setSemesters] = useState<MapeoSemesterData[]>(() =>
+    normalizeSemesters(initialRecord?.semestres),
+  );
   const [showProgress, setShowProgress] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simular carga del mapeo existente
-    const timer = setTimeout(() => {
-      // Mock data - en producción vendría del backend
-      const initialSemesters: SemesterData[] = [];
-      for (let i = 0; i < TOTAL_SEMESTERS; i++) {
-        initialSemesters.push({
-          semesterId: `sem-${i + 1}`,
-          semesterNumber: i + 1,
-          competencias: i === 0 ? [
-            {
-              id: "comp-1",
-              numero: 1,
-              descripcion: "Competencia de ejemplo",
-              resultadosAprendizaje: [
-                {
-                  id: "ra-1",
-                  numero: 1,
-                  descripcion: "Resultado de aprendizaje de ejemplo",
-                },
-              ],
-            },
-          ] : [],
-        });
-      }
-
-      setSemesters(initialSemesters);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [mapeoId]);
+  const [progressMessage, setProgressMessage] = useState(
+    "Tu progreso ha sido guardado correctamente. Puedes continuar despues.",
+  );
 
   if (!permissions.canUpdate) {
     return (
       <PanelLayout
         currentStep="mapeo-competencias"
-        title="Mapeo de Competencias - Edición"
+        title="Mapeo de Competencias - Edicion"
         description="No tienes permiso para editar mapeos"
       >
         <div className="surface-card rounded-lg p-6">
@@ -89,21 +72,23 @@ export default function MapeoCompetenciasEditPage() {
     );
   }
 
-  if (loading) {
+  if (!record) {
     return (
       <PanelLayout
         currentStep="mapeo-competencias"
-        title="Cargando..."
-        description="Esperando datos"
+        title="Mapeo no encontrado"
+        description="No fue posible cargar el mapeo solicitado"
       >
         <div className="surface-card rounded-lg p-6">
-          <p className="text-[var(--color-gray-3)]">Cargando mapeo...</p>
+          <p className="text-[var(--color-gray-3)]">
+            El mapeo seleccionado no existe o fue eliminado.
+          </p>
         </div>
       </PanelLayout>
     );
   }
 
-  const handleSemesterChange = (index: number, data: SemesterData) => {
+  const handleSemesterChange = (index: number, data: MapeoSemesterData) => {
     const updatedSemesters = [...semesters];
     updatedSemesters[index] = data;
     setSemesters(updatedSemesters);
@@ -124,48 +109,55 @@ export default function MapeoCompetenciasEditPage() {
   const handleFinalize = async () => {
     setIsSaving(true);
 
-    // Simular guardado en backend
-    setTimeout(() => {
+    window.setTimeout(() => {
+      const updatedRecord: MapeoCompetenciasRecord = {
+        ...record,
+        semestres: semesters,
+        updatedAt: new Date().toISOString(),
+      };
+
+      upsertStoredMapeoRecord(updatedRecord, mockMapeoCompetencias);
       localStorage.setItem(
         "mapeoEditCompleted",
         JSON.stringify({
           mapeoId,
+          record: updatedRecord,
           semesters,
-          updatedAt: new Date().toISOString(),
-        })
+          updatedAt: updatedRecord.updatedAt,
+        }),
       );
 
-      // Limpiar datos temporales
       localStorage.removeItem("mapeoEditProgress");
       localStorage.removeItem("mapeoEditDraft");
+      localStorage.removeItem("mapeoEditPausedDraft");
 
+      setRecord(updatedRecord);
       setIsSaving(false);
+      setProgressMessage("Tu mapeo de competencias ha sido actualizado exitosamente.");
       setShowProgress(true);
 
-      setTimeout(() => {
+      window.setTimeout(() => {
         setShowProgress(false);
-        navigate("/panel/mapeo-competencias");
-      }, 2000);
-    }, 1500);
+        // navigate("/panel/mapeo-competencias");
+        window.location.href = "/panel/mapeo-competencias";
+      }, 1200);
+    }, 600);
   };
 
   return (
     <PanelLayout
       currentStep="mapeo-competencias"
-      title="Mapeo de Competencias - Edición"
+      title="Mapeo de Competencias - Edicion"
       description="Edita las competencias y resultados de aprendizaje por semestre"
       actions={
-        <Button
-          variant="outline"
-          onClick={() => navigate("/panel/mapeo-competencias")}
-        >
+        <Button variant="outline" onClick={() => window.location.href = "/panel/mapeo-competencias"}>
           Cancelar
         </Button>
       }
     >
       <div className="space-y-6">
         <div className="surface-card rounded-lg p-6 md:p-8">
-          {semesters.length > 0 && (
+          {semesters.length > 0 ? (
             <MapeoSemesterEditor
               semesters={semesters}
               currentSemesterIndex={currentSemesterIndex}
@@ -177,13 +169,13 @@ export default function MapeoCompetenciasEditPage() {
               onFinalize={handleFinalize}
               isFinalizing={isSaving}
             />
-          )}
+          ) : null}
         </div>
 
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={() => navigate("/panel/mapeo-competencias")}
+            onClick={() => window.location.href = "/panel/mapeo-competencias"}
             className="flex-1 sm:flex-none"
           >
             Cancelar y volver
@@ -198,12 +190,13 @@ export default function MapeoCompetenciasEditPage() {
                   semesters,
                   currentSemesterIndex,
                   timestamp: new Date().toISOString(),
-                })
+                }),
+              );
+              setProgressMessage(
+                "Tu progreso ha sido guardado correctamente. Puedes continuar despues.",
               );
               setShowProgress(true);
-              setTimeout(() => {
-                setShowProgress(false);
-              }, 2000);
+              window.setTimeout(() => setShowProgress(false), 1200);
             }}
             className="flex-1 sm:flex-none"
           >
@@ -214,11 +207,7 @@ export default function MapeoCompetenciasEditPage() {
 
       <MapeoCompetenciasProgressModal
         open={showProgress}
-        message={
-          isSaving
-            ? "Tu mapeo de competencias ha sido actualizado exitosamente."
-            : "Tu progreso ha sido guardado correctamente. Puedes continuar después."
-        }
+        message={progressMessage}
         onClose={() => setShowProgress(false)}
       />
     </PanelLayout>
