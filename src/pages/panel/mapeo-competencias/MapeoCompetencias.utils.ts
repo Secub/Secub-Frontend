@@ -1,6 +1,7 @@
 import type {
   Catalogs,
   CurrentUser,
+  FormState,
   MapeoCompetenciasEnriched,
   MapeoCompetenciasEstado,
   MapeoCompetenciasFilters,
@@ -321,4 +322,57 @@ export function triggerBrowserDownload(
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+export function getEmptyFormState(user: CurrentUser): FormState {
+  return {
+    seccionalId: user.scope.seccionalId || "",
+    facultadId: user.scope.facultadId || "",
+    lugarId: "",
+    programaId: user.scope.programaId || "",
+    planId: "",
+    estado: "activo",
+    numeroRA: 0,
+    descripcion: "",
+    raDescripciones: [],
+  };
+}
+
+export function mapRecordToForm(record: MapeoCompetenciasEnriched): FormState {
+  return {
+    seccionalId: record.seccionalId,
+    facultadId: record.facultadId,
+    lugarId: record.lugarId,
+    programaId: record.programaId,
+    planId: record.planId,
+    estado: record.estado,
+    numeroRA: record.numero,
+    descripcion: record.descripcion,
+    raDescripciones: [],
+  };
+}
+
+export function buildRecordFromForm(
+  formValues: FormState,
+  existingRecord: MapeoCompetenciasEnriched | null,
+  allRecords: MapeoCompetenciasRecord[],
+): MapeoCompetenciasRecord {
+  const now = new Date().toISOString();
+  const id = existingRecord?.id || `mapeo-${Date.now()}`;
+  const numero = formValues.numeroRA || (allRecords.length + 1);
+
+  return {
+    id,
+    seccionalId: formValues.seccionalId,
+    facultadId: formValues.facultadId,
+    lugarId: formValues.lugarId,
+    programaId: formValues.programaId,
+    planId: formValues.planId,
+    estado: formValues.estado,
+    descripcion: formValues.descripcion,
+    nombre: `Mapeo ${numero}`,
+    numero,
+    createdAt: existingRecord?.createdAt || now,
+    updatedAt: now,
+  };
 }

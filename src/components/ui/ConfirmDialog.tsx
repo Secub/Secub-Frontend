@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   cancelLabel?: string;
   variant?: "warning" | "danger";
+  isLoading?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }
@@ -40,6 +41,7 @@ export default function ConfirmDialog({
             variant={variant === "danger" ? "danger" : "accent"}
             leftIcon={<GoAlert className="text-lg" />}
             onClick={onConfirm}
+            // disabled={isLoading}
           >
             {confirmLabel}
           </Button>
