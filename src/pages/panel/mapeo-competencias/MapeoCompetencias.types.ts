@@ -44,7 +44,7 @@ export interface ProgramaAcademicoCurso {
   nombre: string;
   creditos: number;
   horasSemanales: number;
-  nucleo: "fundamentacion" | "profesionalizacion" | "sintesis";
+  nucleo: string | "Sin Clasificar";
   descripcion: string;
 }
 

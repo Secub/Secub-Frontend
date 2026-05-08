@@ -1,226 +1,200 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui";
 import { PanelLayout } from "../../../components/panel";
+import EmptyState_NoDataCard from "../../../components/ui/statesEmpty/EmptyState_NoDataCard";
 import MapeoCompetenciasProgressModal from "./components/MapeoCompetenciasProgressModal";
-import MapeoSemesterEditor from "./components/MapeoSemesterEditor";
+import MapeoCompetenciasCardInfoNucleos from "./components/MapeoCompetenciasCardInfoNucleos";
+import MapeoCompetenciasFilters from "./components/MapeoCompetenciasFilters";
+import MapeoCompetenciasSemestreCompromisoCard from "./components/MapeoCompetenciasSemestreCompromisoCard";
 import {
+  getCatalogs,
   getCurrentUser,
   mockMapeoCompetencias,
 } from "./MapeoCompetencias.mock";
 import { rolePermissions } from "./MapeoCompetencias.permissions";
 import {
-  buildRecordFromForm,
+  INITIAL_FILTERS,
+  applyFilters,
+  applyRoleScope,
+  buildAvailableFilters,
+  deleteStoredMapeoRecord,
+  enrichCompetenciasRa,
   readStoredMapeoRecords,
-  upsertStoredMapeoRecord,
+  sanitizeFilters,
 } from "./MapeoCompetencias.utils";
-import type { FormState, MapeoSemesterData } from "./MapeoCompetencias.types";
+import type {
+  MapeoCompetenciasEnriched,
+  MapeoCompetenciasFilters as FiltersState,
+  MapeoCompetenciasRecord,
+} from "./MapeoCompetencias.types";
 
-const TOTAL_SEMESTERS = 10;
-
-function buildEmptySemesters(): MapeoSemesterData[] {
-  return Array.from({ length: TOTAL_SEMESTERS }, (_, index) => ({
-    semesterId: `sem-${index + 1}`,
-    semesterNumber: index + 1,
-    competencias: [],
-  }));
-}
-
-function getInitialCreationState() {
-  const fallback = {
-    semesters: buildEmptySemesters(),
-    currentSemesterIndex: 0,
-  };
-
-  const savedDraft = localStorage.getItem("mapeoCreationDraft");
-  if (!savedDraft) return fallback;
-
-  try {
-    const parsed = JSON.parse(savedDraft) as {
-      semesters?: MapeoSemesterData[];
-      currentSemesterIndex?: number;
-    };
-
-    if (Array.isArray(parsed.semesters) && parsed.semesters.length > 0) {
-      return {
-        semesters: parsed.semesters,
-        currentSemesterIndex: parsed.currentSemesterIndex ?? 0,
-      };
-    }
-  } catch {
-    return fallback;
-  }
-
-  return fallback;
-}
+const currentUser = getCurrentUser();
+const catalogs = getCatalogs();
 
 export default function MapeoCompetenciasCreatePage() {
   // const navigate = useNavigate();
-  const currentUser = getCurrentUser();
+  const [records, setRecords] = useState<MapeoCompetenciasRecord[]>(() =>
+    readStoredMapeoRecords(mockMapeoCompetencias),
+  );
+  const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
+  const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
+  const [selectedRecordForDelete, setSelectedRecordForDelete] =
+    useState<MapeoCompetenciasEnriched | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeletingRecord, setIsDeletingRecord] = useState(false);
+
   const permissions = rolePermissions[currentUser.role];
 
-  const [currentSemesterIndex, setCurrentSemesterIndex] = useState(
-    () => getInitialCreationState().currentSemesterIndex,
-  );
-  const [semesters, setSemesters] = useState<MapeoSemesterData[]>(
-    () => getInitialCreationState().semesters,
-  );
-  const [showProgress, setShowProgress] = useState(false);
-  const [isFinalizingTotal, setIsFinalizingTotal] = useState(false);
-  const [progressMessage, setProgressMessage] = useState(
-    "Tu progreso ha sido guardado correctamente. Puedes continuar despues.",
+  const enrichedRecords = useMemo(
+    () => enrichCompetenciasRa(records, catalogs),
+    [records],
   );
 
-  if (!permissions.canCreate) {
-    return (
-      <PanelLayout
-        currentStep="mapeo-competencias"
-        title="Mapeo de Competencias - Creacion"
-        description="No tienes permiso para crear mapeos"
-      >
-        <div className="surface-card rounded-lg p-6">
-          <p className="text-[var(--color-gray-3)]">
-            Tu rol no tiene permisos para crear mapeos de competencias.
-          </p>
-        </div>
-      </PanelLayout>
-    );
-  }
+  const roleScopedRecords = useMemo(
+    () => applyRoleScope(enrichedRecords, currentUser),
+    [enrichedRecords],
+  );
 
-  const handleSemesterChange = (index: number, data: MapeoSemesterData) => {
-    const updatedSemesters = [...semesters];
-    updatedSemesters[index] = data;
-    setSemesters(updatedSemesters);
-  };
+  const availableFilterOptions = useMemo(
+    () => buildAvailableFilters(roleScopedRecords, catalogs, filters),
+    [filters, roleScopedRecords],
+  );
 
-  const handleNext = () => {
-    if (currentSemesterIndex < TOTAL_SEMESTERS - 1) {
-      setCurrentSemesterIndex(currentSemesterIndex + 1);
-    }
-  };
+  const sanitizedFilters = useMemo(
+    () => sanitizeFilters(filters, availableFilterOptions),
+    [availableFilterOptions, filters],
+  );
 
-  const handlePrev = () => {
-    if (currentSemesterIndex > 0) {
-      setCurrentSemesterIndex(currentSemesterIndex - 1);
-    }
-  };
+  const filteredRecords = useMemo(
+    () => applyFilters(roleScopedRecords, sanitizedFilters),
+    [roleScopedRecords, sanitizedFilters],
+  );
+  const selectedMapeoForActions = filteredRecords[0] ?? null;
 
-  const handleFinalize = async () => {
-    setIsFinalizingTotal(true);
+  const summaryStats = useMemo(() => {
+    const activeRecords = roleScopedRecords.filter((record) => record.estado === "activo");
+    const mappedSemesters = activeRecords.reduce((total, record) => {
+      const count =
+        record.semestres?.filter((semester) => semester.competencias.length > 0).length ?? 0;
+      return total + count;
+    }, 0);
+    const totalCompetencias = activeRecords.reduce((total, record) => {
+      const count =
+        record.semestres?.reduce(
+          (semesterTotal, semester) => semesterTotal + semester.competencias.length,
+          0,
+        ) ?? 0;
+      return total + count;
+    }, 0);
 
-    window.setTimeout(() => {
-      const rawProgress = localStorage.getItem("mapeoProgress");
-      const parsedProgress = rawProgress ? JSON.parse(rawProgress) : null;
-      const classification = parsedProgress?.classification as FormState | undefined;
+    return {
+      fundamentacion: Math.min(mappedSemesters, 3),
+      profesionalizacion: Math.max(mappedSemesters - 3, 0),
+      sintesis: Math.max(totalCompetencias, activeRecords.length),
+    };
+  }, [roleScopedRecords]);
 
-      if (!classification) {
-        setIsFinalizingTotal(false);
-        // navigate("/panel/mapeo-competencias/clasificacion/crear");
-        window.location.href = "/panel/mapeo-competencias/clasificacion/crear";
-        return;
+  const handleFilterChange = <K extends keyof FiltersState>(
+    key: K,
+    value: FiltersState[K],
+  ) => {
+    setFilters((current) => {
+      const next = { ...current, [key]: value };
+
+      if (key === "seccionalId") {
+        next.lugarId = "";
+        next.facultadId = "";
+        next.programaId = "";
       }
 
-      const currentRecords = readStoredMapeoRecords(mockMapeoCompetencias);
-      const newRecord = buildRecordFromForm(
-        classification,
-        null,
-        currentRecords,
-        semesters,
-      );
+      if (key === "lugarId") {
+        next.facultadId = "";
+        next.programaId = "";
+      }
 
-      upsertStoredMapeoRecord(newRecord, mockMapeoCompetencias);
+      if (key === "facultadId") {
+        next.programaId = "";
+      }
 
-      localStorage.setItem(
-        "mapeoCompleted",
-        JSON.stringify({
-          record: newRecord,
-          classification,
-          semesters,
-          completedAt: new Date().toISOString(),
-        }),
-      );
-
-      localStorage.removeItem("mapeoProgress");
-      localStorage.removeItem("mapeoProgressDraft");
-      localStorage.removeItem("mapeoCreationDraft");
-
-      setIsFinalizingTotal(false);
-      setProgressMessage("Tu mapeo de competencias ha sido creado exitosamente.");
-      setShowProgress(true);
-
-      window.setTimeout(() => {
-        setShowProgress(false);
-        // navigate("/panel/mapeo-competencias");
-        window.location.href = "/panel/mapeo-competencias";
-      }, 1200);
-    }, 600);
+      return next;
+    });
   };
 
   return (
     <PanelLayout
       currentStep="mapeo-competencias"
-      title="Mapeo de Competencias - Creacion"
+      title="Clasificación de núcleos de formación - Creación"
       description="Asigna competencias y resultados de aprendizaje por semestre"
-      actions={
-        <Button variant="outline" onClick={() => window.location.href = "/panel/mapeo-competencias"}>
-          Cancelar
-        </Button>
-      }
+    // actions={
+    //   <Button variant="outline" onClick={() => window.location.href = "/panel/mapeo-competencias"}>
+    //     Cancelar
+    //   </Button>
+    // }
     >
       <div className="space-y-6">
         <div className="surface-card rounded-lg p-6 md:p-8">
-          {semesters.length > 0 ? (
-            <MapeoSemesterEditor
-              semesters={semesters}
-              currentSemesterIndex={currentSemesterIndex}
-              totalSemesters={TOTAL_SEMESTERS}
-              canEdit={permissions.canCreate}
-              onSemesterChange={handleSemesterChange}
-              onNext={handleNext}
-              onPrev={handlePrev}
-              onFinalize={handleFinalize}
-              isFinalizing={isFinalizingTotal}
-            />
-          ) : null}
+          <MapeoCompetenciasCardInfoNucleos />
         </div>
 
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => window.location.href = "/panel/mapeo-competencias"}
-            className="flex-1 sm:flex-none"
-          >
-            Cancelar y volver
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              localStorage.setItem(
-                "mapeoCreationDraft",
-                JSON.stringify({
-                  semesters,
-                  currentSemesterIndex,
-                  timestamp: new Date().toISOString(),
-                }),
-              );
-              setProgressMessage(
-                "Tu progreso ha sido guardado correctamente. Puedes continuar despues.",
-              );
-              setShowProgress(true);
-              window.setTimeout(() => setShowProgress(false), 1200);
+        <div className="flex justify-center">
+          <h1>
+            ----------------------------------------------------------- <br />
+            Aqui va el workflow, aun falta por traerlo de componentes <br />
+            -----------------------------------------------------------
+          </h1>
+        </div>
+
+        <div>
+          <MapeoCompetenciasFilters
+            user={currentUser}
+            permissions={permissions}
+            filters={sanitizedFilters}
+            filterOptions={{
+              seccionales: availableFilterOptions.seccionales.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+              })),
+              facultades: availableFilterOptions.facultades.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+              })),
+              lugares: availableFilterOptions.lugares.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+              })),
+              programas: availableFilterOptions.programas.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+              })),
+              planes: availableFilterOptions.planes.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+              })),
             }}
-            className="flex-1 sm:flex-none"
-          >
-            Guardar progreso
-          </Button>
+            filteredCount={filteredRecords.length}
+            totalCount={roleScopedRecords.length}
+            onFilterChange={handleFilterChange}
+            onReset={() => setFilters(INITIAL_FILTERS)}
+            activeRecords={filteredRecords}
+          />
+        </div>
+
+        <div className="surface-card rounded-lg p-6 md:p-8">
+          <h2>
+            Semestres Listados segun filtro
+            <div className="mt-4 flex justify-center">
+              <EmptyState_NoDataCard/>
+            </div>
+            <div className="mt-4 flex justify-center">
+              <Button variant="primary_soft" onClick={() => window.location.href = "/panel/mapeo-competencias"}>
+                Volver a Mapeo Competencias
+              </Button>
+            </div>
+          </h2>
         </div>
       </div>
-
-      <MapeoCompetenciasProgressModal
-        open={showProgress}
-        message={progressMessage}
-        onClose={() => setShowProgress(false)}
-      />
     </PanelLayout>
   );
 }
+  

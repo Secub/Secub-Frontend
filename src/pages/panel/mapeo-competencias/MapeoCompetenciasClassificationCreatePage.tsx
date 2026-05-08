@@ -102,7 +102,7 @@ export default function MapeoCompetenciasClassificationCreatePage() {
       setTimeout(() => {
         setShowProgress(false);
         // navigate("/panel/mapeo-competencias/crear");
-        window.location.href = "/panel/mapeo-competencias/crear";
+        window.location.href = "/panel/mapeo-competencias/crear"; 
       }, 2000);
     }
   };

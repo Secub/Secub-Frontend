@@ -122,11 +122,17 @@ export default function MapeoCompetenciasPage() {
     });
   };
 
+  // Esta funcion, nos redirige a la pagina donde se crean los mapeos de competencias
   const handleCreateClick = () => {
-    // navigate("/panel/mapeo-competencias/clasificacion/crear");
-    window.location.href = "/panel/mapeo-competencias/clasificacion/crear";
+
+    // Esta pantalla es el flujo de Creacion del mapeo que empieza desde la clasificacion
+    // de los nucleos de formacion hasta el mapeo con los indicadores de compromiso.
+    // navigate("/panel/mapeo-competencias/crear");
+    window.location.href = "/panel/mapeo-competencias/crear";
   };
 
+  // Esta edicion de mapeo, debe llevar a la pagina para editar el mapeo creado pero segun
+  // segun sea el plan de estudios creado, se edita ese mapeo de ese plan de estudios.
   const handleEditClick = (record: MapeoCompetenciasEnriched) => {
     // navigate(`/panel/mapeo-competencias/${record.id}/clasificacion/editar`);
     window.location.href = `/panel/mapeo-competencias/${record.id}/clasificacion/editar`;
@@ -193,7 +199,7 @@ export default function MapeoCompetenciasPage() {
       currentStep="mapeo-competencias"
       title="Mapeo de Competencias"
       description="Asignacion I-R-A y visualizacion de la malla curricular por semestres y cursos."
-      // actions={pageActions}
+    // actions={pageActions}
     >
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3">

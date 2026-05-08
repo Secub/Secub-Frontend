@@ -1,1 +1,0 @@
-// Aqui va la tabla con la informacion de la indicaciores de cladsificacion para cada semestre
