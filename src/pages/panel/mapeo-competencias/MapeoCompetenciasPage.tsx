@@ -6,7 +6,7 @@ import { PanelLayout } from "../../../components/panel";
 import MapeoCompetenciasExportModal from "./components/MapeoCompetenciasExportModal";
 import MapeoCompetenciasDeleteModal from "./components/MapeoCompetenciasDeleteModal";
 import MapeoCompetenciasFilters from "./components/MapeoCompetenciasFilters";
-import MapeoCompetenciasSemestreCompromisoCard from "./components/MapeoCompetenciasSemestreCompromisoCard";
+// import MapeoCompetenciasSemestreCompromisoCard from "./components/MapeoCompetenciasSemestreCompromisoCard";
 import {
   getCatalogs,
   getCurrentUser,
@@ -28,6 +28,7 @@ import type {
   MapeoCompetenciasFilters as FiltersState,
   MapeoCompetenciasRecord,
 } from "./MapeoCompetencias.types";
+import EmptyState_NoDataCard from "../../../components/ui/statesEmpty/EmptyState_NoDataCard";
 
 const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
@@ -332,11 +333,15 @@ export default function MapeoCompetenciasPage() {
             </div>
           </div>
 
-          <MapeoCompetenciasSemestreCompromisoCard
+          {/* <MapeoCompetenciasSemestreCompromisoCard
             catalogs={catalogs}
             filters={sanitizedFilters}
             mapeos={filteredRecords}
-          />
+          /> */}
+
+          <div className="flex justify-center">
+            <EmptyState_NoDataCard />
+          </div>
 
         </div>
 
