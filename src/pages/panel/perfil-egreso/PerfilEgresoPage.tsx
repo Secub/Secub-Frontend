@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
-import { PanelLayout } from "../../../components/panel";
+import {
+  PanelLayout,
+  WorkflowStateCard,
+  getAcademicWorkflowLockedDescription,
+  isAcademicWorkflowStepLocked,
+  setAcademicWorkflowStepCompleted,
+} from "../../../components/panel";
 import { Button } from "../../../components/ui";
 import PerfilEgresoDetailModal from "./components/PerfilEgresoDetailModal";
 import PerfilEgresoExportModal from "./components/PerfilEgresoExportModal";
 import PerfilEgresoFilters from "./components/PerfilEgresoFilters";
 import PerfilEgresoFormModal from "./components/PerfilEgresoFormModal";
 import PerfilEgresoTable from "./components/PerfilEgresoTable";
-import {
-  getCatalogs,
-  getCurrentUser,
-  mockPerfilesEgreso,
-} from "./perfil-egreso.mock";
+import { getCatalogs, getCurrentUser } from "./perfil-egreso.mock";
 import { rolePermissions } from "./perfil-egreso.permissions";
 import {
   INITIAL_FILTERS,
@@ -36,9 +38,7 @@ const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export default function PerfilEgresoPage() {
-  const [records, setRecords] = useState<PerfilEgresoRecord[]>(
-    mockPerfilesEgreso,
-  );
+  const [records, setRecords] = useState<PerfilEgresoRecord[]>([]);
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] =
     useState<PerfilEgresoEnriched | null>(null);
@@ -53,6 +53,12 @@ export default function PerfilEgresoPage() {
   );
 
   const permissions = rolePermissions[currentUser.role];
+  const isStepLocked = isAcademicWorkflowStepLocked("perfil-egreso");
+  const hasRecords = records.length > 0;
+
+  useEffect(() => {
+    setAcademicWorkflowStepCompleted("perfil-egreso", hasRecords);
+  }, [hasRecords]);
 
   const enrichedRecords = useMemo(
     () => enrichPerfilesEgreso(records, catalogs),
@@ -111,7 +117,7 @@ export default function PerfilEgresoPage() {
 
   const handleDelete = (record: PerfilEgresoEnriched) => {
     const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar el perfil de egreso de ${record.programaNombre}? Esta acción solo afecta los datos mock actuales.`,
+      `¿Seguro que deseas eliminar el perfil de egreso de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
     );
 
     if (!confirmed) return;
@@ -178,9 +184,9 @@ export default function PerfilEgresoPage() {
           variant="primary"
           leftIcon={<GoPlus className="text-lg" />}
           onClick={openCreateModal}
-          title="Crear un nuevo propósito de formación"
+          title="Crear un nuevo perfil de egreso"
         >
-          Nuevo Perfil
+          Nuevo perfil
         </Button>
       ) : null}
 
@@ -219,44 +225,61 @@ export default function PerfilEgresoPage() {
       currentStep="perfil-egreso"
       title="Perfil de Egreso"
       description="Visualización, filtrado, creación, actualización, eliminación y exportación del perfil de egreso según el alcance institucional del rol autenticado."
-      actions={pageActions}
+      actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
-      <div className="space-y-6">
-        <PerfilEgresoFilters
-          permissions={permissions}
-          filters={filters}
-          filterOptions={availableFilterOptions}
-          onFilterChange={handleFilterChange}
-          onReset={() => setFilters(INITIAL_FILTERS)}
+      {isStepLocked ? (
+        <WorkflowStateCard
+          variant="locked"
+          title="Este paso aún no está disponible"
+          description={getAcademicWorkflowLockedDescription("perfil-egreso")}
+          helperText="La restricción secuencial se valida solo en Gestión Académica."
         />
-
-        <div className="surface-card p-6">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
-                Lista de perfiles de egreso
-              </h3>
-              <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-                Cada fila respeta el alcance del usuario logueado y habilita acciones según su permiso actual.
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-              <GoEye className="text-base text-[var(--color-secondary-1)]" />
-              La actualización solo se habilita sobre programas activos.
-            </div>
-          </div>
-
-          <PerfilEgresoTable
-            data={filteredRecords}
-            role={currentUser.role}
+      ) : !hasRecords ? (
+        <WorkflowStateCard
+          title="Aún no hay perfiles de egreso creados"
+          description="Cuando se cargue el primer perfil de egreso, se habilitará la vista completa con filtros, tabla, acciones y exportación."
+          actionLabel={permissions.canCreate ? "Crear perfil de egreso" : undefined}
+          onAction={permissions.canCreate ? openCreateModal : undefined}
+          helperText="No se muestran datos de prueba ni información precargada."
+        />
+      ) : (
+        <div className="space-y-6">
+          <PerfilEgresoFilters
             permissions={permissions}
-            onView={openDetailModal}
-            onEdit={openEditModal}
-            onDelete={handleDelete}
+            filters={filters}
+            filterOptions={availableFilterOptions}
+            onFilterChange={handleFilterChange}
+            onReset={() => setFilters(INITIAL_FILTERS)}
           />
+
+          <div className="surface-card p-6">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
+                  Lista de perfiles de egreso
+                </h3>
+                <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+                  Cada fila respeta el alcance del usuario logueado y habilita acciones según su permiso actual.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
+                <GoEye className="text-base text-[var(--color-secondary-1)]" />
+                La actualización solo se habilita sobre programas activos.
+              </div>
+            </div>
+
+            <PerfilEgresoTable
+              data={filteredRecords}
+              role={currentUser.role}
+              permissions={permissions}
+              onView={openDetailModal}
+              onEdit={openEditModal}
+              onDelete={handleDelete}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <PerfilEgresoDetailModal
         open={detailOpen}

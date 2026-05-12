@@ -24,6 +24,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByFacultad: true,
     canFilterByPrograma: true,
     canFilterByPeriodo: true,
+    canFilterByEstado: true,
   },
   vice: {
     canReadSummary: true,
@@ -35,6 +36,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByFacultad: true,
     canFilterByPrograma: true,
     canFilterByPeriodo: true,
+    canFilterByEstado: true,
   },
   decano: {
     canReadSummary: true,
@@ -46,6 +48,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByFacultad: false,
     canFilterByPrograma: true,
     canFilterByPeriodo: true,
+    canFilterByEstado: true,
   },
   director: {
     canReadSummary: true,
@@ -57,6 +60,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByFacultad: false,
     canFilterByPrograma: true,
     canFilterByPeriodo: true,
+    canFilterByEstado: true,
   },
   docente: {
     canReadSummary: false,
@@ -68,6 +72,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByFacultad: false,
     canFilterByPrograma: false,
     canFilterByPeriodo: false,
+    canFilterByEstado: false,
   },
 };
 
@@ -75,6 +80,7 @@ export function canManageCycle(user: CurrentUser, ciclo: CicloEnriched) {
   const permissions = cicloRolePermissions[user.role];
 
   if (!permissions.canEditCycle) return false;
+  if (ciclo.estado === "finalizado") return false;
 
   if (user.role === "director") {
     return user.scope.programaId === ciclo.programaId && ciclo.planEstado === "activo";
@@ -85,15 +91,19 @@ export function canManageCycle(user: CurrentUser, ciclo: CicloEnriched) {
 
 export function getCycleActionDisabledReason(user: CurrentUser, ciclo: CicloEnriched) {
   if (!cicloRolePermissions[user.role].canEditCycle) {
-    return "Tu rol actual solo permite consultar el resumen de la selección.";
+    return "Tu rol actual solo permite consultar el resumen del ciclo.";
+  }
+
+  if (ciclo.estado === "finalizado") {
+    return "Los ciclos finalizados no se pueden editar ni eliminar.";
   }
 
   if (user.role === "director" && user.scope.programaId !== ciclo.programaId) {
-    return "Solo puedes editar selecciones asociadas a tu programa académico.";
+    return "Solo puedes editar ciclos asociados a tu programa académico.";
   }
 
   if (ciclo.planEstado !== "activo") {
-    return "Solo se permite editar selecciones asociadas a planes de estudio activos.";
+    return "Solo se permite editar ciclos asociados a planes de estudio activos.";
   }
 
   return "";

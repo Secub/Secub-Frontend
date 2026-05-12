@@ -94,6 +94,7 @@ export interface CicloFilters {
   facultadId: string;
   programaId: string;
   periodo: string;
+  estado: string;
 }
 
 export interface CicloFormState {
@@ -129,4 +130,5 @@ export interface CicloRolePermissions {
   canFilterByFacultad: boolean;
   canFilterByPrograma: boolean;
   canFilterByPeriodo: boolean;
+  canFilterByEstado: boolean;
 }

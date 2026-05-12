@@ -16,7 +16,7 @@ export default function CicloAccessState({ user }: CicloAccessStateProps) {
         </div>
 
         <h2 className="mt-5 font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-          Acceso restringido al módulo de selección de cursos
+          Acceso restringido al módulo de creación del ciclo
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)]">

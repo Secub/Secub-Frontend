@@ -12,7 +12,7 @@ import {
   cicloRolePermissions,
   getCycleActionDisabledReason,
 } from "../ciclo.permissions";
-import { formatDate, formatDateTime } from "../ciclo.utils";
+import { formatDate, formatDateTime, getNivelCompromisoLabel } from "../ciclo.utils";
 
 interface CicloSummaryCardProps {
   ciclo: CicloEnriched;
@@ -59,7 +59,8 @@ export default function CicloSummaryCard({
           </div>
 
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            {ciclo.programaNombre} · {ciclo.planNombre} · {ciclo.facultadNombre} · {formatDate(ciclo.fechaInicio)} — {formatDate(ciclo.fechaFin)}
+            {ciclo.programaNombre} · {ciclo.planNombre} · {ciclo.facultadNombre} ·{" "}
+            {formatDate(ciclo.fechaInicio)} — {formatDate(ciclo.fechaFin)}
           </p>
         </div>
 
@@ -71,7 +72,7 @@ export default function CicloSummaryCard({
               leftIcon={<GoPencil className="text-lg" />}
               onClick={() => onEdit(ciclo)}
               disabled={!canEdit}
-              title={!canEdit ? disabledReason : "Editar selección"}
+              title={!canEdit ? disabledReason : "Editar ciclo"}
             >
               Editar
             </Button>
@@ -82,6 +83,7 @@ export default function CicloSummaryCard({
             size="sm"
             leftIcon={<GoEye className="text-lg" />}
             onClick={() => onView(ciclo)}
+            title="Se enrutará con el dashboard."
           >
             Ver detalle
           </Button>
@@ -93,7 +95,7 @@ export default function CicloSummaryCard({
               leftIcon={<GoTrash className="text-lg" />}
               onClick={() => onDelete(ciclo)}
               disabled={!canEdit}
-              title={!canEdit ? disabledReason : "Eliminar selección"}
+              title={!canEdit ? disabledReason : "Eliminar ciclo"}
             >
               Eliminar
             </Button>
@@ -129,7 +131,7 @@ export default function CicloSummaryCard({
       <div className="mt-6">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h4 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
-            Detalles del curso
+            Selección de cursos {ciclo.periodo}
           </h4>
           <span className="inline-flex items-center gap-2 text-xs font-medium text-[var(--color-gray-4)]">
             <GoCalendar className="text-base text-[var(--color-secondary-1)]" />
@@ -150,17 +152,20 @@ export default function CicloSummaryCard({
                       {curso.nombre}
                     </p>
                     <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-                      {curso.codigo} · Semestre {curso.semestre} · Área: {curso.nucleo} · Docente: {curso.docente} ({curso.tipoVinculacion})
+                      {curso.codigo} · Semestre {curso.semestre} · Área: {curso.nucleo} · Docente:{" "}
+                      {curso.docente} ({curso.tipoVinculacion})
                     </p>
                   </div>
 
-                  <Badge variant="info">Nivel {curso.nivelCompromiso || "Sin definir"}</Badge>
+                  <Badge variant="info">
+                    {getNivelCompromisoLabel(curso.nivelCompromiso)}
+                  </Badge>
                 </div>
               </div>
             ))
           ) : (
             <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5 text-sm text-[var(--color-gray-3)]">
-              Esta selección todavía no tiene cursos seleccionados.
+              Este ciclo todavía no tiene cursos seleccionados.
             </div>
           )}
         </div>

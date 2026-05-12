@@ -16,6 +16,7 @@ export const INITIAL_CICLO_FILTERS: CicloFilters = {
   facultadId: "",
   programaId: "",
   periodo: "",
+  estado: "",
 };
 
 export function formatDate(value: string) {
@@ -58,6 +59,19 @@ export function buildPeriodFromStartDate(date: string) {
   return `${year}-${year + 1}`;
 }
 
+export function getNivelCompromisoLabel(nivel?: string | null) {
+  const labels: Record<string, string> = {
+    I: "Introduce",
+    R: "Refuerza",
+    A: "Afianza",
+    NA: "No aplica",
+  };
+
+  if (!nivel) return "Nivel sin definir";
+
+  return `Nivel ${nivel} (${labels[nivel] ?? "Sin definir"})`;
+}
+
 export function getDefaultFormState(user: CurrentUser, catalogs: CicloCatalogs): CicloFormState {
   const defaultPrograma = resolveDefaultPrograma(user, catalogs.programas);
   const defaultPlan = catalogs.planes.find(
@@ -65,7 +79,7 @@ export function getDefaultFormState(user: CurrentUser, catalogs: CicloCatalogs):
   );
 
   return {
-    nombre: "Selección 2026-1",
+    nombre: "Ciclo 2026-1",
     programaId: defaultPrograma?.id ?? "",
     planId: defaultPlan?.id ?? "",
     fechaInicio: "2026-01-15",
@@ -99,7 +113,13 @@ export function getActivePlansByProgram(catalogs: CicloCatalogs, programaId: str
 
 export function getSynthesisCourses(catalogs: CicloCatalogs, programaId: string, planId: string) {
   return catalogs.cursos.filter(
-    (curso) => curso.programaId === programaId && curso.planId === planId && curso.nucleo === "Síntesis",
+    (curso) =>
+      curso.programaId === programaId &&
+      curso.planId === planId &&
+      curso.nucleo === "Síntesis" &&
+      curso.asignadoANucleoSintesis &&
+      curso.competenciasAsignadas > 0 &&
+      Boolean(curso.nivelCompromiso),
   );
 }
 
@@ -152,7 +172,7 @@ export function getCourseEligibility(
 
   return {
     selectable: true,
-    reason: "Curso elegible para la selección de cursos.",
+    reason: "Curso disponible para la creación del ciclo.",
   };
 }
 
@@ -192,6 +212,7 @@ export function applyCycleFilters(ciclos: CicloEnriched[], filters: CicloFilters
     if (filters.facultadId && ciclo.facultadId !== filters.facultadId) return false;
     if (filters.programaId && ciclo.programaId !== filters.programaId) return false;
     if (filters.periodo && ciclo.periodo !== filters.periodo) return false;
+    if (filters.estado && ciclo.estado !== filters.estado) return false;
     return true;
   });
 }
@@ -207,12 +228,11 @@ export function buildCycleFromForm(
   previous?: CicloEnriched | null,
 ): CicloMedicion {
   const programa = catalogs.programas.find((item) => item.id === values.programaId);
-  const plan = catalogs.planes.find((item) => item.id === values.planId);
   const now = new Date().toISOString();
 
   return {
     id: previous?.id ?? `ciclo-${values.planId}-${Date.now()}`,
-    nombre: values.nombre.trim() || `Selección ${buildPeriodFromStartDate(values.fechaInicio)}`,
+    nombre: values.nombre.trim() || `Ciclo ${buildPeriodFromStartDate(values.fechaInicio)}`,
     seccionalId: programa?.seccionalId ?? previous?.seccionalId ?? "",
     facultadId: programa?.facultadId ?? previous?.facultadId ?? "",
     programaId: values.programaId,
@@ -221,7 +241,7 @@ export function buildCycleFromForm(
     duracionAnios: 1.5,
     fechaInicio: values.fechaInicio,
     fechaFin: addEighteenMonths(values.fechaInicio),
-    estado: values.cursoIds.length > 0 ? "activo" : "borrador",
+    estado: "activo",
     cursoIds: values.cursoIds,
     progreso: previous?.progreso ?? 0,
     responsableId: previous?.responsableId ?? user.id,

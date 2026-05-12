@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
-import { PanelLayout } from "../../../components/panel";
+import {
+  PanelLayout,
+  WorkflowStateCard,
+  getAcademicWorkflowLockedDescription,
+  isAcademicWorkflowStepLocked,
+  setAcademicWorkflowStepCompleted,
+} from "../../../components/panel";
 import { Button } from "../../../components/ui";
 import PropositoDetailModal from "./components/PropositoDetailModal";
 import PropositoExportModal from "./components/PropositoExportModal";
 import PropositoFiltersPanel from "./components/PropositoFilters";
 import PropositoFormModal from "./components/PropositoFormModal";
 import PropositoTable from "./components/PropositoTable";
-import {
-  getCurrentUser,
-  getCatalogs,
-  mockPropositos,
-} from "./proposito-formacion.mock";
+import { getCurrentUser, getCatalogs } from "./proposito-formacion.mock";
 import { rolePermissions } from "./proposito-formacion.permissions";
 import {
   INITIAL_FILTERS,
@@ -36,9 +38,7 @@ const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export default function PropositoFormacionPage() {
-  const [records, setRecords] = useState<PropositoFormacionRecord[]>(
-    mockPropositos,
-  );
+  const [records, setRecords] = useState<PropositoFormacionRecord[]>([]);
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] =
     useState<PropositoEnriched | null>(null);
@@ -53,6 +53,12 @@ export default function PropositoFormacionPage() {
   );
 
   const permissions = rolePermissions[currentUser.role];
+  const isStepLocked = isAcademicWorkflowStepLocked("proposito-formacion");
+  const hasRecords = records.length > 0;
+
+  useEffect(() => {
+    setAcademicWorkflowStepCompleted("proposito-formacion", hasRecords);
+  }, [hasRecords]);
 
   const enrichedRecords = useMemo(
     () => enrichPropositos(records, catalogs),
@@ -111,7 +117,7 @@ export default function PropositoFormacionPage() {
 
   const handleDelete = (record: PropositoEnriched) => {
     const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos mock actuales.`,
+      `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
     );
 
     if (!confirmed) return;
@@ -219,49 +225,65 @@ export default function PropositoFormacionPage() {
       currentStep="proposito-formacion"
       title="Propósito de Formación"
       description="Gestión, consulta y exportación del propósito de formación según el alcance institucional del rol autenticado."
-      actions={pageActions}
+      actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
-      <div className="space-y-6">
-        <PropositoFiltersPanel
-          user={currentUser}
-          permissions={permissions}
-          filters={filters}
-          filterOptions={availableFilterOptions}
-          filteredCount={filteredRecords.length}
-          totalCount={roleScopedRecords.length}
-          onFilterChange={handleFilterChange}
-          onReset={() => setFilters(INITIAL_FILTERS)}
-          activeRecords={filteredRecords}
+      {isStepLocked ? (
+        <WorkflowStateCard
+          variant="locked"
+          title="Este paso aún no está disponible"
+          description={getAcademicWorkflowLockedDescription("proposito-formacion")}
+          helperText="La restricción secuencial se valida solo en Gestión Académica."
         />
-
-        <div className="surface-card p-6">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
-                Lista de propósitos de formación
-              </h3>
-              <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-                Cada fila respeta el alcance del usuario logueado y habilita
-                acciones según su permiso actual.
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-              <GoEye className="text-base text-[var(--color-secondary-1)]" />
-              La edición solo se habilita sobre programas activos.
-            </div>
-          </div>
-
-          <PropositoTable
-            data={filteredRecords}
-            role={currentUser.role}
+      ) : !hasRecords ? (
+        <WorkflowStateCard
+          title="Aún no hay propósitos de formación creados"
+          description="Cuando se cargue el primer propósito de formación, se habilitará la vista completa con filtros, tabla, acciones y exportación."
+          actionLabel={permissions.canCreate ? "Crear propósito de formación" : undefined}
+          onAction={permissions.canCreate ? openCreateModal : undefined}
+          helperText="No se muestran datos de prueba ni información precargada."
+        />
+      ) : (
+        <div className="space-y-6">
+          <PropositoFiltersPanel
+            user={currentUser}
             permissions={permissions}
-            onView={openDetailModal}
-            onEdit={openEditModal}
-            onDelete={handleDelete}
+            filters={filters}
+            filterOptions={availableFilterOptions}
+            filteredCount={filteredRecords.length}
+            totalCount={roleScopedRecords.length}
+            onFilterChange={handleFilterChange}
+            onReset={() => setFilters(INITIAL_FILTERS)}
+            activeRecords={filteredRecords}
           />
+
+          <div className="surface-card p-6">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
+                  Lista de propósitos de formación
+                </h3>
+                <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+                  Cada fila respeta el alcance del usuario logueado y habilita acciones según su permiso actual.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
+                <GoEye className="text-base text-[var(--color-secondary-1)]" />
+                La edición solo se habilita sobre programas activos.
+              </div>
+            </div>
+
+            <PropositoTable
+              data={filteredRecords}
+              role={currentUser.role}
+              permissions={permissions}
+              onView={openDetailModal}
+              onEdit={openEditModal}
+              onDelete={handleDelete}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <PropositoDetailModal
         open={detailOpen}

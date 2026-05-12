@@ -13,6 +13,7 @@ import {
   formatDate,
   getActivePlansByProgram,
   getCourseEligibility,
+  getNivelCompromisoLabel,
   getSynthesisCourses,
 } from "../ciclo.utils";
 
@@ -29,6 +30,19 @@ interface CicloFormModalProps {
 
 function toOptions<T extends { id: string; nombre: string }>(items: T[]): SelectOption[] {
   return items.map((item) => ({ label: item.nombre, value: item.id }));
+}
+
+function getTeacherContractAlert(tipoVinculacion: string) {
+  const normalized = tipoVinculacion
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (normalized.includes("tiempo completo")) return "";
+  if (normalized.includes("catedra")) return "Este docente es de cátedra.";
+  if (normalized.includes("medio tiempo")) return "Este docente es de medio tiempo.";
+
+  return `Este docente tiene vinculación ${tipoVinculacion}.`;
 }
 
 export default function CicloFormModal({
@@ -81,11 +95,17 @@ export default function CicloFormModal({
     [catalogs, values.planId, values.programaId],
   );
 
-  const selectableSelectedCount = values.cursoIds.filter((cursoId) =>
-    synthesisCourses.some((course) => {
-      const eligibility = getCourseEligibility(course, selectedPrograma, selectedPlan);
-      return course.id === cursoId && eligibility.selectable;
-    }),
+  const availableCourses = useMemo(() => {
+    // Respaldo de validación para cuando se conecte el backend:
+    // si llegara un curso sin competencias, sin nivel I-R-A o sin núcleo Síntesis validado,
+    // no se muestra en la lista.
+    return synthesisCourses.filter((course) =>
+      getCourseEligibility(course, selectedPrograma, selectedPlan).selectable,
+    );
+  }, [selectedPlan, selectedPrograma, synthesisCourses]);
+
+  const selectedCount = values.cursoIds.filter((cursoId) =>
+    availableCourses.some((course) => course.id === cursoId),
   ).length;
 
   const canSubmit =
@@ -93,7 +113,7 @@ export default function CicloFormModal({
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
     values.nombre.trim().length > 0 &&
-    selectableSelectedCount > 0;
+    selectedCount > 0;
 
   const handleProgramChange = (programaId: string) => {
     const firstPlan = getActivePlansByProgram(catalogs, programaId)[0];
@@ -123,19 +143,19 @@ export default function CicloFormModal({
     if (!canSubmit) return;
 
     // Integración futura:
-    // - POST /selecciones-cursos para crear la selección.
-    // - PUT /selecciones-cursos/:id para editar la selección.
-    // - POST /selecciones-cursos/:id/cursos para guardar los cursos seleccionados.
+    // - POST /ciclos para crear ciclo.
+    // - PUT /ciclos/:id para editar ciclo.
+    // - POST /ciclos/:id/cursos para guardar la selección de cursos sumativos.
     onSubmit(values);
   };
 
   const title = {
-    create: "Crear selección de cursos",
-    edit: "Editar selección de cursos",
-    view: "Detalle de la selección de cursos",
+    create: "Crear ciclo",
+    edit: "Editar ciclo",
+    view: "Detalle del ciclo",
   }[mode];
 
-  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear selección";
+  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo";
 
   const programaOptions = toOptions(availableProgramas);
   const planOptions = toOptions(activePlans);
@@ -144,7 +164,7 @@ export default function CicloFormModal({
     <Modal
       open={open}
       title={title}
-      description="Selecciona el plan activo y los cursos de Síntesis que harán parte de la selección de cursos durante 1.5 años."
+      description="Selecciona el plan activo y los cursos de Síntesis que harán parte del periodo de selección de 1.5 años."
       size="xl"
       onClose={onClose}
       footer={
@@ -156,7 +176,9 @@ export default function CicloFormModal({
               </span>
               <span>
                 <strong className="text-[var(--color-secondary-4)]">Creado:</strong>{" "}
-                {record ? formatDate(record.createdAt.slice(0, 10)) : formatDate(new Date().toISOString().slice(0, 10))}
+                {record
+                  ? formatDate(record.createdAt.slice(0, 10))
+                  : formatDate(new Date().toISOString().slice(0, 10))}
               </span>
             </div>
 
@@ -166,7 +188,9 @@ export default function CicloFormModal({
               </span>
               <span>
                 <strong className="text-[var(--color-secondary-4)]">Modificado:</strong>{" "}
-                {record ? formatDate(record.updatedAt.slice(0, 10)) : formatDate(new Date().toISOString().slice(0, 10))}
+                {record
+                  ? formatDate(record.updatedAt.slice(0, 10))
+                  : formatDate(new Date().toISOString().slice(0, 10))}
               </span>
             </div>
           </div>
@@ -185,7 +209,7 @@ export default function CicloFormModal({
                 title={
                   canSubmit
                     ? "Confirmar selección de cursos"
-                    : "Selecciona al menos un curso elegible y valida que el programa esté activo."
+                    : "Selecciona al menos un curso y valida que el programa esté activo."
                 }
               >
                 {primaryLabel}
@@ -203,11 +227,10 @@ export default function CicloFormModal({
             </span>
             <div>
               <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
-                Validaciones del RF06
+                Cursos disponibles
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-                El listado carga únicamente cursos del núcleo de Síntesis. Los cursos sin competencias,
-                sin nivel I-R-A o no confirmados en Síntesis quedan visibles, pero bloqueados.
+                El listado muestra únicamente cursos del núcleo de Síntesis que ya cumplen las validaciones previas del flujo académico.
               </p>
             </div>
           </div>
@@ -216,15 +239,21 @@ export default function CicloFormModal({
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="lg:col-span-2">
             <Input
-              label="Nombre de la selección"
+              label="Nombre ciclo"
               value={values.nombre}
-              onChange={(event) => setValues((current) => ({ ...current, nombre: event.target.value }))}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, nombre: event.target.value }))
+              }
               disabled={isReadOnly}
-              error={submitted && values.nombre.trim().length === 0 ? "El nombre de la selección es obligatorio." : undefined}
+              error={
+                submitted && values.nombre.trim().length === 0
+                  ? "El nombre del ciclo es obligatorio."
+                  : undefined
+              }
             />
           </div>
 
-          <Input label="Duración de la selección" value="1.5 años" disabled />
+          <Input label="Duración del ciclo" value="1.5 años" disabled />
 
           <Input label="Facultad" value={selectedFacultad?.nombre ?? "Sin facultad"} disabled />
 
@@ -237,12 +266,12 @@ export default function CicloFormModal({
             onChange={(event) => handleProgramChange(event.target.value)}
             error={
               submitted && selectedPrograma?.estado !== "activo"
-                ? "Solo se pueden crear selecciones para programas activos."
+                ? "Solo se pueden crear ciclos para programas activos."
                 : undefined
             }
             helperText={
               selectedPrograma?.estado === "inactivo"
-                ? "Este programa está inactivo y no permite crear selecciones."
+                ? "Este programa está inactivo y no permite crear ciclos."
                 : undefined
             }
           />
@@ -253,7 +282,13 @@ export default function CicloFormModal({
             options={planOptions}
             placeholder="Selecciona un plan activo"
             disabled={isReadOnly || activePlans.length === 0}
-            onChange={(event) => setValues((current) => ({ ...current, planId: event.target.value, cursoIds: [] }))}
+            onChange={(event) =>
+              setValues((current) => ({
+                ...current,
+                planId: event.target.value,
+                cursoIds: [],
+              }))
+            }
             error={
               submitted && selectedPlan?.estado !== "activo"
                 ? "El plan de estudios debe estar activo."
@@ -266,7 +301,9 @@ export default function CicloFormModal({
             type="date"
             value={values.fechaInicio}
             disabled={isReadOnly}
-            onChange={(event) => setValues((current) => ({ ...current, fechaInicio: event.target.value }))}
+            onChange={(event) =>
+              setValues((current) => ({ ...current, fechaInicio: event.target.value }))
+            }
           />
 
           <Input
@@ -284,20 +321,20 @@ export default function CicloFormModal({
                 Cursos de Síntesis
               </h3>
               <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-                Selección múltiple mediante checkbox. Solo se guardan cursos elegibles.
+                Selecciona los cursos que harán parte del ciclo.
               </p>
             </div>
 
-            <Badge variant={selectableSelectedCount > 0 ? "success" : "neutral"}>
-              {selectableSelectedCount} cursos seleccionados
+            <Badge variant={selectedCount > 0 ? "success" : "neutral"}>
+              {selectedCount} cursos seleccionados
             </Badge>
           </div>
 
-          {synthesisCourses.length > 0 ? (
+          {availableCourses.length > 0 ? (
             <div className="space-y-4">
-              {synthesisCourses.map((course) => {
-                const eligibility = getCourseEligibility(course, selectedPrograma, selectedPlan);
+              {availableCourses.map((course) => {
                 const checked = values.cursoIds.includes(course.id);
+                const teacherAlert = getTeacherContractAlert(course.tipoVinculacion);
 
                 return (
                   <label
@@ -307,16 +344,14 @@ export default function CicloFormModal({
                       checked
                         ? "border-[var(--color-secondary-1)] ring-4 ring-[color:rgba(14,101,217,0.10)]"
                         : "border-[var(--color-gray-6)]",
-                      !eligibility.selectable || isReadOnly
-                        ? "cursor-not-allowed opacity-80"
-                        : "hover:border-[var(--color-secondary-1)]",
+                      isReadOnly ? "cursor-not-allowed opacity-80" : "hover:border-[var(--color-secondary-1)]",
                     ].join(" ")}
                   >
                     <input
                       type="checkbox"
                       className="mt-1 h-5 w-5 shrink-0 rounded border-[var(--color-gray-6)] accent-[var(--color-secondary-1)]"
                       checked={checked}
-                      disabled={!eligibility.selectable || isReadOnly}
+                      disabled={isReadOnly}
                       onChange={() => toggleCourse(course.id)}
                       aria-label={`Seleccionar ${course.nombre}`}
                     />
@@ -329,31 +364,25 @@ export default function CicloFormModal({
                         <span className="text-sm font-semibold text-[var(--color-secondary-4)]">
                           {course.codigo}
                         </span>
-                        <Badge variant={eligibility.selectable ? "success" : "warning"}>
-                          {eligibility.selectable ? "Elegible" : "Bloqueado"}
-                        </Badge>
+                        <Badge variant="info">{course.nucleo}</Badge>
                       </div>
 
                       <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-                        Semestre {course.semestre} · Área: {course.nucleo} · Docente: {course.docente} ({course.tipoVinculacion}) · {course.creditos} créditos
+                        Semestre {course.semestre} · Docente: {course.docente} ({course.tipoVinculacion}) ·{" "}
+                        {course.creditos} créditos
                       </p>
 
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Badge variant={course.competenciasAsignadas > 0 ? "info" : "danger"}>
-                          {course.competenciasAsignadas} competencias
-                        </Badge>
-                        <Badge variant={course.nivelCompromiso ? "info" : "danger"}>
-                          Nivel I-R-A: {course.nivelCompromiso || "Sin definir"}
-                        </Badge>
-                        <Badge variant={course.asignadoANucleoSintesis ? "info" : "danger"}>
-                          Núcleo Síntesis {course.asignadoANucleoSintesis ? "validado" : "pendiente"}
+                        <Badge variant="info">{course.competenciasAsignadas} competencias</Badge>
+                        <Badge variant="info">
+                          {getNivelCompromisoLabel(course.nivelCompromiso)}
                         </Badge>
                       </div>
 
-                      {!eligibility.selectable ? (
+                      {teacherAlert ? (
                         <div className="mt-3 flex gap-2 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:rgba(251,199,86,0.16)] px-3 py-2 text-sm text-[var(--color-gray-2)]">
                           <GoAlert className="mt-0.5 shrink-0 text-base text-[var(--color-secondary-4)]" />
-                          {eligibility.reason}
+                          {teacherAlert}
                         </div>
                       ) : null}
                     </div>
@@ -368,9 +397,9 @@ export default function CicloFormModal({
             </div>
           )}
 
-          {submitted && selectableSelectedCount === 0 ? (
+          {submitted && selectedCount === 0 ? (
             <p className="mt-3 text-sm text-[var(--color-error)]">
-              Selecciona al menos un curso elegible para confirmar la selección.
+              Selecciona al menos un curso para confirmar el ciclo.
             </p>
           ) : null}
         </section>

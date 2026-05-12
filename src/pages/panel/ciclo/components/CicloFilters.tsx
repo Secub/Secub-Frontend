@@ -1,10 +1,10 @@
 import { GoX } from "react-icons/go";
 import { Button, Select, type SelectOption } from "../../../../components/ui";
 import type {
+  CicloCatalogs,
   CicloEnriched,
   CicloFilters as CicloFiltersState,
   CicloRolePermissions,
-  CicloCatalogs,
   CurrentUser,
 } from "../ciclo.types";
 import { getAvailablePeriods } from "../ciclo.utils";
@@ -27,6 +27,11 @@ interface CicloFiltersProps {
 function toOptions<T extends { id: string; nombre: string }>(items: T[]): SelectOption[] {
   return items.map((item) => ({ label: item.nombre, value: item.id }));
 }
+
+const estadoOptions: SelectOption[] = [
+  { label: "En curso", value: "activo" },
+  { label: "Finalizado", value: "finalizado" },
+];
 
 export default function CicloFilters({
   user,
@@ -74,14 +79,14 @@ export default function CicloFilters({
   }));
 
   return (
-    <section className="surface-card p-6" aria-label="Filtros de selecciones de cursos">
+    <section className="surface-card p-6" aria-label="Filtros de creación del ciclo">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
             Filtros
           </h2>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Consulta selecciones de cursos por programa, periodo y alcance del rol actual.
+            Consulta ciclos por programa, periodo, estado y alcance del rol actual.
           </p>
         </div>
 
@@ -90,7 +95,7 @@ export default function CicloFilters({
           size="sm"
           leftIcon={<GoX className="text-lg" />}
           onClick={onReset}
-          title={`${filteredCount} de ${totalCount} selecciones visibles`}
+          title={`${filteredCount} de ${totalCount} ciclos visibles`}
         >
           Limpiar filtros
         </Button>
@@ -137,7 +142,7 @@ export default function CicloFilters({
           <div className="panel-filter-item">
             <Select
               label="Periodo de selección"
-              placeholder="Todas las selecciones"
+              placeholder="Todos los periodos"
               value={filters.periodo}
               options={periodoOptions}
               onChange={(event) => onFilterChange("periodo", event.target.value)}
@@ -145,6 +150,17 @@ export default function CicloFilters({
           </div>
         ) : null}
 
+        {permissions.canFilterByEstado ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Estado"
+              placeholder="Todos"
+              value={filters.estado}
+              options={estadoOptions}
+              onChange={(event) => onFilterChange("estado", event.target.value)}
+            />
+          </div>
+        ) : null}
       </div>
     </section>
   );

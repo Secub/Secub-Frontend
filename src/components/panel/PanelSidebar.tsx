@@ -1,7 +1,14 @@
 import { useMemo } from "react";
-import { GoChevronRight } from "react-icons/go";
+import { GoChevronRight, GoLock } from "react-icons/go";
 import { HiCheck } from "react-icons/hi";
 import { LuCircleDot } from "react-icons/lu";
+import {
+  WORKFLOW_LOCKED_MESSAGE,
+  getAcademicWorkflowLockedDescription,
+  isAcademicWorkflowStepCompleted,
+  isAcademicWorkflowStepLocked,
+  readAcademicWorkflowProgress,
+} from "./academicWorkflow";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
 
@@ -33,10 +40,6 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     (item) => item.key === "medicion-ra",
   );
 
-  const currentAcademicIndex = academicItems.findIndex(
-    (item) => item.key === currentStep,
-  );
-
   const userName = "Usuario demo";
 
   const goTo = (href: string) => {
@@ -44,19 +47,22 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
   };
 
   const academicProgress = useMemo(() => {
+    const workflowProgress = readAcademicWorkflowProgress();
+
     return academicItems.map((item, index) => {
       const isCurrent = item.key === currentStep;
-      const isCompleted =
-        currentAcademicIndex !== -1 && index < currentAcademicIndex;
+      const isCompleted = isAcademicWorkflowStepCompleted(item.key, workflowProgress);
+      const isLocked = isAcademicWorkflowStepLocked(item.key, workflowProgress);
 
       return {
         ...item,
         stepNumber: index + 1,
         isCurrent,
         isCompleted,
+        isLocked,
       };
     });
-  }, [academicItems, currentAcademicIndex, currentStep]);
+  }, [academicItems, currentStep]);
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[320px] shrink-0 self-start xl:flex">
@@ -101,25 +107,46 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                     const ItemIcon = item.icon;
                     const showConnector = index < academicProgress.length - 1;
 
+                    const handleClick = () => {
+                      if (item.isLocked) {
+                        window.alert(WORKFLOW_LOCKED_MESSAGE);
+                        return;
+                      }
+
+                      goTo(item.href);
+                    };
+
                     return (
                       <button
                         key={item.key}
                         type="button"
-                        onClick={() => goTo(item.href)}
-                        className="group flex w-full items-start gap-3 text-left"
+                        onClick={handleClick}
+                        title={
+                          item.isLocked
+                            ? getAcademicWorkflowLockedDescription(item.key)
+                            : item.label
+                        }
+                        className={[
+                          "group flex w-full items-start gap-3 text-left transition-opacity",
+                          item.isLocked ? "cursor-not-allowed opacity-55" : "cursor-pointer",
+                        ].join(" ")}
                       >
                         <div className="flex w-7 flex-col items-center">
                           <div
                             className={[
                               "flex h-6 w-6 items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
-                              item.isCompleted
-                                ? "border-[var(--color-success)] bg-[var(--color-success)] text-[var(--color-secondary-4)]"
-                                : item.isCurrent
-                                  ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-[var(--color-white)]"
-                                  : "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)]",
+                              item.isLocked
+                                ? "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)]"
+                                : item.isCompleted
+                                  ? "border-[var(--color-success)] bg-[var(--color-success)] text-[var(--color-secondary-4)]"
+                                  : item.isCurrent
+                                    ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-[var(--color-white)]"
+                                    : "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)]",
                             ].join(" ")}
                           >
-                            {item.isCompleted ? (
+                            {item.isLocked ? (
+                              <GoLock className="text-[0.78rem]" />
+                            ) : item.isCompleted ? (
                               <HiCheck className="text-sm" />
                             ) : item.isCurrent ? (
                               <ItemIcon className="text-[0.78rem]" />
@@ -132,7 +159,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                             <div
                               className={[
                                 "my-1 h-7 w-px",
-                                item.isCompleted || item.isCurrent
+                                item.isCompleted
                                   ? "bg-[var(--color-success)]"
                                   : "bg-[var(--color-secondary-3)]",
                               ].join(" ")}
@@ -148,9 +175,11 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                           <p
                             className={[
                               "max-w-[155px] font-heading text-[0.9rem] font-medium leading-[1.15] transition-colors",
-                              item.isCurrent
+                              item.isCurrent && !item.isLocked
                                 ? "text-[var(--color-white)]"
-                                : "text-[var(--color-secondary-3)] group-hover:text-[var(--color-white)]",
+                                : item.isLocked
+                                  ? "text-[var(--color-secondary-3)]"
+                                  : "text-[var(--color-secondary-3)] group-hover:text-[var(--color-white)]",
                             ].join(" ")}
                           >
                             {item.label}

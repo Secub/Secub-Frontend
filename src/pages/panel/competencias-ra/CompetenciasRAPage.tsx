@@ -1,40 +1,19 @@
-// import { Button } from "../../../components/ui";
-// import { PanelLayout } from "../../../components/panel";
-
-// export default function CompetenciasRAPage() {
-//   return (
-//     <PanelLayout
-//       currentStep="competencias-ra"
-//       title="Competencias y Resultados de Aprendizaje"
-//       description="Administración de competencias, resultados de aprendizaje y relación con el plan de estudios."
-//       actions={<Button variant="primary">Acción principal</Button>}
-//     >
-//       <div className="surface-card p-6 md:p-8">
-//         <p className="text-sm leading-7 text-[var(--color-gray-3)]">
-//           Este módulo ya quedó preparado dentro de la estructura del panel.
-//           Aquí es donde después construiremos filtros, formularios, tablas y acciones específicas del flujo.
-//         </p>
-//       </div>
-//     </PanelLayout>
-//   );
-// }
-
-
 import { useEffect, useMemo, useState } from "react";
 import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
-// import DevRoleSelector from "../../../components/panel/DevRoleSelector";
-import { PanelLayout } from "../../../components/panel";
+import {
+  PanelLayout,
+  WorkflowStateCard,
+  getAcademicWorkflowLockedDescription,
+  isAcademicWorkflowStepLocked,
+  setAcademicWorkflowStepCompleted,
+} from "../../../components/panel";
 import { Button } from "../../../components/ui/Button";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
 import CompetenciasRaExportModal from "./components/CompetenciasRaExportModal";
 import CompetenciasRaFiltersPanel from "./components/CompetenciasRaFilters";
 import CompetenciasRaFormModal from "./components/CompetenciasRaFormModal";
 import CompetenciasRaCardGrid from "./components/CompetenciasRaCardGrid";
-import {
-  getCurrentUser,
-  getCatalogs,
-  mockCompetenciasRa,
-} from "./CompetenciasRa.mock";
+import { getCurrentUser, getCatalogs } from "./CompetenciasRa.mock";
 import { rolePermissions } from "./CompetenciasRa.permissions";
 import {
   INITIAL_FILTERS,
@@ -59,9 +38,7 @@ const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export default function CompetenciasRaFormacionPage() {
-  const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>(
-    mockCompetenciasRa,
-  );
+  const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>([]);
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedRecord, setSelectedRecord] =
@@ -77,6 +54,12 @@ export default function CompetenciasRaFormacionPage() {
   );
 
   const permissions = rolePermissions[currentUser.role];
+  const isStepLocked = isAcademicWorkflowStepLocked("competencias-ra");
+  const hasRecords = records.length > 0;
+
+  useEffect(() => {
+    setAcademicWorkflowStepCompleted("competencias-ra", hasRecords);
+  }, [hasRecords]);
 
   const enrichedRecords = useMemo(
     () => enrichCompetenciasRa(records, catalogs),
@@ -112,14 +95,13 @@ export default function CompetenciasRaFormacionPage() {
 
   const filteredRecords = useMemo(() => {
     const filtered = applyFilters(roleScopedRecords, filters);
-    
-    // Ordenar por número
+
     return filtered.sort((a, b) => {
       if (sortOrder === "asc") {
         return (a.numero || 0) - (b.numero || 0);
-      } else {
-        return (b.numero || 0) - (a.numero || 0);
       }
+
+      return (b.numero || 0) - (a.numero || 0);
     });
   }, [filters, roleScopedRecords, sortOrder]);
 
@@ -144,7 +126,7 @@ export default function CompetenciasRaFormacionPage() {
 
   const handleDelete = (record: CompetenciasRaEnriched) => {
     const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos mock actuales.`,
+      `¿Seguro que deseas eliminar la competencia de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
     );
 
     if (!confirmed) return;
@@ -201,7 +183,6 @@ export default function CompetenciasRaFormacionPage() {
       );
     });
 
-    // Aplicar los filtros del formulario al crear nueva competencia
     setFilters({
       seccionalId: values.seccionalId,
       lugarId: values.lugarId,
@@ -217,15 +198,14 @@ export default function CompetenciasRaFormacionPage() {
 
   const pageActions = (
     <div className="flex flex-wrap items-center gap-3">
-
       {permissions.canCreate ? (
         <Button
           variant="primary"
           leftIcon={<GoPlus className="text-lg" />}
           onClick={openCreateModal}
-          title="Crear un nuevo propósito de formación"
+          title="Crear una nueva competencia y resultado de aprendizaje"
         >
-          Nuevo Competencias y RA
+          Nueva competencia y RA
         </Button>
       ) : null}
 
@@ -264,62 +244,78 @@ export default function CompetenciasRaFormacionPage() {
       currentStep="competencias-ra"
       title="Competencias y Resultados de Aprendizaje"
       description="Gestión, consulta y exportación de las competencias y resultados de aprendizaje según el alcance institucional del rol autenticado."
-      actions={pageActions}
+      actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
-      <div className="space-y-6">
-        <CompetenciasRaFiltersPanel
-          user={currentUser}
-          permissions={permissions}
-          filters={filters}
-          filterOptions={availableFilterOptions}
-          filteredCount={filteredRecords.length}
-          totalCount={roleScopedRecords.length}
-          onFilterChange={handleFilterChange}
-          onReset={() => setFilters(INITIAL_FILTERS)}
-          activeRecords={filteredRecords}
+      {isStepLocked ? (
+        <WorkflowStateCard
+          variant="locked"
+          title="Este paso aún no está disponible"
+          description={getAcademicWorkflowLockedDescription("competencias-ra")}
+          helperText="La restricción secuencial se valida solo en Gestión Académica."
         />
-
-        <div className="surface-card p-6">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
-                Competencias y Resultados de Aprendizaje
-              </h3>
-              <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-                Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados.
-                Expande para ver los detalles de cada resultado.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-end gap-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-                <GoEye className="text-base text-[var(--color-secondary-1)]" />
-                La edición solo se habilita sobre programas activos.
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-[var(--color-gray-4)]">Ordenar:</label>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
-                  className="rounded border border-[var(--color-gray-6)] bg-white px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
-                >
-                  <option value="asc">Ascendente (1-10)</option>
-                  <option value="desc">Descendente (10-1)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <CompetenciasRaCardGrid
-            data={filteredRecords}
-            role={currentUser.role}
+      ) : !hasRecords ? (
+        <WorkflowStateCard
+          title="Aún no hay competencias ni RA creados"
+          description="Cuando se cargue la primera competencia con sus resultados de aprendizaje, se habilitará la vista completa de consulta, edición y exportación."
+          actionLabel={permissions.canCreate ? "Crear competencia y RA" : undefined}
+          onAction={permissions.canCreate ? openCreateModal : undefined}
+          helperText="No se muestran datos de prueba ni información precargada."
+        />
+      ) : (
+        <div className="space-y-6">
+          <CompetenciasRaFiltersPanel
+            user={currentUser}
             permissions={permissions}
-            onView={openViewModal}
-            onEdit={openEditModal}
-            onDelete={handleDelete}
+            filters={filters}
+            filterOptions={availableFilterOptions}
+            filteredCount={filteredRecords.length}
+            totalCount={roleScopedRecords.length}
+            onFilterChange={handleFilterChange}
+            onReset={() => setFilters(INITIAL_FILTERS)}
+            activeRecords={filteredRecords}
           />
+
+          <div className="surface-card p-6">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
+                  Competencias y Resultados de Aprendizaje
+                </h3>
+                <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+                  Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados. Expande para ver los detalles de cada resultado.
+                </p>
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
+                  <GoEye className="text-base text-[var(--color-secondary-1)]" />
+                  La edición solo se habilita sobre programas activos.
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-[var(--color-gray-4)]">Ordenar:</label>
+                  <select
+                    value={sortOrder}
+                    onChange={(event) => setSortOrder(event.target.value as "asc" | "desc")}
+                    className="rounded border border-[var(--color-gray-6)] bg-white px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
+                  >
+                    <option value="asc">Ascendente (1-10)</option>
+                    <option value="desc">Descendente (10-1)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <CompetenciasRaCardGrid
+              data={filteredRecords}
+              role={currentUser.role}
+              permissions={permissions}
+              onView={openViewModal}
+              onEdit={openEditModal}
+              onDelete={handleDelete}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <CompetenciasRaDetailModal
         open={detailOpen}
@@ -340,7 +336,7 @@ export default function CompetenciasRaFormacionPage() {
 
       <CompetenciasRaExportModal
         open={exportFormat === "pdf"}
-        title="Exportación de propósitos de formación en PDF"
+        title="Exportación de competencias y RA en PDF"
         format="pdf"
         permissions={permissions}
         catalogs={catalogs}
@@ -351,7 +347,7 @@ export default function CompetenciasRaFormacionPage() {
 
       <CompetenciasRaExportModal
         open={exportFormat === "excel"}
-        title="Exportación de propósitos de formación en Excel"
+        title="Exportación de competencias y RA en Excel"
         format="excel"
         permissions={permissions}
         catalogs={catalogs}
