@@ -7,8 +7,8 @@ import CompetenciasRAPage from "../pages/panel/competencias-ra/CompetenciasRAPag
 import MapeoCompetenciasPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasPage";
 import MapeoCompetenciasClassificationCreatePage from "../pages/panel/mapeo-competencias/MapeoCompetenciasClassificationCreatePage";
 import MapeoCompetenciasCreatePage from "../pages/panel/mapeo-competencias/MapeoCompetenciasCreatePage";
-import MapeoCompetenciasClassificationEditPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasClassificationEditPage";
-import MapeoCompetenciasEditPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasEditPage";
+// import MapeoCompetenciasClassificationEditPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasClassificationEditPage";
+// import MapeoCompetenciasEditPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasEditPage";
 import CicloPage from "../pages/panel/ciclo/CicloPage";
 import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
 import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
@@ -53,11 +53,11 @@ export default function AppRouter() {
       case "classificationCreate":
         return <MapeoCompetenciasClassificationCreatePage />;
       case "create":
-        return <MapeoCompetenciasCreatePage />;
-      case "classificationEdit":
-        return <MapeoCompetenciasClassificationEditPage />;
-      case "edit":
-        return <MapeoCompetenciasEditPage />;
+      //   return <MapeoCompetenciasCreatePage />;
+      // case "classificationEdit":
+      //   return <MapeoCompetenciasClassificationEditPage />;
+      // case "edit":
+      //   return <MapeoCompetenciasEditPage />;
     }
   }
 

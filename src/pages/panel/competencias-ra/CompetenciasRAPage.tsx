@@ -291,12 +291,12 @@ export default function CompetenciasRaFormacionPage() {
               </p>
             </div>
 
-            <div className="flex flex-col items-end gap-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
+            <div className="flex justify-end items-center gap-2 flex-nowrap">
+              {/* <div className="flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)] whitespace-nowrap">
                 <GoEye className="text-base text-[var(--color-secondary-1)]" />
                 La edición solo se habilita sobre programas activos.
-              </div>
-              <div className="flex items-center gap-2">
+              </div> */}
+              <div className="flex items-center gap-2 whitespace-nowrap">
                 <label className="text-sm font-medium text-[var(--color-gray-4)]">Ordenar:</label>
                 <select
                   value={sortOrder}
