@@ -422,7 +422,6 @@ import { useNavigate } from "react-router-dom";
 import { GoGoal } from "react-icons/go";
 
 import {
-  Button,
   StepCircleProgress,
   ConfirmDialog,
 } from "../../../components/ui";
@@ -431,13 +430,9 @@ import { PanelLayout } from "../../../components/panel";
 
 import EmptyState_NoDataCard from "../../../components/ui/statesEmpty/EmptyState_NoDataCard";
 
-import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
-
 import MapeoCompetenciasFiltersPanel from "./components/MapeoCompetenciasFilters";
 
 import NucleosManager from "./components/NucleosManager";
-
-import MapeoCompetenciasSemesterStep from "./components/MapeoCompetenciasSemesterStep";
 
 import { rolePermissions } from "./MapeoCompetencias.permissions";
 
@@ -466,7 +461,6 @@ export default function MapeoCompetenciasCreatePage() {
   // =========================
 
   const {
-    loading,
     currentUser,
     catalogs,
   } = useMapeoCompetenciasData();
@@ -492,29 +486,13 @@ export default function MapeoCompetenciasCreatePage() {
   >([]);
 
   // =========================
-  // LOADING
-  // =========================
-
-  if (loading || !currentUser) {
-    return (
-      <PanelLayout
-        currentStep="mapeo-competencias"
-        title="Cargando..."
-        description="Obteniendo información"
-      >
-        <div className="p-10 text-center">
-          Cargando información...
-        </div>
-      </PanelLayout>
-    );
-  }
-
-  // =========================
   // DEFAULT PROGRAMA
   // =========================
 
   const defaultPrograma =
     useMemo<ProgramaAcademico | null>(() => {
+      if (!currentUser) return null;
+
       const isRestrictedRole =
         currentUser.role === "docente" ||
         currentUser.role === "director";
@@ -531,14 +509,14 @@ export default function MapeoCompetenciasCreatePage() {
       }
 
       return null;
-    }, [catalogs.programas, currentUser.role]);
+    }, [catalogs.programas, currentUser?.role]);
 
   // =========================
   // INIT FILTERS
   // =========================
 
   useEffect(() => {
-    if (!catalogs.seccionales.length) return;
+    if (!catalogs.seccionales.length || !currentUser) return;
 
     setSelectedSeccionalId(
       currentUser.scope?.seccionalId ??
@@ -622,8 +600,9 @@ export default function MapeoCompetenciasCreatePage() {
   // PERMISSIONS
   // =========================
 
-  const permissions =
-    rolePermissions[currentUser.role as MapeoCompetenciasRole];
+  const permissions = currentUser
+    ? rolePermissions[currentUser.role as MapeoCompetenciasRole]
+    : undefined;
 
   // =========================
   // FILTER OPTIONS
@@ -695,22 +674,10 @@ export default function MapeoCompetenciasCreatePage() {
   // =========================
 
   const {
-    semestresMapping,
-    currentSemesterIndex,
-    currentSemesterComplete,
-    allSemestresEvaluated,
-    mappingSummary,
-    isEvaluationLocked,
     showFinishModal:
       showMapeoFinishModal,
-    lastSaveStatus,
-    handleSetCompetenciaOption,
-    handleNextSemester,
-    handlePrevSemester,
-    handleSaveProgress,
     handleCancelFinish,
     handleConfirmFinish,
-    handleFinishClick,
   } = useMapeoCompetenciasManager({
     programa: programaActual,
     planId: selectedPlanId,
@@ -784,9 +751,10 @@ export default function MapeoCompetenciasCreatePage() {
 
         {/* FILTERS */}
 
+        {currentUser && (
         <MapeoCompetenciasFiltersPanel
           user={currentUser}
-          permissions={permissions}
+          permissions={permissions as any}
           filters={{
             seccionalId:
               selectedSeccionalId,
@@ -854,11 +822,12 @@ export default function MapeoCompetenciasCreatePage() {
             );
           }}
         />
+        )}
 
         {/* NUCLEOS */}
 
         {activeStep === "nucleos" &&
-        programaActual ? (
+        programaActual && currentUser ? (
           <NucleosManager
             currentUser={currentUser}
             programa={programaActual}
