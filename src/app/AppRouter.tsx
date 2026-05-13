@@ -53,7 +53,7 @@ export default function AppRouter() {
       case "classificationCreate":
         return <MapeoCompetenciasClassificationCreatePage />;
       case "create":
-        return <MapeoCompetenciasCreatePage />;
+      //   return <MapeoCompetenciasCreatePage />;
       // case "classificationEdit":
       //   return <MapeoCompetenciasClassificationEditPage />;
       // case "edit":

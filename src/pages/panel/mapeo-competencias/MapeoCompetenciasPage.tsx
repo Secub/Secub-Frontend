@@ -24,6 +24,7 @@ import {
   getFacultades,
   getProgramas,
   getPlanes,
+  getLugares,
 } from "../../../api/repositories/catalogs.repository";
 
 import { rolePermissions } from "./MapeoCompetencias.permissions";
@@ -143,11 +144,13 @@ export default function MapeoCompetenciasPage() {
           seccionalesData,
           facultadesData,
           programasData,
+          lugaresData = [],
           planesData,
         ] = await Promise.all([
           getSeccionales(),
           getFacultades(),
           getProgramas(),
+          getLugares(),
           getPlanes(),
         ]);
 
@@ -155,7 +158,7 @@ export default function MapeoCompetenciasPage() {
         setFacultades(facultadesData);
         setProgramas(programasData);
         setPlanes(planesData);
-
+        setLugares(lugaresData);
       } catch (error) {
         console.error(
           "Error cargando catalogos:",
