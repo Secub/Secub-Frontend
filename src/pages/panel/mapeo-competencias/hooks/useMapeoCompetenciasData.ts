@@ -58,7 +58,19 @@ export function useMapeoCompetenciasData() {
           programas,
           planes,
         });
-      } catch (error) {
+      } catch (error: any) {
+        console.error("ERROR:", error.response?.status);
+
+        console.error(
+          "URL:",
+          error.config?.url
+        );
+
+        console.error(
+          "BASE URL:",
+          error.config?.baseURL
+        );
+
         console.error(error);
       } finally {
         setLoading(false);

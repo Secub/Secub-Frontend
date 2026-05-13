@@ -453,7 +453,7 @@ export default function MapeoCompetenciasCreatePage() {
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState<
-    "nucleos" | "mapeo-competencia"
+    "nucleos" | "niveles-compromiso"
   >("nucleos");
 
   // =========================
@@ -728,11 +728,11 @@ export default function MapeoCompetenciasCreatePage() {
                 ),
               },
               {
-                id: "mapeo-competencia",
+                id: "niveles-compromiso",
                 label:
-                  "Mapeo Competencia",
+                  "Niveles de Compromiso",
                 sublabel:
-                  "Asigna competencias y RA",
+                  "Selecciona los niveles de compromiso",
                 icon: (
                   <GoGoal className="text-xl" />
                 ),
@@ -743,7 +743,7 @@ export default function MapeoCompetenciasCreatePage() {
               setActiveStep(
                 stepId as
                   | "nucleos"
-                  | "mapeo-competencia"
+                  | "niveles-compromiso"
               )
             }
           />
@@ -834,7 +834,7 @@ export default function MapeoCompetenciasCreatePage() {
             planId={selectedPlanId}
             onEvaluationComplete={() =>
               setActiveStep(
-                "mapeo-competencia"
+                "niveles-compromiso"
               )
             }
           />
@@ -865,6 +865,7 @@ export default function MapeoCompetenciasCreatePage() {
           handleCancelFinish
         }
       />
+      
     </PanelLayout>
   );
 }
