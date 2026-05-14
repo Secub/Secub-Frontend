@@ -46,6 +46,7 @@ export default function NucleosManager({
     return programa.semestres.map((semestre) => ({
       numero: semestre.numero,
       cursos: semestre.cursos,
+      planNombre: semestre.planId,
     }));
   }, [programa.semestres]);
 
@@ -136,6 +137,7 @@ export default function NucleosManager({
             key={semestre.numero}
             semestreNumero={semestre.numero}
             cursos={semestre.cursos}
+            planNombre={semestre.planNombre}
             selectedNucleo={
               semestresNucleos[semestre.numero] ?? null
             }

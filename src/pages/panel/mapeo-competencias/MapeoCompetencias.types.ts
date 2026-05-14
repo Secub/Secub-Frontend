@@ -229,6 +229,8 @@ export interface ProgramaAcademicoSemestre {
   tipo?: TipoClasificacion;
 
   cursos: ProgramaAcademicoCurso[];
+
+  planId: string;
 }
 
 export interface ProgramaAcademico {
@@ -335,6 +337,8 @@ export interface MapeoCompetencia {
   descripcion: string;
 
   resultadosAprendizaje: MapeoResultadoAprendizaje[];
+
+  semestreid: string;
 }
 
 // =============================

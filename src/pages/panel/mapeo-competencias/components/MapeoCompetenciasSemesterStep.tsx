@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button, Select } from "../../../../components/ui";
 import type {
   ProgramaAcademico,
   MapeoSemesterData,
+  MapeoCompetencia,
 } from "../MapeoCompetencias.types";
 import type { CompetenciaOption } from "../hooks/useMapeoCompetenciasManager";
 
@@ -29,6 +30,17 @@ interface MapeoCompetenciasSemesterStepProps {
   canAdvance: boolean;
 }
 
+// interface Competencia {
+//   id: string;
+//   codigo: string;
+//   nombre: string;
+//   descripcion: string;
+//   tipo: string;
+//   programaId: string;
+//   planId: string;
+//   semestreId: string;
+// }
+
 const COMPETENCIA_OPTIONS = [
   { value: "introduce", label: "Introduce" },
   { value: "refuerza", label: "Refuerza" },
@@ -40,44 +52,75 @@ export default function MapeoCompetenciasSemesterStep({
   programa,
   semestresData,
   currentSemesterIndex,
-  semestresMapping,
+  // semestresMapping, // Usado para tipos, pero el estado local es el que gestiona la UI
   isCompletionLocked,
-  onCompetenciaChange,
+  // onCompetenciaChange, // Los cambios se manejan con handleCompetenciaChange local
   onNextSemester,
   onPrevSemester,
-  canAdvance,
+  // canAdvance, // isCurrentSemesterComplete es el que valida
 }: MapeoCompetenciasSemesterStepProps) {
+  // Estado local para mapeo curso x competencia
+  const [mapeoLocal, setMapeoLocal] = useState<
+    Record<string, Record<string, string>>
+  >({});
+
   const currentSemester = useMemo(() => {
     return semestresData[currentSemesterIndex];
   }, [semestresData, currentSemesterIndex]);
 
-  const currentMapping = useMemo(() => {
-    return semestresMapping[currentSemesterIndex];
-  }, [semestresMapping, currentSemesterIndex]);
-
   const semestreNumero = useMemo(() => {
-    return programa.semestres[currentSemesterIndex]?.numero ?? currentSemesterIndex + 1;
+    return currentSemesterIndex + 1;
+  }, [currentSemesterIndex]);
+
+  // Obtener cursos del semestre actual desde el programa
+  const cursosDelSemestre = useMemo(() => {
+    if (!programa.semestres || !programa.semestres[currentSemesterIndex]) {
+      return [];
+    }
+    return programa.semestres[currentSemesterIndex].cursos || [];
   }, [programa.semestres, currentSemesterIndex]);
 
-  // Agrupar competencias por curso (si aplica)
-  const competenciasGroupedByCurso = useMemo(() => {
-    if (!currentSemester || !currentMapping) return [];
+  // Obtener competencias del semestre actual
+  const competenciasDelSemestre = useMemo(() => {
+    if (!currentSemester) return [];
+    return currentSemester.competencias || [];
+  }, [currentSemester]);
 
-    return currentMapping.competenciaMappings.map((mapping, idx) => {
-      const competencia = currentSemester.competencias.find(
-        (c) => c.id === mapping.competenciaId
-      );
-      return {
-        index: idx,
-        competencia,
-        option: mapping.option,
-      };
-    });
-  }, [currentSemester, currentMapping]);
+  // Inicializar mapeo con "no-aplica" como default
+  const mappingInitialized = useMemo(() => {
+    if (Object.keys(mapeoLocal).length === 0 && cursosDelSemestre.length > 0) {
+      const newMapping: Record<string, Record<string, string>> = {};
+      cursosDelSemestre.forEach((curso) => {
+        newMapping[curso.id] = {};
+        competenciasDelSemestre.forEach((comp) => {
+          newMapping[curso.id][comp.id] = "no-aplica";
+        });
+      });
+      setMapeoLocal(newMapping);
+      return newMapping;
+    }
+    return mapeoLocal;
+  }, [cursosDelSemestre, competenciasDelSemestre, mapeoLocal]);
 
+  // Verificar si todas las competencias están evaluadas
   const isCurrentSemesterComplete = useMemo(() => {
-    return currentMapping?.competenciaMappings.every((m) => m.option !== null) ?? false;
-  }, [currentMapping]);
+    return cursosDelSemestre.length > 0 &&
+      competenciasDelSemestre.length > 0 &&
+      cursosDelSemestre.every((curso) =>
+        competenciasDelSemestre.some((comp) =>
+          mappingInitialized[curso.id]?.[comp.id] !== "no-aplica"
+        )
+      );
+  }, [cursosDelSemestre, competenciasDelSemestre, mappingInitialized]);
+
+  const handleCompetenciaChange = (cursoId: string, competenciaId: string, value: string) => {
+    const newMapping = { ...mappingInitialized };
+    if (!newMapping[cursoId]) {
+      newMapping[cursoId] = {};
+    }
+    newMapping[cursoId][competenciaId] = value;
+    setMapeoLocal(newMapping);
+  };
 
   return (
     <div className="space-y-6">
@@ -115,74 +158,66 @@ export default function MapeoCompetenciasSemesterStep({
         )}
       </div>
 
-      {/* Tabla de competencias */}
+      {/* Tabla de competencias - Cursos x Competencias */}
       <div className="surface-card rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--color-gray-6)] bg-[var(--color-gray-7)]">
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-[var(--color-gray-3)]">
-                  #
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-[var(--color-gray-3)] min-w-[250px]">
+                  Curso
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-[var(--color-gray-3)]">
-                  Competencia
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-[var(--color-gray-3)]">
-                  Clasificación
+
+                {competenciasDelSemestre.map((comp, idx) => (
+                  <th 
+                    key={comp.id}
+                    className="px-4 py-3 text-center text-xs font-semibold uppercase text-[var(--color-gray-3)] min-w-[140px]"
+                  >
+                    C{String(idx + 1).padStart(2, '0')}
+                    
+                  </th>
+                ))}
+                <th>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {competenciasGroupedByCurso.length > 0 ? (
-                competenciasGroupedByCurso.map((item) => (
+              {cursosDelSemestre.length > 0 ? (
+                cursosDelSemestre.map((curso) => (
                   <tr
-                    key={item.competencia?.id || `comp-${item.index}`}
+                    key={curso.id}
                     className="border-b border-[var(--color-gray-6)] hover:bg-[var(--color-gray-7)]"
                   >
                     <td className="px-6 py-4 text-sm font-medium text-[var(--color-gray-2)]">
-                      {item.index + 1}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[var(--color-gray-2)]">
                       <div>
-                        <p className="font-medium">{item.competencia?.descripcion}</p>
-                        {item.competencia?.resultadosAprendizaje &&
-                          item.competencia.resultadosAprendizaje.length > 0 && (
-                            <ul className="mt-2 space-y-1 text-xs text-[var(--color-gray-3)]">
-                              {item.competencia.resultadosAprendizaje.map((ra) => (
-                                <li key={ra.id} className="flex gap-2">
-                                  <span className="text-[var(--color-secondary-1)]">•</span>
-                                  <span>{ra.descripcion}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                        <p className="font-semibold">{curso.nombre}</p>
+                        <p className="text-xs text-[var(--color-gray-3)] mt-1">{curso.codigo}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <Select
-                        placeholder="Selecciona una opción"
-                        value={item.option ?? ""}
-                        onChange={(e) => {
-                          const value = (e.target as HTMLSelectElement).value;
-                          if (value) {
-                            onCompetenciaChange(
-                              currentSemesterIndex,
-                              item.index,
-                              value as unknown as CompetenciaOption
-                            );
-                          }
-                        }}
-                        disabled={isCompletionLocked}
-                        options={COMPETENCIA_OPTIONS}
-                      />
-                    </td>
+                    {competenciasDelSemestre.map((comp) => (
+                      <td 
+                        key={`${curso.id}-${comp.id}`}
+                        className="px-4 py-4 text-center"
+                      >
+                        <Select
+                          placeholder="No Aplica"
+                          value={mappingInitialized[curso.id]?.[comp.id] ?? "no-aplica"}
+                          onChange={(e) => {
+                            const value = (e.target as HTMLSelectElement).value;
+                            handleCompetenciaChange(curso.id, comp.id, value);
+                          }}
+                          disabled={isCompletionLocked}
+                          options={COMPETENCIA_OPTIONS}
+                        />
+                      </td>
+                    ))}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className="px-6 py-8 text-center">
+                  <td colSpan={competenciasDelSemestre.length + 1} className="px-6 py-8 text-center">
                     <p className="text-sm text-[var(--color-gray-3)]">
-                      No hay competencias para este semestre.
+                      No hay cursos disponibles para este semestre.
                     </p>
                   </td>
                 </tr>
@@ -198,7 +233,6 @@ export default function MapeoCompetenciasSemesterStep({
           variant="outline"
           onClick={onPrevSemester}
           disabled={currentSemesterIndex === 0 || isCompletionLocked}
-        //   icon={<GoChevronLeft />}
         >
           Anterior
         </Button>
@@ -207,8 +241,7 @@ export default function MapeoCompetenciasSemesterStep({
           <Button
             variant="primary"
             onClick={onNextSemester}
-            disabled={!canAdvance || isCompletionLocked}
-            // icon={<GoChevronRight/>}
+            disabled={!isCurrentSemesterComplete || isCompletionLocked}
           >
             Siguiente
           </Button>

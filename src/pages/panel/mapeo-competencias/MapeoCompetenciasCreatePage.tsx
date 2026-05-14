@@ -433,6 +433,9 @@ import EmptyState_NoDataCard from "../../../components/ui/statesEmpty/EmptyState
 import MapeoCompetenciasFiltersPanel from "./components/MapeoCompetenciasFilters";
 
 import NucleosManager from "./components/NucleosManager";
+import MapeoCompetenciasCardInfoNucleos from "./components/MapeoCompetenciasCardInfoNucleos";
+import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
+import MapeoCompetenciasSemesterStep from "./components/MapeoCompetenciasSemesterStep";
 
 import { rolePermissions } from "./MapeoCompetencias.permissions";
 
@@ -448,8 +451,8 @@ import type {
   MapeoCompetenciasRole,
   Seccional,
 } from "./MapeoCompetencias.types";
-import { MapeoCompetenciasCardInfoNucleos } from "./components";
-import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
+// import { MapeoCompetenciasCardInfoNucleos } from "./components";
+// import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
 
 export default function MapeoCompetenciasCreatePage() {
   const navigate = useNavigate();
@@ -682,15 +685,26 @@ export default function MapeoCompetenciasCreatePage() {
   // =========================
 
   const {
-    showFinishModal:
-    showMapeoFinishModal,
+    semestresMapping,
+    currentSemesterIndex,
+    currentSemesterComplete,
+    allSemestresEvaluated,
+    mappingSummary,
+    isEvaluationLocked,
+    showFinishModal: showMapeoFinishModal,
+    lastSaveStatus,
+
+    handleSetCompetenciaOption,
+    handleNextSemester,
+    handlePrevSemester,
+    handleSaveProgress,
     handleCancelFinish,
     handleConfirmFinish,
+    handleFinishClick,
   } = useMapeoCompetenciasManager({
     programa: programaActual,
     planId: selectedPlanId,
-    semestresData:
-      semestresConCompetencias,
+    semestresData: semestresConCompetencias,
   });
 
   return (
@@ -861,9 +875,11 @@ export default function MapeoCompetenciasCreatePage() {
         ) : null}
 
 
+        {/* Card Info niveles compromiso */}
+
         {activeStep === "niveles-compromiso" && (
           <div className="surface-card rounded-lg p-6 md:p-8">
-               <MapeoCompetenciasCardInfoCompromiso />
+            <MapeoCompetenciasCardInfoCompromiso />
           </div>
         )}
 
@@ -873,12 +889,20 @@ export default function MapeoCompetenciasCreatePage() {
 
         {activeStep === "niveles-compromiso" &&
           programaActual && currentUser ? (
-          <NucleosManager
-            currentUser={currentUser}
-            programa={programaActual}
-            planId={selectedPlanId}
-          />
-        ) : activeStep === "nucleos" ? (
+          <div className="surface-card rounded-lg p-6 md:p-8">
+            <MapeoCompetenciasSemesterStep
+              programa={programaActual}
+              semestresData={semestresConCompetencias}
+              currentSemesterIndex={currentSemesterIndex}
+              semestresMapping={semestresMapping}
+              isCompletionLocked={isEvaluationLocked}
+              onCompetenciaChange={handleSetCompetenciaOption}
+              onNextSemester={handleNextSemester}
+              onPrevSemester={handlePrevSemester}
+              canAdvance={currentSemesterComplete}
+            />
+          </div>
+        ) : activeStep === "niveles-compromiso" ? (
           <div className="flex justify-center">
             <EmptyState_NoDataCard />
           </div>

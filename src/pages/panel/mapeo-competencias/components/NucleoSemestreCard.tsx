@@ -1,9 +1,10 @@
 import { Badge, Button } from "../../../../components/ui";
 import type { NucleoType } from "../hooks/useNucleosManager";
-import type { ProgramaAcademicoCurso } from "../MapeoCompetencias.types";
+import type { PlanEstudio, ProgramaAcademicoCurso } from "../MapeoCompetencias.types";
 
 interface NucleoSemestreCardProps {
   semestreNumero: number;
+  planNombre: string;
   cursos: ProgramaAcademicoCurso[];
   selectedNucleo: NucleoType | null;
   disabled?: boolean;
@@ -28,6 +29,7 @@ function getNucleoLabel(nucleo: NucleoType) {
 
 export default function NucleoSemestreCard({
   semestreNumero,
+  planNombre,
   cursos,
   selectedNucleo,
   disabled = false,
@@ -45,7 +47,7 @@ export default function NucleoSemestreCard({
         <div className="flex items-center justify-between gap-4">
           <div>
             <h4 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
-              Semestre {semestreNumero}
+              Semestre {semestreNumero} · {planNombre}
             </h4>
             <p className="mt-1 text-sm text-[var(--color-gray-3)]">
               {cursos
