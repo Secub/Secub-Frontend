@@ -25,6 +25,7 @@ interface MapeoCompetenciasFiltersProps {
     lugares: FilterOption[];
     programas: FilterOption[];
     planes: FilterOption[];
+    estados: FilterOption[];
   };
 
   filteredCount: number;
@@ -53,19 +54,22 @@ export function MapeoCompetenciasFilters({
   // Normalizacion defensiva para evitar undefined
   const safeFilterOptions = {
     seccionales:
-      filterOptions?.seccionales ?? [],
+      filterOptions?.seccionales ?? false,
 
     facultades:
-      filterOptions?.facultades ?? [],
+      filterOptions?.facultades ?? false,
 
     lugares:
-      filterOptions?.lugares ?? [],
+      filterOptions?.lugares ?? false,
 
     programas:
-      filterOptions?.programas ?? [],
+      filterOptions?.programas ?? false,
 
     planes:
-      filterOptions?.planes ?? [],
+      filterOptions?.planes ?? false,
+    
+    estados:
+      filterOptions?.estados ?? false,
   };
 
   return (
@@ -94,7 +98,7 @@ export function MapeoCompetenciasFilters({
       <div className="panel-filters-grid">
 
         {/* SECCIONAL */}
-        {permissions.canFilterBySeccional && (
+        {safeFilterOptions.seccionales && (
           <div className="panel-filter-item">
             <Select
               label="Seccional"
@@ -117,7 +121,7 @@ export function MapeoCompetenciasFilters({
         )}
 
         {/* LUGAR */}
-        {permissions.canFilterByLugar && (
+        {safeFilterOptions.lugares && (
           <div className="panel-filter-item">
             <Select
               label="Lugar de desarrollo"
@@ -140,7 +144,7 @@ export function MapeoCompetenciasFilters({
         )}
 
         {/* FACULTAD */}
-        {permissions.canFilterByFacultad && (
+        {safeFilterOptions.facultades && (
           <div className="panel-filter-item">
             <Select
               label="Facultad"
@@ -163,7 +167,7 @@ export function MapeoCompetenciasFilters({
         )}
 
         {/* PROGRAMA */}
-        {permissions.canFilterByPrograma && (
+        {safeFilterOptions.programas && (
           <div className="panel-filter-item">
             <Select
               label="Programa académico"
@@ -186,7 +190,7 @@ export function MapeoCompetenciasFilters({
         )}
 
         {/* PLAN */}
-        {permissions.canFilterByPlan && (
+        {safeFilterOptions.planes && (
           <div className="panel-filter-item">
             <Select
               label="Plan de estudios"
@@ -209,7 +213,7 @@ export function MapeoCompetenciasFilters({
         )}
 
         {/* ESTADO */}
-        {permissions.canFilterByEstado && (
+        {safeFilterOptions.estados && (
           <div className="panel-filter-item">
             <Select
               label="Estado"

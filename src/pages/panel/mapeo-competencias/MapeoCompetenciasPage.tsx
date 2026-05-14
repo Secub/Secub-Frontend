@@ -639,6 +639,17 @@ export default function MapeoCompetenciasPage() {
                   nombre: item.nombre,
                 })
               ),
+              estados:
+                [
+                {
+                  id: "Activo",
+                  nombre: "activo",
+                },
+                {
+                  id: "Inactivo",
+                  nombre: "inactivo",
+                },
+              ],
           }}
           filteredCount={
             filteredRecords.length

@@ -1,91 +1,197 @@
 {
-    "currentUser": {
-        "id": "user-1",
-        "nombre": "Administrador",
-        "email": "admin@secub.com",
-        "role": "admin",
-        "scope": {
-            "seccionalId": "cali",
-            "facultadId": "ingenieria-cali"
-        }
+  "currentUser": [
+    {
+      "id": "user-1",
+      "nombre": "SuperAdmin",
+      "email": "superadmin@secub.com",
+      "role": "super-admin",
+      "scope": {
+        "seccionalId": "cali",
+        "facultadId": "ingenieria-cali"
+      }
     },
-    "seccionales": [
+    {
+      "id": "user-2",
+      "nombre": "Administrador",
+      "email": "admin@secub.com",
+      "role": "admin",
+      "scope": {
+        "seccionalId": "cali",
+        "facultadId": "ingenieria-cali"
+      }
+    },
+    {
+      "id": "user-3",
+      "nombre": "Director de Programa",
+      "email": "director@secub.com",
+      "role": "director",
+      "scope": {
+        "seccionalId": "cali",
+        "facultadId": "ingenieria-cali"
+      }
+    },
+    {
+      "id": "user-4",
+      "nombre": "Decano",
+      "email": "decano@secub.com",
+      "role": "decano",
+      "scope": {
+        "seccionalId": "cali",
+        "facultadId": "ingenieria-cali"
+      }
+    }
+  ],
+
+  "seccionales": [
+    {
+      "id": "cali",
+      "nombre": "Cali"
+    },
+    {
+      "id": "bogota",
+      "nombre": "Bogotá"
+    }
+  ],
+
+  "facultades": [
+    {
+      "id": "ingenieria-cali",
+      "nombre": "Facultad de Ingeniería",
+      "seccionalId": "cali"
+    },
+    {
+      "id": "ingenieria-bogota",
+      "nombre": "Facultad de Ingeniería",
+      "seccionalId": "bogota"
+    }
+  ],
+
+  "lugares": [
+    {
+      "id": "principal-cali",
+      "nombre": "Campus Principal Cali",
+      "seccionalId": "cali"
+    },
+    {
+      "id": "principal-bogota",
+      "nombre": "Campus Principal Bogotá",
+      "seccionalId": "bogota"
+    }
+  ],
+
+  "planes": [
+    {
+      "id": "2024-1",
+      "nombre": "Plan 2024-1",
+      "programaId": "multimedia"
+    },
+    {
+      "id": "2024-2",
+      "nombre": "Plan 2024-2",
+      "programaId": "sistemas"
+    }
+  ],
+
+  "programas": [
+    {
+      "id": "multimedia",
+      "nombre": "Ingeniería Multimedia",
+      "facultadId": "ingenieria-cali",
+      "seccionalId": "cali",
+      "numeroSemestres": 2,
+
+      "semestres": [
         {
-            "id": "cali",
-            "nombre": "Cali"
+          "id": "sem-1",
+          "numero": 1,
+          "tipo": "fundamentacion",
+
+          "cursos": [
+            {
+              "id": "curso-1",
+              "codigo": "MM101",
+              "nombre": "Introducción a la Multimedia",
+              "creditos": 3,
+              "horasSemanales": 4,
+              "nucleo": "fundamentacion",
+              "descripcion": "Curso introductorio a la multimedia."
+            },
+            {
+              "id": "curso-2",
+              "codigo": "MM102",
+              "nombre": "Matemáticas para Multimedia",
+              "creditos": 4,
+              "horasSemanales": 5,
+              "nucleo": "fundamentacion",
+              "descripcion": "Bases matemáticas aplicadas a multimedia."
+            },
+            {
+              "id": "curso-3",
+              "codigo": "MM103",
+              "nombre": "Fundamentos de programación",
+              "creditos": 3,
+              "horasSemanales": 6,
+              "nucleo": "",
+              "descripcion": "Bases matemáticas aplicadas a multimedia."
+            }
+          ]
         },
+
         {
-            "id": "bogota",
-            "nombre": "Bogotá"
+          "id": "sem-2",
+          "numero": 2,
+          "tipo": "profesionalizacion",
+
+          "cursos": [
+            {
+              "id": "curso-3",
+              "codigo": "MM201",
+              "nombre": "Programación para Multimedia",
+              "creditos": 4,
+              "horasSemanales": 6,
+              "nucleo": "profesionalizacion",
+              "descripcion": "Fundamentos de programación multimedia."
+            },
+            {
+              "id": "curso-4",
+              "codigo": "MM202",
+              "nombre": "Diseño Gráfico",
+              "creditos": 3,
+              "horasSemanales": 4,
+              "nucleo": "profesionalizacion",
+              "descripcion": "Principios de diseño gráfico digital."
+            }
+          ]
         }
-    ],
-    "facultades": [
-        {
-            "id": "ingenieria-cali",
-            "nombre": "Facultad de Ingeniería",
-            "seccionalId": "cali"
-        },
-        {
-            "id": "ingenieria-bogota",
-            "nombre": "Facultad de Ingeniería",
-            "seccionalId": "bogota"
-        }
-    ],
-    "lugares": [
-        {
-            "id": "principal-cali",
-            "nombre": "Campus Principal Cali",
-            "seccionalId": "cali"
-        },
-        {
-            "id": "principal-bogota",
-            "nombre": "Campus Principal Bogotá",
-            "seccionalId": "bogota"
-        }
-    ],
-    "programas": [
-        {
-            "id": "multimedia",
-            "nombre": "Ingeniería Multimedia",
-            "facultadId": "ingenieria-cali",
-            "seccionalId": "cali"
-        },
-        {
-            "id": "sistemas",
-            "nombre": "Ingeniería de Sistemas",
-            "facultadId": "ingenieria-cali",
-            "seccionalId": "cali"
-        }
-    ],
-    "planes": [
-        {
-            "id": "2024-1",
-            "nombre": "Plan 2024-1",
-            "programaId": "multimedia"
-        },
-        {
-            "id": "2024-2",
-            "nombre": "Plan 2024-2",
-            "programaId": "sistemas"
-        }
-    ],
-    "semestres": [
-        {
-            "id": "sem-1",
-            "numero": 1,
-            "programaId": "multimedia",
-            "planId": "2024-1"
-        },
-        {
-            "id": "sem-2",
-            "numero": 2,
-            "programaId": "multimedia",
-            "planId": "2024-1"
-        }
-    ],
-    "mapeosCompetencias": [],
-    "competenciasRA": [],
-    "perfilesEgreso": [],
-    "propositosFormacion": [],
-    "ciclos": []
+      ]
+    },
+
+    {
+      "id": "sistemas",
+      "nombre": "Ingeniería de Sistemas",
+      "facultadId": "ingenieria-cali",
+      "seccionalId": "cali",
+      "numeroSemestres": 0,
+      "semestres": []
+    },
+
+    {
+      "id": "industrial",
+      "nombre": "Ingeniería Industrial",
+      "facultadId": "ingenieria-cali",
+      "seccionalId": "cali",
+      "numeroSemestres": 0,
+      "semestres": []
+    }
+  ],
+
+  "mapeosCompetencias": [],
+
+  "competenciasRA": [],
+
+  "perfilesEgreso": [],
+
+  "propositosFormacion": [],
+
+  "ciclos": []
 }

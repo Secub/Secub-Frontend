@@ -448,6 +448,8 @@ import type {
   MapeoCompetenciasRole,
   Seccional,
 } from "./MapeoCompetencias.types";
+import { MapeoCompetenciasCardInfoNucleos } from "./components";
+import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
 
 export default function MapeoCompetenciasCreatePage() {
   const navigate = useNavigate();
@@ -501,9 +503,9 @@ export default function MapeoCompetenciasCreatePage() {
         return (
           catalogs.programas.find(
             (p: ProgramaAcademico) =>
-            p.nombre
-              .toLowerCase()
-              .includes("sistemas")
+              p.nombre
+                .toLowerCase()
+                .includes("sistemas")
           ) ?? catalogs.programas[0]
         );
       }
@@ -520,8 +522,8 @@ export default function MapeoCompetenciasCreatePage() {
 
     setSelectedSeccionalId(
       currentUser.scope?.seccionalId ??
-        catalogs.seccionales[0]?.id ??
-        ""
+      catalogs.seccionales[0]?.id ??
+      ""
     );
 
     setSelectedFacultadId(
@@ -612,43 +614,43 @@ export default function MapeoCompetenciasCreatePage() {
     useMemo(() => {
       const seccionales =
         catalogs.seccionales.map(
-        (item: Seccional) => ({
-          id: item.id,
-          nombre: item.nombre,
-        }));
+          (item: Seccional) => ({
+            id: item.id,
+            nombre: item.nombre,
+          }));
 
       const facultades =
         selectedSeccionalId
           ? catalogs.facultades
-              .filter(
-                (f) =>
-                  f.seccionalId ===
-                  selectedSeccionalId
-              )
-              .map((item) => ({
-                id: item.id,
-                nombre: item.nombre,
-              }))
+            .filter(
+              (f) =>
+                f.seccionalId ===
+                selectedSeccionalId
+            )
+            .map((item) => ({
+              id: item.id,
+              nombre: item.nombre,
+            }))
           : [];
 
       const programasFiltered =
         selectedFacultadId
           ? catalogs.programas
-              .filter(
-                (p) =>
-                  p.facultadId ===
-                  selectedFacultadId
-              )
-              .map((item) => ({
-                id: item.id,
-                nombre: item.nombre,
-              }))
+            .filter(
+              (p) =>
+                p.facultadId ===
+                selectedFacultadId
+            )
+            .map((item) => ({
+              id: item.id,
+              nombre: item.nombre,
+            }))
           : catalogs.programas.map(
-              (item) => ({
-                id: item.id,
-                nombre: item.nombre,
-              })
-            );
+            (item) => ({
+              id: item.id,
+              nombre: item.nombre,
+            })
+          );
 
       const planes =
         catalogs.planes.map((item) => ({
@@ -656,12 +658,18 @@ export default function MapeoCompetenciasCreatePage() {
           nombre: item.nombre,
         }));
 
+      const estados = [
+        { id: "activo", nombre: "Activo" },
+        { id: "inactivo", nombre: "Inactivo" },
+      ];
+
       return {
         seccionales,
         facultades,
         lugares: [],
         programas: programasFiltered,
         planes,
+        estados,
       };
     }, [
       catalogs,
@@ -675,7 +683,7 @@ export default function MapeoCompetenciasCreatePage() {
 
   const {
     showFinishModal:
-      showMapeoFinishModal,
+    showMapeoFinishModal,
     handleCancelFinish,
     handleConfirmFinish,
   } = useMapeoCompetenciasManager({
@@ -742,8 +750,8 @@ export default function MapeoCompetenciasCreatePage() {
             onChange={(stepId) =>
               setActiveStep(
                 stepId as
-                  | "nucleos"
-                  | "niveles-compromiso"
+                | "nucleos"
+                | "niveles-compromiso"
               )
             }
           />
@@ -752,82 +760,90 @@ export default function MapeoCompetenciasCreatePage() {
         {/* FILTERS */}
 
         {currentUser && (
-        <MapeoCompetenciasFiltersPanel
-          user={currentUser}
-          permissions={permissions as any}
-          filters={{
-            seccionalId:
-              selectedSeccionalId,
-            lugarId: "",
-            facultadId:
-              selectedFacultadId,
-            programaId:
-              selectedProgramaIdFromFilter,
-            planId: selectedPlanId,
-            estado: "activo",
-          }}
-          filterOptions={
-            catalogFilterOptions
-          }
-          filteredCount={0}
-          totalCount={0}
-          activeRecords={[]}
-          onFilterChange={(
-            key,
-            value
-          ) => {
-            if (key === "seccionalId") {
+          <MapeoCompetenciasFiltersPanel
+            user={currentUser}
+            permissions={permissions as any}
+            filters={{
+              seccionalId:
+                selectedSeccionalId,
+              lugarId: "",
+              facultadId:
+                selectedFacultadId,
+              programaId:
+                selectedProgramaIdFromFilter,
+              planId: selectedPlanId,
+              estado: "activo",
+            }}
+            filterOptions={
+              catalogFilterOptions
+            }
+            filteredCount={0}
+            totalCount={0}
+            activeRecords={[]}
+            onFilterChange={(
+              key,
+              value
+            ) => {
+              if (key === "seccionalId") {
+                setSelectedSeccionalId(
+                  value as string
+                );
+
+                setSelectedFacultadId(
+                  ""
+                );
+
+                setSelectedProgramaIdFromFilter(
+                  ""
+                );
+              }
+
+              if (key === "facultadId") {
+                setSelectedFacultadId(
+                  value as string
+                );
+
+                setSelectedProgramaIdFromFilter(
+                  ""
+                );
+              }
+
+              if (key === "programaId") {
+                setSelectedProgramaIdFromFilter(
+                  value as string
+                );
+              }
+            }}
+            onReset={() => {
               setSelectedSeccionalId(
-                value as string
-              );
-
-              setSelectedFacultadId(
-                ""
-              );
-
-              setSelectedProgramaIdFromFilter(
-                ""
-              );
-            }
-
-            if (key === "facultadId") {
-              setSelectedFacultadId(
-                value as string
-              );
-
-              setSelectedProgramaIdFromFilter(
-                ""
-              );
-            }
-
-            if (key === "programaId") {
-              setSelectedProgramaIdFromFilter(
-                value as string
-              );
-            }
-          }}
-          onReset={() => {
-            setSelectedSeccionalId(
-              currentUser.scope
-                ?.seccionalId ??
+                currentUser.scope
+                  ?.seccionalId ??
                 catalogs.seccionales[0]
                   ?.id ??
                 ""
-            );
+              );
 
-            setSelectedFacultadId("");
+              setSelectedFacultadId("");
 
-            setSelectedProgramaIdFromFilter(
-              defaultPrograma?.id ?? ""
-            );
-          }}
-        />
+              setSelectedProgramaIdFromFilter(
+                defaultPrograma?.id ?? ""
+              );
+            }}
+          />
         )}
+
+        {/* Card Info Nucleos */}
+
+        {activeStep === "nucleos" && (
+          <MapeoCompetenciasCardInfoNucleos />
+        )}
+
+
 
         {/* NUCLEOS */}
 
         {activeStep === "nucleos" &&
-        programaActual && currentUser ? (
+          programaActual && currentUser ? (
           <NucleosManager
             currentUser={currentUser}
             programa={programaActual}
@@ -837,6 +853,30 @@ export default function MapeoCompetenciasCreatePage() {
                 "niveles-compromiso"
               )
             }
+          />
+        ) : activeStep === "nucleos" ? (
+          <div className="flex justify-center">
+            <EmptyState_NoDataCard />
+          </div>
+        ) : null}
+
+
+        {activeStep === "niveles-compromiso" && (
+          <div className="surface-card rounded-lg p-6 md:p-8">
+               <MapeoCompetenciasCardInfoCompromiso />
+          </div>
+        )}
+
+
+
+        {/* Niveles Compromiso */}
+
+        {activeStep === "niveles-compromiso" &&
+          programaActual && currentUser ? (
+          <NucleosManager
+            currentUser={currentUser}
+            programa={programaActual}
+            planId={selectedPlanId}
           />
         ) : activeStep === "nucleos" ? (
           <div className="flex justify-center">
@@ -865,7 +905,7 @@ export default function MapeoCompetenciasCreatePage() {
           handleCancelFinish
         }
       />
-      
+
     </PanelLayout>
   );
 }

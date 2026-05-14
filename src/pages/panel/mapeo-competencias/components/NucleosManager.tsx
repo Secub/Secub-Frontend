@@ -3,7 +3,7 @@ import { GoCheckCircle, GoClock } from "react-icons/go";
 import { Button, ConfirmDialog, Badge } from "../../../../components/ui";
 import NucleoSemestreCard from "./NucleoSemestreCard";
 import { useNucleosManager } from "../hooks/useNucleosManager";
-import type { CurrentUser, ProgramaAcademico } from "../MapeoCompetencias.types";
+import type { CurrentUser, MapeoCompetenciasRecord, ProgramaAcademico } from "../MapeoCompetencias.types";
 
 interface NucleosManagerProps {
   currentUser: CurrentUser;
@@ -35,10 +35,17 @@ export default function NucleosManager({
     planId,
   });
 
+  //   const semestresList = useMemo(() => {
+  //   return Array.from({ length: programa.numeroSemestres }, (_, i) => ({
+  //     numero: i + 1,
+  //     cursos: [],
+  //   }));
+  // }, [programa.numeroSemestres]);
+
   const semestresList = useMemo(() => {
     return programa.semestres.map((semestre) => ({
       numero: semestre.numero,
-      cursos: semestre.cursos.map((c) => c.nombre),
+      cursos: semestre.cursos,
     }));
   }, [programa.semestres]);
 
