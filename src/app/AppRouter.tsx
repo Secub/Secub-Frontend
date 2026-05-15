@@ -50,8 +50,8 @@ export default function AppRouter() {
   const mapeoRoute = parseMapeoRoute(normalizedPath);
   if (mapeoRoute) {
     switch (mapeoRoute.type) {
-      case "classificationCreate":
-        return <MapeoCompetenciasClassificationCreatePage />;
+      // case "classificationCreate":
+      //   return <MapeoCompetenciasClassificationCreatePage />;
       case "create":
         return <MapeoCompetenciasCreatePage />;
       // case "classificationEdit":
