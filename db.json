@@ -93,7 +93,7 @@
             "nombre": "Ingeniería Multimedia",
             "facultadId": "ingenieria-cali",
             "seccionalId": "cali",
-            "numeroSemestres": 2,
+            "numeroSemestres": 5,
             "semestres": [
                 {
                     "id": "sem-1",
@@ -137,8 +137,8 @@
                     "planId": "2024-1",
                     "cursos": [
                         {
-                            "id": "curso-3",
-                            "codigo": "MM201",
+                            "id": "curso-4",
+                            "codigo": "MM204",
                             "nombre": "Programación para Multimedia",
                             "creditos": 4,
                             "horasSemanales": 6,
@@ -146,9 +146,140 @@
                             "descripcion": "Fundamentos de programación multimedia."
                         },
                         {
-                            "id": "curso-4",
-                            "codigo": "MM202",
+                            "id": "curso-5",
+                            "codigo": "MM205",
                             "nombre": "Diseño Gráfico",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        }
+                    ]
+                },
+                {
+                    "id": "sem-3",
+                    "numero": 3,
+                    "tipo": "profesionalizacion",
+                    "planId": "2024-1",
+                    "cursos": [
+                        {
+                            "id": "curso-6",
+                            "codigo": "MM206",
+                            "nombre": "Circuitos Digitales",
+                            "creditos": 4,
+                            "horasSemanales": 6,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Fundamentos de programación multimedia."
+                        },
+                        {
+                            "id": "curso-7",
+                            "codigo": "MM207",
+                            "nombre": "Procesamiento de Imágenes",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        },
+                        {
+                            "id": "curso-8",
+                            "codigo": "MM208",
+                            "nombre": "Señales y Sistemas",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        }
+                    ]
+                },
+                {
+                    "id": "sem-4",
+                    "numero": 4,
+                    "tipo": "profesionalizacion",
+                    "planId": "2024-1",
+                    "cursos": [
+                        {
+                            "id": "curso-9",
+                            "codigo": "MM209",
+                            "nombre": "Diseño Ux/UI",
+                            "creditos": 4,
+                            "horasSemanales": 6,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Fundamentos de programación multimedia."
+                        },
+                        {
+                            "id": "curso-10",
+                            "codigo": "MM2010",
+                            "nombre": "Communuty Manager",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        }
+                    ]
+                },
+                {
+                    "id": "sem-5",
+                    "numero": 5,
+                    "tipo": "profesionalizacion",
+                    "planId": "2024-1",
+                    "cursos": [
+                        {
+                            "id": "curso-11",
+                            "codigo": "MM2011",
+                            "nombre": "Audio",
+                            "creditos": 4,
+                            "horasSemanales": 6,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Fundamentos de programación multimedia."
+                        },
+                        {
+                            "id": "curso-12",
+                            "codigo": "MM2012",
+                            "nombre": "Fotografia Digital",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        },
+                        {
+                            "id": "curso-13",
+                            "codigo": "MM2013",
+                            "nombre": "Proyecto de Grado",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        }
+                    ]
+                },
+                {
+                    "id": "sem-6",
+                    "numero": 6,
+                    "tipo": "profesionalizacion",
+                    "planId": "2024-1",
+                    "cursos": [
+                        {
+                            "id": "curso-14",
+                            "codigo": "MM2014",
+                            "nombre": "Redes",
+                            "creditos": 4,
+                            "horasSemanales": 6,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Fundamentos de programación multimedia."
+                        },
+                        {
+                            "id": "curso-15",
+                            "codigo": "MM2015",
+                            "nombre": "Fotografia Analógica",
+                            "creditos": 3,
+                            "horasSemanales": 4,
+                            "nucleo": "profesionalizacion",
+                            "descripcion": "Principios de diseño gráfico digital."
+                        },
+                        {
+                            "id": "curso-16",
+                            "codigo": "MM2016",
+                            "nombre": "Proyecto de Grado II",
                             "creditos": 3,
                             "horasSemanales": 4,
                             "nucleo": "profesionalizacion",
@@ -175,7 +306,177 @@
             "semestres": []
         }
     ],
-    "mapeosCompetencias": [],
+    "mapeosCompetencias": [
+        {
+            "id": "mapeo-multimedia-1",
+            "programaId": "multimedia",
+            "planId": "2024-1",
+            "semestres": [
+                {
+                    "semesterId": "sem-1",
+                    "semesterNumber": 1,
+                    "competencias": [
+                        {
+                            "id": "C01",
+                            "numero": 1,
+                            "descripcion": "Competencia 1",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C02",
+                            "numero": 2,
+                            "descripcion": "Competencia 2",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C03",
+                            "numero": 3,
+                            "descripcion": "Competencia 3",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        }
+                    ]
+                },
+                {
+                    "semesterId": "sem-2",
+                    "semesterNumber": 2,
+                    "competencias": [
+                        {
+                            "id": "C01",
+                            "numero": 1,
+                            "descripcion": "Competencia 1",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C02",
+                            "numero": 2,
+                            "descripcion": "Competencia 2",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C03",
+                            "numero": 3,
+                            "descripcion": "Competencia 3",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        }
+                    ]
+                },
+                {
+                    "semesterId": "sem-3",
+                    "semesterNumber": 3,
+                   "competencias": [
+                        {
+                            "id": "C01",
+                            "numero": 1,
+                            "descripcion": "Competencia 1",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C02",
+                            "numero": 2,
+                            "descripcion": "Competencia 2",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C03",
+                            "numero": 3,
+                            "descripcion": "Competencia 3",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        }
+                    ]
+                },
+                {
+                    "semesterId": "sem-4",
+                    "semesterNumber": 4,
+                    "competencias": [
+                        {
+                            "id": "C01",
+                            "numero": 1,
+                            "descripcion": "Competencia 1",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C02",
+                            "numero": 2,
+                            "descripcion": "Competencia 2",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C03",
+                            "numero": 3,
+                            "descripcion": "Competencia 3",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        }
+                    ]
+                },
+                {
+                    "semesterId": "sem-5",
+                    "semesterNumber": 5,
+                    "competencias": [
+                        {
+                            "id": "C01",
+                            "numero": 1,
+                            "descripcion": "Competencia 1",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C02",
+                            "numero": 2,
+                            "descripcion": "Competencia 2",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C03",
+                            "numero": 3,
+                            "descripcion": "Competencia 3",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        }
+                    ]
+                },
+                {
+                    "semesterId": "sem-6",
+                    "semesterNumber": 6,
+                    "competencias": [
+                        {
+                            "id": "C01",
+                            "numero": 1,
+                            "descripcion": "Competencia 1",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C02",
+                            "numero": 2,
+                            "descripcion": "Competencia 2",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        },
+                        {
+                            "id": "C03",
+                            "numero": 3,
+                            "descripcion": "Competencia 3",
+                            "resultadosAprendizaje": [],
+                            "semestreid": "sem-1"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
     "competenciasRA": [
         {
             "id": "C01",
@@ -185,7 +486,7 @@
             "tipo": "general",
             "programaId": "multimedia",
             "planId": "2024-1",
-            "semestreId": "sem-1"
+            "semestreid": "sem-1"
         },
         {
             "id": "C02",
@@ -195,7 +496,7 @@
             "tipo": "especifica",
             "programaId": "multimedia",
             "planId": "2024-1",
-            "semestreId": "sem-1"
+            "semestreid": "sem-1"
         },
         {
             "id": "C03",
@@ -205,7 +506,7 @@
             "tipo": "general",
             "programaId": "multimedia",
             "planId": "2024-1",
-            "semestreId": "sem-2"
+            "semestreid": "sem-2"
         }
     ],
     "perfilesEgreso": [],

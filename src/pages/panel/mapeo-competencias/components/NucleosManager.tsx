@@ -3,7 +3,7 @@ import { GoCheckCircle, GoClock } from "react-icons/go";
 import { Button, ConfirmDialog, Badge } from "../../../../components/ui";
 import NucleoSemestreCard from "./NucleoSemestreCard";
 import { useNucleosManager } from "../hooks/useNucleosManager";
-import type { CurrentUser, MapeoCompetenciasRecord, ProgramaAcademico } from "../MapeoCompetencias.types";
+import type { CurrentUser, ProgramaAcademico } from "../MapeoCompetencias.types";
 
 interface NucleosManagerProps {
   currentUser: CurrentUser;
@@ -50,13 +50,20 @@ export default function NucleosManager({
     }));
   }, [programa.semestres]);
 
+  const totalSemestres = semestresList.length;
+
   const completionPercentage = useMemo(() => {
-    const totalSemestres = programa.numeroSemestres;
-    const evaluatedCount = Object.values(semestresNucleos).filter(
-      (n) => n !== null,
+    const currentSemesterNumbers = new Set(
+      semestresList.map((semestre) => semestre.numero),
+    );
+
+    const evaluatedCount = Object.entries(semestresNucleos).filter(
+      ([numero, nucleo]) =>
+        currentSemesterNumbers.has(Number(numero)) &&
+        nucleo !== null,
     ).length;
     return totalSemestres > 0 ? Math.round((evaluatedCount / totalSemestres) * 100) : 0;
-  }, [programa.numeroSemestres, semestresNucleos]);
+  }, [semestresList, semestresNucleos, totalSemestres]);
 
   return (
     <div className="space-y-6 pb-24">
@@ -69,7 +76,7 @@ export default function NucleosManager({
             </h3>
             <p className="mt-1 text-sm text-[var(--color-gray-3)]">
               Progreso: {completionPercentage}% · {Object.values(semestresNucleos).filter((n) => n !== null).length} de{" "}
-              {programa.numeroSemestres} semestres clasificados
+              {totalSemestres} semestres clasificados
             </p>
           </div>
 

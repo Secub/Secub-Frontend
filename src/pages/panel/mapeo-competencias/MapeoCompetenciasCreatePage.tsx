@@ -436,6 +436,7 @@ import NucleosManager from "./components/NucleosManager";
 import MapeoCompetenciasCardInfoNucleos from "./components/MapeoCompetenciasCardInfoNucleos";
 import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
 import MapeoCompetenciasSemesterStep from "./components/MapeoCompetenciasSemesterStep";
+import WorkflowStepProgress from "../../../components/ui/progress/WorkflowStepProgress";
 
 import { rolePermissions } from "./MapeoCompetencias.permissions";
 
@@ -447,6 +448,7 @@ import { getMapeoByPrograma } from "../../../api/repositories/mapeo.repository";
 
 import type {
   MapeoCompetenciasRecord,
+  MapeoSemesterData,
   ProgramaAcademico,
   MapeoCompetenciasRole,
   Seccional,
@@ -597,9 +599,86 @@ export default function MapeoCompetenciasCreatePage() {
   // =========================
 
   const semestresConCompetencias =
-    useMemo(() => {
-      return mapeos[0]?.semestres ?? [];
-    }, [mapeos]);
+    useMemo<MapeoSemesterData[]>(() => {
+      const mapeoDelPlan =
+        mapeos.find(
+          (mapeo) =>
+            !selectedPlanId ||
+            mapeo.planId === selectedPlanId,
+        ) ?? mapeos[0];
+
+      const mapeoSemestres =
+        mapeoDelPlan?.semestres ?? [];
+
+      const semestresPrograma = [
+        ...(programaActual?.semestres ?? []),
+      ].sort((a, b) => a.numero - b.numero);
+
+      if (semestresPrograma.length === 0) {
+        return mapeoSemestres;
+      }
+
+      const mapeoPorId = new Map(
+        mapeoSemestres.map((semestre) => [
+          semestre.semesterId,
+          semestre,
+        ]),
+      );
+
+      const mapeoPorNumero = new Map(
+        mapeoSemestres.map((semestre) => [
+          semestre.semesterNumber,
+          semestre,
+        ]),
+      );
+
+      return semestresPrograma.map((semestre, index) => {
+        const semestreMapeado =
+          mapeoPorId.get(semestre.id) ??
+          mapeoPorNumero.get(semestre.numero);
+
+        return {
+          semesterId:
+            semestre.id ??
+            semestreMapeado?.semesterId ??
+            `sem-${index + 1}`,
+          semesterNumber:
+            semestre.numero ??
+            semestreMapeado?.semesterNumber ??
+            index + 1,
+          tipo:
+            semestreMapeado?.tipo ??
+            semestre.tipo,
+          competencias:
+            semestreMapeado?.competencias ?? [],
+        };
+      });
+    }, [
+      mapeos,
+      programaActual?.semestres,
+      selectedPlanId,
+    ]);
+
+  // =========================
+  // WORKFLOW ITEMS
+  // =========================
+
+  const workflowItems =
+  useMemo(() => {
+    return semestresConCompetencias.map(
+      (semestre, index) => ({
+        id: semestre.semesterId,
+
+        label: `Semestre ${
+          semestre.semesterNumber ?? index + 1
+        }`,
+
+        sublabel: semestre.semesterNumber
+          ? String(semestre.semesterNumber)
+          : `Nivel ${index + 1}`,
+      }),
+    );
+  }, [semestresConCompetencias]);
 
   // =========================
   // PERMISSIONS
@@ -688,19 +767,15 @@ export default function MapeoCompetenciasCreatePage() {
     semestresMapping,
     currentSemesterIndex,
     currentSemesterComplete,
-    allSemestresEvaluated,
-    mappingSummary,
     isEvaluationLocked,
     showFinishModal: showMapeoFinishModal,
-    lastSaveStatus,
 
     handleSetCompetenciaOption,
     handleNextSemester,
+    handleGoToSemester,
     handlePrevSemester,
-    handleSaveProgress,
     handleCancelFinish,
     handleConfirmFinish,
-    handleFinishClick,
   } = useMapeoCompetenciasManager({
     programa: programaActual,
     planId: selectedPlanId,
@@ -883,6 +958,33 @@ export default function MapeoCompetenciasCreatePage() {
           </div>
         )}
 
+        {activeStep === "niveles-compromiso" &&
+          programaActual && currentUser && semestresConCompetencias.length > 0 ? (
+          <WorkflowStepProgress
+            items={workflowItems}
+            activeId={
+              workflowItems[currentSemesterIndex]
+                ?.id
+            }
+            completedIds={workflowItems
+              .slice(0, currentSemesterIndex)
+              .map((item) => item.id)}
+            onChange={(semesterId: string) => {
+              const semesterIndex =
+                workflowItems.findIndex(
+                  (item) =>
+                    item.id === semesterId,
+                );
+
+              if (semesterIndex >= 0) {
+                handleGoToSemester(
+                  semesterIndex,
+                );
+              }
+            }}
+          />
+        ): null}
+
 
 
         {/* Niveles Compromiso */}
@@ -897,7 +999,7 @@ export default function MapeoCompetenciasCreatePage() {
               semestresMapping={semestresMapping}
               isCompletionLocked={isEvaluationLocked}
               onCompetenciaChange={handleSetCompetenciaOption}
-              onNextSemester={handleNextSemester}
+              OnGoToSemester={handleGoToSemester}
               onPrevSemester={handlePrevSemester}
               canAdvance={currentSemesterComplete}
             />

@@ -79,12 +79,18 @@ export function useNucleosManager({
 
   // Verificar si todos los semestres están evaluados
   const allSemestresEvaluated = useMemo(() => {
-    const totalSemestres = programa.numeroSemestres;
-    const evaluatedCount = Object.values(semestresNucleos).filter(
-      (nucleo) => nucleo !== null,
+    const totalSemestres = programa.semestres.length;
+    const currentSemesterNumbers = new Set(
+      programa.semestres.map((semestre) => semestre.numero),
+    );
+
+    const evaluatedCount = Object.entries(semestresNucleos).filter(
+      ([numero, nucleo]) =>
+        currentSemesterNumbers.has(Number(numero)) &&
+        nucleo !== null,
     ).length;
     return evaluatedCount === totalSemestres;
-  }, [programa.numeroSemestres, semestresNucleos]);
+  }, [programa.semestres, semestresNucleos]);
 
   // Contar semestres por tipo
   const nucleosSummary = useMemo(() => {

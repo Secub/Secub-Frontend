@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type {
   ProgramaAcademico,
   MapeoSemesterData,
-//   MapeoCompetencia,
+  //   MapeoCompetencia,
 } from "../MapeoCompetencias.types";
 
 export type CompetenciaOption = "introduce" | "refuerza" | "afianza" | "no-aplica";
@@ -26,6 +26,58 @@ interface MapeoCompetenciasState {
   semestres: SemesterMapping[];
 }
 
+function mergeSemesterMappingsWithCurrentData(
+  storedSemestres: SemesterMapping[],
+  semestresData: MapeoSemesterData[]
+): SemesterMapping[] {
+  const currentSemestres =
+    initializeSemesterMappings(semestresData);
+
+  if (currentSemestres.length === 0) {
+    return storedSemestres;
+  }
+
+  const storedById = new Map(
+    storedSemestres.map((semestre) => [
+      semestre.semesterId,
+      semestre,
+    ])
+  );
+
+  const storedByNumber = new Map(
+    storedSemestres.map((semestre) => [
+      semestre.semesterNumber,
+      semestre,
+    ])
+  );
+
+  return currentSemestres.map((currentSemestre) => {
+    const storedSemestre =
+      storedById.get(currentSemestre.semesterId) ??
+      storedByNumber.get(currentSemestre.semesterNumber);
+
+    if (!storedSemestre) return currentSemestre;
+
+    const storedCompetencias = new Map(
+      storedSemestre.competenciaMappings.map((mapping) => [
+        mapping.competenciaId,
+        mapping.option,
+      ])
+    );
+
+    return {
+      ...currentSemestre,
+      competenciaMappings:
+        currentSemestre.competenciaMappings.map((mapping) => ({
+          ...mapping,
+          option:
+            storedCompetencias.get(mapping.competenciaId) ??
+            mapping.option,
+        })),
+    };
+  });
+}
+
 function readStoredMapeoCompetencias(
   programaId: string,
   planId: string,
@@ -45,7 +97,10 @@ function readStoredMapeoCompetencias(
     const state = parsed[key];
 
     if (state?.semestres) {
-      return state.semestres;
+      return mergeSemesterMappingsWithCurrentData(
+        state.semestres,
+        semestresData
+      );
     }
     return initializeSemesterMappings(semestresData);
   } catch {
@@ -178,6 +233,12 @@ export function useMapeoCompetenciasManager({
     });
   };
 
+  const handleGoToSemester = (
+    index: number,
+  ) => {
+    setCurrentSemesterIndex(index);
+  };
+
   const handleNextSemester = () => {
     if (currentSemesterComplete && currentSemesterIndex < semestresMapping.length - 1) {
       setCurrentSemesterIndex((prev) => prev + 1);
@@ -242,5 +303,6 @@ export function useMapeoCompetenciasManager({
     handleCancelFinish,
     handleConfirmFinish,
     handleFinishClick,
+    handleGoToSemester,
   };
 }

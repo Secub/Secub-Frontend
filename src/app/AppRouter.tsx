@@ -5,7 +5,7 @@ import PerfilEgresoPage from "../pages/panel/perfil-egreso/PerfilEgresoPage";
 import PropositoFormacionPage from "../pages/panel/proposito-formacion/PropositoFormacionPage";
 import CompetenciasRAPage from "../pages/panel/competencias-ra/CompetenciasRAPage";
 import MapeoCompetenciasPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasPage";
-import MapeoCompetenciasClassificationCreatePage from "../pages/panel/mapeo-competencias/MapeoCompetenciasClassificationCreatePage";
+// import MapeoCompetenciasClassificationCreatePage from "../pages/panel/mapeo-competencias/MapeoCompetenciasClassificationCreatePage";
 import MapeoCompetenciasCreatePage from "../pages/panel/mapeo-competencias/MapeoCompetenciasCreatePage";
 // import MapeoCompetenciasClassificationEditPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasClassificationEditPage";
 // import MapeoCompetenciasEditPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasEditPage";
