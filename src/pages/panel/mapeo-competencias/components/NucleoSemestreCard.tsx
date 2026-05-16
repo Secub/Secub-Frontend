@@ -1,6 +1,6 @@
 import { Badge, Button } from "../../../../components/ui";
 import type { NucleoType } from "../hooks/useNucleosManager";
-import type { PlanEstudio, ProgramaAcademicoCurso } from "../MapeoCompetencias.types";
+import type { ProgramaAcademicoCurso } from "../MapeoCompetencias.types";
 
 interface NucleoSemestreCardProps {
   semestreNumero: number;

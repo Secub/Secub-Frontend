@@ -44,7 +44,6 @@ interface MapeoCompetenciasFiltersProps {
 }
 
 export function MapeoCompetenciasFilters({
-  permissions,
   filters,
   filterOptions,
   onFilterChange,

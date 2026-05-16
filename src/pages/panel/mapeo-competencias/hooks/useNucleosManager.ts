@@ -3,7 +3,8 @@ import type { ProgramaAcademico } from "../MapeoCompetencias.types";
 
 export type NucleoType = "fundamentacion" | "profesionalizacion" | "sintesis";
 
-const NUCLEOS_STORAGE_KEY = "secub.mapeoCompetencias.nucleos";
+export const NUCLEOS_STORAGE_KEY = "secub.mapeoCompetencias.nucleos";
+export const NUCLEOS_STORAGE_EVENT = "secub.mapeoCompetencias.nucleos.updated";
 
 interface NucleosState {
   programaId: string;
@@ -11,7 +12,7 @@ interface NucleosState {
   semestres: Record<number, NucleoType | null>;
 }
 
-function readStoredNucleos(programaId: string, planId: string): Record<number, NucleoType | null> {
+export function readStoredNucleos(programaId: string, planId: string): Record<number, NucleoType | null> {
   if (typeof window === "undefined") return {};
 
   try {
@@ -47,6 +48,16 @@ function saveNucleosToStorage(
     };
 
     localStorage.setItem(NUCLEOS_STORAGE_KEY, JSON.stringify(parsed));
+
+    window.dispatchEvent(
+      new CustomEvent(NUCLEOS_STORAGE_EVENT, {
+        detail: {
+          programaId,
+          planId,
+          semestres,
+        },
+      }),
+    );
   } catch {
     // Silently fail on storage errors
   }

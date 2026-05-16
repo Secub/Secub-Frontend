@@ -6,7 +6,6 @@ export { default as MapeoCompetenciasExportModal } from "./MapeoCompetenciasExpo
 export { default as MapeoCompetenciasFiltersPanel } from "./MapeoCompetenciasFilters";
 export { default as MapeoCompetenciasProgressModal } from "./MapeoCompetenciasProgressModal";
 export { default as MapeoCompetenciasSemestreCompromisoCard } from "./MapeoCompetenciasSemestreCompromisoCard";
-export { default as MapeoSemesterClassificationStep } from "./MapeoSemesterClassificationStep";
 export { default as MapeoSemesterEditor } from "./MapeoSemesterEditor";
 export { default as NucleoSemestreCard } from "./NucleoSemestreCard";
 export { default as NucleosManager } from "./NucleosManager";

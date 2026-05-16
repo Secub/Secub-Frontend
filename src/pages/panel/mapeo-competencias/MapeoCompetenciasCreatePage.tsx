@@ -441,6 +441,12 @@ import WorkflowStepProgress from "../../../components/ui/progress/WorkflowStepPr
 import { rolePermissions } from "./MapeoCompetencias.permissions";
 
 import { useMapeoCompetenciasManager } from "./hooks/useMapeoCompetenciasManager";
+import {
+  NUCLEOS_STORAGE_EVENT,
+  NUCLEOS_STORAGE_KEY,
+  readStoredNucleos,
+  type NucleoType,
+} from "./hooks/useNucleosManager";
 
 import { useMapeoCompetenciasData } from "./hooks/useMapeoCompetenciasData";
 
@@ -455,6 +461,16 @@ import type {
 } from "./MapeoCompetencias.types";
 // import { MapeoCompetenciasCardInfoNucleos } from "./components";
 // import MapeoCompetenciasCardInfoCompromiso from "./components/MapeoCompetenciasCardInfoCompromiso";
+
+const NUCLEO_WORKFLOW_LABELS: Record<NucleoType, string> = {
+  fundamentacion: "Fundamentacion",
+  profesionalizacion: "Profesionalizacion",
+  sintesis: "Sintesis",
+};
+
+function getNucleoWorkflowLabel(nucleo?: NucleoType | null) {
+  return nucleo ? NUCLEO_WORKFLOW_LABELS[nucleo] : "Sin clasificar";
+}
 
 export default function MapeoCompetenciasCreatePage() {
   const navigate = useNavigate();
@@ -491,6 +507,11 @@ export default function MapeoCompetenciasCreatePage() {
   const [mapeos, setMapeos] = useState<
     MapeoCompetenciasRecord[]
   >([]);
+
+  const [
+    semestresNucleosWorkflow,
+    setSemestresNucleosWorkflow,
+  ] = useState<Record<number, NucleoType | null>>({});
 
   // =========================
   // DEFAULT PROGRAMA
@@ -594,6 +615,56 @@ export default function MapeoCompetenciasCreatePage() {
       defaultPrograma,
     ]);
 
+  useEffect(() => {
+    if (!programaActual?.id || !selectedPlanId) {
+      setSemestresNucleosWorkflow({});
+      return;
+    }
+
+    const syncStoredNucleos = () => {
+      setSemestresNucleosWorkflow(
+        readStoredNucleos(programaActual.id, selectedPlanId),
+      );
+    };
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === NUCLEOS_STORAGE_KEY) {
+        syncStoredNucleos();
+      }
+    };
+
+    const handleNucleosUpdated = (event: Event) => {
+      const { detail } = event as CustomEvent<{
+        programaId: string;
+        planId: string;
+        semestres: Record<number, NucleoType | null>;
+      }>;
+
+      if (
+        detail?.programaId === programaActual.id &&
+        detail.planId === selectedPlanId
+      ) {
+        setSemestresNucleosWorkflow(detail.semestres);
+      }
+    };
+
+    syncStoredNucleos();
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener(
+      NUCLEOS_STORAGE_EVENT,
+      handleNucleosUpdated,
+    );
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener(
+        NUCLEOS_STORAGE_EVENT,
+        handleNucleosUpdated,
+      );
+    };
+  }, [programaActual?.id, selectedPlanId]);
+
   // =========================
   // SEMESTRES
   // =========================
@@ -674,11 +745,15 @@ export default function MapeoCompetenciasCreatePage() {
         }`,
 
         sublabel: semestre.semesterNumber
-          ? String(semestre.semesterNumber)
+          ? getNucleoWorkflowLabel(
+            semestresNucleosWorkflow[semestre.semesterNumber] ??
+            semestre.tipo ??
+            null,
+          )
           : `Nivel ${index + 1}`,
       }),
     );
-  }, [semestresConCompetencias]);
+  }, [semestresConCompetencias, semestresNucleosWorkflow]);
 
   // =========================
   // PERMISSIONS
@@ -771,7 +846,6 @@ export default function MapeoCompetenciasCreatePage() {
     showFinishModal: showMapeoFinishModal,
 
     handleSetCompetenciaOption,
-    handleNextSemester,
     handleGoToSemester,
     handlePrevSemester,
     handleCancelFinish,
@@ -902,6 +976,12 @@ export default function MapeoCompetenciasCreatePage() {
                   value as string
                 );
               }
+
+              if (key === "planId") {
+                setSelectedPlanId(
+                  value as string
+                );
+              }
             }}
             onReset={() => {
               setSelectedSeccionalId(
@@ -916,6 +996,10 @@ export default function MapeoCompetenciasCreatePage() {
 
               setSelectedProgramaIdFromFilter(
                 defaultPrograma?.id ?? ""
+              );
+
+              setSelectedPlanId(
+                catalogs.planes[0]?.id ?? ""
               );
             }}
           />
@@ -964,7 +1048,9 @@ export default function MapeoCompetenciasCreatePage() {
             items={workflowItems}
             activeId={
               workflowItems[currentSemesterIndex]
-                ?.id
+                ?.id ??
+              workflowItems[0]?.id ??
+              ""
             }
             completedIds={workflowItems
               .slice(0, currentSemesterIndex)

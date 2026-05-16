@@ -114,7 +114,7 @@ export default function WorkflowStepProgress({
 
               {/* CONTENT */}
 
-              <div className="relative z-30 flex items-center gap-3">
+              <div className="relative z-30 flex min-w-0 items-center gap-3">
                 {/* ICON */}
 
                 <span
@@ -138,10 +138,10 @@ export default function WorkflowStepProgress({
 
                 {/* TEXT */}
 
-                <div className="flex flex-col items-start">
+                <div className="flex min-w-0 flex-col items-start">
                   <span
                     className={[
-                      "text-sm font-semibold transition-colors",
+                      "max-w-full truncate text-sm font-semibold transition-colors",
                       isEnabled
                         ? "text-white"
                         : "text-[var(--color-secondary-4)]",
@@ -153,13 +153,13 @@ export default function WorkflowStepProgress({
                   {item.sublabel ? (
                     <span
                       className={[
-                        "text-xs transition-colors",
+                        "max-w-full truncate text-xs font-medium transition-colors",
                         isEnabled
                           ? "text-white/75"
                           : "text-[var(--color-gray-3)]",
                       ].join(" ")}
                     >
-                      {/* {item.sublabel} este es el subnumero, como decir el numero del paso*/}
+                      {item.sublabel}
                     </span>
                   ) : null}
                 </div>

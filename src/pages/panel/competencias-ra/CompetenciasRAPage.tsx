@@ -21,7 +21,7 @@
 
 
 import { useEffect, useMemo, useState } from "react";
-import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
+import { GoDownload, GoFile, GoPlus } from "react-icons/go";
 // import DevRoleSelector from "../../../components/panel/DevRoleSelector";
 import { PanelLayout } from "../../../components/panel";
 import { Button } from "../../../components/ui/Button";
