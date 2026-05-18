@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
-import { Button, Select } from "../../../../components/ui";
+import { useNavigate } from "react-router-dom";
+import { Button, Select, ConfirmDialog } from "../../../../components/ui";
+import { GoClock, GoCheckCircle } from "react-icons/go";
 import type {
   ProgramaAcademico,
   MapeoSemesterData,
@@ -61,6 +63,26 @@ export default function MapeoCompetenciasSemesterStep({
   onPrevSemester,
   // canAdvance, // isCurrentSemesterComplete es el que valida
 }: MapeoCompetenciasSemesterStepProps) {
+
+  const navigate = useNavigate();
+
+  const [showMapeoFinishModal, setShowMapeoFinishModal] =
+    useState(false);
+
+  // const handleCreateClick = () => {
+  //   setShowMapeoFinishModal(true);
+  // };
+
+  const handleCancelFinish = () => {
+    setShowMapeoFinishModal(false);
+  };
+
+  const handleConfirmFinish = () => {
+    setShowMapeoFinishModal(false);
+    // Aquí podrías agregar lógica adicional para finalizar el proceso, como enviar datos al backend
+  };
+
+
   // Estado local para mapeo curso x competencia
   const [mapeoLocal, setMapeoLocal] = useState<
     Record<string, Record<string, string>>
@@ -88,7 +110,29 @@ export default function MapeoCompetenciasSemesterStep({
     return currentSemester.competencias || [];
   }, [currentSemester]);
 
-  // resetear mapeoLocal cada vez que cambia el semestre.
+  // Funciones para localStorage
+  const saveMapeoToLocalStorage = (mappingData: Record<string, Record<string, string>>) => {
+    const storageKey = `mapeo-competencias-semestre-${currentSemesterIndex + 1}`;
+    localStorage.setItem(storageKey, JSON.stringify(mappingData));
+  };
+
+  const loadMapeoFromLocalStorage = (): Record<string, Record<string, string>> => {
+    const storageKey = `mapeo-competencias-semestre-${currentSemesterIndex + 1}`;
+    const savedData = localStorage.getItem(storageKey);
+
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (error) {
+        console.error("Error al cargar mapeo del localStorage:", error);
+        return {};
+      }
+    }
+
+    return {};
+  };
+
+  // Cargar datos guardados o inicializar con default cuando cambia el semestre
   useEffect(() => {
     const newMapping: Record<string, Record<string, string>> = {};
 
@@ -100,23 +144,22 @@ export default function MapeoCompetenciasSemesterStep({
       });
     });
 
-    setMapeoLocal(newMapping);
-  }, [currentSemesterIndex]);
+    // Intentar cargar datos guardados del localStorage
+    const savedMapping = loadMapeoFromLocalStorage();
 
-  // Inicializar mapeo con "no-aplica" como default
-  useEffect(() => {
-    const newMapping: Record<string, Record<string, string>> = {};
-
+    // Merging saved data with the new structure (preserving only valid entries)
     cursosDelSemestre.forEach((curso) => {
-      newMapping[curso.id] = {};
-
-      competenciasDelSemestre.forEach((comp) => {
-        newMapping[curso.id][comp.id] = "no-aplica";
-      });
+      if (savedMapping[curso.id]) {
+        competenciasDelSemestre.forEach((comp) => {
+          if (savedMapping[curso.id][comp.id]) {
+            newMapping[curso.id][comp.id] = savedMapping[curso.id][comp.id];
+          }
+        });
+      }
     });
 
     setMapeoLocal(newMapping);
-  }, [cursosDelSemestre, competenciasDelSemestre]);
+  }, [currentSemesterIndex, cursosDelSemestre, competenciasDelSemestre]);
 
   // Verificar si todas las competencias están evaluadas
   const isCurrentSemesterComplete = useMemo(() => {
@@ -137,6 +180,13 @@ export default function MapeoCompetenciasSemesterStep({
     newMapping[cursoId][competenciaId] = value;
     setMapeoLocal(newMapping);
   };
+
+  const handleCreateClick =
+    () => {
+
+      window.location.href =
+        "/panel/mapeo-competencias";
+    };
 
   return (
     <div className="space-y-6">
@@ -254,19 +304,72 @@ export default function MapeoCompetenciasSemesterStep({
           Anterior
         </Button>
 
-        {currentSemesterIndex < semestresData.length - 1 ? (
+        <div className="flex shrink-0 items-center gap-3">
           <Button
-            variant="primary"
-            onClick={() => OnGoToSemester(currentSemesterIndex + 1)}
-            disabled={!isCurrentSemesterComplete || isCompletionLocked}
+            variant="outline"
+            leftIcon={<GoClock className="text-lg" />}
+            onClick={() => saveMapeoToLocalStorage(mapeoLocal)}
+            disabled={isCompletionLocked}
           >
-            Siguiente
+            Guardar progreso
           </Button>
-        ) : (
-          <div className="text-sm text-[var(--color-success)] font-medium flex items-center">
-            ✓ Último semestre
-          </div>
-        )}
+
+          {currentSemesterIndex < semestresData.length - 1 ? (
+            <Button
+              variant="primary"
+              onClick={() => {
+                saveMapeoToLocalStorage(mapeoLocal);
+                OnGoToSemester(currentSemesterIndex + 1);
+              }}
+              disabled={
+                !isCurrentSemesterComplete ||
+                isCompletionLocked
+              }
+            >
+              Siguiente
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="primary"
+                leftIcon={
+                  <GoCheckCircle className="text-lg" />
+                }
+                onClick={() => {
+                  saveMapeoToLocalStorage(mapeoLocal);
+                  handleCreateClick();
+                }}
+                disabled={
+                  !isCurrentSemesterComplete ||
+                  isCompletionLocked
+                }
+              >
+                Finalizar
+              </Button>
+
+              <ConfirmDialog
+                open={showMapeoFinishModal}
+                title="Finalizar Mapeo de Competencias"
+                description="¿Deseas finalizar el proceso?"
+                confirmLabel="Finalizar"
+                cancelLabel="Cancelar"
+                onConfirm={() => {
+                  handleConfirmFinish();
+
+                  setTimeout(() => {
+                    navigate(
+                      "/panel/mapeo-competencias"
+                    );
+                  }, 1000);
+                }}
+                onCancel={handleCancelFinish}
+              />
+            </>
+          )}
+
+        </div>
+
+
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { PanelLayout } from "../../../components/panel";
 import MapeoCompetenciasExportModal from "./components/MapeoCompetenciasExportModal";
 import MapeoCompetenciasDeleteModal from "./components/MapeoCompetenciasDeleteModal";
 import MapeoCompetenciasFilters from "./components/MapeoCompetenciasFilters";
+import MapeoCompetenciasSemestreResumenCard from "./components/MapeoCompetenciasSemestreResumenCard";
 
 import EmptyState_NoDataCard from "../../../components/ui/statesEmpty/EmptyState_NoDataCard";
 
@@ -287,6 +288,32 @@ export default function MapeoCompetenciasPage() {
 
   const selectedMapeoForActions =
     filteredRecords[0] ?? null;
+
+  const semesterCards =
+    useMemo(
+      () =>
+        filteredRecords.flatMap((record) => {
+          const programa =
+            catalogs.programas.find(
+              (item) =>
+                item.id ===
+                record.programaId
+            );
+
+          return (record.semestres ?? []).map(
+            (semestre, semesterIndex) => ({
+              record,
+              programa,
+              semestre,
+              semesterIndex,
+            })
+          );
+        }),
+      [
+        filteredRecords,
+        catalogs.programas,
+      ]
+    );
 
   // =========================
   // SUMMARY
@@ -686,11 +713,32 @@ export default function MapeoCompetenciasPage() {
 
           </div>
 
-          <div className="flex justify-center">
+          {semesterCards.length > 0 ? (
+            <div className="space-y-5">
+              {semesterCards.map(
+                ({
+                  record,
+                  programa,
+                  semestre,
+                  semesterIndex,
+                }) => (
+                  <MapeoCompetenciasSemestreResumenCard
+                    key={`${record.id}-${semestre.semesterId}-${semestre.semesterNumber}`}
+                    record={record}
+                    programa={programa}
+                    semestre={semestre}
+                    semesterIndex={semesterIndex}
+                  />
+                )
+              )}
+            </div>
+          ) : (
+            <div className="flex justify-center">
 
-            <EmptyState_NoDataCard />
+              <EmptyState_NoDataCard />
 
-          </div>
+            </div>
+          )}
 
         </div>
 
