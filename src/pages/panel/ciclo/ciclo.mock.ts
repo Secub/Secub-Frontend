@@ -1,3 +1,4 @@
+import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { cicloRoleLabels } from "./ciclo.permissions";
 import type {
   CicloCatalogs,
@@ -346,9 +347,21 @@ export function normalizeCicloRole(rawRole: string | null | undefined): CicloRol
 }
 
 export function getCurrentCicloUser(): CurrentUser {
-  const params = new URLSearchParams(window.location.search);
-  const role = normalizeCicloRole(params.get("role"));
-  return mockUsers[role];
+  const demoUser = getCurrentMockUser();
+  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
+
+  return {
+    ...fallbackUser,
+    id: demoUser.id,
+    nombre: demoUser.nombre,
+    email: demoUser.email,
+    cargo: demoUser.cargo || fallbackUser.cargo,
+    role: demoUser.role as CurrentUser["role"],
+    scope: {
+      ...fallbackUser.scope,
+      ...demoUser.scope,
+    },
+  };
 }
 
 export function getCicloCatalogs(): CicloCatalogs {

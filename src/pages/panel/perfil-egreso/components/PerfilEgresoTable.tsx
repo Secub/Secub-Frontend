@@ -57,7 +57,12 @@ export function PerfilEgresoTable({
       key: "plan",
       title: "Plan de estudios",
       render: (row) => (
-        <span className="panel-table-cell-wrap">{row.planNombre}</span>
+        <span className="panel-table-cell-wrap inline-flex items-center gap-2">
+          {row.planNombre.replace(" (Inactivo)", "")}
+          {row.planEstado === "inactivo" ? (
+            <Badge variant="neutral">Inactivo</Badge>
+          ) : null}
+        </span>
       ),
       className: "w-[14%]",
       headerClassName: "w-[14%]",

@@ -6,6 +6,8 @@ export interface StepCircleProgressItem {
   label: string;
   sublabel?: string;
   icon?: ReactNode;
+  disabled?: boolean;
+  disabledTooltip?: string;
 }
 
 interface StepCircleProgressProps {
@@ -27,14 +29,15 @@ export default function StepCircleProgress({
 }: StepCircleProgressProps) {
   if (!items.length) return null;
 
-  const activeIndex = Math.max(
-    0,
-    items.findIndex((item) => item.id === activeId),
-  );
-
   const completedSet = new Set(completedIds);
+  const lastCompletedIndex = items.reduce(
+    (lastIndex, item, index) => completedSet.has(item.id) ? index : lastIndex,
+    -1,
+  );
   const progressPercentage =
-    items.length <= 1 ? 100 : Math.round((activeIndex / (items.length - 1)) * 100);
+    items.length <= 1
+      ? lastCompletedIndex >= 0 ? 100 : 0
+      : Math.max(0, Math.round((lastCompletedIndex / (items.length - 1)) * 100));
 
   return (
     <div className="px-2 md:px-8">
@@ -51,16 +54,17 @@ export default function StepCircleProgress({
         >
           {items.map((item, index) => {
             const isActive = item.id === activeId;
-            const isCompleted = completedSet.has(item.id) || index < activeIndex;
+            const isCompleted = completedSet.has(item.id);
+            const isItemDisabled = disabled || Boolean(item.disabled);
 
             return (
               <button
                 key={item.id}
                 type="button"
-                onClick={() => !disabled && onChange?.(item.id)}
-                disabled={disabled}
-                title={disabled ? lockedTooltip : undefined}
-                className="group flex min-w-0 flex-col items-center text-center focus-visible:outline-none disabled:cursor-not-allowed"
+                onClick={() => !isItemDisabled && onChange?.(item.id)}
+                disabled={isItemDisabled}
+                title={item.disabled ? item.disabledTooltip : disabled ? lockedTooltip : undefined}
+                className="group flex min-w-0 flex-col items-center text-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-65"
                 aria-current={isActive ? "step" : undefined}
               >
                 <span
@@ -70,7 +74,9 @@ export default function StepCircleProgress({
                       ? "border-[var(--color-success)] bg-[var(--color-success)] text-white"
                       : isActive
                         ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-white"
-                        : "border-[var(--color-secondary-4)] bg-white text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
+                        : isItemDisabled
+                      ? "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] text-[var(--color-gray-4)]"
+                      : "border-[var(--color-secondary-4)] bg-white text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
                   ].join(" ")}
                 >
                   {isCompleted ? (
@@ -107,7 +113,7 @@ export default function StepCircleProgress({
 
       <progress
         className="sr-only"
-        value={activeIndex + 1}
+        value={lastCompletedIndex + 1}
         max={items.length}
         aria-label="Progreso por pasos"
       />

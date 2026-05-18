@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Modal, Select, Textarea } from "../../../../components/ui";
-import { getDefaultLugarBySeccional } from "../CompetenciasRa.utils";
+import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
+import { getActivePlansByProgram, getDefaultLugarBySeccional, isMedellinSeccional } from "../CompetenciasRa.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -26,7 +27,6 @@ interface FormErrors {
   programaId?: string;
   planId?: string;
   descripcion?: string;
-  numeroRA?: string;
 }
 
 export function CompetenciasRaFormModal({
@@ -41,10 +41,12 @@ export function CompetenciasRaFormModal({
 }: CompetenciasRaFormModalProps) {
   const [form, setForm] = useState<FormState>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formAlert, setFormAlert] = useState("");
 
   useEffect(() => {
     setForm(initialValues);
     setErrors({});
+    setFormAlert("");
   }, [initialValues, open]);
 
   const lugaresDisponibles = useMemo(() => {
@@ -82,8 +84,13 @@ export function CompetenciasRaFormModal({
     });
   }, [catalogs.programas, form.facultadId, form.seccionalId, user.scope.programaId]);
 
+  const planesDisponibles = useMemo(() => {
+    return getActivePlansByProgram(catalogs, form.programaId, form.planId);
+  }, [catalogs, form.planId, form.programaId]);
+
   const canEditStructure = mode === "create";
   const isDirectorScoped = Boolean(user.scope.programaId);
+  const isLugarLocked = !canEditStructure || !isMedellinSeccional(form.seccionalId);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => {
@@ -93,10 +100,23 @@ export function CompetenciasRaFormModal({
         next.facultadId = user.scope.facultadId ?? "";
         next.lugarId = getDefaultLugarBySeccional(String(value));
         next.programaId = user.scope.programaId ?? "";
+        next.planId = "";
+      }
+
+      if (key === "lugarId") {
+        next.facultadId = user.scope.facultadId ?? "";
+        next.programaId = user.scope.programaId ?? "";
+        next.planId = "";
       }
 
       if (key === "facultadId") {
         next.programaId = user.scope.programaId ?? "";
+        next.planId = "";
+      }
+
+      if (key === "programaId") {
+        const activePlans = getActivePlansByProgram(catalogs, String(value));
+        next.planId = activePlans[0]?.id ?? "";
       }
 
       return next;
@@ -111,15 +131,40 @@ export function CompetenciasRaFormModal({
     if (!form.facultadId) nextErrors.facultadId = "Selecciona una facultad.";
     if (!form.programaId) nextErrors.programaId = "Selecciona un programa.";
     if (!form.planId) nextErrors.planId = "Selecciona un plan de estudios.";
-    if (!form.descripcion.trim()) {
-      nextErrors.descripcion = "Escribe la descripción del propósito de formación.";
-    }
-    if (form.numeroRA < 1) {
-      nextErrors.numeroRA = "Debes seleccionar al menos 1 RAs.";
+
+    const selectedPlan = catalogs.planes.find((item) => item.id === form.planId);
+    if (form.planId && selectedPlan?.estado !== "activo") {
+      nextErrors.planId = "Selecciona un plan de estudios activo.";
     }
 
+    if (!form.descripcion.trim()) {
+      nextErrors.descripcion = "Escribe la descripción de la competencia.";
+    }
+
+    const errorKeys = Object.keys(nextErrors);
+    const hasErrors = errorKeys.length > 0;
+
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    setFormAlert(
+      hasErrors
+        ? "Completa la información obligatoria antes de guardar. Revisa el primer campo marcado."
+        : "",
+    );
+
+    if (hasErrors) {
+      scrollToFirstValidationError({
+        fieldOrder: [
+          "seccionalId",
+          "lugarId",
+          "facultadId",
+          "programaId",
+          "planId",
+          "descripcion",
+        ],
+      });
+    }
+
+    return !hasErrors;
   };
 
   const handleSubmit = () => {
@@ -131,15 +176,11 @@ export function CompetenciasRaFormModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={
-        mode === "create"
-          ? "Crear Competencias y Ra"
-          : "Editar Competencias y Ra"
-      }
+      title={mode === "create" ? "Crear competencia" : "Editar competencia"}
       description={
         mode === "create"
-          ? "Registra un nuevo propósito asociado a una seccional o sede, lugar de desarrollo, facultad, programa y plan específico."
-          : "En edición solo se modifica el estado y el texto descriptivo, manteniendo la estructura académica bloqueada."
+          ? "Registra una competencia asociada a una seccional o sede, lugar de desarrollo, facultad, programa y plan de estudios."
+          : "En edición solo se modifica el estado y la descripción de competencia, manteniendo la estructura académica bloqueada."
       }
       size="lg"
       footer={
@@ -148,11 +189,20 @@ export function CompetenciasRaFormModal({
             Cancelar
           </Button>
           <Button variant="primary" onClick={handleSubmit}>
-            {mode === "create" ? "Crear Competencias y RA" : "Guardar cambios"}
+            {mode === "create" ? "Crear competencia" : "Guardar cambios"}
           </Button>
         </div>
       }
     >
+      {formAlert ? (
+        <div
+          role="alert"
+          className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:rgba(235,87,87,0.08)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
+        >
+          {formAlert}
+        </div>
+      ) : null}
+
       <div className="grid gap-5 md:grid-cols-2">
         <Select
           label="Seccional / Sede"
@@ -164,6 +214,8 @@ export function CompetenciasRaFormModal({
           }))}
           placeholder="Selecciona una seccional o sede"
           disabled={!canEditStructure || !!user.scope.seccionalId}
+          id="seccionalId"
+          data-validation-field="seccionalId"
           error={errors.seccionalId}
         />
 
@@ -176,7 +228,9 @@ export function CompetenciasRaFormModal({
             value: item.id,
           }))}
           placeholder="Selecciona un lugar"
-          disabled={!canEditStructure}
+          disabled={isLugarLocked}
+          id="lugarId"
+          data-validation-field="lugarId"
           error={errors.lugarId}
         />
 
@@ -190,6 +244,8 @@ export function CompetenciasRaFormModal({
           }))}
           placeholder="Selecciona una facultad"
           disabled={!canEditStructure || !!user.scope.facultadId}
+          id="facultadId"
+          data-validation-field="facultadId"
           error={errors.facultadId}
         />
 
@@ -203,6 +259,8 @@ export function CompetenciasRaFormModal({
           }))}
           placeholder="Selecciona un programa"
           disabled={!canEditStructure || isDirectorScoped}
+          id="programaId"
+          data-validation-field="programaId"
           error={errors.programaId}
         />
 
@@ -210,23 +268,25 @@ export function CompetenciasRaFormModal({
           label="Plan de estudios"
           value={form.planId}
           onChange={(event) => updateField("planId", event.target.value)}
-          options={catalogs.planes.map((item) => ({
-            label: item.nombre,
+          options={planesDisponibles.map((item) => ({
+            label: item.estado === "inactivo" ? `${item.nombre} (Inactivo)` : item.nombre,
             value: item.id,
           }))}
           placeholder="Selecciona un plan"
-          disabled={!canEditStructure}
+          disabled={!canEditStructure || !form.programaId}
+          helperText="Solo se listan planes activos. Los inactivos solo permanecen visibles en registros históricos."
+          id="planId"
+          data-validation-field="planId"
           error={errors.planId}
         />
-
       </div>
 
       <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
         <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
-          Regla aplicada en edición
+          Gestión separada de RA
         </p>
         <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-          Cuando el registro ya existe, se bloquean seccional o sede, lugar de desarrollo, facultad, programa y plan de estudios.
+          Primero guarda la competencia. Luego agrega, consulta o edita sus Resultados de Aprendizaje desde la tarjeta de la competencia.
         </p>
         {record ? (
           <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
@@ -237,78 +297,17 @@ export function CompetenciasRaFormModal({
 
       <div className="mt-5">
         <Textarea
-          label="Descripción"
+          label="Descripción de competencia"
           value={form.descripcion}
           onChange={(event) => updateField("descripcion", event.target.value)}
           rows={7}
-          placeholder="Escribe el propósito de formación del programa..."
-          helperText="Este texto será visible en la consulta y podrá actualizarse según las reglas del rol."
+          placeholder="Escribe la competencia"
+          helperText="Los Resultados de Aprendizaje se agregan después desde la acción + Agregar RA."
+          id="descripcion"
+          data-validation-field="descripcion"
           error={errors.descripcion}
         />
       </div>
-
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <Select
-          label="Numeros de RAs para asignar"
-          value={String(form.numeroRA)}
-          onChange={(event) => {
-            const num = parseInt(event.target.value) as number;
-            updateField("numeroRA", num);
-            // Ajustar el array de descripciones de RAs
-            const currentDescriptions = form.raDescripciones || [];
-            if (num > currentDescriptions.length) {
-              // Agregar elementos vacíos
-              const newDescriptions = [...currentDescriptions, ...Array(num - currentDescriptions.length).fill("")];
-              setForm((current) => ({ ...current, raDescripciones: newDescriptions }));
-            } else if (num < currentDescriptions.length) {
-              // Remover elementos
-              setForm((current) => ({ ...current, raDescripciones: currentDescriptions.slice(0, num) }));
-            }
-          }}
-          options={[
-            { label: "1", value: "1" },
-            { label: "2", value: "2" },
-            { label: "3", value: "3" },
-            { label: "4", value: "4" },
-          ]}
-          placeholder="Añada el número de RAs"
-          error={errors.numeroRA}
-        />
-      </div>
-
-      {form.numeroRA > 0 && (
-        <>
-          <div className="mt-8 border-t border-[var(--color-gray-6)] pt-6">
-            <h3 className="text-base font-semibold text-[var(--color-secondary-4)]">
-              Resultados de Aprendizaje
-            </h3>
-
-            <div className="mt-4 space-y-4">
-              {Array.from({ length: form.numeroRA }).map((_, index) => (
-                <div
-                  key={index}
-                  className="rounded-lg border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4"
-                >
-                  <label className="text-sm font-medium text-[var(--color-secondary-4)]">
-                    RA {String(index + 1).padStart(2, "0")}
-                  </label>
-                  <textarea
-                    className="mt-2 w-full rounded-md border border-[var(--color-gray-5)] px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--color-primary-5)] focus:ring-1 focus:ring-[var(--color-primary-5)]"
-                    rows={3}
-                    placeholder={`Ingresa la descripción del resultado de aprendizaje ${index + 1}...`}
-                    value={form.raDescripciones?.[index] || ""}
-                    onChange={(event) => {
-                      const newDescriptions = [...(form.raDescripciones || [])];
-                      newDescriptions[index] = event.target.value;
-                      setForm((current) => ({ ...current, raDescripciones: newDescriptions }));
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
     </Modal>
   );
 }

@@ -1,3 +1,4 @@
+import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { roleLabels } from "./proposito-formacion.permissions";
 import type {
   Catalogs,
@@ -90,11 +91,18 @@ export const programas: ProgramaAcademico[] = [
 ];
 
 export const planes: PlanEstudio[] = [
-  { id: "plan-2024-2", nombre: "Plan 2024-2" },
-  { id: "plan-2024-1", nombre: "Plan 2024-1" },
-  { id: "plan-2015-1", nombre: "Plan 2015-1" },
-  { id: "plan-2015-2", nombre: "Plan 2015-2" },
-];
+  { id: "sis-cali-2024-2", nombre: "Plan 2024-2", programaId: "sis-cali", estado: "activo" },
+  { id: "sis-cali-2024-1", nombre: "Plan 2024-1", programaId: "sis-cali", estado: "activo" },
+  { id: "sis-cali-2018-2", nombre: "Plan 2018-2", programaId: "sis-cali", estado: "inactivo" },
+  { id: "ind-cali-2024-2", nombre: "Plan 2024-2", programaId: "ind-cali", estado: "activo" },
+  { id: "danza-cali-2015-1", nombre: "Plan 2015-1", programaId: "danza-cali", estado: "inactivo" },
+  { id: "sis-bog-2024-2", nombre: "Plan 2024-2", programaId: "sis-bog", estado: "activo" },
+  { id: "sis-bog-2015-1", nombre: "Plan 2015-1", programaId: "sis-bog", estado: "inactivo" },
+  { id: "multimedia-bog-2024-2", nombre: "Plan 2024-2", programaId: "multimedia-bog", estado: "activo" },
+  { id: "biomedica-bog-2015-1", nombre: "Plan 2015-1", programaId: "biomedica-bog", estado: "inactivo" },
+  { id: "agro-med-2024-2", nombre: "Plan 2024-2", programaId: "agro-med", estado: "activo" },
+  { id: "sis-cart-2024-2", nombre: "Plan 2024-2", programaId: "sis-cart", estado: "activo" },
+  ];
 
 export const mockPropositos: PropositoFormacionRecord[] = [];
 
@@ -169,9 +177,21 @@ export function normalizeRole(
 }
 
 export function getCurrentUser(): CurrentUser {
-  const params = new URLSearchParams(window.location.search);
-  const role = normalizeRole(params.get("role"));
-  return mockUsers[role];
+  const demoUser = getCurrentMockUser();
+  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
+
+  return {
+    ...fallbackUser,
+    id: demoUser.id,
+    nombre: demoUser.nombre,
+    email: demoUser.email,
+    cargo: demoUser.cargo || fallbackUser.cargo,
+    role: demoUser.role as CurrentUser["role"],
+    scope: {
+      ...fallbackUser.scope,
+      ...demoUser.scope,
+    },
+  };
 }
 
 export function getCatalogs(): Catalogs {

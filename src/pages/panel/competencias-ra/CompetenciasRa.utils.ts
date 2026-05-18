@@ -7,6 +7,27 @@ import type {
   CompetenciasRaFilters,
   CompetenciasRaFormacionRecord,
 } from "./CompetenciasRa.types";
+import {
+  MAX_RA_PER_COMPETENCIA,
+  MIN_RA_PER_COMPETENCIA,
+  canAddLearningResult,
+  getDescribedLearningResults,
+  getLearningResultsCount,
+  getLearningResultsCountLabel,
+  getLearningResultsValidationMessage,
+  isCompetenciaRaValidByLearningResults,
+} from "../../../utils/learningResultsRules";
+
+export {
+  MAX_RA_PER_COMPETENCIA,
+  MIN_RA_PER_COMPETENCIA,
+  canAddLearningResult,
+  getDescribedLearningResults,
+  getLearningResultsCount,
+  getLearningResultsCountLabel,
+  getLearningResultsValidationMessage,
+  isCompetenciaRaValidByLearningResults,
+};
 
 export const INITIAL_FILTERS: CompetenciasRaFilters = {
   seccionalId: "",
@@ -29,6 +50,57 @@ export function getDefaultLugarBySeccional(seccionalId: string) {
   if (!seccionalId) return "";
   if (seccionalId === "medellin") return "medellin";
   return seccionalId;
+}
+
+
+export function isMedellinSeccional(seccionalId: string) {
+  return seccionalId === "medellin";
+}
+
+export function formatPlanLabel(
+  plan: Catalogs["planes"][number] | undefined,
+) {
+  if (!plan) return "Sin plan";
+  return plan.estado === "inactivo" ? `${plan.nombre} (Inactivo)` : plan.nombre;
+}
+
+export function getActivePlansByProgram(
+  catalogs: Catalogs,
+  programaId: string,
+  selectedPlanId = "",
+) {
+  return catalogs.planes.filter((plan) => {
+    if (programaId && plan.programaId !== programaId) return false;
+    return plan.estado === "activo" || plan.id === selectedPlanId;
+  });
+}
+
+export function syncFiltersByActivePlan(
+  filters: CompetenciasRaFilters,
+  planId: string,
+  catalogs: Catalogs,
+): CompetenciasRaFilters {
+  const plan = catalogs.planes.find((item) => item.id === planId);
+  if (!plan) return { ...filters, planId: "" };
+
+  if (plan.estado !== "activo") {
+    return { ...filters, planId };
+  }
+
+  const programa = catalogs.programas.find(
+    (item) => item.id === plan.programaId,
+  );
+
+  if (!programa) return { ...filters, planId };
+
+  return {
+    ...filters,
+    seccionalId: programa.seccionalId,
+    lugarId: getDefaultLugarBySeccional(programa.seccionalId),
+    facultadId: programa.facultadId,
+    programaId: programa.id,
+    planId,
+  };
 }
 
 export function enrichCompetenciasRa(
@@ -54,7 +126,8 @@ export function enrichCompetenciasRa(
       facultadNombre: facultad?.nombre ?? "Sin facultad",
       lugarNombre: lugar?.nombre ?? "Sin lugar",
       programaNombre: programa?.nombre ?? "Sin programa",
-      planNombre: plan?.nombre ?? "Sin plan",
+      planNombre: formatPlanLabel(plan),
+      planEstado: plan?.estado ?? "inactivo",
     };
   });
 }
@@ -159,7 +232,25 @@ export function buildAvailableFilters(
   });
 
   const planes = catalogs.planes.filter((item) => {
-    return records.some((record) => {
+    const relatedProgram = catalogs.programas.find(
+      (programa) => programa.id === item.programaId,
+    );
+
+    if (!relatedProgram) return false;
+
+    if (filters.seccionalId && relatedProgram.seccionalId !== filters.seccionalId) {
+      return false;
+    }
+
+    if (filters.facultadId && relatedProgram.facultadId !== filters.facultadId) {
+      return false;
+    }
+
+    if (filters.programaId && item.programaId !== filters.programaId) {
+      return false;
+    }
+
+    const hasHistoricalRecord = records.some((record) => {
       if (filters.seccionalId && record.seccionalId !== filters.seccionalId) {
         return false;
       }
@@ -178,6 +269,8 @@ export function buildAvailableFilters(
 
       return record.planId === item.id;
     });
+
+    return item.estado === "activo" || hasHistoricalRecord;
   });
 
   return {
@@ -260,14 +353,6 @@ export function buildRecordFromForm(
 ): CompetenciasRaFormacionRecord {
   const now = new Date().toISOString();
 
-  const resultadosAprendizaje = form.raDescripciones
-    .filter((desc) => desc.trim().length > 0)
-    .map((desc, index) => ({
-      id: `ra-${Math.random().toString(36).slice(2, 8)}`,
-      numero: index + 1,
-      descripcion: desc.trim(),
-    }));
-
   // Calcular número automáticamente para registros nuevos
   let numero = 1;
   if (original?.numero) {
@@ -280,7 +365,7 @@ export function buildRecordFromForm(
   }
 
   return {
-    id: original?.id ?? `pf-${Math.random().toString(36).slice(2, 8)}`,
+    id: original?.id ?? `competencia-${Math.random().toString(36).slice(2, 8)}`,
     seccionalId: form.seccionalId,
     facultadId: form.facultadId,
     lugarId: form.lugarId,
@@ -290,7 +375,7 @@ export function buildRecordFromForm(
     nombre: `Competencia ${numero}`,
     numero,
     descripcion: form.descripcion.trim(),
-    resultadosAprendizaje,
+    resultadosAprendizaje: original?.resultadosAprendizaje ?? [],
     createdAt: original?.createdAt ?? now,
     updatedAt: now,
   };
@@ -309,7 +394,8 @@ export function buildCsvLikeExcel(records: CompetenciasRaEnriched[]) {
       "Programa académico",
       "Plan de estudio",
       "Estado",
-      "Descripción",
+      "Descripción de competencia",
+      "Resultados de Aprendizaje",
     ],
     ...records.map((record) => [
       record.seccionalNombre,

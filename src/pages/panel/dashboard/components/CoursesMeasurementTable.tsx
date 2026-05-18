@@ -1,4 +1,4 @@
-import { GoChevronRight, GoEye, GoMail } from "react-icons/go";
+import { GoChevronRight, GoEye, GoGraph, GoMail } from "react-icons/go";
 import { Badge, Button, Table, type TableColumn } from "../../../../components/ui";
 import type { EnrichedCourse } from "../dashboard.types";
 
@@ -24,6 +24,79 @@ const statusLabel = {
 
 const compactHeader = "px-3";
 const compactCell = "px-3";
+
+function PendingCoursesSummary({ courses }: { courses: EnrichedCourse[] }) {
+  const totalRa = courses.reduce((total, course) => total + course.totalRa, 0);
+  const evaluatedRa = courses.reduce((total, course) => total + course.evaluatedRa, 0);
+  const pendingRa = Math.max(totalRa - evaluatedRa, 0);
+  const progress = totalRa ? Math.round((evaluatedRa / totalRa) * 100) : 0;
+
+  if (courses.length === 0) {
+    return (
+      <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5 text-sm text-[var(--color-gray-3)]">
+        No hay pendientes para visualizar en el ciclo seleccionado.
+      </div>
+    );
+  }
+
+  return (
+    <div className="surface-card rounded-[22px] p-5">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <GoGraph className="text-xl text-[var(--color-secondary-1)]" />
+            <h3 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
+              Resumen visual de pendientes
+            </h3>
+          </div>
+          <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+            {evaluatedRa} RA evaluados · {pendingRa} RA pendientes · avance del ciclo {progress}%.
+          </p>
+        </div>
+
+        <div className="grid min-w-[260px] gap-3 sm:grid-cols-3">
+          <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface-soft)] px-4 py-3 text-center">
+            <p className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">{totalRa}</p>
+            <p className="text-xs text-[var(--color-gray-4)]">RA asignados</p>
+          </div>
+          <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface-soft)] px-4 py-3 text-center">
+            <p className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">{evaluatedRa}</p>
+            <p className="text-xs text-[var(--color-gray-4)]">Evaluados</p>
+          </div>
+          <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface-soft)] px-4 py-3 text-center">
+            <p className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">{pendingRa}</p>
+            <p className="text-xs text-[var(--color-gray-4)]">Pendientes</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {courses.slice(0, 6).map((course) => {
+          const courseProgress = course.totalRa ? Math.round((course.evaluatedRa / course.totalRa) * 100) : 0;
+
+          return (
+            <div key={course.id} className="rounded-[var(--radius-lg)] bg-[var(--color-surface-soft)] p-4">
+              <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                <span className="font-heading font-semibold text-[var(--color-secondary-4)]">
+                  {course.code} · {course.name}
+                </span>
+                <span className="text-xs font-semibold text-[var(--color-gray-4)]">
+                  {course.evaluatedRa}/{course.totalRa} RA
+                </span>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full bg-white">
+                <div
+                  className="h-full rounded-full bg-[var(--color-secondary-1)] transition-all duration-300"
+                  style={{ width: `${courseProgress}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function CoursesMeasurementTable({
   title,
@@ -267,6 +340,8 @@ export default function CoursesMeasurementTable({
           ) : null}
         </div>
       ) : null}
+
+      {mode === "supervisor" ? <PendingCoursesSummary courses={courses} /> : null}
 
       <Table
         columns={mode === "teacher" ? teacherColumns : supervisorColumns}

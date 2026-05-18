@@ -16,6 +16,7 @@ interface EvidenceImprovementSectionProps {
   results: RaResultSummary[];
   disabled?: boolean;
   lockedTooltip?: string;
+  showValidationErrors?: boolean;
   onEvidenceFileChange: (fileName: string) => void;
   onEvidenceLinkChange: (value: string) => void;
   onImprovementPlanChange: (
@@ -33,6 +34,7 @@ export default function EvidenceImprovementSection({
   results,
   disabled = false,
   lockedTooltip,
+  showValidationErrors = false,
   onEvidenceFileChange,
   onEvidenceLinkChange,
   onImprovementPlanChange,
@@ -40,6 +42,7 @@ export default function EvidenceImprovementSection({
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
   const underTargetResults = results.filter((result) => !result.reachedTarget);
   const hasUnderTargetResults = underTargetResults.length > 0;
+  const evidenceFileError = showValidationErrors && !evidence.fileName;
 
   const handleConfirmDelete = () => {
     if (deleteTarget === "file") {
@@ -73,7 +76,14 @@ export default function EvidenceImprovementSection({
         </div>
 
         <div
-          className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5"
+          data-validation-field="evidence-file"
+          data-validation-error={evidenceFileError ? "true" : undefined}
+          className={[
+            "rounded-[var(--radius-xl)] border border-dashed bg-[var(--color-surface-soft)] p-5",
+            evidenceFileError
+              ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.12)]"
+              : "border-[var(--color-gray-6)]",
+          ].join(" ")}
           title={disabled ? lockedTooltip : undefined}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -133,6 +143,12 @@ export default function EvidenceImprovementSection({
             </span>{" "}
             {evidence.fileName || "No hay archivo seleccionado"}
           </div>
+
+          {evidenceFileError ? (
+            <p className="mt-3 text-sm text-[var(--color-error)]">
+              Carga la evidencia obligatoria de la competencia.
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-5" title={disabled ? lockedTooltip : undefined}>

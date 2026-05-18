@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoChevronDown, GoChevronRight, GoDownload, GoEye, GoFile } from "react-icons/go";
-import { Table, type TableColumn } from "../../../../components/ui";
+import { Button, Table, type TableColumn } from "../../../../components/ui";
 import type { EnrichedRaResult } from "../dashboard.types";
 
 interface CompetenceResultsPanelProps {
@@ -26,9 +26,19 @@ interface RaGroup {
   results: EnrichedRaResult[];
 }
 
+interface CompetenceSupportGroup {
+  id: string;
+  courseName: string;
+  instrumentDescription?: string;
+  evidenceFile?: string;
+  improvementPlanFile?: string;
+  improvementPlanSummary?: string;
+}
+
 function getAverageCompliance(results: EnrichedRaResult[]) {
-  if (results.length === 0) return 0;
-  return Math.round(results.reduce((total, result) => total + result.compliance, 0) / results.length);
+  const measuredResults = results.filter((result) => result.hasMeasurement);
+  if (measuredResults.length === 0) return 0;
+  return Math.round(measuredResults.reduce((total, result) => total + result.compliance, 0) / measuredResults.length);
 }
 
 function groupByCompetence(results: EnrichedRaResult[]): CompetenceGroup[] {
@@ -61,59 +71,143 @@ function groupByCompetence(results: EnrichedRaResult[]): CompetenceGroup[] {
         results: raResults,
       };
     });
+    const measuredRaGroups = raGroups.filter((raGroup) =>
+      raGroup.results.some((result) => result.hasMeasurement),
+    );
+    const competenceCompliance = measuredRaGroups.length
+      ? Math.round(
+          measuredRaGroups.reduce((total, raGroup) => total + raGroup.compliance, 0) /
+            measuredRaGroups.length,
+        )
+      : 0;
 
     return {
       id: competenceId,
       code: firstResult.competenceCode,
       name: firstResult.competenceName,
-      compliance: getAverageCompliance(competenceResults),
+      compliance: competenceCompliance,
       results: competenceResults,
       raGroups,
     };
   });
 }
 
+function clampPercentage(value: number) {
+  return Math.max(0, Math.min(100, value));
+}
+
+function isAvailableSupportFile(fileName?: string) {
+  const value = String(fileName ?? "").trim();
+  if (!value) return false;
+
+  const normalized = value.toLowerCase();
+  return !normalized.startsWith("sin ") && !normalized.includes("pendiente de repositorio");
+}
+
+function buildCompetenceSupportGroups(results: EnrichedRaResult[]): CompetenceSupportGroup[] {
+  const groups = new Map<string, CompetenceSupportGroup>();
+
+  results
+    .filter((result) => result.hasMeasurement)
+    .forEach((result) => {
+      const id = `${result.courseId}-${result.competenceId}`;
+      const current = groups.get(id) ?? {
+        id,
+        courseName: result.courseName,
+      };
+
+      if (result.instrumentDescription) {
+        const nextDescription = `${result.raCode}: ${result.instrumentDescription}`;
+        current.instrumentDescription = current.instrumentDescription
+          ? current.instrumentDescription.includes(nextDescription)
+            ? current.instrumentDescription
+            : `${current.instrumentDescription}\n${nextDescription}`
+          : nextDescription;
+      }
+
+      if (!current.evidenceFile && isAvailableSupportFile(result.evidenceFile)) {
+        current.evidenceFile = result.evidenceFile;
+      }
+
+      if (!current.improvementPlanFile && isAvailableSupportFile(result.improvementPlanFile)) {
+        current.improvementPlanFile = result.improvementPlanFile;
+      }
+
+      if (!current.improvementPlanSummary && result.improvementPlanSummary) {
+        current.improvementPlanSummary = result.improvementPlanSummary;
+      }
+
+      groups.set(id, current);
+    });
+
+  return Array.from(groups.values());
+}
+
 function CompetencePie({ group, index }: { group: CompetenceGroup; index: number }) {
-  const firstRa = group.raGroups[0];
-  const secondRa = group.raGroups[1];
-  const firstValue = firstRa?.compliance ?? group.compliance;
-  const secondValue = secondRa?.compliance ?? Math.max(100 - firstValue, 0);
-  const normalizedFirstValue = Math.max(Math.min(firstValue, 100), 0);
-  const firstColor = index % 2 === 0 ? "var(--color-info)" : "var(--color-warning)";
-  const secondColor = index % 2 === 0 ? "var(--color-primary)" : "var(--color-gray-5)";
+  const measuredRaGroups = group.raGroups.filter((raGroup) =>
+    raGroup.results.some((result) => result.hasMeasurement),
+  );
+  const hasMeasurements = measuredRaGroups.length > 0;
+  const compliance = clampPercentage(group.compliance);
+  const gap = 100 - compliance;
 
   return (
     <article className="flex min-w-[260px] flex-1 flex-col items-center gap-4">
       <h3 className="text-center font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
-        Competencia {index + 1}: {group.compliance}%
+        Competencia {index + 1}: {hasMeasurements ? `${compliance}%` : "sin medición"}
       </h3>
 
       <div className="flex items-center justify-center gap-6">
         <div
-          className="relative h-36 w-36 rounded-full shadow-inner"
+          className="relative flex h-36 w-36 items-center justify-center rounded-full shadow-inner"
           style={{
-            background: `conic-gradient(${firstColor} 0 ${normalizedFirstValue}%, ${secondColor} ${normalizedFirstValue}% 100%)`,
+            background: hasMeasurements
+              ? `conic-gradient(var(--color-success) 0 ${compliance}%, var(--color-gray-6) ${compliance}% 100%)`
+              : "var(--color-surface-soft)",
           }}
-          aria-label={`${group.name}, ${group.compliance}% de cumplimiento`}
+          aria-label={
+            hasMeasurements
+              ? `${group.name}, ${compliance}% de cumplimiento y ${gap}% de brecha`
+              : `${group.name}, sin datos suficientes para graficar`
+          }
         >
-          <span className="absolute left-[20%] top-[42%] rounded bg-[var(--color-secondary-4)] px-2 py-1 text-xs font-semibold text-white">
-            {firstValue}%
-          </span>
-          <span className="absolute right-[18%] top-[52%] rounded bg-[var(--color-secondary-4)] px-2 py-1 text-xs font-semibold text-white">
-            {secondValue}%
+          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-center font-heading text-lg font-semibold text-[var(--color-secondary-4)] shadow-sm">
+            {hasMeasurements ? `${compliance}%` : "—"}
           </span>
         </div>
 
         <div className="space-y-3 text-sm text-[var(--color-gray-2)]">
-          <div className="flex items-center gap-2">
-            <span className="h-4 w-4 rounded-sm" style={{ backgroundColor: firstColor }} />
-            <span>{firstRa?.code ?? "RA 01"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-4 w-4 rounded-sm" style={{ backgroundColor: secondColor }} />
-            <span>{secondRa?.code ?? "RA 02"}</span>
-          </div>
+          {hasMeasurements ? (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="h-4 w-4 rounded-sm bg-[var(--color-success)]" />
+                <span>Cumplimiento: {compliance}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-4 w-4 rounded-sm bg-[var(--color-gray-6)]" />
+                <span>Brecha: {gap}%</span>
+              </div>
+              <p className="text-xs text-[var(--color-gray-4)]">Meta mínima: 70%</p>
+            </>
+          ) : (
+            <p className="max-w-[180px] text-xs leading-5 text-[var(--color-gray-4)]">
+              No hay RA finalizados para graficar esta competencia.
+            </p>
+          )}
         </div>
+      </div>
+
+      <div className="w-full max-w-xs space-y-2 text-xs text-[var(--color-gray-3)]">
+        {group.raGroups.map((raGroup) => {
+          const measured = raGroup.results.some((result) => result.hasMeasurement);
+
+          return (
+            <div key={raGroup.id} className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] px-3 py-2">
+              <span className="font-semibold text-[var(--color-secondary-4)]">{raGroup.code}</span>
+              <span>{measured ? `${clampPercentage(raGroup.compliance)}%` : "Pendiente"}</span>
+            </div>
+          );
+        })}
       </div>
     </article>
   );
@@ -121,11 +215,9 @@ function CompetencePie({ group, index }: { group: CompetenceGroup; index: number
 
 function RaResultsTable({
   results,
-  onDownloadFile,
   onOpenRaDetail,
 }: {
   results: EnrichedRaResult[];
-  onDownloadFile: (fileName: string) => void;
   onOpenRaDetail: (result: EnrichedRaResult) => void;
 }) {
   const columns: TableColumn<EnrichedRaResult>[] = [
@@ -133,70 +225,36 @@ function RaResultsTable({
       key: "code",
       title: "Código",
       render: (result) => result.courseCode,
-      className: "w-[12%] text-center",
-      headerClassName: "w-[12%] text-center",
+      className: "w-[15%] text-center",
+      headerClassName: "w-[15%] text-center",
     },
     {
       key: "course",
       title: "Curso",
       render: (result) => result.courseName,
-      className: "w-[22%]",
-      headerClassName: "w-[22%]",
+      className: "w-[30%]",
+      headerClassName: "w-[30%]",
     },
     {
       key: "teacher",
       title: "Docente titular",
       render: (result) => result.teacherName,
-      className: "w-[20%]",
-      headerClassName: "w-[20%]",
+      className: "w-[25%]",
+      headerClassName: "w-[25%]",
+    },
+    {
+      key: "status",
+      title: "Estado",
+      render: (result) => (result.hasMeasurement ? "Finalizado" : "Pendiente"),
+      className: "w-[12%] text-center",
+      headerClassName: "w-[12%] text-center",
     },
     {
       key: "compliance",
       title: "Cumplimiento",
-      render: (result) => `${result.compliance}%`,
-      className: "w-[13%] text-center",
-      headerClassName: "w-[13%] text-center",
-    },
-    {
-      key: "improvement",
-      title: "Plan de mejora",
-      render: (result) => (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => result.improvementPlanFile && onDownloadFile(result.improvementPlanFile)}
-            disabled={!result.improvementPlanFile}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-secondary-4)] transition-colors hover:bg-[var(--color-surface-soft)] disabled:cursor-not-allowed disabled:opacity-40"
-            title={
-              result.improvementPlanFile
-                ? "Descargar plan de mejora"
-                : "El plan de mejora solo aplica si el cumplimiento es menor al 70%."
-            }
-          >
-            <GoFile className="text-lg" />
-          </button>
-        </div>
-      ),
-      className: "w-[13%] text-center",
-      headerClassName: "w-[13%] text-center",
-    },
-    {
-      key: "evidence",
-      title: "Evidencias",
-      render: (result) => (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => onDownloadFile(result.evidenceFile)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-secondary-4)] transition-colors hover:bg-[var(--color-surface-soft)]"
-            title="Descargar evidencias"
-          >
-            <GoDownload className="text-lg" />
-          </button>
-        </div>
-      ),
-      className: "w-[10%] text-center",
-      headerClassName: "w-[10%] text-center",
+      render: (result) => (result.hasMeasurement ? `${result.compliance}%` : "—"),
+      className: "w-[12%] text-center",
+      headerClassName: "w-[12%] text-center",
     },
     {
       key: "detail",
@@ -213,8 +271,8 @@ function RaResultsTable({
           </button>
         </div>
       ),
-      className: "w-[10%] text-center",
-      headerClassName: "w-[10%] text-center",
+      className: "w-[6%] text-center",
+      headerClassName: "w-[6%] text-center",
     },
   ];
 
@@ -227,6 +285,89 @@ function RaResultsTable({
         emptyMessage="No hay cursos asociados a este RA."
       />
     </div>
+  );
+}
+
+function CompetenceSupportFiles({
+  results,
+  onDownloadFile,
+}: {
+  results: EnrichedRaResult[];
+  onDownloadFile: (fileName: string) => void;
+}) {
+  const supportGroups = useMemo(() => buildCompetenceSupportGroups(results), [results]);
+
+  return (
+    <section className="rounded-[22px] border border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-5">
+      <div>
+        <h3 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
+          Soportes de la competencia
+        </h3>
+        <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
+          Los RA se listan de forma individual, pero los archivos se muestran agrupados por competencia para evitar repeticiones.
+        </p>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {supportGroups.length === 0 ? (
+          <p className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-white p-4 text-sm text-[var(--color-gray-4)]">
+            No hay soportes registrados para esta competencia.
+          </p>
+        ) : (
+          supportGroups.map((group) => (
+            <article key={group.id} className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-4">
+              <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
+                Curso: {group.courseName}
+              </p>
+
+              <div className="mt-3 flex flex-col items-start gap-3">
+                {group.instrumentDescription ? (
+                  <div className="w-full rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] px-3 py-2 text-sm leading-6 text-[var(--color-gray-3)]">
+                    <strong className="text-[var(--color-secondary-4)]">Instrumento de evaluación por RA:</strong>
+                    <pre className="mt-1 whitespace-pre-wrap font-sans text-sm leading-6 text-[var(--color-gray-3)]">
+                      {group.instrumentDescription}
+                    </pre>
+                  </div>
+                ) : (
+                  <span className="text-sm text-[var(--color-gray-4)]">Sin descripción de instrumento registrada.</span>
+                )}
+
+                {group.evidenceFile ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<GoFile className="text-base" />}
+                    rightIcon={<GoDownload className="text-base" />}
+                    onClick={() => onDownloadFile(group.evidenceFile ?? "")}
+                  >
+                    Evidencia · {group.evidenceFile}
+                  </Button>
+                ) : (
+                  <span className="text-sm text-[var(--color-gray-4)]">Sin evidencia registrada.</span>
+                )}
+
+                {group.improvementPlanFile ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<GoFile className="text-base" />}
+                    rightIcon={<GoDownload className="text-base" />}
+                    onClick={() => onDownloadFile(group.improvementPlanFile ?? "")}
+                    title={group.improvementPlanSummary}
+                  >
+                    Plan de mejora · {group.improvementPlanFile}
+                  </Button>
+                ) : group.improvementPlanSummary ? (
+                  <p className="rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] px-3 py-2 text-sm leading-6 text-[var(--color-gray-3)]">
+                    <strong>Plan de mejora:</strong> {group.improvementPlanSummary}
+                  </p>
+                ) : null}
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -327,17 +468,23 @@ export default function CompetenceResultsPanel({
                           </div>
 
                           <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
-                            Porcentaje de cumplimiento: {raGroup.compliance}%
+                            {raGroup.results.some((result) => result.hasMeasurement)
+                              ? `Porcentaje de cumplimiento: ${raGroup.compliance}%`
+                              : "Estado: Pendiente de medición"}
                           </p>
                         </div>
 
                         <RaResultsTable
                           results={raGroup.results}
-                          onDownloadFile={onDownloadFile}
                           onOpenRaDetail={onOpenRaDetail}
                         />
                       </article>
                     ))}
+
+                    <CompetenceSupportFiles
+                      results={group.results}
+                      onDownloadFile={onDownloadFile}
+                    />
                   </div>
                 ) : null}
               </article>

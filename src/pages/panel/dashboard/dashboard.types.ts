@@ -8,12 +8,15 @@ export interface DashboardUserScope {
   seccionalId?: string;
   facultadId?: string;
   programaIds?: string[];
+  programaId?: string;
+  planId?: string;
   docenteId?: string;
 }
 
 export interface DashboardUser {
   id: string;
   name: string;
+  email?: string;
   role: DashboardRole;
   label: string;
   scope: DashboardUserScope;
@@ -41,6 +44,7 @@ export interface PlanCatalog {
   id: string;
   name: string;
   programaId: string;
+  estado: "activo" | "inactivo";
 }
 
 export interface TeacherCatalog {
@@ -75,14 +79,17 @@ export interface MeasurementCycle {
   startDate: string;
   endDate: string;
   courseIds: string[];
+  hasImprovementPlan?: boolean;
 }
 
 export interface CourseRaResult {
+  competenciaId?: string;
   raId: string;
   totalStudents: number;
   approvedStudents: number;
   notApprovedStudents: number;
   instrumentFile: string;
+  instrumentDescription?: string;
   evidenceFile: string;
   improvementPlanFile?: string;
   improvementPlanSummary?: string;
@@ -99,6 +106,7 @@ export interface CourseMeasurement {
   planId: string;
   teacherId: string;
   competenceIds: string[];
+  assignedRaIds?: string[];
   totalRa: number;
   evaluatedRa: number;
   results: CourseRaResult[];
@@ -129,6 +137,7 @@ export interface EnrichedCycle extends MeasurementCycle {
   facultadName: string;
   programaName: string;
   planName: string;
+  planEstado: "activo" | "inactivo";
   status: CycleStatus;
   progress: number;
   totalRa: number;
@@ -145,6 +154,7 @@ export interface EnrichedCourse extends CourseMeasurement {
   facultadName: string;
   programaName: string;
   planName: string;
+  planEstado: "activo" | "inactivo";
   teacherName: string;
   teacherEmail: string;
   competences: CompetenceCatalog[];
@@ -172,10 +182,25 @@ export interface EnrichedRaResult {
   compliance: number;
   status: RaStatus;
   reachedTarget: boolean;
+  hasMeasurement: boolean;
+  measurementStatus: CourseStatus;
   instrumentFile: string;
+  instrumentDescription?: string;
   evidenceFile: string;
   improvementPlanFile?: string;
   improvementPlanSummary?: string;
+}
+
+
+export interface DirectorCycleCompletionNotificationPayload {
+  cycleId: string;
+  academicProgramId: string;
+  planId: string;
+  cycleName: string;
+  period: string;
+  progress: number;
+  totalCourses: number;
+  completedCourses: number;
 }
 
 export interface DashboardData {

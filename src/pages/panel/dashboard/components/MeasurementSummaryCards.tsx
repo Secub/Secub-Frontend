@@ -112,7 +112,7 @@ export function buildSupervisorSummaryItems({
     {
       label: "Ciclos finalizados",
       value: completedCycles,
-      helper: "Ciclos con avance del 100%",
+      helper: "Ciclos con medición y Plan de mejora completos",
       icon: GoChecklist,
       tone: "bg-[color:rgba(118,202,102,0.16)] text-[color:#2f7d32]",
     },

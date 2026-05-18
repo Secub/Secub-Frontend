@@ -9,11 +9,14 @@ export interface UserScope {
   seccionalId?: string;
   facultadId?: string;
   programaId?: string;
+  academicProgramId?: string;
+  planId?: string;
 }
 
 export interface CurrentUser {
   id: string;
   nombre: string;
+  email?: string;
   cargo: string;
   role: CicloRole;
   scope: UserScope;
@@ -63,6 +66,7 @@ export interface CursoSintesis {
 
 export interface CicloMedicion {
   id: string;
+  mapeoCompetenciasId?: string;
   nombre: string;
   seccionalId: string;
   facultadId: string;

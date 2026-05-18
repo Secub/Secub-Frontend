@@ -71,14 +71,14 @@ export default function CycleProgressCard({
             <GoChecklist className="text-base text-[var(--color-secondary-1)]" />
             {cycle.evaluatedRa} de {cycle.totalRa} RA evaluados
           </span>
-          <span>{cycle.progress}%</span>
+          <span>{cycle.progress}% completado</span>
         </div>
 
         <div className="h-3 overflow-hidden rounded-full bg-[var(--color-gray-7)]">
           <div
             className={[
               "h-full rounded-full transition-all duration-300",
-              finished ? "bg-[var(--color-success)]" : "bg-[var(--color-error)]",
+              "bg-[var(--color-success)]",
             ].join(" ")}
             style={{ width: `${cycle.progress}%` }}
           />

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoDownload } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
-import { Button, Modal } from "../../../components/ui";
+import { mockBackend, subscribeToMockBackendChanges } from "../../../services/mockBackend";
+import { Button, Modal, Textarea } from "../../../components/ui";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -30,17 +31,31 @@ import {
   getAvailableCompetences,
   getDashboardMetrics,
   getRaResultsForCourses,
+  requestDirectorCycleCompletionNotification,
+  shouldNotifyDirectorCycleCompletion,
   simulateEvidenceDownload,
   simulateReportDownload,
-  simulateTeacherEmail,
+  notifyTeacherMeasurementReminder,
+  syncDashboardFiltersByCycle,
+  syncDashboardFiltersByPlan,
 } from "./dashboard.utils";
 
 type DashboardView = "control" | "courses" | "detail" | "results";
 
 const DASHBOARD_PATH = "/panel/dashboard";
 
-const user = getCurrentDashboardUser();
-const dashboardData = getDashboardData();
+interface DashboardImprovementPlanRecord {
+  id: string;
+  cicloId: string;
+  programaId: string;
+  planId: string;
+  directorId: string;
+  userId: string;
+  descripcion: string;
+  fechaCreacion: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 function getCycleLabel(cycle: EnrichedCycle | null) {
   return cycle?.name ?? "el ciclo seleccionado";
@@ -68,7 +83,7 @@ function getInitialFilters(): DashboardFiltersState {
   };
 }
 
-function buildDashboardHref(params?: {
+function buildDashboardHref(userRole: string, params?: {
   view?: DashboardView;
   cycleId?: string;
   courseId?: string;
@@ -77,7 +92,7 @@ function buildDashboardHref(params?: {
   const currentParams = new URLSearchParams(window.location.search);
   const nextParams = new URLSearchParams();
 
-  nextParams.set("role", currentParams.get("role") ?? user.role);
+  nextParams.set("role", currentParams.get("role") ?? userRole);
 
   const scenario = currentParams.get("scenario");
   if (scenario) {
@@ -104,6 +119,7 @@ function buildDashboardHref(params?: {
 }
 
 export default function DashboardPage() {
+  const [backendVersion, setBackendVersion] = useState(0);
   const [view, setView] = useState<DashboardView>(getInitialView);
   const [filters, setFilters] = useState<DashboardFiltersState>(getInitialFilters);
   const [selectedCycleId, setSelectedCycleId] = useState(() => getSearchParam("cycleId"));
@@ -113,27 +129,39 @@ export default function DashboardPage() {
   const [notifyCourse, setNotifyCourse] = useState<EnrichedCourse | null>(null);
   const [reportCycle, setReportCycle] = useState<EnrichedCycle | null>(null);
   const [selectedReportCompetences, setSelectedReportCompetences] = useState<string[]>([]);
+  const [improvementCycle, setImprovementCycle] = useState<EnrichedCycle | null>(null);
+  const [improvementDraft, setImprovementDraft] = useState("");
+  const [improvementError, setImprovementError] = useState("");
 
+  const user = useMemo(() => getCurrentDashboardUser(), [backendVersion]);
+  const dashboardData = useMemo(() => getDashboardData(), [backendVersion]);
   const isTeacher = user.role === "docente";
+  const isDirector = user.role === "director";
+
+  useEffect(() => {
+    return subscribeToMockBackendChanges(() => {
+      setBackendVersion((current) => current + 1);
+    });
+  }, []);
 
   const enrichedCycles = useMemo(
     () => enrichCycles(dashboardData.cycles, dashboardData.courses, dashboardData.catalogs),
-    [],
+    [dashboardData],
   );
 
   const enrichedCourses = useMemo(
     () => enrichCourses(dashboardData.courses, dashboardData.cycles, dashboardData.catalogs),
-    [],
+    [dashboardData],
   );
 
   const scopedCycles = useMemo(
     () => applyUserScopeToCycles(enrichedCycles, user),
-    [enrichedCycles],
+    [enrichedCycles, user],
   );
 
   const scopedCourses = useMemo(
     () => applyUserScopeToCourses(enrichedCourses, user),
-    [enrichedCourses],
+    [enrichedCourses, user],
   );
 
   const filteredCycles = useMemo(
@@ -182,7 +210,7 @@ export default function DashboardPage() {
 
   const detailResults = useMemo(
     () => getRaResultsForCourses(detailSourceCourses, dashboardData.catalogs),
-    [detailSourceCourses],
+    [detailSourceCourses, dashboardData.catalogs],
   );
 
   const consolidatedSourceCourses = useMemo(() => {
@@ -195,7 +223,7 @@ export default function DashboardPage() {
 
   const consolidatedResults = useMemo(
     () => getRaResultsForCourses(consolidatedSourceCourses, dashboardData.catalogs),
-    [consolidatedSourceCourses],
+    [consolidatedSourceCourses, dashboardData.catalogs],
   );
 
   const reportCycleCourses = useMemo(() => {
@@ -205,7 +233,7 @@ export default function DashboardPage() {
 
   const availableReportCompetences = useMemo(
     () => getAvailableCompetences(reportCycleCourses, dashboardData.catalogs),
-    [reportCycleCourses],
+    [reportCycleCourses, dashboardData.catalogs],
   );
 
   const metrics = getDashboardMetrics(scopedCourses, scopedCycles);
@@ -221,6 +249,14 @@ export default function DashboardPage() {
       setDetailCourseId("");
     }
   }, [detailCourseId, scopedCourses]);
+
+  useEffect(() => {
+    scopedCycles.forEach((cycle) => {
+      if (shouldNotifyDirectorCycleCompletion(cycle)) {
+        requestDirectorCycleCompletionNotification(cycle);
+      }
+    });
+  }, [scopedCycles]);
 
   useEffect(() => {
     setSelectedReportCompetences((current) => {
@@ -258,7 +294,12 @@ export default function DashboardPage() {
       }
 
       if (key === "planId") {
-        next.cycleId = "";
+        return syncDashboardFiltersByPlan(next, String(value), dashboardData.catalogs);
+      }
+
+      if (key === "cycleId") {
+        const cycle = scopedCycles.find((item) => item.id === String(value));
+        if (cycle) return syncDashboardFiltersByCycle(next, cycle);
       }
 
       return next;
@@ -325,12 +366,74 @@ export default function DashboardPage() {
   };
 
   const handleDownloadCycleReport = (cycle: EnrichedCycle) => {
+    const isCycleClosed = cycle.progress >= 100 && Boolean(cycle.hasImprovementPlan);
+
+    if (!isCycleClosed) return;
+
     if (isTeacher) {
       simulateReportDownload(`Reporte individual docente - ${cycle.name}`);
       return;
     }
 
     setReportCycle(cycle);
+  };
+
+  const handleImprovementPlan = (cycle: EnrichedCycle) => {
+    if (!isDirector || cycle.progress < 100) return;
+
+    const existingPlan = mockBackend.getById<DashboardImprovementPlanRecord>(
+      "planesMejora",
+      `plan-mejora-${cycle.id}`,
+    );
+
+    setImprovementCycle(cycle);
+    setImprovementDraft(existingPlan?.descripcion ?? "");
+    setImprovementError("");
+  };
+
+  const handleSaveImprovementPlan = () => {
+    if (!improvementCycle || !isDirector) return;
+
+    const description = improvementDraft.trim();
+
+    if (!description) {
+      setImprovementError("Describe el plan de mejora general del ciclo.");
+      window.requestAnimationFrame(() => {
+        document
+          .querySelector('[data-validation-field="dashboard-improvement-plan"]')
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const existingPlan = mockBackend.getById<DashboardImprovementPlanRecord>(
+      "planesMejora",
+      `plan-mejora-${improvementCycle.id}`,
+    );
+
+    // TODO backend: reemplazar este registro demo por el CRUD real de planes de mejora
+    // conectado al ciclo, programa, plan y director institucional autenticado.
+    mockBackend.upsert<DashboardImprovementPlanRecord>(
+      "planesMejora",
+      {
+        id: `plan-mejora-${improvementCycle.id}`,
+        cicloId: improvementCycle.id,
+        programaId: improvementCycle.programaId,
+        planId: improvementCycle.planId,
+        directorId: user.id,
+        userId: user.id,
+        descripcion: description,
+        fechaCreacion: existingPlan?.fechaCreacion ?? now,
+        createdAt: existingPlan?.createdAt ?? now,
+        updatedAt: now,
+      },
+      user,
+    );
+
+    setImprovementCycle(null);
+    setImprovementDraft("");
+    setImprovementError("");
   };
 
   const handleToggleReportCompetence = (competenceId: string) => {
@@ -359,11 +462,11 @@ export default function DashboardPage() {
         ? "Panel de Medición"
         : `Panel de Medición · ${getCycleLabel(selectedCycle)}`;
 
-  const controlBreadcrumbHref = buildDashboardHref({
+  const controlBreadcrumbHref = buildDashboardHref(user.role, {
     view: "control",
   });
 
-  const coursesBreadcrumbHref = buildDashboardHref({
+  const coursesBreadcrumbHref = buildDashboardHref(user.role, {
     view: "courses",
     cycleId: selectedCycleId || filters.cycleId,
     status: "pendiente",
@@ -482,9 +585,11 @@ export default function DashboardPage() {
                     key={cycle.id}
                     cycle={cycle}
                     isTeacher={isTeacher}
+                    isDirector={isDirector}
                     onViewPending={handleViewPending}
                     onViewResults={handleViewResultsFromCycle}
                     onDownloadReport={handleDownloadCycleReport}
+                    onImprovementPlan={handleImprovementPlan}
                   />
                 ))}
               </div>
@@ -592,8 +697,8 @@ export default function DashboardPage() {
 
       <Modal
         open={Boolean(notifyCourse)}
-        title="Enviar correo de incumplimiento"
-        description="Esta acción es una simulación. Luego se conectará con el servicio real de notificaciones institucionales."
+        title="Preparar correo recordatorio"
+        description="Esta acción prepara una solicitud simulada. Luego se conectará con backend y directorio institucional."
         size="md"
         onClose={() => setNotifyCourse(null)}
         footer={
@@ -604,11 +709,11 @@ export default function DashboardPage() {
             <Button
               variant="primary"
               onClick={() => {
-                if (notifyCourse) simulateTeacherEmail(notifyCourse);
+                if (notifyCourse) notifyTeacherMeasurementReminder(notifyCourse);
                 setNotifyCourse(null);
               }}
             >
-              Confirmar envío simulado
+              Preparar recordatorio
             </Button>
           </div>
         }
@@ -616,7 +721,7 @@ export default function DashboardPage() {
         {notifyCourse ? (
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">
             <p className="text-sm leading-6 text-[var(--color-gray-3)]">
-              Se notificará a <strong>{notifyCourse.teacherName}</strong> por el curso{" "}
+              Se preparará un recordatorio para <strong>{notifyCourse.teacherName}</strong> por el curso{" "}
               <strong>{notifyCourse.name}</strong>, que tiene{" "}
               <strong>{notifyCourse.pendingRa}</strong> RA pendientes de medición.
             </p>
@@ -627,7 +732,7 @@ export default function DashboardPage() {
       <Modal
         open={Boolean(reportCycle)}
         title="Reporte consolidado PDF"
-        description="Selecciona una o varias competencias antes de generar el reporte consolidado."
+        description="Selecciona una o varias competencias. El reporte final solo se habilita cuando Gestión Académica, Medición RA y Plan de mejora estén completos."
         size="lg"
         onClose={() => setReportCycle(null)}
         footer={
@@ -638,7 +743,7 @@ export default function DashboardPage() {
             <Button
               variant="primary"
               leftIcon={<GoDownload className="text-lg" />}
-              disabled={!reportCycle || selectedReportCompetences.length === 0}
+              disabled={!reportCycle || !reportCycle.hasImprovementPlan || reportCycle.progress < 100 || selectedReportCompetences.length === 0}
               onClick={() => {
                 simulateReportDownload(
                   `Reporte consolidado ${reportCycle?.name ?? "sin ciclo"} - ${
@@ -679,6 +784,57 @@ export default function DashboardPage() {
               </label>
             );
           })}
+        </div>
+      </Modal>
+
+      <Modal
+        open={Boolean(improvementCycle)}
+        title="Cargar plan de mejora"
+        description={improvementCycle ? `${improvementCycle.name} · ${improvementCycle.period}` : undefined}
+        size="md"
+        onClose={() => {
+          setImprovementCycle(null);
+          setImprovementDraft("");
+          setImprovementError("");
+        }}
+        footer={
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setImprovementCycle(null);
+                setImprovementDraft("");
+                setImprovementError("");
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button variant="primary" onClick={handleSaveImprovementPlan}>
+              Guardar plan de mejora
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-sm leading-6 text-[var(--color-gray-3)]">
+            El plan se guarda en <strong>mockBackend.planesMejora</strong> como preparación para el backend real.
+            Queda relacionado con ciclo, programa, plan y Director.
+          </div>
+
+          <Textarea
+            label="Descripción del plan de mejora general"
+            value={improvementDraft}
+            rows={6}
+            maxLength={900}
+            helperText={`${improvementDraft.length}/900 caracteres`}
+            placeholder="Describe las acciones generales para cerrar brechas del ciclo, responsables, tiempos y seguimiento esperado."
+            data-validation-field="dashboard-improvement-plan"
+            error={improvementError || undefined}
+            onChange={(event) => {
+              setImprovementDraft(event.target.value);
+              setImprovementError("");
+            }}
+          />
         </div>
       </Modal>
     </PanelLayout>

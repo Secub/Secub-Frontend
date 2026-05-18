@@ -17,7 +17,7 @@ export default function ConsolidatedReportPanel({
   onToggleCompetence,
   onDownload,
 }: ConsolidatedReportPanelProps) {
-  const canDownload = Boolean(cycle && cycle.progress >= 100 && selectedCompetenceIds.length > 0);
+  const canDownload = Boolean(cycle && cycle.progress >= 100 && cycle.hasImprovementPlan && selectedCompetenceIds.length > 0);
 
   return (
     <section className="surface-card p-6">
@@ -27,7 +27,7 @@ export default function ConsolidatedReportPanel({
             Reporte consolidado PDF
           </h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Selecciona una o varias competencias antes de generar el reporte consolidado. La descarga se habilita únicamente cuando el ciclo está completo al 100%.
+            Selecciona una o varias competencias antes de generar el reporte consolidado. La descarga se habilita únicamente cuando Gestión Académica, Medición RA y Plan de mejora estén completos.
           </p>
         </div>
 
@@ -41,8 +41,10 @@ export default function ConsolidatedReportPanel({
             !cycle
               ? "Selecciona un ciclo para generar el reporte."
               : cycle.progress < 100
-                ? "El reporte consolidado se habilita cuando el ciclo llega al 100%."
-                : selectedCompetenceIds.length === 0
+                ? "El reporte consolidado se habilita cuando la Medición RA llega al 100%."
+                : !cycle.hasImprovementPlan
+                  ? "Falta cargar el Plan de mejora para cerrar el ciclo."
+                  : selectedCompetenceIds.length === 0
                   ? "Selecciona al menos una competencia."
                   : "Descargar reporte consolidado"
           }

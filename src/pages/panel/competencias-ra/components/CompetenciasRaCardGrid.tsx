@@ -2,6 +2,7 @@ import CompetenciasRaCard from "./CompetenciasRaCard";
 import type {
   CompetenciasRaEnriched,
   CompetenciasRaFormacionRole,
+  ResultadoAprendizaje,
   RolePermissions,
 } from "../CompetenciasRa.types";
 import { canEditCompetenciasRa } from "../CompetenciasRa.permissions";
@@ -11,8 +12,8 @@ interface CompetenciasRaCardGridProps {
   role: CompetenciasRaFormacionRole;
   permissions: RolePermissions;
   onView: (record: CompetenciasRaEnriched) => void;
-  onEdit: (record: CompetenciasRaEnriched) => void;
-  onDelete: (record: CompetenciasRaEnriched) => void;
+  onAddRa: (record: CompetenciasRaEnriched) => void;
+  onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
 }
 
 export default function CompetenciasRaCardGrid({
@@ -20,8 +21,8 @@ export default function CompetenciasRaCardGrid({
   role,
   permissions,
   onView,
-  onEdit,
-  onDelete,
+  onAddRa,
+  onEditRa,
 }: CompetenciasRaCardGridProps) {
   if (data.length === 0) {
     return (
@@ -35,17 +36,20 @@ export default function CompetenciasRaCardGrid({
 
   return (
     <div className="grid auto-rows-max grid-cols-1 gap-6">
-      {data.map((record) => (
-        <CompetenciasRaCard
-          key={record.id}
-          record={record}
-          onView={onView}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          canEdit={canEditCompetenciasRa(role, record) && permissions.canUpdate}
-          canDelete={permissions.canDelete}
-        />
-      ))}
+      {data.map((record) => {
+        const canEditRecord = canEditCompetenciasRa(role, record) && permissions.canUpdate;
+
+        return (
+          <CompetenciasRaCard
+            key={record.id}
+            record={record}
+            onView={onView}
+            onAddRa={onAddRa}
+            onEditRa={onEditRa}
+            canEdit={canEditRecord}
+          />
+        );
+      })}
     </div>
   );
 }

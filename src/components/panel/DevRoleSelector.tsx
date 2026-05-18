@@ -1,3 +1,5 @@
+import { mockBackend } from "../../services/mockBackend";
+
 const devRoles = [
   { value: "admin", label: "Super Admin" },
   { value: "vice", label: "Vice/Admin" },
@@ -15,6 +17,17 @@ export default function DevRoleSelector() {
     nextParams.set("role", role);
 
     window.location.href = `${window.location.pathname}?${nextParams.toString()}`;
+  };
+
+  const handleResetDemo = () => {
+    const confirmed = window.confirm(
+      "¿Deseas reiniciar los datos demo locales? Esta acción solo borra la información persistida en este navegador.",
+    );
+
+    if (!confirmed) return;
+
+    mockBackend.clearDemoData();
+    window.location.reload();
   };
 
   return (
@@ -38,6 +51,17 @@ export default function DevRoleSelector() {
           </option>
         ))}
       </select>
+
+      <span className="h-5 w-px bg-[var(--color-gray-6)]" />
+
+      <button
+        type="button"
+        onClick={handleResetDemo}
+        className="text-xs font-semibold text-[var(--color-error)] transition-colors hover:text-[var(--color-secondary-4)]"
+        title="Reiniciar datos demo persistidos solo en este navegador"
+      >
+        Reset demo
+      </button>
     </div>
   );
 }

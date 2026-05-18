@@ -34,6 +34,8 @@ export interface ProgramaAcademico {
 export interface PlanEstudio {
   id: string;
   nombre: string;
+  programaId: string;
+  estado: "activo" | "inactivo";
 }
 
 export interface Catalogs {
@@ -48,11 +50,14 @@ export interface UserScope {
   seccionalId?: string;
   facultadId?: string;
   programaId?: string;
+  academicProgramId?: string;
+  planId?: string;
 }
 
 export interface CurrentUser {
   id: string;
   nombre: string;
+  email?: string;
   cargo: string;
   role: PropositoFormacionRole;
   scope: UserScope;
@@ -60,6 +65,7 @@ export interface CurrentUser {
 
 export interface PropositoFormacionRecord {
   id: string;
+  perfilEgresoId?: string;
   seccionalId: string;
   facultadId: string;
   lugarId: string;
@@ -77,6 +83,7 @@ export interface PropositoEnriched extends PropositoFormacionRecord {
   lugarNombre: string;
   programaNombre: string;
   planNombre: string;
+  planEstado: "activo" | "inactivo";
 }
 
 export interface PropositoFilters {

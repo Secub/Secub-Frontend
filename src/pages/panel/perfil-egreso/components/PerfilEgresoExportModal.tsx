@@ -13,6 +13,7 @@ import {
   buildAvailableFilters,
   buildCsvLikeExcel,
   buildSimplePdf,
+  formatPlanLabel,
   getEstadoBadgeVariant,
   triggerBrowserDownload,
 } from "../perfil-egreso.utils";
@@ -160,6 +161,30 @@ export function PerfilEgresoExportModal({
     >
       <div className="rounded-[24px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">
         <div className="panel-filters-grid">
+          {permissions.canFilterBySeccional ? (
+            <div className="panel-filter-item">
+              <Select
+                label="Seccional / Sede"
+                value={filters.seccionalId}
+                onChange={(event) =>
+                  setFilters((current) => ({
+                    ...current,
+                    seccionalId: event.target.value,
+                    lugarId: "",
+                    facultadId: "",
+                    programaId: "",
+                    planId: "",
+                  }))
+                }
+                options={filterOptions.seccionales.map((item) => ({
+                  label: item.nombre,
+                  value: item.id,
+                }))}
+                placeholder="Todas las seccionales"
+              />
+            </div>
+          ) : null}
+
           <div className="panel-filter-item">
             <Select
               label="Lugar de desarrollo"
@@ -233,7 +258,7 @@ export function PerfilEgresoExportModal({
                   }))
                 }
                 options={filterOptions.planes.map((item) => ({
-                  label: item.nombre,
+                  label: formatPlanLabel(item),
                   value: item.id,
                 }))}
                 placeholder="Todos los planes"

@@ -88,9 +88,8 @@ export const panelNavigation: PanelNavigationItem[] = [
   {
     key: "medicion-ra",
     label: "Medición RA",
-    description: "Paso 7",
+    description: "Registro de medición de RA",
     href: "/panel/medicion-ra",
     icon: GoGraph,
-    order: 7,
   },
 ];

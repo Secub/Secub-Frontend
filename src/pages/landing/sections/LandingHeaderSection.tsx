@@ -35,6 +35,9 @@ export default function LandingHeader() {
           <a href="#contacto" className="nav-link">
             Contacto
           </a>
+          <a href="#accesibilidad" className="nav-link">
+            Accesibilidad
+          </a>
         </nav>
 
         <div className="flex items-center gap-3">

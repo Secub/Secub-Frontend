@@ -12,12 +12,14 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   docente: "Docente",
 };
 
+// Regla funcional RF05: el Director define la Gestión Académica.
+// Admin, Vicerrector y Decano consultan/exportan según alcance; Docente no visualiza el módulo.
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   admin: {
     canRead: true,
-    canCreate: true,
-    canUpdate: true,
-    canDelete: true,
+    canCreate: false,
+    canUpdate: false,
+    canDelete: false,
     canExportPdf: true,
     canExportExcel: true,
     canFilterBySeccional: true,
@@ -29,12 +31,12 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   },
   vice: {
     canRead: true,
-    canCreate: true,
-    canUpdate: true,
-    canDelete: true,
+    canCreate: false,
+    canUpdate: false,
+    canDelete: false,
     canExportPdf: true,
     canExportExcel: true,
-    canFilterBySeccional: true,
+    canFilterBySeccional: false,
     canFilterByLugar: true,
     canFilterByFacultad: true,
     canFilterByPrograma: true,
@@ -62,7 +64,7 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
     canDelete: true,
     canExportPdf: true,
     canExportExcel: true,
-    canFilterBySeccional: true,
+    canFilterBySeccional: false,
     canFilterByLugar: true,
     canFilterByFacultad: true,
     canFilterByPrograma: true,
@@ -70,18 +72,18 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
     canFilterByEstado: true,
   },
   docente: {
-    canRead: true,
+    canRead: false,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: true,
-    canFilterByPlan: true,
-    canFilterByEstado: true,
+    canFilterByPrograma: false,
+    canFilterByPlan: false,
+    canFilterByEstado: false,
   },
 };
 

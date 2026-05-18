@@ -34,6 +34,8 @@ export interface ProgramaAcademico {
 export interface PlanEstudio {
   id: string;
   nombre: string;
+  programaId: string;
+  estado: "activo" | "inactivo";
 }
 
 export interface PerfilEgresoRecord {
@@ -53,11 +55,14 @@ export interface CurrentUserScope {
   seccionalId?: string;
   facultadId?: string;
   programaId?: string;
+  academicProgramId?: string;
+  planId?: string;
 }
 
 export interface CurrentUser {
   id: string;
   nombre: string;
+  email?: string;
   cargo: string;
   role: PerfilEgresoRole;
   scope: CurrentUserScope;
@@ -92,6 +97,7 @@ export interface PerfilEgresoEnriched extends PerfilEgresoRecord {
   facultadNombre: string;
   programaNombre: string;
   planNombre: string;
+  planEstado: "activo" | "inactivo";
 }
 
 export interface Catalogs {

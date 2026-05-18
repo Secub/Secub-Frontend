@@ -5,8 +5,8 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
   isAcademicWorkflowStepLocked,
-  setAcademicWorkflowStepCompleted,
 } from "../../../components/panel";
+import { mockBackend } from "../../../services/mockBackend";
 import { Button } from "../../../components/ui";
 import PropositoDetailModal from "./components/PropositoDetailModal";
 import PropositoExportModal from "./components/PropositoExportModal";
@@ -26,6 +26,7 @@ import {
   getEmptyFormState,
   mapRecordToForm,
   sanitizeFilters,
+  syncFiltersByActivePlan,
 } from "./proposito-formacion.utils";
 import type {
   FormState,
@@ -38,7 +39,9 @@ const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export default function PropositoFormacionPage() {
-  const [records, setRecords] = useState<PropositoFormacionRecord[]>([]);
+  const [records, setRecords] = useState<PropositoFormacionRecord[]>(() =>
+    mockBackend.list<PropositoFormacionRecord>("propositosFormacion", currentUser),
+  );
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] =
     useState<PropositoEnriched | null>(null);
@@ -56,9 +59,6 @@ export default function PropositoFormacionPage() {
   const isStepLocked = isAcademicWorkflowStepLocked("proposito-formacion");
   const hasRecords = records.length > 0;
 
-  useEffect(() => {
-    setAcademicWorkflowStepCompleted("proposito-formacion", hasRecords);
-  }, [hasRecords]);
 
   const enrichedRecords = useMemo(
     () => enrichPropositos(records, catalogs),
@@ -122,7 +122,7 @@ export default function PropositoFormacionPage() {
 
     if (!confirmed) return;
 
-    setRecords((current) => current.filter((item) => item.id !== record.id));
+    setRecords(mockBackend.remove<PropositoFormacionRecord>("propositosFormacion", record.id, currentUser));
 
     if (selectedRecord?.id === record.id) {
       setSelectedRecord(null);
@@ -142,15 +142,26 @@ export default function PropositoFormacionPage() {
         next.lugarId = getDefaultLugarBySeccional(String(value));
         next.facultadId = "";
         next.programaId = "";
+        next.planId = "";
       }
 
       if (key === "lugarId") {
         next.facultadId = "";
         next.programaId = "";
+        next.planId = "";
       }
 
       if (key === "facultadId") {
         next.programaId = "";
+        next.planId = "";
+      }
+
+      if (key === "programaId") {
+        next.planId = "";
+      }
+
+      if (key === "planId") {
+        return syncFiltersByActivePlan(next, String(value), catalogs);
       }
 
       return next;
@@ -158,20 +169,23 @@ export default function PropositoFormacionPage() {
   };
 
   const handleFormSubmit = (values: FormState) => {
-    const nextRecord = buildRecordFromForm(
+    const baseRecord = buildRecordFromForm(
       values,
       formMode === "edit" ? selectedRecord : null,
     );
+    const relatedPerfil = mockBackend
+      .list<{ id: string; programaId?: string; planId?: string }>("perfilEgreso", currentUser)
+      .find((item) => item.planId === baseRecord.planId || item.programaId === baseRecord.programaId);
+    const nextRecord = {
+      ...baseRecord,
+      perfilEgresoId: baseRecord.perfilEgresoId ?? relatedPerfil?.id,
+    };
 
-    setRecords((current) => {
-      if (formMode === "create") {
-        return [nextRecord, ...current];
-      }
-
-      return current.map((item) =>
-        item.id === nextRecord.id ? nextRecord : item,
-      );
-    });
+    setRecords(
+      formMode === "create"
+        ? mockBackend.create<PropositoFormacionRecord>("propositosFormacion", nextRecord, currentUser)
+        : mockBackend.update<PropositoFormacionRecord>("propositosFormacion", nextRecord, currentUser),
+    );
 
     setFormOpen(false);
     setSelectedRecord(null);

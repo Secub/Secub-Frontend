@@ -17,6 +17,7 @@ interface StudentsEvaluationTableProps {
   evaluations: EvaluationMatrix;
   disabled?: boolean;
   lockedTooltip?: string;
+  showValidationErrors?: boolean;
   onLevelChange: (
     studentId: string,
     raId: string,
@@ -42,6 +43,7 @@ export default function StudentsEvaluationTable({
   evaluations,
   disabled = false,
   lockedTooltip,
+  showValidationErrors = false,
   onLevelChange,
 }: StudentsEvaluationTableProps) {
   const [selectedRa, setSelectedRa] = useState<LearningResult | null>(null);
@@ -140,6 +142,7 @@ export default function StudentsEvaluationTable({
 
                 {activeCompetence.learningResults.map((ra) => {
                   const selectedLevel = evaluations[student.id]?.[ra.id] ?? "";
+                  const hasLevelError = showValidationErrors && !selectedLevel;
 
                   return (
                     <td
@@ -158,9 +161,14 @@ export default function StudentsEvaluationTable({
                           )
                         }
                         aria-label={`Nivel de ${student.name} para ${ra.code}`}
+                        aria-invalid={hasLevelError}
+                        data-validation-field={`evaluation-${student.id}-${ra.id}`}
                         className={[
                           "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed",
                           selectTone[selectedLevel],
+                          hasLevelError
+                            ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.14)]"
+                            : "",
                         ].join(" ")}
                       >
                         <option value="">Nivel de desempeño</option>
@@ -171,7 +179,11 @@ export default function StudentsEvaluationTable({
                         ))}
                       </select>
 
-                      {selectedLevel ? (
+                      {hasLevelError ? (
+                        <p className="mt-1 text-xs text-[var(--color-error)]">
+                          Selecciona un nivel obligatorio.
+                        </p>
+                      ) : selectedLevel ? (
                         <p className="mt-1 text-xs text-[var(--color-gray-4)]">
                           {getLevelLabel(selectedLevel)}
                         </p>

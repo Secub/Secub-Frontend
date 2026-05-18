@@ -16,13 +16,13 @@ export default function InformativeProgressBar({
       {label || showPercentage ? (
         <div className="mb-2 flex items-center justify-between text-xs font-semibold text-[var(--color-gray-4)]">
           <span>{label}</span>
-          {showPercentage ? <span>{normalizedValue}%</span> : null}
+          {showPercentage ? <span>{normalizedValue}% completado</span> : null}
         </div>
       ) : null}
 
       <div className="h-2 overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-gray-7)]">
         <div
-          className="h-full rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] transition-all duration-300"
+          className="h-full rounded-[var(--radius-pill)] bg-[var(--color-success)] transition-all duration-300"
           style={{ width: `${normalizedValue}%` }}
         />
       </div>

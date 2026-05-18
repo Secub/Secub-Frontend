@@ -40,6 +40,8 @@ export interface ProgramaAcademico {
 export interface PlanEstudio {
   id: string;
   nombre: string;
+  programaId: string;
+  estado: "activo" | "inactivo";
 }
 
 export interface Catalogs {
@@ -54,11 +56,14 @@ export interface UserScope {
   seccionalId?: string;
   facultadId?: string;
   programaId?: string;
+  academicProgramId?: string;
+  planId?: string;
 }
 
 export interface CurrentUser {
   id: string;
   nombre: string;
+  email?: string;
   cargo: string;
   role: CompetenciasRaFormacionRole;
   scope: UserScope;
@@ -66,6 +71,7 @@ export interface CurrentUser {
 
 export interface CompetenciasRaFormacionRecord {
   id: string;
+  propositoFormacionId?: string;
   seccionalId: string;
   facultadId: string;
   lugarId: string;
@@ -86,6 +92,7 @@ export interface CompetenciasRaEnriched extends CompetenciasRaFormacionRecord {
   lugarNombre: string;
   programaNombre: string;
   planNombre: string;
+  planEstado: "activo" | "inactivo";
 }
 
 export interface CompetenciasRaFilters {

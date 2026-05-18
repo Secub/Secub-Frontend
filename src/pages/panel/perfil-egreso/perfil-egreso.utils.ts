@@ -31,6 +31,57 @@ export function getDefaultLugarBySeccional(seccionalId: string) {
   return seccionalId;
 }
 
+
+export function isMedellinSeccional(seccionalId: string) {
+  return seccionalId === "medellin";
+}
+
+export function formatPlanLabel(
+  plan: Catalogs["planes"][number] | undefined,
+) {
+  if (!plan) return "Sin plan";
+  return plan.estado === "inactivo" ? `${plan.nombre} (Inactivo)` : plan.nombre;
+}
+
+export function getActivePlansByProgram(
+  catalogs: Catalogs,
+  programaId: string,
+  selectedPlanId = "",
+) {
+  return catalogs.planes.filter((plan) => {
+    if (programaId && plan.programaId !== programaId) return false;
+    return plan.estado === "activo" || plan.id === selectedPlanId;
+  });
+}
+
+export function syncFiltersByActivePlan(
+  filters: PerfilEgresoFilters,
+  planId: string,
+  catalogs: Catalogs,
+): PerfilEgresoFilters {
+  const plan = catalogs.planes.find((item) => item.id === planId);
+  if (!plan) return { ...filters, planId: "" };
+
+  if (plan.estado !== "activo") {
+    return { ...filters, planId };
+  }
+
+  const programa = catalogs.programas.find(
+    (item) => item.id === plan.programaId,
+  );
+
+  if (!programa) return { ...filters, planId };
+
+  return {
+    ...filters,
+    seccionalId: programa.seccionalId,
+    lugarId: getDefaultLugarBySeccional(programa.seccionalId),
+    facultadId: programa.facultadId,
+    programaId: programa.id,
+    planId,
+  };
+}
+
 export function enrichPerfilesEgreso(
   records: PerfilEgresoRecord[],
   catalogs: Catalogs,
@@ -54,7 +105,8 @@ export function enrichPerfilesEgreso(
       lugarNombre: lugar?.nombre ?? "Sin lugar",
       facultadNombre: facultad?.nombre ?? "Sin facultad",
       programaNombre: programa?.nombre ?? "Sin programa",
-      planNombre: plan?.nombre ?? "Sin plan",
+      planNombre: formatPlanLabel(plan),
+      planEstado: plan?.estado ?? "inactivo",
     };
   });
 }
@@ -159,7 +211,25 @@ export function buildAvailableFilters(
   });
 
   const planes = catalogs.planes.filter((item) => {
-    return records.some((record) => {
+    const relatedProgram = catalogs.programas.find(
+      (programa) => programa.id === item.programaId,
+    );
+
+    if (!relatedProgram) return false;
+
+    if (filters.seccionalId && relatedProgram.seccionalId !== filters.seccionalId) {
+      return false;
+    }
+
+    if (filters.facultadId && relatedProgram.facultadId !== filters.facultadId) {
+      return false;
+    }
+
+    if (filters.programaId && item.programaId !== filters.programaId) {
+      return false;
+    }
+
+    const hasHistoricalRecord = records.some((record) => {
       if (filters.seccionalId && record.seccionalId !== filters.seccionalId) {
         return false;
       }
@@ -178,6 +248,8 @@ export function buildAvailableFilters(
 
       return record.planId === item.id;
     });
+
+    return item.estado === "activo" || hasHistoricalRecord;
   });
 
   return {

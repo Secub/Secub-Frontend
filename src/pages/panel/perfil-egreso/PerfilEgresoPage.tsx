@@ -5,8 +5,8 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
   isAcademicWorkflowStepLocked,
-  setAcademicWorkflowStepCompleted,
 } from "../../../components/panel";
+import { mockBackend } from "../../../services/mockBackend";
 import { Button } from "../../../components/ui";
 import PerfilEgresoDetailModal from "./components/PerfilEgresoDetailModal";
 import PerfilEgresoExportModal from "./components/PerfilEgresoExportModal";
@@ -26,6 +26,7 @@ import {
   getEmptyFormState,
   mapRecordToForm,
   sanitizeFilters,
+  syncFiltersByActivePlan,
 } from "./perfil-egreso.utils";
 import type {
   FormState,
@@ -38,7 +39,9 @@ const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export default function PerfilEgresoPage() {
-  const [records, setRecords] = useState<PerfilEgresoRecord[]>([]);
+  const [records, setRecords] = useState<PerfilEgresoRecord[]>(() =>
+    mockBackend.list<PerfilEgresoRecord>("perfilEgreso", currentUser),
+  );
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] =
     useState<PerfilEgresoEnriched | null>(null);
@@ -56,9 +59,6 @@ export default function PerfilEgresoPage() {
   const isStepLocked = isAcademicWorkflowStepLocked("perfil-egreso");
   const hasRecords = records.length > 0;
 
-  useEffect(() => {
-    setAcademicWorkflowStepCompleted("perfil-egreso", hasRecords);
-  }, [hasRecords]);
 
   const enrichedRecords = useMemo(
     () => enrichPerfilesEgreso(records, catalogs),
@@ -122,7 +122,7 @@ export default function PerfilEgresoPage() {
 
     if (!confirmed) return;
 
-    setRecords((current) => current.filter((item) => item.id !== record.id));
+    setRecords(mockBackend.remove<PerfilEgresoRecord>("perfilEgreso", record.id, currentUser));
 
     if (selectedRecord?.id === record.id) {
       setSelectedRecord(null);
@@ -142,15 +142,26 @@ export default function PerfilEgresoPage() {
         next.lugarId = getDefaultLugarBySeccional(String(value));
         next.facultadId = "";
         next.programaId = "";
+        next.planId = "";
       }
 
       if (key === "lugarId") {
         next.facultadId = "";
         next.programaId = "";
+        next.planId = "";
       }
 
       if (key === "facultadId") {
         next.programaId = "";
+        next.planId = "";
+      }
+
+      if (key === "programaId") {
+        next.planId = "";
+      }
+
+      if (key === "planId") {
+        return syncFiltersByActivePlan(next, String(value), catalogs);
       }
 
       return next;
@@ -163,15 +174,11 @@ export default function PerfilEgresoPage() {
       formMode === "edit" ? selectedRecord : null,
     );
 
-    setRecords((current) => {
-      if (formMode === "create") {
-        return [nextRecord, ...current];
-      }
-
-      return current.map((item) =>
-        item.id === nextRecord.id ? nextRecord : item,
-      );
-    });
+    setRecords(
+      formMode === "create"
+        ? mockBackend.create<PerfilEgresoRecord>("perfilEgreso", nextRecord, currentUser)
+        : mockBackend.update<PerfilEgresoRecord>("perfilEgreso", nextRecord, currentUser),
+    );
 
     setFormOpen(false);
     setSelectedRecord(null);
@@ -245,6 +252,7 @@ export default function PerfilEgresoPage() {
       ) : (
         <div className="space-y-6">
           <PerfilEgresoFilters
+            user={currentUser}
             permissions={permissions}
             filters={filters}
             filterOptions={availableFilterOptions}

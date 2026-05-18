@@ -48,6 +48,14 @@ export interface CourseRecord {
   studyPlan: string;
   measurementCycle: string;
   teacher: string;
+  teacherId?: string;
+  teacherEmail?: string;
+  cycleId?: string;
+  assignmentIds?: string[];
+  seccionalId?: string;
+  facultadId?: string;
+  programaId?: string;
+  planId?: string;
   competences: Competence[];
   students: Student[];
 }
@@ -58,8 +66,13 @@ export type EvaluationMatrix = Record<
 >;
 
 export interface InstrumentState {
-  fileName: string;
   description: string;
+  /**
+   * Campo conservado solo para compatibilidad con mediciones guardadas antes
+   * de separar la evidencia general de la descripción textual por RA.
+   * La pantalla nueva no solicita ni guarda archivos dentro de cada RA.
+   */
+  fileName?: string;
 }
 
 export type InstrumentByRa = Record<string, InstrumentState>;
@@ -99,4 +112,6 @@ export interface ValidationFeedback {
   title: string;
   message: string;
   details?: string[];
+  firstErrorField?: string;
+  firstErrorCompetenceId?: string;
 }

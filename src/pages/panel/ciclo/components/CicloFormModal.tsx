@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoAlert, GoCheck, GoInfo, GoProject } from "react-icons/go";
 import { Badge, Button, Input, Modal, Select, type SelectOption } from "../../../../components/ui";
+import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
 import type {
   CicloCatalogs,
   CicloEnriched,
@@ -10,6 +11,7 @@ import type {
 import { cicloRolePermissions } from "../ciclo.permissions";
 import {
   addEighteenMonths,
+  buildPeriodFromStartDate,
   formatDate,
   getActivePlansByProgram,
   getCourseEligibility,
@@ -32,17 +34,28 @@ function toOptions<T extends { id: string; nombre: string }>(items: T[]): Select
   return items.map((item) => ({ label: item.nombre, value: item.id }));
 }
 
-function getTeacherContractAlert(tipoVinculacion: string) {
-  const normalized = tipoVinculacion
+function normalizeContractType(tipoVinculacion: string) {
+  return tipoVinculacion
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
+}
 
-  if (normalized.includes("tiempo completo")) return "";
-  if (normalized.includes("catedra")) return "Este docente es de cátedra.";
-  if (normalized.includes("medio tiempo")) return "Este docente es de medio tiempo.";
+function isCatedraTeacher(tipoVinculacion: string) {
+  return normalizeContractType(tipoVinculacion).includes("catedra");
+}
 
-  return `Este docente tiene vinculación ${tipoVinculacion}.`;
+function isExceptionalTeacher(tipoVinculacion: string) {
+  return normalizeContractType(tipoVinculacion).includes("medio tiempo");
+}
+
+function getTeacherContractAlert(tipoVinculacion: string) {
+  if (normalizeContractType(tipoVinculacion).includes("tiempo completo")) return "";
+  if (isExceptionalTeacher(tipoVinculacion)) {
+    return "Caso excepcional: docente de medio tiempo. Prioriza tiempo completo cuando exista disponibilidad.";
+  }
+
+  return "Caso excepcional: valida la dedicación docente antes de confirmar el ciclo.";
 }
 
 export default function CicloFormModal({
@@ -99,14 +112,41 @@ export default function CicloFormModal({
     // Respaldo de validación para cuando se conecte el backend:
     // si llegara un curso sin competencias, sin nivel I-R-A o sin núcleo Síntesis validado,
     // no se muestra en la lista.
-    return synthesisCourses.filter((course) =>
-      getCourseEligibility(course, selectedPrograma, selectedPlan).selectable,
-    );
+    return synthesisCourses.filter((course) => {
+      if (isCatedraTeacher(course.tipoVinculacion)) {
+        // Respaldo técnico para backend: cursos de Síntesis con docente de cátedra no se listan como seleccionables.
+        return false;
+      }
+
+      return getCourseEligibility(course, selectedPrograma, selectedPlan).selectable;
+    });
   }, [selectedPlan, selectedPrograma, synthesisCourses]);
 
   const selectedCount = values.cursoIds.filter((cursoId) =>
     availableCourses.some((course) => course.id === cursoId),
   ).length;
+
+  const nombreError =
+    submitted && values.nombre.trim().length === 0
+      ? "El nombre del ciclo es obligatorio."
+      : undefined;
+
+  const programaError =
+    submitted && (!values.programaId || selectedPrograma?.estado !== "activo")
+      ? "Solo se pueden crear ciclos para programas activos."
+      : undefined;
+
+  const planError =
+    submitted && (!values.planId || selectedPlan?.estado !== "activo")
+      ? "El plan de estudios debe estar activo."
+      : undefined;
+
+  const cursosError =
+    submitted && selectedCount === 0
+      ? "Selecciona al menos un curso para confirmar el ciclo."
+      : undefined;
+
+  const showValidationAlert = submitted && Boolean(nombreError || programaError || planError || cursosError);
 
   const canSubmit =
     !isReadOnly &&
@@ -140,7 +180,13 @@ export default function CicloFormModal({
 
   const handleSubmit = () => {
     setSubmitted(true);
-    if (!canSubmit) return;
+
+    if (!canSubmit) {
+      scrollToFirstValidationError({
+        fieldOrder: ["nombre", "programaId", "planId", "cursoIds"],
+      });
+      return;
+    }
 
     // Integración futura:
     // - POST /ciclos para crear ciclo.
@@ -205,11 +251,11 @@ export default function CicloFormModal({
                 variant="primary"
                 leftIcon={<GoCheck className="text-lg" />}
                 onClick={handleSubmit}
-                disabled={!canSubmit}
+                disabled={isReadOnly}
                 title={
                   canSubmit
                     ? "Confirmar selección de cursos"
-                    : "Selecciona al menos un curso y valida que el programa esté activo."
+                    : "Completa la información obligatoria para confirmar la selección."
                 }
               >
                 {primaryLabel}
@@ -220,6 +266,15 @@ export default function CicloFormModal({
       }
     >
       <div className="space-y-6">
+        {showValidationAlert ? (
+          <div
+            role="alert"
+            className="rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:rgba(235,87,87,0.08)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
+          >
+            Completa la información obligatoria antes de crear o guardar el ciclo. Revisa el primer campo marcado.
+          </div>
+        ) : null}
+
         <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
           <div className="flex gap-3">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-white text-[var(--color-secondary-1)]">
@@ -230,7 +285,7 @@ export default function CicloFormModal({
                 Cursos disponibles
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-                El listado muestra únicamente cursos del núcleo de Síntesis que ya cumplen las validaciones previas del flujo académico.
+                El listado muestra únicamente cursos del núcleo de Síntesis. El periodo corresponde a la selección de estos cursos durante 1.5 años.
               </p>
             </div>
           </div>
@@ -245,11 +300,9 @@ export default function CicloFormModal({
                 setValues((current) => ({ ...current, nombre: event.target.value }))
               }
               disabled={isReadOnly}
-              error={
-                submitted && values.nombre.trim().length === 0
-                  ? "El nombre del ciclo es obligatorio."
-                  : undefined
-              }
+              id="nombre"
+              data-validation-field="nombre"
+              error={nombreError}
             />
           </div>
 
@@ -264,11 +317,9 @@ export default function CicloFormModal({
             placeholder="Selecciona un programa"
             disabled={isReadOnly || Boolean(user.scope.programaId)}
             onChange={(event) => handleProgramChange(event.target.value)}
-            error={
-              submitted && selectedPrograma?.estado !== "activo"
-                ? "Solo se pueden crear ciclos para programas activos."
-                : undefined
-            }
+            id="programaId"
+            data-validation-field="programaId"
+            error={programaError}
             helperText={
               selectedPrograma?.estado === "inactivo"
                 ? "Este programa está inactivo y no permite crear ciclos."
@@ -289,11 +340,9 @@ export default function CicloFormModal({
                 cursoIds: [],
               }))
             }
-            error={
-              submitted && selectedPlan?.estado !== "activo"
-                ? "El plan de estudios debe estar activo."
-                : undefined
-            }
+            id="planId"
+            data-validation-field="planId"
+            error={planError}
           />
 
           <Input
@@ -312,9 +361,24 @@ export default function CicloFormModal({
             disabled
             helperText="Fecha calculada automáticamente con duración de 1.5 años."
           />
+
+          <Input
+            label="Periodo resultante"
+            value={values.fechaInicio ? buildPeriodFromStartDate(values.fechaInicio) : ""}
+            disabled
+            helperText="Periodo asociado a la selección de cursos de Síntesis."
+          />
         </div>
 
-        <section>
+        <section
+          data-validation-field="cursoIds"
+          data-validation-error={cursosError ? "true" : undefined}
+          className={[
+            cursosError
+              ? "rounded-[var(--radius-lg)] border border-[var(--color-error)] p-3 ring-4 ring-[color:rgba(235,87,87,0.10)]"
+              : "",
+          ].join(" ")}
+        >
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
@@ -380,9 +444,10 @@ export default function CicloFormModal({
                       </div>
 
                       {teacherAlert ? (
-                        <div className="mt-3 flex gap-2 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:rgba(251,199,86,0.16)] px-3 py-2 text-sm text-[var(--color-gray-2)]">
-                          <GoAlert className="mt-0.5 shrink-0 text-base text-[var(--color-secondary-4)]" />
-                          {teacherAlert}
+                        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:rgba(251,199,86,0.16)] px-3 py-2 text-sm text-[var(--color-gray-2)]">
+                          <GoAlert className="shrink-0 text-base text-[var(--color-secondary-4)]" />
+                          <Badge variant="warning">Caso excepcional</Badge>
+                          <span>{teacherAlert}</span>
                         </div>
                       ) : null}
                     </div>
@@ -397,9 +462,9 @@ export default function CicloFormModal({
             </div>
           )}
 
-          {submitted && selectedCount === 0 ? (
+          {cursosError ? (
             <p className="mt-3 text-sm text-[var(--color-error)]">
-              Selecciona al menos un curso para confirmar el ciclo.
+              {cursosError}
             </p>
           ) : null}
         </section>

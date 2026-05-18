@@ -62,13 +62,16 @@ export default function DashboardFilters({
     }),
   );
 
-  const planOptions = toOptions(
-    catalogs.planes.filter((plan) => {
+  const planOptions = catalogs.planes
+    .filter((plan) => {
       if (filters.programaId && plan.programaId !== filters.programaId) return false;
       if (scopedProgramaIds.length && !scopedProgramaIds.includes(plan.programaId)) return false;
-      return true;
-    }),
-  );
+      return plan.estado === "activo" || plan.id === filters.planId;
+    })
+    .map((plan) => ({
+      label: plan.estado === "inactivo" ? `${plan.name} (Inactivo)` : plan.name,
+      value: plan.id,
+    }));
 
   const cycleOptions = cycles.map((cycle) => ({ label: cycle.name, value: cycle.id }));
 

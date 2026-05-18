@@ -12,12 +12,14 @@ export const roleLabels: Record<PropositoFormacionRole, string> = {
   docente: "Docente",
 };
 
+// Decisión funcional aplicada: solo el Director define contenido académico.
+// Admin/Vicerrectoría conservan lectura, filtros y exportación; CRUD queda bloqueado hasta confirmación de negocio.
 export const rolePermissions: Record<PropositoFormacionRole, RolePermissions> = {
   admin: {
     canRead: true,
-    canCreate: true,
-    canUpdate: true,
-    canDelete: true,
+    canCreate: false,
+    canUpdate: false,
+    canDelete: false,
     canExportPdf: true,
     canExportExcel: true,
     canFilterBySeccional: true,

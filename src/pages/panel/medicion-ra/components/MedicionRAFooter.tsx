@@ -26,7 +26,7 @@ export default function MedicionRAFooter({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <p className="max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
           Guardar permite conservar avances parciales. Finalizar valida la
-          competencia seleccionada: RA, instrumentos y evidencia obligatoria.
+          competencia seleccionada: RA, descripción del instrumento por RA y evidencia obligatoria por competencia.
         </p>
 
         <div className="flex shrink-0 items-center gap-3">

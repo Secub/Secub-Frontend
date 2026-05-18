@@ -1,18 +1,20 @@
 import { GoX } from "react-icons/go";
 import { Button, Select } from "../../../../components/ui";
 import type {
+  CurrentUser,
   PerfilEgresoFilters as PerfilEgresoFiltersState,
   RolePermissions,
 } from "../perfil-egreso.types";
 
 interface PerfilEgresoFiltersProps {
+  user: CurrentUser;
   permissions: RolePermissions;
   filters: PerfilEgresoFiltersState;
   filterOptions: {
     lugares: { id: string; nombre: string }[];
     facultades: { id: string; nombre: string }[];
     programas: { id: string; nombre: string }[];
-    planes: { id: string; nombre: string }[];
+    planes: { id: string; nombre: string; estado?: "activo" | "inactivo" }[];
   };
   onFilterChange: <K extends keyof PerfilEgresoFiltersState>(
     key: K,
@@ -22,12 +24,16 @@ interface PerfilEgresoFiltersProps {
 }
 
 export function PerfilEgresoFilters({
+  user,
   permissions,
   filters,
   filterOptions,
   onFilterChange,
   onReset,
 }: PerfilEgresoFiltersProps) {
+  const effectiveSeccionalId = filters.seccionalId || user.scope.seccionalId || "";
+  const isLugarLocked = effectiveSeccionalId !== "medellin";
+
   return (
     <div className="surface-card p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -61,6 +67,7 @@ export function PerfilEgresoFilters({
               value: item.id,
             }))}
             placeholder="Todos los lugares"
+            disabled={isLugarLocked}
           />
         </div>
 
@@ -101,7 +108,10 @@ export function PerfilEgresoFilters({
               value={filters.planId}
               onChange={(event) => onFilterChange("planId", event.target.value)}
               options={filterOptions.planes.map((item) => ({
-                label: item.nombre,
+                label:
+                  item.estado === "inactivo" && !item.nombre.includes("Inactivo")
+                    ? `${item.nombre} (Inactivo)`
+                    : item.nombre,
                 value: item.id,
               }))}
               placeholder="Todos los planes"

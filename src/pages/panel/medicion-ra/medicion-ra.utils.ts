@@ -1,9 +1,10 @@
-import { performanceLevels, TARGET_PERCENTAGE } from "./medicion-ra.mock";
+import { ACCEPTED_FILE_FORMATS, performanceLevels, TARGET_PERCENTAGE } from "./medicion-ra.mock";
 import type {
   Competence,
   CourseRecord,
   EvaluationMatrix,
   InstrumentByRa,
+  InstrumentState,
   LearningResult,
   PerformanceLevel,
   RaResultSummary,
@@ -46,15 +47,44 @@ export function normalizeEvaluationMatrix(
   }, {});
 }
 
+export function getCompetenceStorageKey(courseId: string, competenceId: string) {
+  return `${courseId}__${competenceId}`;
+}
+
 export function getEmptyInstrumentState(course: CourseRecord): InstrumentByRa {
   return getAllLearningResults(course).reduce<InstrumentByRa>((state, ra) => {
-    state[ra.id] = {
-      fileName: "",
-      description: "",
-    };
-
+    state[ra.id] = { description: "" };
     return state;
   }, {});
+}
+
+function normalizeInstrumentValue(value?: InstrumentState) {
+  return {
+    description: value?.description ?? "",
+    fileName: value?.fileName ?? "",
+  };
+}
+
+function getLegacyInstrumentForRa(
+  course: CourseRecord,
+  competence: Competence,
+  ra: LearningResult,
+  current?: InstrumentByRa,
+): InstrumentState | undefined {
+  if (!current) return undefined;
+
+  const directRaInstrument = current[ra.id];
+  if (directRaInstrument?.description?.trim()) {
+    return normalizeInstrumentValue(directRaInstrument);
+  }
+
+  const competenceKey = getCompetenceStorageKey(course.id, competence.id);
+  const legacyCompetenceInstrument = current[competenceKey];
+  if (legacyCompetenceInstrument?.description?.trim()) {
+    return normalizeInstrumentValue(legacyCompetenceInstrument);
+  }
+
+  return undefined;
 }
 
 export function normalizeInstrumentState(
@@ -63,14 +93,21 @@ export function normalizeInstrumentState(
 ): InstrumentByRa {
   const emptyState = getEmptyInstrumentState(course);
 
-  return getAllLearningResults(course).reduce<InstrumentByRa>((state, ra) => {
-    state[ra.id] = {
-      ...emptyState[ra.id],
-      ...(current?.[ra.id] ?? {}),
-    };
+  return course.competences.reduce<InstrumentByRa>((state, competence) => {
+    competence.learningResults.forEach((ra) => {
+      state[ra.id] = {
+        ...emptyState[ra.id],
+        ...(getLegacyInstrumentForRa(course, competence, ra, current) ?? {}),
+      };
+    });
 
     return state;
   }, {});
+}
+
+// Compatibilidad para lecturas antiguas. La nueva pantalla usa la llave de cada RA.
+export function getInstrumentStorageKey(course: CourseRecord, competence: Competence) {
+  return getCompetenceStorageKey(course.id, competence.id);
 }
 
 export function getLevelLabel(value: PerformanceLevel) {
@@ -153,8 +190,15 @@ export function getCompletionPercentage(
   return Math.round((completedCells / totalCells) * 100);
 }
 
-export function getCompetenceStorageKey(courseId: string, competenceId: string) {
-  return `${courseId}__${competenceId}`;
+function getAllowedEvidenceExtensions() {
+  return ACCEPTED_FILE_FORMATS.split(",")
+    .map((item) => item.trim().replace(/^\./, "").toLowerCase())
+    .filter(Boolean);
+}
+
+function isAcceptedEvidenceFileName(fileName: string) {
+  const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
+  return getAllowedEvidenceExtensions().includes(extension);
 }
 
 export function validateBeforeClosing({
@@ -177,8 +221,24 @@ export function validateBeforeClosing({
     activeRas.some((ra) => !evaluations[student.id]?.[ra.id]),
   );
 
-  const missingInstrumentDescriptions = activeRas.filter(
+  let firstPendingEvaluationField = "";
+  for (const student of course.students) {
+    const firstMissingRa = activeRas.find(
+      (ra) => !evaluations[student.id]?.[ra.id],
+    );
+
+    if (firstMissingRa) {
+      firstPendingEvaluationField = `evaluation-${student.id}-${firstMissingRa.id}`;
+      break;
+    }
+  }
+
+  const firstMissingInstrumentRa = activeRas.find(
     (ra) => !instruments[ra.id]?.description?.trim(),
+  );
+
+  const evidenceFileExtensionInvalid = Boolean(
+    evidenceFileName && !isAcceptedEvidenceFileName(evidenceFileName),
   );
 
   if (pendingStudents.length > 0) {
@@ -187,11 +247,9 @@ export function validateBeforeClosing({
     );
   }
 
-  if (missingInstrumentDescriptions.length > 0) {
+  if (firstMissingInstrumentRa) {
     details.push(
-      `Falta definir el instrumento de evaluación en: ${missingInstrumentDescriptions
-        .map((ra) => ra.code)
-        .join(", ")}.`,
+      `Falta describir el instrumento o criterio de evaluación para ${firstMissingInstrumentRa.code}.`,
     );
   }
 
@@ -201,13 +259,26 @@ export function validateBeforeClosing({
     );
   }
 
+  if (evidenceFileExtensionInvalid) {
+    details.push(
+      "El archivo de evidencia debe estar en formato Word, PDF, PNG o JPG.",
+    );
+  }
+
   if (details.length > 0) {
+    const firstErrorField =
+      firstPendingEvaluationField ||
+      (firstMissingInstrumentRa ? `instrument-description-${firstMissingInstrumentRa.id}` : "") ||
+      (!evidenceFileName || evidenceFileExtensionInvalid ? "evidence-file" : "");
+
     return {
       type: "error",
       title: "No se puede finalizar todavía",
       message:
         "Corrige los puntos pendientes para cerrar la medición de la competencia seleccionada.",
       details,
+      firstErrorField,
+      firstErrorCompetenceId: activeCompetence.id,
     };
   }
 
@@ -215,7 +286,7 @@ export function validateBeforeClosing({
     type: "success",
     title: "Competencia lista",
     message:
-      "La competencia seleccionada tiene sus RA evaluados, los instrumentos definidos y la evidencia obligatoria cargada.",
+      "La competencia seleccionada tiene sus RA evaluados, la descripción individual del instrumento por RA y la evidencia obligatoria cargada una sola vez por competencia.",
   };
 }
 
@@ -230,7 +301,11 @@ export function validateCourseBeforeFinalizing({
   instruments: InstrumentByRa;
   getEvidenceFileName: (competence: Competence) => string;
 }): ValidationFeedback {
-  const details = course.competences.flatMap((competence) => {
+  const details: string[] = [];
+  let firstErrorField = "";
+  let firstErrorCompetenceId = "";
+
+  course.competences.forEach((competence) => {
     const validation = validateBeforeClosing({
       course,
       activeCompetence: competence,
@@ -239,7 +314,14 @@ export function validateCourseBeforeFinalizing({
       evidenceFileName: getEvidenceFileName(competence),
     });
 
-    return validation.details ?? [];
+    if (validation.details?.length) {
+      details.push(...validation.details);
+    }
+
+    if (!firstErrorField && validation.firstErrorField) {
+      firstErrorField = validation.firstErrorField;
+      firstErrorCompetenceId = validation.firstErrorCompetenceId ?? competence.id;
+    }
   });
 
   if (details.length > 0) {
@@ -249,6 +331,8 @@ export function validateCourseBeforeFinalizing({
       message:
         "Corrige los puntos pendientes antes de cerrar definitivamente la evaluación.",
       details,
+      firstErrorField,
+      firstErrorCompetenceId,
     };
   }
 

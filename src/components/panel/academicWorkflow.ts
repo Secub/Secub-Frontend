@@ -1,4 +1,8 @@
-import { ACADEMIC_WORKFLOW_STORAGE_KEY, ENABLE_ACADEMIC_WORKFLOW_LOCK } from "../../config/workflow.config";
+import { useEffect, useState } from "react";
+import { ENABLE_ACADEMIC_WORKFLOW_LOCK } from "../../config/workflow.config";
+import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { mockBackend, subscribeToMockBackendChanges } from "../../services/mockBackend";
+import { isCompetenciaRaValidByLearningResults } from "../../utils/learningResultsRules";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 
 export const academicWorkflowSteps: PanelStepKey[] = [
@@ -14,16 +18,231 @@ export type AcademicWorkflowProgress = Partial<Record<PanelStepKey, boolean>>;
 
 export const WORKFLOW_LOCKED_MESSAGE = "Primero completa el paso anterior para continuar.";
 
-function canUseLocalStorage() {
-  try {
-    return typeof window !== "undefined" && "localStorage" in window;
-  } catch {
-    return false;
-  }
-}
+type AcademicRecord = {
+  id: string;
+  estado?: string;
+  seccionalId?: string;
+  facultadId?: string;
+  lugarId?: string;
+  programaId?: string;
+  academicProgramId?: string;
+  planId?: string;
+  descripcion?: string;
+  nombre?: string;
+  perfilEgresoId?: string;
+  propositoFormacionId?: string;
+  competenciaRaId?: string;
+  competenciaRaIds?: string[];
+  resultadoAprendizajeId?: string;
+  resultadoAprendizajeIds?: string[];
+  mapeoCompetenciasId?: string;
+  cicloId?: string;
+  asignacionRaId?: string;
+  asignacionRaIds?: string[];
+  cursoId?: string;
+  cursoIds?: string[];
+  completed?: boolean;
+  isEvaluationLocked?: boolean;
+  resultadosAprendizaje?: Array<{ id?: string; descripcion?: string }>;
+};
+
+type WorkflowSnapshot = {
+  perfiles: AcademicRecord[];
+  propositos: AcademicRecord[];
+  competencias: AcademicRecord[];
+  mapeos: AcademicRecord[];
+  ciclos: AcademicRecord[];
+  asignaciones: AcademicRecord[];
+};
 
 function getStepLabel(stepKey: PanelStepKey) {
   return panelNavigation.find((item) => item.key === stepKey)?.label ?? "el paso anterior";
+}
+
+function hasText(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasValue(value: unknown) {
+  return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
+}
+
+function isActiveAcademicRecord(record: AcademicRecord) {
+  return !record.estado || record.estado === "activo" || record.estado === "borrador" || record.estado === "finalizado";
+}
+
+function getProgramId(record: AcademicRecord) {
+  return record.programaId ?? record.academicProgramId ?? "";
+}
+
+function isSameAcademicScope(record: AcademicRecord, relatedRecord: AcademicRecord) {
+  const recordProgramId = getProgramId(record);
+  const relatedProgramId = getProgramId(relatedRecord);
+
+  if (record.planId && relatedRecord.planId && record.planId === relatedRecord.planId) {
+    return true;
+  }
+
+  if (recordProgramId && relatedProgramId && recordProgramId === relatedProgramId) {
+    return true;
+  }
+
+  return false;
+}
+
+function hasMatchingId(id: string | undefined, relatedRecords: AcademicRecord[]) {
+  return Boolean(id && relatedRecords.some((record) => record.id === id));
+}
+
+function hasMatchingIdInList(ids: string[] | undefined, relatedRecords: AcademicRecord[]) {
+  if (!ids?.length) return false;
+  const relatedIds = new Set(relatedRecords.map((record) => record.id));
+  return ids.some((id) => relatedIds.has(id));
+}
+
+function hasRelatedRecord(record: AcademicRecord, relatedRecords: AcademicRecord[], relationField?: keyof AcademicRecord) {
+  if (!relatedRecords.length) return false;
+
+  if (relationField) {
+    const relationValue = record[relationField];
+
+    if (typeof relationValue === "string" && hasMatchingId(relationValue, relatedRecords)) {
+      return true;
+    }
+
+    if (Array.isArray(relationValue)) {
+      const relationIds = relationValue.filter((value): value is string => typeof value === "string");
+
+      if (hasMatchingIdInList(relationIds, relatedRecords)) {
+        return true;
+      }
+    }
+  }
+
+  return relatedRecords.some((relatedRecord) => isSameAcademicScope(record, relatedRecord));
+}
+
+export function isPerfilEgresoComplete(record: AcademicRecord) {
+  return (
+    isActiveAcademicRecord(record) &&
+    hasValue(record.seccionalId) &&
+    hasValue(record.programaId) &&
+    hasValue(record.planId) &&
+    hasText(record.descripcion)
+  );
+}
+
+export function isPropositoFormacionLinkedToPerfil(record: AcademicRecord, perfilesCompletos: AcademicRecord[]) {
+  return (
+    isActiveAcademicRecord(record) &&
+    hasValue(record.seccionalId) &&
+    hasValue(record.programaId) &&
+    hasValue(record.planId) &&
+    hasText(record.descripcion) &&
+    hasRelatedRecord(record, perfilesCompletos, "perfilEgresoId")
+  );
+}
+
+export function isCompetenciasRaLinkedToProposito(record: AcademicRecord, propositosCompletos: AcademicRecord[]) {
+  return (
+    isActiveAcademicRecord(record) &&
+    hasValue(record.seccionalId) &&
+    hasValue(record.programaId) &&
+    hasValue(record.planId) &&
+    (hasText(record.nombre) || hasText(record.descripcion)) &&
+    isCompetenciaRaValidByLearningResults(record) &&
+    hasRelatedRecord(record, propositosCompletos, "propositoFormacionId")
+  );
+}
+
+export function isMapeoCompetenciasLinkedToCompetencias(record: AcademicRecord, competenciasCompletas: AcademicRecord[]) {
+  return (
+    isActiveAcademicRecord(record) &&
+    hasValue(record.programaId) &&
+    hasValue(record.planId) &&
+    (hasMatchingId(record.competenciaRaId, competenciasCompletas) ||
+      hasMatchingIdInList(record.competenciaRaIds, competenciasCompletas) ||
+      hasRelatedRecord(record, competenciasCompletas))
+  );
+}
+
+export function isCicloLinkedToMapeo(record: AcademicRecord, mapeosCompletos: AcademicRecord[]) {
+  return (
+    isActiveAcademicRecord(record) &&
+    hasText(record.nombre) &&
+    hasValue(record.programaId) &&
+    hasValue(record.planId) &&
+    Boolean(record.cursoIds?.length) &&
+    hasRelatedRecord(record, mapeosCompletos, "mapeoCompetenciasId")
+  );
+}
+
+export function isAsignacionRaLinkedToCiclo(record: AcademicRecord, ciclosCompletos: AcademicRecord[]) {
+  const hasValidCourse = hasValue(record.cursoId) || Boolean(record.cursoIds?.length);
+  const hasValidCompetence = hasValue(record.competenciaRaId) || Boolean(record.competenciaRaIds?.length);
+  const hasValidRa = hasValue(record.resultadoAprendizajeId) || Boolean(record.resultadoAprendizajeIds?.length);
+  const relatedCompletedCycle = ciclosCompletos.find((cycle) => cycle.id === record.cicloId);
+  const hasValidCycleReference = hasValue(record.cicloId) &&
+    (!relatedCompletedCycle || isSameAcademicScope(record, relatedCompletedCycle));
+
+  return (
+    isActiveAcademicRecord(record) &&
+    hasValidCycleReference &&
+    hasValue(record.programaId) &&
+    hasValue(record.planId) &&
+    hasValidCourse &&
+    hasValidCompetence &&
+    hasValidRa
+  );
+}
+
+export function isMedicionRaCompleteOrLocked(record: AcademicRecord, asignacionesCompletas: AcademicRecord[], ciclosCompletos: AcademicRecord[]) {
+  const hasCompletionState = Boolean(record.completed || record.isEvaluationLocked);
+  const isLinkedToAsignacion = hasRelatedRecord(record, asignacionesCompletas, "asignacionRaId") ||
+    hasMatchingIdInList(record.asignacionRaIds, asignacionesCompletas);
+  const isLinkedToCiclo = hasRelatedRecord(record, ciclosCompletos, "cicloId");
+
+  return hasCompletionState && (isLinkedToAsignacion || isLinkedToCiclo || asignacionesCompletas.length === 0);
+}
+
+function readWorkflowSnapshot(): WorkflowSnapshot {
+  const user = getCurrentMockUser();
+  const perfiles = mockBackend.list<AcademicRecord>("perfilEgreso", user).filter(isPerfilEgresoComplete);
+  const propositos = mockBackend
+    .list<AcademicRecord>("propositosFormacion", user)
+    .filter((record) => isPropositoFormacionLinkedToPerfil(record, perfiles));
+  const competenciasCandidatas = mockBackend
+    .list<AcademicRecord>("competenciasRa", user)
+    .filter(
+      (record) =>
+        isActiveAcademicRecord(record) &&
+        hasValue(record.seccionalId) &&
+        hasValue(record.programaId) &&
+        hasValue(record.planId) &&
+        (hasText(record.nombre) || hasText(record.descripcion)) &&
+        hasRelatedRecord(record, propositos, "propositoFormacionId"),
+    );
+
+  // Si existe una competencia relacionada sin RA, con RA vacíos o con más de 4 RA,
+  // el paso no se marca completo y Mapeo permanece bloqueado.
+  const hasInvalidCompetencia = competenciasCandidatas.some(
+    (record) => !isCompetenciaRaValidByLearningResults(record),
+  );
+  const competencias = hasInvalidCompetencia
+    ? []
+    : competenciasCandidatas.filter((record) =>
+        isCompetenciasRaLinkedToProposito(record, propositos),
+      );
+  const mapeos = mockBackend
+    .list<AcademicRecord>("mapeosCompetencias", user)
+    .filter((record) => isMapeoCompetenciasLinkedToCompetencias(record, competencias));
+  const ciclos = mockBackend
+    .list<AcademicRecord>("ciclosMedicion", user)
+    .filter((record) => isCicloLinkedToMapeo(record, mapeos));
+  const asignaciones = mockBackend
+    .list<AcademicRecord>("asignacionesRa", user)
+    .filter((record) => isAsignacionRaLinkedToCiclo(record, ciclos));
+  return { perfiles, propositos, competencias, mapeos, ciclos, asignaciones };
 }
 
 export function isAcademicWorkflowStep(stepKey: PanelStepKey) {
@@ -45,50 +264,38 @@ export function getPreviousAcademicWorkflowStep(stepKey: PanelStepKey) {
 }
 
 export function readAcademicWorkflowProgress(): AcademicWorkflowProgress {
-  if (!canUseLocalStorage()) {
-    return {};
-  }
+  const snapshot = readWorkflowSnapshot();
 
-  try {
-    const rawProgress = window.localStorage.getItem(ACADEMIC_WORKFLOW_STORAGE_KEY);
-
-    if (!rawProgress) {
-      return {};
-    }
-
-    return JSON.parse(rawProgress) as AcademicWorkflowProgress;
-  } catch {
-    return {};
-  }
+  return {
+    "perfil-egreso": snapshot.perfiles.length > 0,
+    "proposito-formacion": snapshot.propositos.length > 0,
+    "competencias-ra": snapshot.competencias.length > 0,
+    "mapeo-competencias": snapshot.mapeos.length > 0,
+    ciclo: snapshot.ciclos.length > 0,
+    "asignar-ra": snapshot.asignaciones.length > 0,
+  };
 }
 
-function saveAcademicWorkflowProgress(progress: AcademicWorkflowProgress) {
-  if (!canUseLocalStorage()) {
-    return;
-  }
 
-  window.localStorage.setItem(ACADEMIC_WORKFLOW_STORAGE_KEY, JSON.stringify(progress));
+export function useAcademicWorkflowProgress() {
+  const [progress, setProgress] = useState<AcademicWorkflowProgress>(() =>
+    readAcademicWorkflowProgress(),
+  );
+
+  useEffect(() => {
+    const refreshProgress = () => setProgress(readAcademicWorkflowProgress());
+
+    refreshProgress();
+    return subscribeToMockBackendChanges(refreshProgress);
+  }, []);
+
+  return progress;
 }
 
-export function setAcademicWorkflowStepCompleted(stepKey: PanelStepKey, completed: boolean) {
-  if (!isAcademicWorkflowStep(stepKey)) {
-    return;
-  }
-
-  const progress = readAcademicWorkflowProgress();
-  const currentIndex = academicWorkflowSteps.indexOf(stepKey);
-
-  if (completed) {
-    progress[stepKey] = true;
-    saveAcademicWorkflowProgress(progress);
-    return;
-  }
-
-  academicWorkflowSteps.slice(currentIndex).forEach((step) => {
-    delete progress[step];
-  });
-
-  saveAcademicWorkflowProgress(progress);
+export function setAcademicWorkflowStepCompleted(_stepKey: PanelStepKey, _completed: boolean) {
+  // Conservado solo por compatibilidad con pantallas existentes.
+  // El avance ya no se guarda con banderas sueltas; se calcula desde datos completos y relacionados
+  // en mockBackend. Cuando exista CRUD real, este cálculo debe salir de la respuesta del backend.
 }
 
 export function isAcademicWorkflowStepCompleted(

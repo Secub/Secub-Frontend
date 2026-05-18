@@ -13,6 +13,7 @@ import {
   buildAvailableFilters,
   buildCsvLikeExcel,
   buildSimplePdf,
+  formatPlanLabel,
   getEstadoBadgeVariant,
   triggerBrowserDownload,
 } from "../proposito-formacion.utils";
@@ -154,6 +155,27 @@ export function PropositoExportModal({
     >
       <div className="rounded-[24px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">
         <div className="panel-filters-grid">
+          {permissions.canFilterBySeccional ? (
+            <Select
+              label="Seccional / Sede"
+              value={filters.seccionalId}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  seccionalId: event.target.value,
+                  facultadId: "",
+                  programaId: "",
+                  planId: "",
+                }))
+              }
+              options={filterOptions.seccionales.map((item) => ({
+                label: item.nombre,
+                value: item.id,
+              }))}
+              placeholder="Todas las seccionales"
+            />
+          ) : null}
+
           {permissions.canFilterByFacultad ? (
             <Select
               label="Facultad"
@@ -202,7 +224,7 @@ export function PropositoExportModal({
                 }))
               }
               options={filterOptions.planes.map((item) => ({
-                label: item.nombre,
+                label: formatPlanLabel(item),
                 value: item.id,
               }))}
               placeholder="Todos los planes"

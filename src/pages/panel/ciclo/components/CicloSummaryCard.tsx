@@ -56,10 +56,13 @@ export default function CicloSummaryCard({
               {ciclo.nombre}
             </h3>
             <Badge variant={statusVariant[ciclo.estado]}>{statusLabel[ciclo.estado]}</Badge>
+            {ciclo.planEstado === "inactivo" ? (
+              <Badge variant="neutral">Plan inactivo</Badge>
+            ) : null}
           </div>
 
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            {ciclo.programaNombre} · {ciclo.planNombre} · {ciclo.facultadNombre} ·{" "}
+            {ciclo.programaNombre} · {ciclo.planNombre.replace(" (Inactivo)", "")} · {ciclo.facultadNombre} ·{" "}
             {formatDate(ciclo.fechaInicio)} — {formatDate(ciclo.fechaFin)}
           </p>
         </div>

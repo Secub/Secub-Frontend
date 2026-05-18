@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import DevRoleSelector from "./DevRoleSelector";
+import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import PanelSidebar from "./PanelSidebar";
+import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { isAcademicWorkflowStep } from "./academicWorkflow";
 import type { PanelStepKey } from "./panelNavigation";
 
 interface PanelLayoutProps {
@@ -13,9 +16,6 @@ interface PanelLayoutProps {
   breadcrumbItems?: BreadcrumbItem[];
 }
 
-// Selector temporal de roles para desarrollo.
-// Cambiar a false o eliminar este bloque cuando el rol venga desde autenticación/backend.
-const SHOW_DEV_ROLE_SELECTOR = true;
 
 export default function PanelLayout({
   children,
@@ -25,6 +25,10 @@ export default function PanelLayout({
   actions,
   breadcrumbItems,
 }: PanelLayoutProps) {
+  const currentUser = getCurrentMockUser();
+  const isDocenteTryingAcademicModule =
+    currentUser.role === "docente" && isAcademicWorkflowStep(currentStep);
+
   return (
     <div className="min-h-screen bg-[var(--color-surface)] text-[var(--color-gray-1)]">
       <div className="flex min-h-screen items-start">
@@ -49,15 +53,27 @@ export default function PanelLayout({
                 ) : null}
               </div>
 
-              {(actions || SHOW_DEV_ROLE_SELECTOR) ? (
+              {(!isDocenteTryingAcademicModule && (actions || SHOW_DEMO_TOOLS)) ? (
                 <div className="flex shrink-0 flex-wrap items-center gap-3">
                   {actions}
-                  {SHOW_DEV_ROLE_SELECTOR ? <DevRoleSelector /> : null}
+                  {SHOW_DEMO_TOOLS ? <DevRoleSelector /> : null}
                 </div>
               ) : null}
             </div>
 
-            {children}
+            {isDocenteTryingAcademicModule ? (
+              <div className="surface-card p-8 text-center">
+                <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
+                  Acceso restringido
+                </h2>
+                <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
+                  El rol Docente solo tiene acceso a Dashboard y Medición RA.
+                  Los pasos de Gestión Académica se habilitan para los roles administrativos según permisos.
+                </p>
+              </div>
+            ) : (
+              children
+            )}
           </main>
         </div>
       </div>

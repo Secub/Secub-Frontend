@@ -14,6 +14,16 @@ interface ResultsMeasurementPanelProps {
   onOpenRaDetail: (result: EnrichedRaResult) => void;
 }
 
+interface CompetenceSupportGroup {
+  id: string;
+  competenceLabel: string;
+  courseName: string;
+  instrumentDescription?: string;
+  evidenceFile?: string;
+  improvementPlanFile?: string;
+  improvementPlanSummary?: string;
+}
+
 function toCourseOptions(courses: EnrichedCourse[]): SelectOption[] {
   return courses.map((course) => ({ label: course.name, value: course.id }));
 }
@@ -31,6 +41,54 @@ function toCompetenceOptions(results: EnrichedRaResult[]): SelectOption[] {
   });
 
   return Array.from(options.values());
+}
+
+function isAvailableSupportFile(fileName?: string) {
+  const value = String(fileName ?? "").trim();
+  if (!value) return false;
+
+  const normalized = value.toLowerCase();
+  return !normalized.startsWith("sin ") && !normalized.includes("pendiente de repositorio");
+}
+
+function buildCompetenceSupportGroups(results: EnrichedRaResult[]): CompetenceSupportGroup[] {
+  const groups = new Map<string, CompetenceSupportGroup>();
+
+  results
+    .filter((result) => result.hasMeasurement)
+    .forEach((result) => {
+      const id = `${result.courseId}-${result.competenceId}`;
+      const current = groups.get(id) ?? {
+        id,
+        competenceLabel: `${result.competenceCode}: ${result.competenceName}`,
+        courseName: result.courseName,
+      };
+
+      if (result.instrumentDescription) {
+        const nextDescription = `${result.raCode}: ${result.instrumentDescription}`;
+        current.instrumentDescription = current.instrumentDescription
+          ? current.instrumentDescription.includes(nextDescription)
+            ? current.instrumentDescription
+            : `${current.instrumentDescription}\n${nextDescription}`
+          : nextDescription;
+      }
+
+      if (!current.evidenceFile && isAvailableSupportFile(result.evidenceFile)) {
+        current.evidenceFile = result.evidenceFile;
+      }
+
+      if (!current.improvementPlanFile && isAvailableSupportFile(result.improvementPlanFile)) {
+        current.improvementPlanFile = result.improvementPlanFile;
+      }
+
+      if (!current.improvementPlanSummary && result.improvementPlanSummary) {
+        current.improvementPlanSummary = result.improvementPlanSummary;
+      }
+
+      groups.set(id, current);
+    });
+
+  return Array.from(groups.values());
 }
 
 function MiniRaChart({
@@ -97,6 +155,8 @@ function ResultsCharts({
   results: EnrichedRaResult[];
   onOpenRaDetail: (result: EnrichedRaResult) => void;
 }) {
+  const measuredResults = results.filter((result) => result.hasMeasurement);
+
   return (
     <section className="surface-card rounded-[24px] p-6">
       <div className="mb-6 flex items-center justify-center gap-3">
@@ -110,9 +170,13 @@ function ResultsCharts({
         <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-6 text-center text-sm text-[var(--color-gray-3)]">
           No hay resultados para los filtros seleccionados.
         </div>
+      ) : measuredResults.length === 0 ? (
+        <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-6 text-center text-sm text-[var(--color-gray-3)]">
+          Hay RA asignados, pero todavía no existe una medición finalizada para graficar.
+        </div>
       ) : (
         <div className="flex flex-wrap gap-8">
-          {results.slice(0, 3).map((result) => (
+          {measuredResults.slice(0, 3).map((result) => (
             <MiniRaChart key={result.key} result={result} onOpenRaDetail={onOpenRaDetail} />
           ))}
         </div>
@@ -121,35 +185,83 @@ function ResultsCharts({
   );
 }
 
-function EvidencePanel({
+function SupportFilesPanel({
   results,
   onDownloadFile,
 }: {
   results: EnrichedRaResult[];
   onDownloadFile: (fileName: string) => void;
 }) {
+  const groups = useMemo(() => buildCompetenceSupportGroups(results), [results]);
+
   return (
     <article className="surface-card rounded-[24px] p-6">
-      <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">Evidencia</h2>
-      <p className="mt-4 text-sm text-[var(--color-gray-3)]">
-        Seleccione la evidencia que desea descargar
+      <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
+        Soportes de la competencia
+      </h2>
+      <p className="mt-4 text-sm leading-6 text-[var(--color-gray-3)]">
+        Los resultados se muestran por RA; los instrumentos, evidencias y planes se agrupan una sola vez por competencia.
       </p>
 
-      <div className="mt-5 flex flex-col items-start gap-3">
-        {results.length === 0 ? (
-          <p className="text-sm text-[var(--color-gray-4)]">No hay evidencias disponibles.</p>
+      <div className="mt-5 space-y-4">
+        {groups.length === 0 ? (
+          <p className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-sm text-[var(--color-gray-4)]">
+            No hay soportes agrupados por competencia para los filtros seleccionados.
+          </p>
         ) : (
-          results.slice(0, 4).map((result) => (
-            <Button
-              key={`${result.key}-evidence`}
-              variant="outline"
-              size="sm"
-              leftIcon={<GoFile className="text-base" />}
-              rightIcon={<GoDownload className="text-base" />}
-              onClick={() => onDownloadFile(result.evidenceFile)}
-            >
-              {result.evidenceFile}
-            </Button>
+          groups.map((group) => (
+            <article key={group.id} className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-4">
+              <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
+                {group.competenceLabel}
+              </h3>
+              <p className="mt-1 text-xs font-semibold text-[var(--color-gray-4)]">
+                Curso: {group.courseName}
+              </p>
+
+              <div className="mt-4 flex flex-col items-start gap-3">
+                {group.instrumentDescription ? (
+                  <div className="w-full rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] px-3 py-2 text-sm leading-6 text-[var(--color-gray-3)]">
+                    <strong className="text-[var(--color-secondary-4)]">Instrumento de evaluación por RA:</strong>
+                    <pre className="mt-1 whitespace-pre-wrap font-sans text-sm leading-6 text-[var(--color-gray-3)]">
+                      {group.instrumentDescription}
+                    </pre>
+                  </div>
+                ) : (
+                  <span className="text-sm text-[var(--color-gray-4)]">Sin descripción de instrumento registrada.</span>
+                )}
+
+                {group.evidenceFile ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<GoFile className="text-base" />}
+                    rightIcon={<GoDownload className="text-base" />}
+                    onClick={() => onDownloadFile(group.evidenceFile ?? "")}
+                  >
+                    Evidencia · {group.evidenceFile}
+                  </Button>
+                ) : (
+                  <span className="text-sm text-[var(--color-gray-4)]">Sin evidencia registrada.</span>
+                )}
+
+                {group.improvementPlanFile ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<GoFile className="text-base" />}
+                    rightIcon={<GoDownload className="text-base" />}
+                    onClick={() => onDownloadFile(group.improvementPlanFile ?? "")}
+                    title={group.improvementPlanSummary}
+                  >
+                    Plan de mejora · {group.improvementPlanFile}
+                  </Button>
+                ) : group.improvementPlanSummary ? (
+                  <p className="rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] px-3 py-2 text-sm leading-6 text-[var(--color-gray-3)]">
+                    <strong>Plan de mejora:</strong> {group.improvementPlanSummary}
+                  </p>
+                ) : null}
+              </div>
+            </article>
           ))
         )}
       </div>
@@ -241,9 +353,37 @@ export default function ResultsMeasurementPanel({
       ),
     },
     {
+      key: "students",
+      title: "Estudiantes",
+      render: (result) => result.totalStudents,
+      className: "text-center",
+      headerClassName: "text-center",
+    },
+    {
+      key: "approved",
+      title: "Aprobaron",
+      render: (result) => result.approvedStudents,
+      className: "text-center",
+      headerClassName: "text-center",
+    },
+    {
+      key: "notApproved",
+      title: "No aprobaron",
+      render: (result) => result.notApprovedStudents,
+      className: "text-center",
+      headerClassName: "text-center",
+    },
+    {
       key: "compliance",
       title: "Cumplimiento",
       render: (result) => `${result.compliance}%`,
+      className: "text-center",
+      headerClassName: "text-center",
+    },
+    {
+      key: "status",
+      title: "Estado",
+      render: (result) => (result.hasMeasurement ? (result.reachedTarget ? "Aprobado" : "No aprobado") : "Pendiente"),
       className: "text-center",
       headerClassName: "text-center",
     },
@@ -277,7 +417,7 @@ export default function ResultsMeasurementPanel({
       />
 
       <div className="grid gap-5 xl:grid-cols-2">
-        <EvidencePanel results={filteredResults} onDownloadFile={onDownloadFile} />
+        <SupportFilesPanel results={filteredResults} onDownloadFile={onDownloadFile} />
         <ImprovementPlanPanel result={supportResult} />
       </div>
     </section>

@@ -29,7 +29,7 @@ export default function EvaluationInstructions() {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-[var(--color-gray-3)]">
-            Para considerar logrado un Resultado de Aprendizaje, se espera que al menos el {TARGET_PERCENTAGE}% del grupo alcance el nivel <strong>En desarrollo</strong> o superior. El cierre definitivo valida la planilla completa, los instrumentos por RA y la evidencia obligatoria del curso.
+            Para considerar logrado un Resultado de Aprendizaje, se espera que al menos el {TARGET_PERCENTAGE}% del grupo alcance el nivel <strong>En desarrollo</strong> o superior. Cada RA conserva su evaluación individual y su descripción de instrumento o criterio. La evidencia se carga una sola vez al final de la competencia.
           </p>
         </div>
 

@@ -5,16 +5,17 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
   isAcademicWorkflowStepLocked,
-  setAcademicWorkflowStepCompleted,
 } from "../../../components/panel";
-import { Button } from "../../../components/ui/Button";
+import { mockBackend } from "../../../services/mockBackend";
+import { scrollToFirstValidationError } from "../../../utils/validationScroll";
+import { Button, Modal, Textarea } from "../../../components/ui";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
 import CompetenciasRaExportModal from "./components/CompetenciasRaExportModal";
 import CompetenciasRaFiltersPanel from "./components/CompetenciasRaFilters";
 import CompetenciasRaFormModal from "./components/CompetenciasRaFormModal";
 import CompetenciasRaCardGrid from "./components/CompetenciasRaCardGrid";
 import { getCurrentUser, getCatalogs } from "./CompetenciasRa.mock";
-import { rolePermissions } from "./CompetenciasRa.permissions";
+import { canEditCompetenciasRa, rolePermissions } from "./CompetenciasRa.permissions";
 import {
   INITIAL_FILTERS,
   applyFilters,
@@ -22,23 +23,29 @@ import {
   buildAvailableFilters,
   buildRecordFromForm,
   enrichCompetenciasRa,
+  MAX_RA_PER_COMPETENCIA,
+  canAddLearningResult,
   getDefaultLugarBySeccional,
   getEmptyFormState,
-  mapRecordToForm,
+  getLearningResultsValidationMessage,
   sanitizeFilters,
+  syncFiltersByActivePlan,
 } from "./CompetenciasRa.utils";
 import type {
   FormState,
   CompetenciasRaEnriched,
   CompetenciasRaFilters as FiltersState,
   CompetenciasRaFormacionRecord,
+  ResultadoAprendizaje,
 } from "./CompetenciasRa.types";
 
 const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export default function CompetenciasRaFormacionPage() {
-  const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>([]);
+  const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>(() =>
+    mockBackend.list<CompetenciasRaFormacionRecord>("competenciasRa", currentUser),
+  );
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedRecord, setSelectedRecord] =
@@ -52,14 +59,16 @@ export default function CompetenciasRaFormacionPage() {
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(
     null,
   );
+  const [raModalMode, setRaModalMode] = useState<"create" | "edit" | null>(null);
+  const [selectedRaRecord, setSelectedRaRecord] = useState<CompetenciasRaEnriched | null>(null);
+  const [selectedRa, setSelectedRa] = useState<ResultadoAprendizaje | null>(null);
+  const [raDraft, setRaDraft] = useState("");
+  const [raError, setRaError] = useState("");
 
   const permissions = rolePermissions[currentUser.role];
   const isStepLocked = isAcademicWorkflowStepLocked("competencias-ra");
   const hasRecords = records.length > 0;
 
-  useEffect(() => {
-    setAcademicWorkflowStepCompleted("competencias-ra", hasRecords);
-  }, [hasRecords]);
 
   const enrichedRecords = useMemo(
     () => enrichCompetenciasRa(records, catalogs),
@@ -105,17 +114,23 @@ export default function CompetenciasRaFormacionPage() {
     });
   }, [filters, roleScopedRecords, sortOrder]);
 
+  const refreshRecordsState = (nextRecords: CompetenciasRaFormacionRecord[], selectedId?: string) => {
+    setRecords(nextRecords);
+
+    if (!selectedId) return;
+
+    const refreshedRecord = enrichCompetenciasRa(nextRecords, catalogs).find(
+      (record) => record.id === selectedId,
+    );
+
+    setSelectedRecord(refreshedRecord ?? null);
+    setSelectedRaRecord(refreshedRecord ?? null);
+  };
+
   const openCreateModal = () => {
     setFormMode("create");
     setFormValues(getEmptyFormState(currentUser));
     setSelectedRecord(null);
-    setFormOpen(true);
-  };
-
-  const openEditModal = (record: CompetenciasRaEnriched) => {
-    setFormMode("edit");
-    setSelectedRecord(record);
-    setFormValues(mapRecordToForm(record));
     setFormOpen(true);
   };
 
@@ -124,19 +139,128 @@ export default function CompetenciasRaFormacionPage() {
     setDetailOpen(true);
   };
 
+  const closeRaModal = () => {
+    setRaModalMode(null);
+    setSelectedRaRecord(null);
+    setSelectedRa(null);
+    setRaDraft("");
+    setRaError("");
+  };
+
+  const openCreateRaModal = (record: CompetenciasRaEnriched) => {
+    if (!canAddLearningResult(record)) {
+      window.alert("Máximo 4 Resultados de Aprendizaje por competencia.");
+      return;
+    }
+
+    setSelectedRaRecord(record);
+    setSelectedRa(null);
+    setRaDraft("");
+    setRaError("");
+    setRaModalMode("create");
+  };
+
+  const openEditRaModal = (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => {
+    setSelectedRaRecord(record);
+    setSelectedRa(ra);
+    setRaDraft(ra.descripcion);
+    setRaError("");
+    setRaModalMode("edit");
+  };
+
+  const handleSaveRa = () => {
+    if (!selectedRaRecord) return;
+
+    const description = raDraft.trim();
+
+    if (!description) {
+      setRaError("Escribe la descripción del RA.");
+      scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
+      return;
+    }
+
+    const currentRas = selectedRaRecord.resultadosAprendizaje ?? [];
+
+    if (raModalMode === "create" && currentRas.length >= MAX_RA_PER_COMPETENCIA) {
+      setRaError("Máximo 4 Resultados de Aprendizaje por competencia.");
+      scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
+      return;
+    }
+
+    const nextRas =
+      raModalMode === "edit" && selectedRa
+        ? currentRas.map((ra) =>
+            ra.id === selectedRa.id ? { ...ra, descripcion: description } : ra,
+          )
+        : [
+            ...currentRas,
+            {
+              id: `ra-${selectedRaRecord.id}-${Date.now()}`,
+              numero: currentRas.length + 1,
+              descripcion: description,
+            },
+          ];
+
+    const nextRecord: CompetenciasRaFormacionRecord = {
+      ...selectedRaRecord,
+      resultadosAprendizaje: nextRas.map((ra, index) => ({
+        ...ra,
+        numero: index + 1,
+      })),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const validationMessage = getLearningResultsValidationMessage(nextRecord);
+
+    if (nextRecord.resultadosAprendizaje.length > MAX_RA_PER_COMPETENCIA) {
+      setRaError(validationMessage || "Máximo 4 Resultados de Aprendizaje por competencia.");
+      scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
+      return;
+    }
+
+    try {
+      const nextRecords = mockBackend.update<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser);
+      refreshRecordsState(nextRecords, nextRecord.id);
+      closeRaModal();
+    } catch (error) {
+      setRaError(error instanceof Error ? error.message : "No fue posible guardar el RA.");
+      scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
+    }
+  };
+
+  const handleSaveCompetenciaDescription = (record: CompetenciasRaEnriched, descripcion: string) => {
+    const nextRecord: CompetenciasRaFormacionRecord = {
+      ...record,
+      descripcion,
+      nombre: record.nombre,
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      const nextRecords = mockBackend.update<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser);
+      refreshRecordsState(nextRecords, record.id);
+      return true;
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "No fue posible actualizar la competencia.");
+      return false;
+    }
+  };
+
   const handleDelete = (record: CompetenciasRaEnriched) => {
     const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar la competencia de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
+      `¿Seguro que deseas eliminar la competencia de ${record.programaNombre}? También se eliminarán sus RA asociados y se limpiarán relaciones demo vinculadas.`,
     );
 
     if (!confirmed) return;
 
-    setRecords((current) => current.filter((item) => item.id !== record.id));
+    const nextRecords = mockBackend.remove<CompetenciasRaFormacionRecord>("competenciasRa", record.id, currentUser);
+    setRecords(nextRecords);
 
     if (selectedRecord?.id === record.id) {
       setSelectedRecord(null);
       setDetailOpen(false);
       setFormOpen(false);
+      closeRaModal();
     }
   };
 
@@ -151,15 +275,26 @@ export default function CompetenciasRaFormacionPage() {
         next.lugarId = getDefaultLugarBySeccional(String(value));
         next.facultadId = "";
         next.programaId = "";
+        next.planId = "";
       }
 
       if (key === "lugarId") {
         next.facultadId = "";
         next.programaId = "";
+        next.planId = "";
       }
 
       if (key === "facultadId") {
         next.programaId = "";
+        next.planId = "";
+      }
+
+      if (key === "programaId") {
+        next.planId = "";
+      }
+
+      if (key === "planId") {
+        return syncFiltersByActivePlan(next, String(value), catalogs);
       }
 
       return next;
@@ -167,21 +302,36 @@ export default function CompetenciasRaFormacionPage() {
   };
 
   const handleFormSubmit = (values: FormState) => {
-    const nextRecord = buildRecordFromForm(
+    const baseRecord = buildRecordFromForm(
       values,
       formMode === "edit" ? selectedRecord : null,
       records,
     );
+    const relatedProposito = mockBackend
+      .list<{ id: string; programaId?: string; planId?: string }>("propositosFormacion", currentUser)
+      .find((item) => item.planId === baseRecord.planId || item.programaId === baseRecord.programaId);
+    const nextRecord = {
+      ...baseRecord,
+      propositoFormacionId: baseRecord.propositoFormacionId ?? relatedProposito?.id,
+    };
 
-    setRecords((current) => {
-      if (formMode === "create") {
-        return [nextRecord, ...current];
-      }
+    const validationMessage = getLearningResultsValidationMessage(nextRecord);
 
-      return current.map((item) =>
-        item.id === nextRecord.id ? nextRecord : item,
+    if (nextRecord.resultadosAprendizaje.length > MAX_RA_PER_COMPETENCIA) {
+      window.alert(validationMessage || "Máximo 4 Resultados de Aprendizaje por competencia.");
+      return;
+    }
+
+    try {
+      setRecords(
+        formMode === "create"
+          ? mockBackend.create<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser)
+          : mockBackend.update<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser),
       );
-    });
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "No fue posible guardar la competencia.");
+      return;
+    }
 
     setFilters({
       seccionalId: values.seccionalId,
@@ -196,6 +346,10 @@ export default function CompetenciasRaFormacionPage() {
     setSelectedRecord(null);
   };
 
+  const invalidCompetencias = filteredRecords.filter((record) =>
+    Boolean(getLearningResultsValidationMessage(record)),
+  );
+
   const pageActions = (
     <div className="flex flex-wrap items-center gap-3">
       {permissions.canCreate ? (
@@ -203,9 +357,9 @@ export default function CompetenciasRaFormacionPage() {
           variant="primary"
           leftIcon={<GoPlus className="text-lg" />}
           onClick={openCreateModal}
-          title="Crear una nueva competencia y resultado de aprendizaje"
+          title="Crear una nueva competencia"
         >
-          Nueva competencia y RA
+          Nueva competencia
         </Button>
       ) : null}
 
@@ -256,8 +410,8 @@ export default function CompetenciasRaFormacionPage() {
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay competencias ni RA creados"
-          description="Cuando se cargue la primera competencia con sus resultados de aprendizaje, se habilitará la vista completa de consulta, edición y exportación."
-          actionLabel={permissions.canCreate ? "Crear competencia y RA" : undefined}
+          description="Cuando se cargue la primera competencia, se habilitará la vista completa. Agrega al menos un RA para completar el paso y habilitar Mapeo."
+          actionLabel={permissions.canCreate ? "Crear competencia" : undefined}
           onAction={permissions.canCreate ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
@@ -305,13 +459,23 @@ export default function CompetenciasRaFormacionPage() {
               </div>
             </div>
 
+            {invalidCompetencias.length > 0 ? (
+              <div
+                role="alert"
+                className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]"
+              >
+                Hay {invalidCompetencias.length} competencia
+                {invalidCompetencias.length === 1 ? "" : "s"} con RA pendientes o fuera del límite permitido. Agrega al menos 1 RA y máximo 4 por competencia para habilitar Mapeo de Competencias.
+              </div>
+            ) : null}
+
             <CompetenciasRaCardGrid
               data={filteredRecords}
               role={currentUser.role}
               permissions={permissions}
               onView={openViewModal}
-              onEdit={openEditModal}
-              onDelete={handleDelete}
+              onAddRa={openCreateRaModal}
+              onEditRa={openEditRaModal}
             />
           </div>
         </div>
@@ -320,7 +484,12 @@ export default function CompetenciasRaFormacionPage() {
       <CompetenciasRaDetailModal
         open={detailOpen}
         record={selectedRecord}
+        canEdit={Boolean(selectedRecord && canEditCompetenciasRa(currentUser.role, selectedRecord) && permissions.canUpdate)}
+        canDelete={Boolean(selectedRecord && permissions.canDelete)}
         onClose={() => setDetailOpen(false)}
+        onSaveDescription={handleSaveCompetenciaDescription}
+        onDelete={handleDelete}
+        onEditRa={openEditRaModal}
       />
 
       <CompetenciasRaFormModal
@@ -333,6 +502,42 @@ export default function CompetenciasRaFormacionPage() {
         onClose={() => setFormOpen(false)}
         onSubmit={handleFormSubmit}
       />
+
+      <Modal
+        open={Boolean(raModalMode)}
+        title={raModalMode === "edit" ? "Editar RA" : "Agregar RA"}
+        description={
+          selectedRaRecord
+            ? `Resultado de Aprendizaje asociado a ${selectedRaRecord.nombre}.`
+            : "Resultado de Aprendizaje asociado a la competencia."
+        }
+        size="md"
+        onClose={closeRaModal}
+        footer={
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button variant="ghost" onClick={closeRaModal}>
+              Cancelar
+            </Button>
+            <Button variant="primary" onClick={handleSaveRa}>
+              {raModalMode === "edit" ? "Guardar RA" : "Agregar RA"}
+            </Button>
+          </div>
+        }
+      >
+        <Textarea
+          label="Descripción del RA"
+          value={raDraft}
+          onChange={(event) => {
+            setRaDraft(event.target.value);
+            setRaError("");
+          }}
+          rows={6}
+          placeholder="Escribe el Resultado de Aprendizaje"
+          id="raDescripcion"
+          data-validation-field="raDescripcion"
+          error={raError}
+        />
+      </Modal>
 
       <CompetenciasRaExportModal
         open={exportFormat === "pdf"}

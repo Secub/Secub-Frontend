@@ -97,7 +97,7 @@ export default function LandingFooterSection() {
                 </li>
                 <li>
                   <a
-                    href="http://Cartagena"
+                    href="https://usbcartagena.edu.co/"
                     target="_blank"
                     rel="noreferrer"
                     className="transition-opacity hover:opacity-80"

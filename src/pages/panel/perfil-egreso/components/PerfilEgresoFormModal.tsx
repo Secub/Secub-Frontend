@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Modal, Select, Textarea, Input } from "../../../../components/ui";
-import { formatDate, getDefaultLugarBySeccional } from "../perfil-egreso.utils";
+import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
+import { formatDate, getActivePlansByProgram, getDefaultLugarBySeccional, isMedellinSeccional } from "../perfil-egreso.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -40,10 +41,12 @@ export function PerfilEgresoFormModal({
 }: PerfilEgresoFormModalProps) {
   const [form, setForm] = useState<FormState>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formAlert, setFormAlert] = useState("");
 
   useEffect(() => {
     setForm(initialValues);
     setErrors({});
+    setFormAlert("");
   }, [initialValues, open]);
 
   const lugaresDisponibles = useMemo(() => {
@@ -81,8 +84,13 @@ export function PerfilEgresoFormModal({
     });
   }, [catalogs.programas, form.facultadId, form.seccionalId, user.scope.programaId]);
 
+  const planesDisponibles = useMemo(() => {
+    return getActivePlansByProgram(catalogs, form.programaId, form.planId);
+  }, [catalogs, form.planId, form.programaId]);
+
   const canEditStructure = mode === "create";
   const isDirectorScoped = Boolean(user.scope.programaId);
+  const isLugarLocked = !canEditStructure || !isMedellinSeccional(form.seccionalId);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => {
@@ -92,10 +100,23 @@ export function PerfilEgresoFormModal({
         next.lugarId = getDefaultLugarBySeccional(String(value));
         next.facultadId = user.scope.facultadId ?? "";
         next.programaId = user.scope.programaId ?? "";
+        next.planId = "";
+      }
+
+      if (key === "lugarId") {
+        next.facultadId = user.scope.facultadId ?? "";
+        next.programaId = user.scope.programaId ?? "";
+        next.planId = "";
       }
 
       if (key === "facultadId") {
         next.programaId = user.scope.programaId ?? "";
+        next.planId = "";
+      }
+
+      if (key === "programaId") {
+        const activePlans = getActivePlansByProgram(catalogs, String(value));
+        next.planId = activePlans[0]?.id ?? "";
       }
 
       return next;
@@ -110,12 +131,40 @@ export function PerfilEgresoFormModal({
     if (!form.facultadId) nextErrors.facultadId = "Selecciona una facultad.";
     if (!form.programaId) nextErrors.programaId = "Selecciona un programa.";
     if (!form.planId) nextErrors.planId = "Selecciona un plan de estudios.";
+
+    const selectedPlan = catalogs.planes.find((item) => item.id === form.planId);
+    if (form.planId && selectedPlan?.estado !== "activo") {
+      nextErrors.planId = "Selecciona un plan de estudios activo.";
+    }
     if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del perfil de egreso.";
     }
 
+    const errorKeys = Object.keys(nextErrors);
+    const hasErrors = errorKeys.length > 0;
+
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    setFormAlert(
+      hasErrors
+        ? "Completa la información obligatoria antes de guardar. Revisa el primer campo marcado."
+        : "",
+    );
+
+    if (hasErrors) {
+      scrollToFirstValidationError({
+        fieldOrder: [
+          "seccionalId",
+          "lugarId",
+          "facultadId",
+          "programaId",
+          "planId",
+          "descripcion",
+          "numeroRA",
+        ],
+      });
+    }
+
+    return !hasErrors;
   };
 
   const handleSubmit = () => {
@@ -145,6 +194,15 @@ export function PerfilEgresoFormModal({
         </div>
       }
     >
+      {formAlert ? (
+        <div
+          role="alert"
+          className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:rgba(235,87,87,0.08)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
+        >
+          {formAlert}
+        </div>
+      ) : null}
+
       <div className="grid gap-5 md:grid-cols-2">
         <Select
           label="Seccional"
@@ -156,6 +214,8 @@ export function PerfilEgresoFormModal({
           }))}
           placeholder="Selecciona una seccional"
           disabled={!canEditStructure || !!user.scope.seccionalId}
+          id="seccionalId"
+          data-validation-field="seccionalId"
           error={errors.seccionalId}
         />
 
@@ -168,7 +228,9 @@ export function PerfilEgresoFormModal({
             value: item.id,
           }))}
           placeholder="Selecciona un lugar"
-          disabled={!canEditStructure}
+          disabled={isLugarLocked}
+          id="lugarId"
+          data-validation-field="lugarId"
           error={errors.lugarId}
         />
 
@@ -182,6 +244,8 @@ export function PerfilEgresoFormModal({
           }))}
           placeholder="Selecciona una facultad"
           disabled={!canEditStructure || !!user.scope.facultadId}
+          id="facultadId"
+          data-validation-field="facultadId"
           error={errors.facultadId}
         />
 
@@ -195,6 +259,8 @@ export function PerfilEgresoFormModal({
           }))}
           placeholder="Selecciona un programa"
           disabled={!canEditStructure || isDirectorScoped}
+          id="programaId"
+          data-validation-field="programaId"
           error={errors.programaId}
         />
 
@@ -202,12 +268,15 @@ export function PerfilEgresoFormModal({
           label="Plan de estudios"
           value={form.planId}
           onChange={(event) => updateField("planId", event.target.value)}
-          options={catalogs.planes.map((item) => ({
-            label: item.nombre,
+          options={planesDisponibles.map((item) => ({
+            label: item.estado === "inactivo" ? `${item.nombre} (Inactivo)` : item.nombre,
             value: item.id,
           }))}
           placeholder="Selecciona un plan"
-          disabled={!canEditStructure}
+          disabled={!canEditStructure || !form.programaId}
+          helperText="Solo se listan planes activos. Los inactivos solo permanecen visibles en registros históricos."
+          id="planId"
+          data-validation-field="planId"
           error={errors.planId}
         />
 
@@ -258,6 +327,8 @@ export function PerfilEgresoFormModal({
           rows={7}
           placeholder="Escribe el perfil de egreso del programa..."
           helperText="Este texto será visible en la consulta y podrá actualizarse según las reglas del rol."
+          id="descripcion"
+          data-validation-field="descripcion"
           error={errors.descripcion}
         />
       </div>

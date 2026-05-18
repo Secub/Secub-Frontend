@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { GoCheckCircle, GoPlus, GoShieldCheck } from "react-icons/go";
 import {
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
   isAcademicWorkflowStepLocked,
-  setAcademicWorkflowStepCompleted,
 } from "../../../components/panel";
+import { mockBackend } from "../../../services/mockBackend";
 import { Button, ConfirmDialog } from "../../../components/ui";
 import CicloAccessState from "./components/CicloAccessState";
 import CicloFilters from "./components/CicloFilters";
@@ -29,7 +29,9 @@ const user = getCurrentCicloUser();
 const catalogs = getCicloCatalogs();
 
 export default function CicloPage() {
-  const [cycles, setCycles] = useState<CicloMedicion[]>([]);
+  const [cycles, setCycles] = useState<CicloMedicion[]>(() =>
+    mockBackend.list<CicloMedicion>("ciclosMedicion", user),
+  );
   const [filters, setFilters] = useState<CicloFiltersState>(INITIAL_CICLO_FILTERS);
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">("create");
   const [formOpen, setFormOpen] = useState(false);
@@ -44,9 +46,6 @@ export default function CicloPage() {
   const isStepLocked = isAcademicWorkflowStepLocked("ciclo");
   const hasCycles = cycles.length > 0;
 
-  useEffect(() => {
-    setAcademicWorkflowStepCompleted("ciclo", hasCycles);
-  }, [hasCycles]);
 
   const enrichedCycles = useMemo(() => enrichCiclos(cycles, catalogs), [cycles]);
 
@@ -101,20 +100,25 @@ export default function CicloPage() {
   };
 
   const handleSubmit = (values: CicloFormState) => {
-    const nextCycle = buildCycleFromForm(
+    const baseCycle = buildCycleFromForm(
       values,
       catalogs,
       user,
       modalMode === "edit" ? selectedCycle : null,
     );
+    const relatedMapeo = mockBackend
+      .list<{ id: string; programaId?: string; planId?: string }>("mapeosCompetencias", user)
+      .find((item) => item.planId === baseCycle.planId || item.programaId === baseCycle.programaId);
+    const nextCycle = {
+      ...baseCycle,
+      mapeoCompetenciasId: baseCycle.mapeoCompetenciasId ?? relatedMapeo?.id,
+    };
 
-    setCycles((current) => {
-      if (modalMode === "edit") {
-        return current.map((cycle) => (cycle.id === nextCycle.id ? nextCycle : cycle));
-      }
-
-      return [nextCycle, ...current];
-    });
+    setCycles(
+      modalMode === "edit"
+        ? mockBackend.update<CicloMedicion>("ciclosMedicion", nextCycle, user)
+        : mockBackend.create<CicloMedicion>("ciclosMedicion", nextCycle, user),
+    );
 
     setSavedMessage(
       modalMode === "edit"
@@ -129,7 +133,7 @@ export default function CicloPage() {
     if (!cycleToDelete) return;
 
     // Integración futura: DELETE /ciclos/:id
-    setCycles((current) => current.filter((cycle) => cycle.id !== cycleToDelete.id));
+    setCycles(mockBackend.remove<CicloMedicion>("ciclosMedicion", cycleToDelete.id, user));
     setSavedMessage("El ciclo fue eliminado de los datos temporales actuales.");
     setCycleToDelete(null);
   };

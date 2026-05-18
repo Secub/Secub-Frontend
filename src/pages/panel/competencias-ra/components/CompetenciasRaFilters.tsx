@@ -15,7 +15,7 @@ interface CompetenciasRaFiltersProps {
     facultades: { id: string; nombre: string }[];
     lugares: { id: string; nombre: string }[];
     programas: { id: string; nombre: string }[];
-    planes: { id: string; nombre: string }[];
+    planes: { id: string; nombre: string; estado?: "activo" | "inactivo" }[];
   };
   filteredCount: number;
   totalCount: number;
@@ -28,12 +28,16 @@ interface CompetenciasRaFiltersProps {
 }
 
 export function CompetenciasRaFilters({
+  user,
   permissions,
   filters,
   filterOptions,
   onFilterChange,
   onReset,
 }: CompetenciasRaFiltersProps) {
+  const effectiveSeccionalId = filters.seccionalId || user.scope.seccionalId || "";
+  const isLugarLocked = effectiveSeccionalId !== "medellin";
+
   return (
     <div className="surface-card p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -68,6 +72,7 @@ export function CompetenciasRaFilters({
                 value: item.id,
               }))}
               placeholder="Todos los lugares"
+              disabled={isLugarLocked}
             />
           </div>
         ) : null}
@@ -113,7 +118,10 @@ export function CompetenciasRaFilters({
               value={filters.planId}
               onChange={(event) => onFilterChange("planId", event.target.value)}
               options={filterOptions.planes.map((item) => ({
-                label: item.nombre,
+                label:
+                  item.estado === "inactivo" && !item.nombre.includes("Inactivo")
+                    ? `${item.nombre} (Inactivo)`
+                    : item.nombre,
                 value: item.id,
               }))}
               placeholder="Todos los planes"

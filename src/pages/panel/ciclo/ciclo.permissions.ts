@@ -63,16 +63,16 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByEstado: true,
   },
   docente: {
-    canReadSummary: false,
+    canReadSummary: true,
     canCreateCycle: false,
     canEditCycle: false,
     canDeleteCycle: false,
     canConfirmSelection: false,
     canFilterBySeccional: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: false,
-    canFilterByPeriodo: false,
-    canFilterByEstado: false,
+    canFilterByPrograma: true,
+    canFilterByPeriodo: true,
+    canFilterByEstado: true,
   },
 };
 
