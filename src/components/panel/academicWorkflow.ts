@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ENABLE_ACADEMIC_WORKFLOW_LOCK } from "../../config/workflow.config";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
 import { mockBackend, subscribeToMockBackendChanges } from "../../services/mockBackend";
+import { getCicloCatalogs } from "../../pages/panel/ciclo/ciclo.mock";
 import { isCompetenciaRaValidByLearningResults } from "../../utils/learningResultsRules";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 
@@ -17,6 +18,8 @@ export const academicWorkflowSteps: PanelStepKey[] = [
 export type AcademicWorkflowProgress = Partial<Record<PanelStepKey, boolean>>;
 
 export const WORKFLOW_LOCKED_MESSAGE = "Primero completa el paso anterior para continuar.";
+
+const cicloCatalogs = getCicloCatalogs();
 
 type AcademicRecord = {
   id: string;
@@ -41,6 +44,7 @@ type AcademicRecord = {
   asignacionRaIds?: string[];
   cursoId?: string;
   cursoIds?: string[];
+  cursosMapeados?: Array<{ cursoId?: string; competenciaRaId?: string; nivel?: string }>;
   completed?: boolean;
   isEvaluationLocked?: boolean;
   resultadosAprendizaje?: Array<{ id?: string; descripcion?: string }>;
@@ -68,7 +72,13 @@ function hasValue(value: unknown) {
 }
 
 function isActiveAcademicRecord(record: AcademicRecord) {
-  return !record.estado || record.estado === "activo" || record.estado === "borrador" || record.estado === "finalizado";
+  return (
+    !record.estado ||
+    record.estado === "activo" ||
+    record.estado === "activa" ||
+    record.estado === "borrador" ||
+    record.estado === "finalizado"
+  );
 }
 
 function getProgramId(record: AcademicRecord) {
@@ -196,6 +206,97 @@ export function isAsignacionRaLinkedToCiclo(record: AcademicRecord, ciclosComple
   );
 }
 
+function getAssignmentCourseId(record: AcademicRecord) {
+  return record.cursoId ?? record.cursoIds?.[0] ?? "";
+}
+
+function hasAssignmentForCourseCompetencia(
+  asignacionesCompletas: AcademicRecord[],
+  cycle: AcademicRecord,
+  cursoId: string,
+  competencia: AcademicRecord,
+) {
+  return asignacionesCompletas.some(
+    (record) =>
+      record.cicloId === cycle.id &&
+      getAssignmentCourseId(record) === cursoId &&
+      record.competenciaRaId === competencia.id &&
+      Boolean(record.resultadoAprendizajeId || record.resultadoAprendizajeIds?.length) &&
+      isSameAcademicScope(record, cycle),
+  );
+}
+
+function getRequiredCompetenciasForCourse(
+  cycle: AcademicRecord,
+  cursoId: string,
+  mapeosCompletos: AcademicRecord[],
+  competenciasCompletas: AcademicRecord[],
+) {
+  const relatedMapeo = mapeosCompletos.find((mapeo) => {
+    if (cycle.mapeoCompetenciasId && mapeo.id === cycle.mapeoCompetenciasId) return true;
+    return isSameAcademicScope(mapeo, cycle);
+  });
+  const mappedCompetenceIds = new Set(
+    (relatedMapeo?.cursosMapeados ?? [])
+      .filter((item) => item.cursoId === cursoId && item.nivel !== "NA" && item.competenciaRaId)
+      .map((item) => item.competenciaRaId as string),
+  );
+  const scopedCompetencias = competenciasCompletas.filter((competencia) => isSameAcademicScope(competencia, cycle));
+
+  if (!mappedCompetenceIds.size) return scopedCompetencias;
+
+  return scopedCompetencias.filter((competencia) => mappedCompetenceIds.has(competencia.id));
+}
+
+function getSynthesisCourseIdsForCycle(cycle: AcademicRecord) {
+  const cycleCourseIds = new Set(cycle.cursoIds ?? []);
+  const synthesisCourseIds = cicloCatalogs.cursos
+    .filter((course) => cycleCourseIds.has(course.id) && course.nucleo === "Síntesis" && course.asignadoANucleoSintesis !== false)
+    .map((course) => course.id);
+
+  // Respaldo para seeds antiguos: si el catálogo no encuentra los cursos, se usan los ids del ciclo.
+  return synthesisCourseIds.length ? synthesisCourseIds : cycle.cursoIds ?? [];
+}
+
+function isAsignarRaCycleComplete(
+  cycle: AcademicRecord,
+  mapeosCompletos: AcademicRecord[],
+  competenciasCompletas: AcademicRecord[],
+  asignacionesCompletas: AcademicRecord[],
+) {
+  const courseIds = getSynthesisCourseIdsForCycle(cycle);
+  if (!courseIds.length) return false;
+
+  return courseIds.every((cursoId) => {
+    const requiredCompetencias = getRequiredCompetenciasForCourse(
+      cycle,
+      cursoId,
+      mapeosCompletos,
+      competenciasCompletas,
+    );
+
+    if (!requiredCompetencias.length) return false;
+
+    return requiredCompetencias.every((competencia) =>
+      hasAssignmentForCourseCompetencia(asignacionesCompletas, cycle, cursoId, competencia),
+    );
+  });
+}
+
+function hasCompleteAsignarRaWorkflow(
+  ciclosCompletos: AcademicRecord[],
+  mapeosCompletos: AcademicRecord[],
+  competenciasCompletas: AcademicRecord[],
+  asignacionesCompletas: AcademicRecord[],
+) {
+  // Regla RF07 centrada en curso de Síntesis: un ciclo queda completo cuando cada curso
+  // del ciclo tiene al menos 1 RA asignado por cada competencia asociada al curso.
+  // TODO: cuando exista backend real, mover esta validación al servicio de workflow.
+  return ciclosCompletos.some((cycle) =>
+    isAsignarRaCycleComplete(cycle, mapeosCompletos, competenciasCompletas, asignacionesCompletas),
+  );
+}
+
 export function isMedicionRaCompleteOrLocked(record: AcademicRecord, asignacionesCompletas: AcademicRecord[], ciclosCompletos: AcademicRecord[]) {
   const hasCompletionState = Boolean(record.completed || record.isEvaluationLocked);
   const isLinkedToAsignacion = hasRelatedRecord(record, asignacionesCompletas, "asignacionRaId") ||
@@ -272,7 +373,12 @@ export function readAcademicWorkflowProgress(): AcademicWorkflowProgress {
     "competencias-ra": snapshot.competencias.length > 0,
     "mapeo-competencias": snapshot.mapeos.length > 0,
     ciclo: snapshot.ciclos.length > 0,
-    "asignar-ra": snapshot.asignaciones.length > 0,
+    "asignar-ra": hasCompleteAsignarRaWorkflow(
+      snapshot.ciclos,
+      snapshot.mapeos,
+      snapshot.competencias,
+      snapshot.asignaciones,
+    ),
   };
 }
 
