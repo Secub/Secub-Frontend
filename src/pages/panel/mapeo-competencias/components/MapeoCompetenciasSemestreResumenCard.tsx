@@ -44,10 +44,14 @@ function readStoredSemestreMapeo(
 ): StoredMapeo {
   if (typeof window === "undefined") return {};
 
-  const candidateKeys = [
-    `mapeo-competencias-semestre-${semesterNumber}`,
-    `mapeo-competencias-semestre-${semesterIndex + 1}`,
-  ];
+  const candidateKeys = Array.from(
+    new Set([
+      `mapeo-competencias-semestre-${semesterIndex}`,
+      `mapeo-competencias-semestre-${semesterNumber - 1}`,
+      `mapeo-competencias-semestre-${semesterNumber}`,
+      `mapeo-competencias-semestre-${semesterIndex + 1}`,
+    ]),
+  );
 
   for (const key of candidateKeys) {
     try {
@@ -59,7 +63,7 @@ function readStoredSemestreMapeo(
         return parsed as StoredMapeo;
       }
     } catch {
-      return {};
+      continue;
     }
   }
 
@@ -100,16 +104,30 @@ function getCompromisoClassName(value?: string) {
 function getCursosDelSemestre(
   programa: ProgramaAcademico | undefined,
   semestre: MapeoSemesterData,
+  storedMapeo: StoredMapeo,
 ): ProgramaAcademicoCurso[] {
   const semestresPrograma = programa?.semestres ?? [];
 
-  return (
+  const cursos =
     semestresPrograma.find(
       (item) =>
         item.id === semestre.semesterId ||
         item.numero === semestre.semesterNumber,
-    )?.cursos ?? []
-  );
+    )?.cursos ?? [];
+
+  if (cursos.length > 0) {
+    return cursos;
+  }
+
+  return Object.keys(storedMapeo).map((cursoId) => ({
+    id: cursoId,
+    codigo: cursoId,
+    nombre: cursoId,
+    creditos: 0,
+    horasSemanales: 0,
+    nucleo: "Sin Clasificar",
+    descripcion: "",
+  }));
 }
 
 function getCompetenciaLabel(competencia: MapeoCompetencia, index: number) {
@@ -123,14 +141,14 @@ export default function MapeoCompetenciasSemestreResumenCard({
   semestre,
   semesterIndex,
 }: MapeoCompetenciasSemestreResumenCardProps) {
-  const cursos = useMemo(
-    () => getCursosDelSemestre(programa, semestre),
-    [programa, semestre],
-  );
-
   const storedMapeo = useMemo(
     () => readStoredSemestreMapeo(semestre.semesterNumber, semesterIndex),
     [semestre.semesterNumber, semesterIndex],
+  );
+
+  const cursos = useMemo(
+    () => getCursosDelSemestre(programa, semestre, storedMapeo),
+    [programa, semestre, storedMapeo],
   );
 
   const storedNucleos = useMemo(

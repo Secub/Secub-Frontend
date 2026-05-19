@@ -37,7 +37,7 @@ import {
   buildAvailableFilters,
   deleteStoredMapeoRecord,
   enrichCompetenciasRa,
-  readStoredMapeoRecords,
+  readAvailableMapeoRecords,
   sanitizeFilters,
 } from "./MapeoCompetencias.utils";
 
@@ -179,13 +179,17 @@ export default function MapeoCompetenciasPage() {
           await getMapeos();
 
         setRecords(
-          readStoredMapeoRecords(data)
+          readAvailableMapeoRecords(data)
         );
 
       } catch (error) {
         console.error(
           "Error cargando mapeos:",
           error
+        );
+
+        setRecords(
+          readAvailableMapeoRecords()
         );
       }
     };
@@ -576,16 +580,7 @@ export default function MapeoCompetenciasPage() {
               leftIcon={
                 <GoPencil className="text-lg" />
               }
-              onClick={() => {
-
-                if (
-                  selectedMapeoForActions
-                ) {
-                  handleEditClick(
-                    selectedMapeoForActions
-                  );
-                }
-              }}
+              onClick={handleCreateClick}
               disabled={
                 !selectedMapeoForActions
               }
@@ -669,12 +664,12 @@ export default function MapeoCompetenciasPage() {
               estados:
                 [
                 {
-                  id: "Activo",
-                  nombre: "activo",
+                  id: "activo",
+                  nombre: "Activo",
                 },
                 {
-                  id: "Inactivo",
-                  nombre: "inactivo",
+                  id: "inactivo",
+                  nombre: "Inactivo",
                 },
               ],
           }}
@@ -734,9 +729,7 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : (
             <div className="flex justify-center">
-
               <EmptyState_NoDataCard />
-
             </div>
           )}
 

@@ -12,6 +12,12 @@ import type {
 export const MAPEO_COMPETENCIAS_STORAGE_KEY =
   "secub.mapeoCompetencias.records";
 
+const LEGACY_MAPEO_RECORD_STORAGE_KEY =
+  "record";
+
+const LEGACY_SEMESTRE_MAPEO_STORAGE_PREFIX =
+  "mapeo-competencias-semestre-";
+
 export const INITIAL_FILTERS: MapeoCompetenciasFilters = {
   seccionalId: "",
   facultadId: "",
@@ -332,6 +338,246 @@ function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseStoredJson(key: string): unknown {
+  const rawValue = localStorage.getItem(key);
+  if (!rawValue) return null;
+
+  return JSON.parse(rawValue);
+}
+
+function getRecordFromStorageValue(value: unknown) {
+  if (!isObject(value)) return null;
+
+  const maybeWrappedRecord = value.record;
+
+  if (isObject(maybeWrappedRecord)) {
+    return maybeWrappedRecord;
+  }
+
+  return value;
+}
+
+function hasRequiredRecordScope(value: Record<string, unknown>) {
+  return (
+    typeof value.programaId === "string" &&
+    typeof value.planId === "string"
+  );
+}
+
+function getFallbackRecordForScope(
+  record: Record<string, unknown>,
+  fallbackRecords: MapeoCompetenciasRecord[],
+) {
+  return fallbackRecords.find(
+    (fallbackRecord) =>
+      fallbackRecord.programaId === record.programaId &&
+      fallbackRecord.planId === record.planId,
+  );
+}
+
+function getStoredSemestreMapeoEntries() {
+  if (!canUseStorage()) return [];
+
+  const entries: Array<{
+    storageIndex: number;
+    data: Record<string, Record<string, string>>;
+  }> = [];
+
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+
+    if (!key?.startsWith(LEGACY_SEMESTRE_MAPEO_STORAGE_PREFIX)) {
+      continue;
+    }
+
+    const storageIndex = Number(
+      key.slice(LEGACY_SEMESTRE_MAPEO_STORAGE_PREFIX.length),
+    );
+
+    if (!Number.isFinite(storageIndex)) {
+      continue;
+    }
+
+    try {
+      const parsed = parseStoredJson(key);
+
+      if (isObject(parsed)) {
+        entries.push({
+          storageIndex,
+          data: parsed as Record<string, Record<string, string>>,
+        });
+      }
+    } catch {
+      // Ignore malformed legacy semester entries and continue with the rest.
+    }
+  }
+
+  return entries.sort((a, b) => a.storageIndex - b.storageIndex);
+}
+
+function getCompetenciaNumber(competenciaId: string, index: number) {
+  const numericPart = competenciaId.match(/\d+/)?.[0];
+  return numericPart ? Number(numericPart) : index + 1;
+}
+
+function buildSemestresFromStoredMapeos(
+  fallbackSemestres: MapeoSemesterData[] = [],
+): MapeoSemesterData[] {
+  const entries = getStoredSemestreMapeoEntries();
+
+  if (entries.length === 0) return fallbackSemestres;
+
+  const hasZeroBasedIndex = entries.some((entry) => entry.storageIndex === 0);
+
+  return entries.map((entry) => {
+    const semesterNumber = hasZeroBasedIndex
+      ? entry.storageIndex + 1
+      : entry.storageIndex;
+
+    const fallbackSemestre = fallbackSemestres.find(
+      (semestre) => semestre.semesterNumber === semesterNumber,
+    );
+
+    const competenciaIds = Array.from(
+      new Set(
+        Object.values(entry.data).flatMap((competenciasByCurso) =>
+          isObject(competenciasByCurso)
+            ? Object.keys(competenciasByCurso)
+            : [],
+        ),
+      ),
+    );
+
+    return {
+      semesterId:
+        fallbackSemestre?.semesterId ??
+        `sem-${semesterNumber}`,
+      semesterNumber,
+      tipo: fallbackSemestre?.tipo,
+      competencias: competenciaIds.map((competenciaId, index) => ({
+        id: competenciaId,
+        numero: getCompetenciaNumber(competenciaId, index),
+        descripcion:
+          fallbackSemestre?.competencias.find(
+            (competencia) => competencia.id === competenciaId,
+          )?.descripcion ?? competenciaId,
+        resultadosAprendizaje:
+          fallbackSemestre?.competencias.find(
+            (competencia) => competencia.id === competenciaId,
+          )?.resultadosAprendizaje ?? [],
+        semestreid:
+          fallbackSemestre?.semesterId ??
+          `sem-${semesterNumber}`,
+      })),
+    };
+  });
+}
+
+function normalizeStoredMapeoRecord(
+  value: unknown,
+  fallbackRecords: MapeoCompetenciasRecord[] = [],
+): MapeoCompetenciasRecord | null {
+  const rawRecord = getRecordFromStorageValue(value);
+
+  if (!rawRecord || !hasRequiredRecordScope(rawRecord)) {
+    return null;
+  }
+
+  const fallbackRecord =
+    getFallbackRecordForScope(rawRecord, fallbackRecords);
+
+  const programaId = rawRecord.programaId as string;
+  const planId = rawRecord.planId as string;
+  const now = new Date().toISOString();
+  const semestres =
+    Array.isArray(rawRecord.semestres)
+      ? rawRecord.semestres as MapeoSemesterData[]
+      : buildSemestresFromStoredMapeos(fallbackRecord?.semestres);
+
+  return {
+    id:
+      typeof rawRecord.id === "string"
+        ? rawRecord.id
+        : fallbackRecord?.id ?? `mapeo-local-${programaId}-${planId}`,
+    seccionalId:
+      typeof rawRecord.seccionalId === "string"
+        ? rawRecord.seccionalId
+        : fallbackRecord?.seccionalId ?? "",
+    facultadId:
+      typeof rawRecord.facultadId === "string"
+        ? rawRecord.facultadId
+        : fallbackRecord?.facultadId ?? "",
+    lugarId:
+      typeof rawRecord.lugarId === "string"
+        ? rawRecord.lugarId
+        : fallbackRecord?.lugarId ?? "",
+    programaId,
+    planId,
+    estado:
+      rawRecord.estado === "inactivo"
+        ? "inactivo"
+        : fallbackRecord?.estado ?? "activo",
+    descripcion:
+      typeof rawRecord.descripcion === "string"
+        ? rawRecord.descripcion
+        : fallbackRecord?.descripcion ?? "",
+    nombre:
+      typeof rawRecord.nombre === "string"
+        ? rawRecord.nombre
+        : fallbackRecord?.nombre ?? "Mapeo local",
+    numero:
+      typeof rawRecord.numero === "number"
+        ? rawRecord.numero
+        : fallbackRecord?.numero ?? fallbackRecords.length + 1,
+    semestres,
+    createdAt:
+      typeof rawRecord.createdAt === "string"
+        ? rawRecord.createdAt
+        : fallbackRecord?.createdAt ?? now,
+    updatedAt:
+      typeof rawRecord.updatedAt === "string"
+        ? rawRecord.updatedAt
+        : fallbackRecord?.updatedAt ?? now,
+  };
+}
+
+function mergeMapeoRecords(
+  records: MapeoCompetenciasRecord[],
+): MapeoCompetenciasRecord[] {
+  return records.reduce<MapeoCompetenciasRecord[]>((mergedRecords, record) => {
+    const existingIndex = mergedRecords.findIndex(
+      (item) =>
+        item.id === record.id ||
+        (
+          item.programaId === record.programaId &&
+          item.planId === record.planId
+        ),
+    );
+
+    if (existingIndex === -1) {
+      return [...mergedRecords, record];
+    }
+
+    const existingRecord = mergedRecords[existingIndex];
+    const nextRecords = [...mergedRecords];
+
+    nextRecords[existingIndex] = {
+      ...existingRecord,
+      ...record,
+      semestres:
+        record.semestres?.length
+          ? record.semestres
+          : existingRecord.semestres,
+    };
+
+    return nextRecords;
+  }, []);
+}
+
 export function readStoredMapeoRecords(
   fallbackRecords: MapeoCompetenciasRecord[] = [],
 ): MapeoCompetenciasRecord[] {
@@ -344,9 +590,36 @@ export function readStoredMapeoRecords(
     const parsed = JSON.parse(rawRecords);
     if (!Array.isArray(parsed)) return fallbackRecords;
 
+    if (parsed.length === 0 && fallbackRecords.length > 0) {
+      return fallbackRecords;
+    }
+
     return parsed as MapeoCompetenciasRecord[];
   } catch {
     return fallbackRecords;
+  }
+}
+
+export function readAvailableMapeoRecords(
+  fallbackRecords: MapeoCompetenciasRecord[] = [],
+): MapeoCompetenciasRecord[] {
+  const storedRecords = readStoredMapeoRecords(fallbackRecords);
+
+  if (!canUseStorage()) return storedRecords;
+
+  try {
+    const draftRecord = normalizeStoredMapeoRecord(
+      parseStoredJson(LEGACY_MAPEO_RECORD_STORAGE_KEY),
+      storedRecords.length > 0 ? storedRecords : fallbackRecords,
+    );
+
+    return mergeMapeoRecords(
+      draftRecord
+        ? [...storedRecords, draftRecord]
+        : storedRecords,
+    );
+  } catch {
+    return storedRecords;
   }
 }
 
