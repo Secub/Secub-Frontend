@@ -46,7 +46,7 @@ export default function HeroSection() {
       className="container-secub relative z-10 flex min-h-[calc(100vh-80px)] items-center justify-center py-16 lg:py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="font-heading text-4xl font-semibold leading-[1.05] text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.65)] md:text-6xl xl:text-7xl">
-            SECUB: Sistema de Evalución Curricular Bonaventuriano
+            SECUB: Sistema de Evaluación Curricular Bonaventuriano
           </h1>
 
           <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/90 [text-shadow:0_2px_10px_rgba(0,0,0,0.8)] md:text-xl">
