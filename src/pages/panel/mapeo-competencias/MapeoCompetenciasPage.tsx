@@ -64,16 +64,16 @@ export default function MapeoCompetenciasPage() {
   // =========================
 
   const currentUser = {
-  id: "1",
-  nombre: "Administrador",
-  cargo: "Administrador del sistema",
-  role: "admin" as MapeoCompetenciasRole,
+    id: "1",
+    nombre: "Administrador",
+    cargo: "Administrador del sistema",
+    role: "admin" as MapeoCompetenciasRole,
 
-  scope: {
-    seccionalId: "",
-    facultadId: "",
-    programaId: "",
-  },
+    scope: {
+      seccionalId: "",
+      facultadId: "",
+      programaId: "",
+    },
   };
   // =========================
   // CATALOGOS
@@ -92,7 +92,7 @@ export default function MapeoCompetenciasPage() {
     useState<PlanEstudio[]>([]);
 
   const [lugares, setLugares] =
-  useState<LugarDesarrollo[]>([]);
+    useState<LugarDesarrollo[]>([]);
 
   const catalogs = {
     seccionales,
@@ -203,7 +203,7 @@ export default function MapeoCompetenciasPage() {
 
   const permissions =
     rolePermissions[
-      currentUser.role
+    currentUser.role
     ];
 
   // =========================
@@ -234,35 +234,35 @@ export default function MapeoCompetenciasPage() {
     );
 
   const availableFilterOptions =
-  useMemo(() => {
+    useMemo(() => {
 
-    // Si no hay registros aún,
-    // usar directamente los catálogos
+      // Si no hay registros aún,
+      // usar directamente los catálogos
 
-    if (roleScopedRecords.length === 0) {
-      return {
-        seccionales: catalogs.seccionales,
-        facultades: catalogs.facultades,
-        lugares: catalogs.lugares,
-        programas: catalogs.programas,
-        planes: catalogs.planes,
-      };
-    }
+      if (roleScopedRecords.length === 0) {
+        return {
+          seccionales: catalogs.seccionales,
+          facultades: catalogs.facultades,
+          lugares: catalogs.lugares,
+          programas: catalogs.programas,
+          planes: catalogs.planes,
+        };
+      }
 
-    // Si ya hay registros,
-    // usar la lógica normal
+      // Si ya hay registros,
+      // usar la lógica normal
 
-    return buildAvailableFilters(
+      return buildAvailableFilters(
+        roleScopedRecords,
+        catalogs,
+        filters
+      );
+
+    }, [
+      filters,
       roleScopedRecords,
       catalogs,
-      filters
-    );
-
-  }, [
-    filters,
-    roleScopedRecords,
-    catalogs,
-  ]);
+    ]);
 
   const sanitizedFilters =
     useMemo(
@@ -433,16 +433,48 @@ export default function MapeoCompetenciasPage() {
   // ACTIONS
   // =========================
 
-  const handleCreateClick =
-    () => {
+  // const handleCreateClick =
+  //   () => {
 
-      window.location.href =
-        "/panel/mapeo-competencias/crear";
-    };
+  //     window.location.href =
+  //       "/panel/mapeo-competencias/crear";
+  //   };
+
+  const handleCreateClick = () => {
+
+    // Guardar filtros actuales
+    localStorage.setItem(
+      "mapeoCompetenciasFilters",
+      JSON.stringify(sanitizedFilters)
+    );
+
+    window.location.href =
+      "/panel/mapeo-competencias/crear";
+  };
+
+  // const handleEditClick = (
+  //   record: MapeoCompetenciasEnriched
+  // ) => {
+
+  //   window.location.href =
+  //     `/panel/mapeo-competencias/${record.id}/clasificacion/editar`;
+  // };
 
   const handleEditClick = (
     record: MapeoCompetenciasEnriched
   ) => {
+
+    // Guardar filtros actuales
+    localStorage.setItem(
+      "mapeoCompetenciasFilters",
+      JSON.stringify(sanitizedFilters)
+    );
+
+    // Guardar record seleccionado
+    localStorage.setItem(
+      "selectedMapeoId",
+      record.id
+    );
 
     window.location.href =
       `/panel/mapeo-competencias/${record.id}/clasificacion/editar`;
@@ -580,7 +612,14 @@ export default function MapeoCompetenciasPage() {
               leftIcon={
                 <GoPencil className="text-lg" />
               }
-              onClick={handleCreateClick}
+              onClick={() => {
+
+                if (selectedMapeoForActions) {
+                  handleEditClick(
+                    selectedMapeoForActions
+                  );
+                }
+              }}
               disabled={
                 !selectedMapeoForActions
               }
@@ -661,8 +700,8 @@ export default function MapeoCompetenciasPage() {
                   nombre: item.nombre,
                 })
               ),
-              estados:
-                [
+            estados:
+              [
                 {
                   id: "activo",
                   nombre: "Activo",
