@@ -71,7 +71,7 @@ function MedicionRAContent() {
     instruments,
     feedback,
     showFinishModal,
-    isEvaluationLocked,
+    isSelectedCourseLocked,
     isLastCompetence,
     showValidationErrors,
     competenceContentRef,
@@ -116,8 +116,6 @@ function MedicionRAContent() {
         <CourseSelector
           courses={availableCourses}
           selectedCourseId={selectedCourse.id}
-          disabled={isEvaluationLocked}
-          lockedTooltip={LOCKED_TOOLTIP}
           onCourseChange={handleCourseChange}
         />
 
@@ -139,7 +137,7 @@ function MedicionRAContent() {
           <InstrumentSection
             activeCompetence={activeCompetence}
             instruments={instruments}
-            disabled={isEvaluationLocked}
+            disabled={isSelectedCourseLocked}
             lockedTooltip={LOCKED_TOOLTIP}
             showValidationErrors={showValidationErrors}
             onDescriptionChange={handleInstrumentDescriptionChange}
@@ -149,7 +147,7 @@ function MedicionRAContent() {
             activeCompetence={activeCompetence}
             students={selectedCourse.students}
             evaluations={evaluations}
-            disabled={isEvaluationLocked}
+            disabled={isSelectedCourseLocked}
             lockedTooltip={LOCKED_TOOLTIP}
             showValidationErrors={showValidationErrors}
             onLevelChange={handleLevelChange}
@@ -165,7 +163,7 @@ function MedicionRAContent() {
             evidence={evidence}
             improvementPlan={improvementPlan}
             results={activeRaResults}
-            disabled={isEvaluationLocked}
+            disabled={isSelectedCourseLocked}
             lockedTooltip={LOCKED_TOOLTIP}
             showValidationErrors={showValidationErrors}
             onEvidenceFileChange={(fileName) =>
@@ -190,7 +188,7 @@ function MedicionRAContent() {
       />
 
       <MedicionRAFooter
-        isEvaluationLocked={isEvaluationLocked}
+        isEvaluationLocked={isSelectedCourseLocked}
         isLastCompetence={isLastCompetence}
         onSaveProgress={handleSaveProgress}
         onPrimaryAction={handlePrimaryAction}

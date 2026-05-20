@@ -3,6 +3,7 @@ import { GoChevronRight, GoLock } from "react-icons/go";
 import { HiCheck } from "react-icons/hi";
 import { LuCircleDot } from "react-icons/lu";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import {
   WORKFLOW_LOCKED_MESSAGE,
   getAcademicWorkflowLockedDescription,
@@ -12,6 +13,7 @@ import {
 } from "./academicWorkflow";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
+import SidebarRoleSwitcher from "./SidebarRoleSwitcher";
 
 interface PanelSidebarProps {
   currentStep: PanelStepKey;
@@ -236,7 +238,9 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
           </nav>
         </div>
 
-        <div className="shrink-0 border-t border-[var(--color-secondary-4)] px-6 py-4">
+        <div className="shrink-0 space-y-4 border-t border-[var(--color-secondary-4)] px-6 py-4">
+          {SHOW_DEMO_TOOLS ? <SidebarRoleSwitcher /> : null}
+
           <button
             type="button"
             className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] transition-colors hover:bg-[var(--color-secondary-4)]"

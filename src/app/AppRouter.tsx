@@ -5,6 +5,7 @@ import PerfilEgresoPage from "../pages/panel/perfil-egreso/PerfilEgresoPage";
 import PropositoFormacionPage from "../pages/panel/proposito-formacion/PropositoFormacionPage";
 import CompetenciasRAPage from "../pages/panel/competencias-ra/CompetenciasRAPage";
 import MapeoCompetenciasPage from "../pages/panel/mapeo-competencias/MapeoCompetenciasPage";
+import MapeoCompetenciasCreatePage from "../pages/panel/mapeo-competencias/MapeoCompetenciasCreatePage";
 import CicloPage from "../pages/panel/ciclo/CicloPage";
 import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
 import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
@@ -36,6 +37,9 @@ export default function AppRouter() {
       return <CompetenciasRAPage />;
     case ROUTES.panelMapeoCompetencias:
       return <MapeoCompetenciasPage />;
+    case ROUTES.panelMapeoCompetenciasCrear:
+    case ROUTES.panelMapeoCompetenciasEditar:
+      return <MapeoCompetenciasCreatePage />;
     case ROUTES.panelCiclo:
       return <CicloPage />;
     case ROUTES.panelAsignarRa:

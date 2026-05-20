@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
-import DevRoleSelector from "./DevRoleSelector";
-import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import PanelSidebar from "./PanelSidebar";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
 import { isAcademicWorkflowStep } from "./academicWorkflow";
@@ -53,10 +51,9 @@ export default function PanelLayout({
                 ) : null}
               </div>
 
-              {(!isDocenteTryingAcademicModule && (actions || SHOW_DEMO_TOOLS)) ? (
+              {!isDocenteTryingAcademicModule && actions ? (
                 <div className="flex shrink-0 flex-wrap items-center gap-3">
                   {actions}
-                  {SHOW_DEMO_TOOLS ? <DevRoleSelector /> : null}
                 </div>
               ) : null}
             </div>

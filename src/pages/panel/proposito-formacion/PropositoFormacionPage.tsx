@@ -1,237 +1,54 @@
-import { useEffect, useMemo, useState } from "react";
-import { GoDownload, GoEye, GoFile, GoPlus } from "react-icons/go";
 import {
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
-  isAcademicWorkflowStepLocked,
 } from "../../../components/panel";
-import { mockBackend } from "../../../services/mockBackend";
-import { Button } from "../../../components/ui";
 import PropositoDetailModal from "./components/PropositoDetailModal";
 import PropositoExportModal from "./components/PropositoExportModal";
 import PropositoFiltersPanel from "./components/PropositoFilters";
 import PropositoFormModal from "./components/PropositoFormModal";
-import PropositoTable from "./components/PropositoTable";
-import { getCurrentUser, getCatalogs } from "./proposito-formacion.mock";
-import { rolePermissions } from "./proposito-formacion.permissions";
-import {
-  INITIAL_FILTERS,
-  applyFilters,
-  applyRoleScope,
-  buildAvailableFilters,
-  buildRecordFromForm,
-  enrichPropositos,
-  getDefaultLugarBySeccional,
-  getEmptyFormState,
-  mapRecordToForm,
-  sanitizeFilters,
-  syncFiltersByActivePlan,
-} from "./proposito-formacion.utils";
-import type {
-  FormState,
-  PropositoEnriched,
-  PropositoFilters as FiltersState,
-  PropositoFormacionRecord,
-} from "./proposito-formacion.types";
-
-const currentUser = getCurrentUser();
-const catalogs = getCatalogs();
+import PropositoListSection from "./components/PropositoListSection";
+import PropositoPageActions from "./components/PropositoPageActions";
+import { usePropositoFormacionPage } from "./hooks/usePropositoFormacionPage";
+import { INITIAL_FILTERS } from "./proposito-formacion.utils";
 
 export default function PropositoFormacionPage() {
-  const [records, setRecords] = useState<PropositoFormacionRecord[]>(() =>
-    mockBackend.list<PropositoFormacionRecord>("propositosFormacion", currentUser),
-  );
-  const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
-  const [selectedRecord, setSelectedRecord] =
-    useState<PropositoEnriched | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<"create" | "edit">("create");
-  const [formValues, setFormValues] = useState<FormState>(
-    getEmptyFormState(currentUser),
-  );
-  const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(
-    null,
-  );
-
-  const permissions = rolePermissions[currentUser.role];
-  const isStepLocked = isAcademicWorkflowStepLocked("proposito-formacion");
-  const hasRecords = records.length > 0;
-
-
-  const enrichedRecords = useMemo(
-    () => enrichPropositos(records, catalogs),
-    [records],
-  );
-
-  const roleScopedRecords = useMemo(() => {
-    return applyRoleScope(enrichedRecords, currentUser);
-  }, [enrichedRecords]);
-
-  const availableFilterOptions = useMemo(() => {
-    return buildAvailableFilters(roleScopedRecords, catalogs, filters);
-  }, [filters, roleScopedRecords]);
-
-  useEffect(() => {
-    setFilters((current) => {
-      const sanitized = sanitizeFilters(current, availableFilterOptions);
-
-      if (
-        sanitized.seccionalId === current.seccionalId &&
-        sanitized.lugarId === current.lugarId &&
-        sanitized.facultadId === current.facultadId &&
-        sanitized.programaId === current.programaId &&
-        sanitized.planId === current.planId &&
-        sanitized.estado === current.estado
-      ) {
-        return current;
-      }
-
-      return sanitized;
-    });
-  }, [availableFilterOptions]);
-
-  const filteredRecords = useMemo(() => {
-    return applyFilters(roleScopedRecords, filters);
-  }, [filters, roleScopedRecords]);
-
-  const openCreateModal = () => {
-    setFormMode("create");
-    setFormValues(getEmptyFormState(currentUser));
-    setSelectedRecord(null);
-    setFormOpen(true);
-  };
-
-  const openEditModal = (record: PropositoEnriched) => {
-    setFormMode("edit");
-    setSelectedRecord(record);
-    setFormValues(mapRecordToForm(record));
-    setFormOpen(true);
-  };
-
-  const openDetailModal = (record: PropositoEnriched) => {
-    setSelectedRecord(record);
-    setDetailOpen(true);
-  };
-
-  const handleDelete = (record: PropositoEnriched) => {
-    const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
-    );
-
-    if (!confirmed) return;
-
-    setRecords(mockBackend.remove<PropositoFormacionRecord>("propositosFormacion", record.id, currentUser));
-
-    if (selectedRecord?.id === record.id) {
-      setSelectedRecord(null);
-      setDetailOpen(false);
-      setFormOpen(false);
-    }
-  };
-
-  const handleFilterChange = <K extends keyof FiltersState>(
-    key: K,
-    value: FiltersState[K],
-  ) => {
-    setFilters((current) => {
-      const next = { ...current, [key]: value };
-
-      if (key === "seccionalId") {
-        next.lugarId = getDefaultLugarBySeccional(String(value));
-        next.facultadId = "";
-        next.programaId = "";
-        next.planId = "";
-      }
-
-      if (key === "lugarId") {
-        next.facultadId = "";
-        next.programaId = "";
-        next.planId = "";
-      }
-
-      if (key === "facultadId") {
-        next.programaId = "";
-        next.planId = "";
-      }
-
-      if (key === "programaId") {
-        next.planId = "";
-      }
-
-      if (key === "planId") {
-        return syncFiltersByActivePlan(next, String(value), catalogs);
-      }
-
-      return next;
-    });
-  };
-
-  const handleFormSubmit = (values: FormState) => {
-    const baseRecord = buildRecordFromForm(
-      values,
-      formMode === "edit" ? selectedRecord : null,
-    );
-    const relatedPerfil = mockBackend
-      .list<{ id: string; programaId?: string; planId?: string }>("perfilEgreso", currentUser)
-      .find((item) => item.planId === baseRecord.planId || item.programaId === baseRecord.programaId);
-    const nextRecord = {
-      ...baseRecord,
-      perfilEgresoId: baseRecord.perfilEgresoId ?? relatedPerfil?.id,
-    };
-
-    setRecords(
-      formMode === "create"
-        ? mockBackend.create<PropositoFormacionRecord>("propositosFormacion", nextRecord, currentUser)
-        : mockBackend.update<PropositoFormacionRecord>("propositosFormacion", nextRecord, currentUser),
-    );
-
-    setFormOpen(false);
-    setSelectedRecord(null);
-  };
+  const page = usePropositoFormacionPage();
+  const {
+    currentUser,
+    catalogs,
+    permissions,
+    isStepLocked,
+    hasRecords,
+    filters,
+    selectedRecord,
+    detailOpen,
+    formOpen,
+    formMode,
+    formValues,
+    exportFormat,
+    roleScopedRecords,
+    filteredRecords,
+    availableFilterOptions,
+    openCreateModal,
+    openEditModal,
+    openDetailModal,
+    handleDelete,
+    handleFilterChange,
+    handleFormSubmit,
+    setFilters,
+    setDetailOpen,
+    setFormOpen,
+    setExportFormat,
+  } = page;
 
   const pageActions = (
-    <div className="flex flex-wrap gap-3">
-      {permissions.canCreate ? (
-        <Button
-          variant="primary"
-          leftIcon={<GoPlus className="text-lg" />}
-          onClick={openCreateModal}
-          title="Crear un nuevo propósito de formación"
-        >
-          Nuevo propósito
-        </Button>
-      ) : null}
-
-      <Button
-        variant="outline"
-        leftIcon={<GoFile className="text-lg" />}
-        onClick={() => setExportFormat("pdf")}
-        disabled={!permissions.canExportPdf || filteredRecords.length === 0}
-        title={
-          permissions.canExportPdf
-            ? "Exportar resultados filtrados en PDF"
-            : "Tu rol no tiene permiso para exportar en PDF."
-        }
-      >
-        PDF
-      </Button>
-
-      <Button
-        variant="outline"
-        leftIcon={<GoDownload className="text-lg" />}
-        onClick={() => setExportFormat("excel")}
-        disabled={!permissions.canExportExcel || filteredRecords.length === 0}
-        title={
-          permissions.canExportExcel
-            ? "Exportar resultados filtrados en Excel"
-            : "Tu rol no tiene permiso para exportar en Excel."
-        }
-      >
-        Excel
-      </Button>
-    </div>
+    <PropositoPageActions
+      permissions={permissions}
+      filteredRecords={filteredRecords}
+      onCreate={openCreateModal}
+      onExport={setExportFormat}
+    />
   );
 
   return (
@@ -270,32 +87,14 @@ export default function PropositoFormacionPage() {
             activeRecords={filteredRecords}
           />
 
-          <div className="surface-card p-6">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
-                  Lista de propósitos de formación
-                </h3>
-                <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-                  Cada fila respeta el alcance del usuario logueado y habilita acciones según su permiso actual.
-                </p>
-              </div>
-
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-                <GoEye className="text-base text-[var(--color-secondary-1)]" />
-                La edición solo se habilita sobre programas activos.
-              </div>
-            </div>
-
-            <PropositoTable
-              data={filteredRecords}
-              role={currentUser.role}
-              permissions={permissions}
-              onView={openDetailModal}
-              onEdit={openEditModal}
-              onDelete={handleDelete}
-            />
-          </div>
+          <PropositoListSection
+            data={filteredRecords}
+            role={currentUser.role}
+            permissions={permissions}
+            onView={openDetailModal}
+            onEdit={openEditModal}
+            onDelete={handleDelete}
+          />
         </div>
       )}
 

@@ -8,6 +8,8 @@ export const ROUTES = {
   panelPropositoFormacion: "/panel/proposito-formacion",
   panelCompetenciasRa: "/panel/competencias-ra",
   panelMapeoCompetencias: "/panel/mapeo-competencias",
+  panelMapeoCompetenciasCrear: "/panel/mapeo-competencias/crear",
+  panelMapeoCompetenciasEditar: "/panel/mapeo-competencias/editar",
   panelCiclo: "/panel/ciclo",
   panelAsignarRa: "/panel/asignar-ra",
   panelMedicionRa: "/panel/medicion-ra",

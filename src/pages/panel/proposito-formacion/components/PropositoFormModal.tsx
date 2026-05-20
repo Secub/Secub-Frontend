@@ -35,7 +35,6 @@ export function PropositoFormModal({
   user,
   catalogs,
   initialValues,
-  record,
   onClose,
   onSubmit,
 }: PropositoFormModalProps) {
@@ -298,19 +297,7 @@ export function PropositoFormModal({
         />
       </div>
 
-      <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
-        <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
-          Regla aplicada en edición
-        </p>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-          Cuando el registro ya existe, se bloquean seccional o sede, lugar de desarrollo, facultad, programa y plan de estudios.
-        </p>
-        {record ? (
-          <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
-            Registro actual: {record.programaNombre} · {record.planNombre}
-          </p>
-        ) : null}
-      </div>
+      
 
       <div className="mt-5">
         <Textarea

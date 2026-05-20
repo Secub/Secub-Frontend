@@ -305,19 +305,6 @@ export function PerfilEgresoFormModal({
         />
       </div>
 
-      <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
-        <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
-          Regla aplicada en edición
-        </p>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-          Cuando el registro ya existe, no se puede modificar el programa académico ni el plan de estudios. Solo se permite actualizar la descripción y el estado.
-        </p>
-        {record ? (
-          <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
-            Registro actual: {record.programaNombre} · {record.planNombre}
-          </p>
-        ) : null}
-      </div>
 
       <div className="mt-5">
         <Textarea
