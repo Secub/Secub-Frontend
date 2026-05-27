@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { ROUTES } from "../../app/appRoutes";
 
-export const INACTIVITY_TIMEOUT = 30 * 60 * 1000;
+export const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
+
+// export const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutos
+
+// export const INACTIVITY_TIMEOUT = 5 * 1000; // 5 segundos
 
 const AUTH_STORAGE_KEYS = [
   "secub:auth:user",
