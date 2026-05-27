@@ -41,9 +41,10 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
 
   const currentUser = getCurrentMockUser();
   const userName = currentUser.nombre;
+  const userCargo = currentUser.cargo || "Cargo no registrado";
   const medicionRaItem = panelNavigation.find((item) => item.key === "medicion-ra");
   const canAccessMedicionRa = currentUser.role === "docente";
-  const canSeeAcademicWorkflow = currentUser.role !== "docente";
+  const canSeeAcademicWorkflow = true;
   const workflowProgress = useAcademicWorkflowProgress();
   const MedicionRaIcon = medicionRaItem?.icon;
 
@@ -252,12 +253,20 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
             </div>
 
             <div className="min-w-0 flex-1 text-left">
-              <p className="text-[0.78rem] text-[var(--color-secondary-3)]">
-                Bienvenido de nuevo
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]">
+                Nombre
               </p>
 
               <p className="truncate font-heading text-[0.95rem] font-semibold text-[var(--color-white)]">
                 {userName}
+              </p>
+
+              <p className="mt-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]">
+                Cargo
+              </p>
+
+              <p className="truncate text-[0.78rem] font-medium text-[var(--color-secondary-3)]">
+                {userCargo}
               </p>
             </div>
 

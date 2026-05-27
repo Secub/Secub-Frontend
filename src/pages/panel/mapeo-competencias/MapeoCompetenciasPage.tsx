@@ -60,25 +60,27 @@ export default function MapeoCompetenciasPage() {
         />
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <article className="surface-card rounded-lg p-5 text-center">
-              <p className="text-sm font-semibold text-[var(--color-gray-3)]">Fundamentación</p>
-              <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{fundamentacionCount}</p>
-              <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres iniciales</p>
-            </article>
+          {filteredRecords.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              <article className="surface-card rounded-lg p-5 text-center">
+                <p className="text-sm font-semibold text-[var(--color-gray-3)]">Fundamentación</p>
+                <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{fundamentacionCount}</p>
+                <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres iniciales</p>
+              </article>
 
-            <article className="surface-card rounded-lg p-5 text-center">
-              <p className="text-sm font-semibold text-[var(--color-gray-3)]">Profesionalización</p>
-              <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{profesionalizacionCount}</p>
-              <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres avanzados</p>
-            </article>
+              <article className="surface-card rounded-lg p-5 text-center">
+                <p className="text-sm font-semibold text-[var(--color-gray-3)]">Profesionalización</p>
+                <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{profesionalizacionCount}</p>
+                <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres avanzados</p>
+              </article>
 
-            <article className="surface-card rounded-lg p-5 text-center">
-              <p className="text-sm font-semibold text-[var(--color-gray-3)]">Síntesis</p>
-              <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{sintesisCount}</p>
-              <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres de cierre</p>
-            </article>
-          </div>
+              <article className="surface-card rounded-lg p-5 text-center">
+                <p className="text-sm font-semibold text-[var(--color-gray-3)]">Síntesis</p>
+                <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{sintesisCount}</p>
+                <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres de cierre</p>
+              </article>
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap justify-end gap-3">
             {permissions.canExportPdf ? (

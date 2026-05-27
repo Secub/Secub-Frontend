@@ -24,7 +24,7 @@ export default function PanelLayout({
   breadcrumbItems,
 }: PanelLayoutProps) {
   const currentUser = getCurrentMockUser();
-  const isDocenteTryingAcademicModule =
+  const shouldHideActionsForDocente =
     currentUser.role === "docente" && isAcademicWorkflowStep(currentStep);
 
   return (
@@ -51,26 +51,14 @@ export default function PanelLayout({
                 ) : null}
               </div>
 
-              {!isDocenteTryingAcademicModule && actions ? (
+              {!shouldHideActionsForDocente && actions ? (
                 <div className="flex shrink-0 flex-wrap items-center gap-3">
                   {actions}
                 </div>
               ) : null}
             </div>
 
-            {isDocenteTryingAcademicModule ? (
-              <div className="surface-card p-8 text-center">
-                <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-                  Acceso restringido
-                </h2>
-                <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
-                  El rol Docente solo tiene acceso a Dashboard y Medición RA.
-                  Los pasos de Gestión Académica se habilitan para los roles administrativos según permisos.
-                </p>
-              </div>
-            ) : (
-              children
-            )}
+            {children}
           </main>
         </div>
       </div>

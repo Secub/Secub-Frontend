@@ -86,7 +86,7 @@ export function useCompetenciasRAPage() {
     const validationMessage = getLearningResultsValidationMessage(nextRecord);
 
     if (nextRecord.resultadosAprendizaje.length > MAX_RA_PER_COMPETENCIA) {
-      window.alert(validationMessage || "Máximo 4 Resultados de Aprendizaje por competencia.");
+      window.alert(validationMessage || "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
       return;
     }
 

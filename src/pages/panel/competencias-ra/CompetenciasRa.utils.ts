@@ -394,7 +394,7 @@ export function buildCsvLikeExcel(records: CompetenciasRaEnriched[]) {
       "Programa académico",
       "Plan de estudio",
       "Estado",
-      "Descripción de competencia",
+      "Escribe tu competencia",
       "Resultados de Aprendizaje",
     ],
     ...records.map((record) => [

@@ -138,7 +138,7 @@ export function CompetenciasRaFormModal({
     }
 
     if (!form.descripcion.trim()) {
-      nextErrors.descripcion = "Escribe la descripción de la competencia.";
+      nextErrors.descripcion = "Escribe tu competencia.";
     }
 
     const errorKeys = Object.keys(nextErrors);
@@ -180,7 +180,7 @@ export function CompetenciasRaFormModal({
       description={
         mode === "create"
           ? "Registra una competencia asociada a una seccional o sede, lugar de desarrollo, facultad, programa y plan de estudios."
-          : "En edición solo se modifica el estado y la descripción de competencia, manteniendo la estructura académica bloqueada."
+          : "En edición solo se modifica el estado y el texto de la competencia, manteniendo la estructura académica bloqueada."
       }
       size="lg"
       footer={
@@ -297,7 +297,7 @@ export function CompetenciasRaFormModal({
 
       <div className="mt-5">
         <Textarea
-          label="Descripción de competencia"
+          label="Escribe tu competencia"
           value={form.descripcion}
           onChange={(event) => updateField("descripcion", event.target.value)}
           rows={7}

@@ -40,8 +40,8 @@ export default function CompetenciasRaCard({
   const raCount = record.resultadosAprendizaje?.length || 0;
   const raValidationMessage = getLearningResultsValidationMessage(record);
   const maxReachedMessage =
-    raCount === MAX_RA_PER_COMPETENCIA
-      ? "Máximo 4 Resultados de Aprendizaje por competencia."
+    raCount >= MAX_RA_PER_COMPETENCIA
+      ? "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos."
       : "";
   const canAddMoreRa = canEdit && canAddLearningResult(record);
 
@@ -127,21 +127,25 @@ export default function CompetenciasRaCard({
                 RA asociados a esta competencia
               </p>
               {canEdit ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<GoPlus className="text-base" />}
-                  onClick={() => onAddRa(record)}
-                  disabled={!canAddMoreRa}
+                <span
+                  className={canAddMoreRa ? "inline-flex" : "inline-flex cursor-not-allowed"}
                   title={
                     canAddMoreRa
                       ? "Agregar Resultado de Aprendizaje"
-                      : "Máximo 4 Resultados de Aprendizaje por competencia."
+                      : "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos."
                   }
                 >
-                  Agregar RA
-                </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<GoPlus className="text-base" />}
+                    onClick={() => onAddRa(record)}
+                    disabled={!canAddMoreRa}
+                  >
+                    Agregar RA
+                  </Button>
+                </span>
               ) : null}
             </div>
 

@@ -77,18 +77,18 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canFilterByEstado: true,
   },
   docente: {
-    canRead: false,
+    canRead: true,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: false,
-    canExportExcel: false,
+    canExportPdf: true,
+    canExportExcel: true,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: false,
-    canFilterByPlan: false,
-    canFilterByEstado: false,
+    canFilterByPrograma: true,
+    canFilterByPlan: true,
+    canFilterByEstado: true,
   },
 };
 
@@ -124,10 +124,6 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
 export function getAccessRestrictedDescription(role: MapeoCompetenciasRole) {
   if (RF05_ACCESS_POLICY === "director-only") {
     return "La regla visual activa permite que solo el Director de Programa visualice RF05 — Mapeo de Competencias.";
-  }
-
-  if (role === "docente") {
-    return "El rol Docente no tiene acceso al módulo RF05 — Mapeo de Competencias.";
   }
 
   return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias.";

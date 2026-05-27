@@ -41,7 +41,7 @@ export default function MapeoCompetenciasConsolidatedSection({
     return (
       <section className="surface-card p-8 text-center">
         <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-          No hay mapeo guardado para este programa y plan
+          Aún no hay datos disponibles para el mapeo de competencias
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
           Cuando el Director cree el mapeo, aquí se visualizará la malla curricular por semestres, cursos, núcleos y niveles I-R-A-NA.

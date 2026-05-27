@@ -1,7 +1,7 @@
 import type { CentralMockUser } from "../../../services/auth/mockUser";
 
-export function canReadAsignarRA(user: CentralMockUser) {
-  return user.role !== "docente";
+export function canReadAsignarRA(_user: CentralMockUser) {
+  return true;
 }
 
 export function canManageAsignarRA(user: CentralMockUser) {

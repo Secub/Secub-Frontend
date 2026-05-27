@@ -10,6 +10,7 @@ import CicloPage from "../pages/panel/ciclo/CicloPage";
 import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
 import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
 import { ROUTES, normalizePathname } from "./appRoutes";
+import { useInactivityLogout } from "../services/auth/useInactivityLogout";
 
 function isAccessRoute(pathname: string) {
   return (
@@ -20,6 +21,9 @@ function isAccessRoute(pathname: string) {
 
 export default function AppRouter() {
   const normalizedPath = normalizePathname(window.location.pathname);
+  const isPanelRoute = normalizedPath === ROUTES.panel || normalizedPath.startsWith(`${ROUTES.panel}/`);
+
+  useInactivityLogout(isPanelRoute);
 
   if (isAccessRoute(normalizedPath)) {
     return <AccessPage />;

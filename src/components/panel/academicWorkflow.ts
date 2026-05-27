@@ -411,11 +411,17 @@ export function isAcademicWorkflowStepCompleted(
   return Boolean(progress[stepKey]);
 }
 
+export function canBypassAcademicWorkflowLock(user = getCurrentMockUser()) {
+  // Admin necesita consultar todos los pasos sin depender del avance secuencial.
+  // Docente también puede visualizar todo el flujo, aunque sus acciones de edición sigan restringidas por módulo.
+  return user.role === "admin" || user.role === "docente";
+}
+
 export function isAcademicWorkflowStepLocked(
   stepKey: PanelStepKey,
   progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ) {
-  if (!ENABLE_ACADEMIC_WORKFLOW_LOCK || !isAcademicWorkflowStep(stepKey)) {
+  if (!ENABLE_ACADEMIC_WORKFLOW_LOCK || !isAcademicWorkflowStep(stepKey) || canBypassAcademicWorkflowLock()) {
     return false;
   }
 

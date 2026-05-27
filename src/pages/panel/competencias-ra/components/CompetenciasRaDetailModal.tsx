@@ -65,7 +65,7 @@ export function CompetenciasRaDetailModal({
     const cleanDescription = descriptionDraft.trim();
 
     if (!cleanDescription) {
-      setDescriptionError("Escribe la descripción de la competencia.");
+      setDescriptionError("Escribe tu competencia.");
       scrollToFirstValidationError({ fieldOrder: ["detalleCompetenciaDescripcion"] });
       return;
     }
@@ -115,7 +115,7 @@ export function CompetenciasRaDetailModal({
         {canEdit ? (
           <div className="space-y-4">
             <Textarea
-              label="Descripción de competencia"
+              label="Escribe tu competencia"
               value={descriptionDraft}
               onChange={(event) => {
                 setDescriptionDraft(event.target.value);
@@ -145,7 +145,7 @@ export function CompetenciasRaDetailModal({
           </div>
         ) : (
           <div>
-            <p className="text-sm font-medium text-[var(--color-gray-4)]">Descripción de competencia</p>
+            <p className="text-sm font-medium text-[var(--color-gray-4)]">Escribe tu competencia</p>
             <p className="mt-3 text-sm leading-7 text-[var(--color-gray-2)]">
               {record.descripcion}
             </p>

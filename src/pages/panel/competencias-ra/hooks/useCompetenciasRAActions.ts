@@ -48,7 +48,7 @@ export function useCompetenciasRAActions({
 
   const openCreateRaModal = (record: CompetenciasRaEnriched) => {
     if (!canAddLearningResult(record)) {
-      window.alert("Máximo 4 Resultados de Aprendizaje por competencia.");
+      window.alert("Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
       return;
     }
 
@@ -79,7 +79,7 @@ export function useCompetenciasRAActions({
 
     const currentRas = selectedRaRecord.resultadosAprendizaje ?? [];
     if (raModalMode === "create" && currentRas.length >= MAX_RA_PER_COMPETENCIA) {
-      setRaError("Máximo 4 Resultados de Aprendizaje por competencia.");
+      setRaError("Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
       scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
       return;
     }
@@ -100,7 +100,7 @@ export function useCompetenciasRAActions({
 
     const validationMessage = getLearningResultsValidationMessage(nextRecord);
     if (nextRecord.resultadosAprendizaje.length > MAX_RA_PER_COMPETENCIA) {
-      setRaError(validationMessage || "Máximo 4 Resultados de Aprendizaje por competencia.");
+      setRaError(validationMessage || "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
       scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
       return;
     }

@@ -4,7 +4,7 @@ export const MAX_RA_PER_COMPETENCIA = 4;
 export const MIN_RA_VALIDATION_MESSAGE =
   "Agrega al menos 1 Resultado de Aprendizaje para completar la competencia.";
 export const MAX_RA_VALIDATION_MESSAGE =
-  "Máximo 4 Resultados de Aprendizaje por competencia.";
+  "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.";
 export const EMPTY_RA_DESCRIPTION_MESSAGE =
   "Todos los Resultados de Aprendizaje deben tener descripción.";
 

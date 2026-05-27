@@ -11,7 +11,7 @@ import CompetenciasRaListSection from "./components/CompetenciasRaListSection";
 import CompetenciasRaModalRA from "./components/CompetenciasRaModalRA";
 import CompetenciasRaPageActions from "./components/CompetenciasRaPageActions";
 import { canEditCompetenciasRa } from "./CompetenciasRa.permissions";
-import { INITIAL_FILTERS } from "./CompetenciasRa.utils";
+import { INITIAL_FILTERS, MAX_RA_PER_COMPETENCIA } from "./CompetenciasRa.utils";
 import { useCompetenciasRAPage } from "./hooks/useCompetenciasRAPage";
 
 export default function CompetenciasRaFormacionPage() {
@@ -56,6 +56,10 @@ export default function CompetenciasRaFormacionPage() {
     setRaDraft,
     setRaError,
   } = page;
+
+  const isCreateRaLimitReached =
+    raModalMode === "create" &&
+    Boolean(selectedRaRecord && (selectedRaRecord.resultadosAprendizaje?.length ?? 0) >= MAX_RA_PER_COMPETENCIA);
 
   const pageActions = (
     <CompetenciasRaPageActions
@@ -147,6 +151,7 @@ export default function CompetenciasRaFormacionPage() {
         onClearError={() => setRaError("")}
         onClose={closeRaModal}
         onSave={handleSaveRa}
+        isCreateLimitReached={isCreateRaLimitReached}
       />
 
       <CompetenciasRaExportModal

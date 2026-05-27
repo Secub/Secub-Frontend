@@ -13,7 +13,7 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
 };
 
 // Regla funcional RF05: el Director define la Gestión Académica.
-// Admin, Vicerrector y Decano consultan/exportan según alcance; Docente no visualiza el módulo.
+// Admin, Vicerrector y Decano consultan/exportan según alcance; Docente visualiza el módulo en modo consulta.
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   admin: {
     canRead: true,
@@ -72,18 +72,18 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
     canFilterByEstado: true,
   },
   docente: {
-    canRead: false,
+    canRead: true,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: false,
-    canExportExcel: false,
+    canExportPdf: true,
+    canExportExcel: true,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: false,
-    canFilterByPlan: false,
-    canFilterByEstado: false,
+    canFilterByPrograma: true,
+    canFilterByPlan: true,
+    canFilterByEstado: true,
   },
 };
 

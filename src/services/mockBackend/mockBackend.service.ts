@@ -145,7 +145,7 @@ function assertValidRecordForWrite<T extends MockBackendRecord>(
     : 0;
 
   if (raCount > MAX_RA_PER_COMPETENCIA) {
-    throw new Error("Máximo 4 Resultados de Aprendizaje por competencia.");
+    throw new Error("Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
   }
 }
 
