@@ -24,8 +24,19 @@ export default function PanelLayout({
   breadcrumbItems,
 }: PanelLayoutProps) {
   const currentUser = getCurrentMockUser();
+  
+  // Los docentes pueden consultar (solo lectura) estos pasos académicos
+  const docenteReadOnlySteps: PanelStepKey[] = [
+    "perfil-egreso",
+    "proposito-formacion",
+    "competencias-ra",
+  ];
+  
+  const isDocenteWithReadOnlyAccess = 
+    currentUser.role === "docente" && docenteReadOnlySteps.includes(currentStep);
+  
   const isDocenteTryingAcademicModule =
-    currentUser.role === "docente" && isAcademicWorkflowStep(currentStep);
+    currentUser.role === "docente" && isAcademicWorkflowStep(currentStep) && !isDocenteWithReadOnlyAccess;
 
   return (
     <div className="min-h-screen bg-[var(--color-surface)] text-[var(--color-gray-1)]">

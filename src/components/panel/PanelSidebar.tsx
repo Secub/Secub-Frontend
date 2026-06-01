@@ -30,20 +30,32 @@ const academicLabels = [
   "Asignar RA",
 ];
 
+// Labels específicos para docentes (solo lectura)
+const docenteReadOnlyLabels = [
+  "Perfil de Egreso",
+  "Propósito de Formación",
+  "Competencias y RA",
+];
+
 export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
   const dashboardItem =
     panelNavigation.find((item) => item.key === "dashboard") ??
     panelNavigation[0];
 
-  const academicItems = academicLabels
+  const currentUser = getCurrentMockUser();
+  const isDocente = currentUser.role === "docente";
+
+  // Docentes ven solo las secciones de lectura; otros roles ven todas
+  const visibleLabels = isDocente ? docenteReadOnlyLabels : academicLabels;
+
+  const academicItems = visibleLabels
     .map((label) => panelNavigation.find((item) => item.label === label))
     .filter((item): item is NavigationItem => Boolean(item));
 
-  const currentUser = getCurrentMockUser();
   const userName = currentUser.nombre;
   const medicionRaItem = panelNavigation.find((item) => item.key === "medicion-ra");
-  const canAccessMedicionRa = currentUser.role === "docente";
-  const canSeeAcademicWorkflow = currentUser.role !== "docente";
+  const canAccessMedicionRa = isDocente;
+  const canSeeAcademicWorkflow = true;
   const workflowProgress = useAcademicWorkflowProgress();
   const MedicionRaIcon = medicionRaItem?.icon;
 

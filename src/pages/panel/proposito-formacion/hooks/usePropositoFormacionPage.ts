@@ -50,7 +50,8 @@ export function usePropositoFormacionPage() {
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
   const permissions = rolePermissions[currentUser.role];
-  const isStepLocked = isAcademicWorkflowStepLocked("proposito-formacion");
+  // Los docentes no están sujetos al workflow académico, solo pueden consultar
+  const isStepLocked = currentUser.role === "docente" ? false : isAcademicWorkflowStepLocked("proposito-formacion");
   const hasRecords = records.length > 0;
 
   const enrichedRecords = useMemo(() => enrichPropositos(records, catalogs), [records]);
