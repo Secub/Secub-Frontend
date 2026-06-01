@@ -62,7 +62,7 @@ export default function MapeoCompetenciasConsolidatedSection({
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-1)]">
-                Visualización de malla curricular
+                Visualización de Plan de Estudios
               </p>
               <h2 className="mt-1 font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
                 {record.programaNombre}

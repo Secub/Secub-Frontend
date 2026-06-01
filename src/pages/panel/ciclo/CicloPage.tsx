@@ -49,13 +49,13 @@ export default function CicloPage() {
   return (
     <PanelLayout
       currentStep="ciclo"
-      title="Creación del ciclo"
+      title="Creación del ciclo de medición"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles ? pageActions : undefined}
       breadcrumbItems={[
         { label: "Dashboard", href: "/panel/dashboard" },
         { label: "Gestión Académica" },
-        { label: "Creación del ciclo" },
+        { label: "Creación del ciclo de medición" },
       ]}
     >
       {isStepLocked ? (
