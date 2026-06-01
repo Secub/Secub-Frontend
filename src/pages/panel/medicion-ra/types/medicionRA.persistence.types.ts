@@ -24,7 +24,21 @@ export interface MedicionRaDemoState {
   facultadId?: string;
   programaId?: string;
   planId?: string;
+  /**
+   * Timestamp ISO 8601 de creación del registro de medición RA.
+   * Se genera automáticamente en la primera creación y no cambia en actualizaciones.
+   * Variable: `MedicionRaDemoState.createdAt`
+   * Formato: "2024-06-01T14:30:45.123Z"
+   * Consumible desde: mockBackend.list() | mockBackend.getById()
+   */
   createdAt?: string;
+  /**
+   * Timestamp ISO 8601 de última modificación del registro de medición RA.
+   * Se actualiza automáticamente cada vez que el registro es modificado.
+   * Variable: `MedicionRaDemoState.updatedAt`
+   * Formato: "2024-06-01T14:30:45.123Z"
+   * Consumible desde: mockBackend.list() | mockBackend.getById()
+   */
   updatedAt?: string;
 }
 
