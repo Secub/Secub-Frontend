@@ -33,6 +33,7 @@ export default function CicloPage() {
     handleFilterChange,
     openCreateModal,
     openEditModal,
+    openDuplicateModal,
     handleViewDetail,
     handleSubmit,
     confirmDelete,
@@ -97,6 +98,7 @@ export default function CicloPage() {
             onView={handleViewDetail}
             onEdit={openEditModal}
             onDelete={setCycleToDelete}
+            onDuplicate={openDuplicateModal}
           />
         </div>
       )}

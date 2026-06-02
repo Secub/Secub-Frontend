@@ -19,6 +19,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canCreateCycle: false,
     canEditCycle: false,
     canDeleteCycle: false,
+    canDuplicateCycle: false,
     canConfirmSelection: false,
     canFilterBySeccional: true,
     canFilterByFacultad: true,
@@ -31,6 +32,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canCreateCycle: false,
     canEditCycle: false,
     canDeleteCycle: false,
+    canDuplicateCycle: false,
     canConfirmSelection: false,
     canFilterBySeccional: false,
     canFilterByFacultad: true,
@@ -43,6 +45,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canCreateCycle: false,
     canEditCycle: false,
     canDeleteCycle: false,
+    canDuplicateCycle: false,
     canConfirmSelection: false,
     canFilterBySeccional: false,
     canFilterByFacultad: false,
@@ -55,6 +58,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canCreateCycle: true,
     canEditCycle: true,
     canDeleteCycle: true,
+    canDuplicateCycle: true,
     canConfirmSelection: true,
     canFilterBySeccional: false,
     canFilterByFacultad: false,
@@ -67,6 +71,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canCreateCycle: false,
     canEditCycle: false,
     canDeleteCycle: false,
+    canDuplicateCycle: false,
     canConfirmSelection: false,
     canFilterBySeccional: false,
     canFilterByFacultad: false,
@@ -104,6 +109,35 @@ export function getCycleActionDisabledReason(user: CurrentUser, ciclo: CicloEnri
 
   if (ciclo.planEstado !== "activo") {
     return "Solo se permite editar ciclos asociados a planes de estudio activos.";
+  }
+
+  return "";
+}
+
+export function canDuplicateCycle(user: CurrentUser, ciclo: CicloEnriched) {
+  const permissions = cicloRolePermissions[user.role];
+
+  if (!permissions.canDuplicateCycle) return false;
+  if (ciclo.estado !== "finalizado") return false;
+
+  if (user.role === "director") {
+    return user.scope.programaId === ciclo.programaId;
+  }
+
+  return permissions.canDuplicateCycle;
+}
+
+export function getDuplicateCycleDisabledReason(user: CurrentUser, ciclo: CicloEnriched) {
+  if (!cicloRolePermissions[user.role].canDuplicateCycle) {
+    return "Tu rol actual no tiene permiso para duplicar ciclos.";
+  }
+
+  if (ciclo.estado !== "finalizado") {
+    return "Solo se pueden duplicar ciclos que están finalizados.";
+  }
+
+  if (user.role === "director" && user.scope.programaId !== ciclo.programaId) {
+    return "Solo puedes duplicar ciclos asociados a tu programa académico.";
   }
 
   return "";

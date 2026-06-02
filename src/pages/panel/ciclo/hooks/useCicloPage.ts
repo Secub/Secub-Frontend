@@ -64,6 +64,17 @@ export function useCicloPage() {
     setFormOpen(true);
   };
 
+  const openDuplicateModal = (cycle: CicloEnriched) => {
+    setModalMode("create");
+    setSelectedCycle(cycle);
+    const formValues = mapCycleToForm(cycle);
+    setFormValues({
+      ...formValues,
+      nombre: `${cycle.nombre} - Copia`,
+    });
+    setFormOpen(true);
+  };
+
   const handleViewDetail = (cycle: CicloEnriched) => {
     setModalMode("view");
     setSelectedCycle(cycle);
@@ -118,6 +129,7 @@ export function useCicloPage() {
     handleFilterChange,
     openCreateModal,
     openEditModal,
+    openDuplicateModal,
     handleViewDetail,
     handleSubmit,
     confirmDelete,
