@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
 import type {
+  CompetenciaRaDemoRecord,
   MapeoCompetenciasEnriched,
   MapeoCompetenciasFilters as FiltersState,
   MapeoCompetenciasRecord,
+  NivelCompromiso,
+  NivelCompromisoItem,
   SummaryMetric,
 } from "../MapeoCompetencias.types";
 import {
@@ -14,6 +17,7 @@ import {
   buildCsvLikeExcel,
   downloadTextFile,
   enrichMapeoRecords,
+  getSemesterId,
   printMapeoCompetenciasPdf,
 } from "../MapeoCompetencias.utils";
 import { useMapeoCompetenciasData } from "./useMapeoCompetenciasData";
@@ -125,9 +129,55 @@ export function useMapeoCompetenciasPage() {
     setRecordToDelete(null);
   };
 
+  const handleNivelChange = useCallback(
+    (recordId: string, cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => {
+      const record = records.find((r) => r.id === recordId);
+      if (!record) return;
+
+      const curso = cursos.find((c) => c.id === cursoId);
+      const competencia = competenciasRa.find((c) => c.id === competenciaId) as CompetenciaRaDemoRecord | undefined;
+      if (!curso || !competencia) return;
+
+      const semestreClasificado = record.semestresClasificados.find(
+        (s) => s.semestreNumero === curso.semestre,
+      );
+      if (!semestreClasificado?.nucleo) return;
+
+      const updatedNiveles: NivelCompromisoItem[] = record.nivelesCompromiso.filter(
+        (n) => !(n.cursoId === cursoId && n.competenciaId === competenciaId),
+      );
+
+      if (nivel) {
+        updatedNiveles.push({
+          programaId: record.programaId,
+          planId: record.planId,
+          semestreId: getSemesterId(record.planId, curso.semestre),
+          semestreNumero: curso.semestre,
+          nucleo: semestreClasificado.nucleo,
+          cursoId,
+          cursoNombre: curso.nombre,
+          cursoCodigo: curso.codigo,
+          competenciaId,
+          competenciaNombre: competencia.nombre ?? "",
+          nivelCompromiso: nivel,
+        });
+      }
+
+      const updatedRecord: MapeoCompetenciasRecord = {
+        ...record,
+        nivelesCompromiso: updatedNiveles,
+        updatedAt: new Date().toISOString(),
+      };
+
+      mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", updatedRecord, currentUser);
+    },
+    [currentUser, records, cursos, competenciasRa],
+  );
+
   return {
     currentUser,
     catalogs,
+    competenciasRa,
     permissions,
     filters,
     filteredRecords,
@@ -144,6 +194,7 @@ export function useMapeoCompetenciasPage() {
     handleEdit,
     handleExportExcel,
     handleExportPdf,
+    handleNivelChange,
     confirmDelete,
   };
 }
