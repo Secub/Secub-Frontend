@@ -30,6 +30,8 @@ export default function CicloPage() {
     savedMessage,
     roleScopedCycles,
     filteredCycles,
+    canCreateCycle,
+    createDisabledReason,
     handleFilterChange,
     openCreateModal,
     openEditModal,
@@ -44,7 +46,10 @@ export default function CicloPage() {
   } = page;
 
   const pageActions = (
-    <CicloPageActions canCreate={permissions.canCreateCycle} onCreate={openCreateModal} />
+    <CicloPageActions
+      canCreate={canCreateCycle}
+      onCreate={openCreateModal}
+    />
   );
 
   return (
@@ -79,6 +84,11 @@ export default function CicloPage() {
       ) : (
         <div className="space-y-6">
           <CicloSavedMessage message={savedMessage} onClose={() => setSavedMessage("")} />
+          {!canCreateCycle && createDisabledReason && (
+            <p className="flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+              {createDisabledReason}
+            </p>
+          )}
 
           <CicloFilters
             user={user}

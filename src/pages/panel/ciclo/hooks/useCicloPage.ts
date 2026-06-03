@@ -37,6 +37,28 @@ export function useCicloPage() {
   const roleScopedCycles = useMemo(() => applyRoleScope(enrichedCycles, user), [enrichedCycles]);
   const filteredCycles = useMemo(() => applyCycleFilters(roleScopedCycles, filters), [filters, roleScopedCycles]);
   const defaultForm = useMemo(() => getDefaultFormState(user, catalogs), []);
+  
+  // Detectar ciclo activo del director para su programa actual
+  const activeCycleForDirector = useMemo(() => {
+    if (user.role !== "director" || !user.scope.programaId) return null;
+    return roleScopedCycles.find((ciclo) => ciclo.estado === "activo");
+  }, [roleScopedCycles, user.role, user.scope.programaId]);
+  
+  // Determinar si se puede crear un ciclo basado en ciclos activos
+  const canCreateCycle = useMemo(() => {
+    if (!permissions.canCreateCycle) return false;
+    // Si el usuario es director y tiene un ciclo activo, no puede crear otro
+    if (user.role === "director" && activeCycleForDirector) return false;
+    return true;
+  }, [permissions.canCreateCycle, user.role, activeCycleForDirector]);
+  
+  // Obtener mensaje de por qué no se puede crear
+  const createDisabledReason = useMemo(() => {
+    if (permissions.canCreateCycle && user.role === "director" && activeCycleForDirector) {
+      return `Ya existe un ciclo activo: "${activeCycleForDirector.nombre}". Espera a que finalice para crear otro.`;
+    }
+    return null;
+  }, [permissions.canCreateCycle, user.role, activeCycleForDirector]);
 
   const handleFilterChange = <K extends keyof CicloFiltersState>(key: K, value: CicloFiltersState[K]) => {
     setFilters((current) => {
@@ -126,6 +148,8 @@ export function useCicloPage() {
     savedMessage,
     roleScopedCycles,
     filteredCycles,
+    canCreateCycle,
+    createDisabledReason,
     handleFilterChange,
     openCreateModal,
     openEditModal,
