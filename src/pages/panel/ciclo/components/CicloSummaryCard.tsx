@@ -74,7 +74,7 @@ export default function CicloSummaryCard({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex shrink-0 flex-nowrap items-center gap-3">
           {permissions.canEditCycle ? (
             <Button
               variant="outline"
