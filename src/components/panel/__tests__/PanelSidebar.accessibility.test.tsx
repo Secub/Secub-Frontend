@@ -1,6 +1,13 @@
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
 import PanelSidebar from "../PanelSidebar";
 import type { PanelStepKey } from "../panelNavigation";
 
@@ -60,6 +67,11 @@ describe("PanelSidebar accesible", () => {
   beforeEach(() => {
     workflowState = "inProgress";
     renewalAvailable = false;
+    vi.spyOn(window, "alert").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("marca el paso actual con aria-current step y comunica pasos bloqueados", () => {
@@ -71,8 +83,13 @@ describe("PanelSidebar accesible", () => {
     });
 
     expect(currentStep).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /paso 2: propósito de formación/i })).toBeDisabled();
-    expect(screen.getByText("Bloqueado")).toBeInTheDocument();
+    const blockedStep = screen.getByRole("button", {
+      name: /paso 2: propósito de formación.*bloqueado/i,
+    });
+
+    expect(blockedStep).toBeDisabled();
+    expect(blockedStep).toHaveAttribute("aria-label");
+    expect(blockedStep.getAttribute("aria-label")).toMatch(/bloqueado/i);
   });
 
   it("expone Plan académico nuevo bloqueado con motivo accesible", async () => {
@@ -89,6 +106,10 @@ describe("PanelSidebar accesible", () => {
     expect(newPlan).toHaveAccessibleDescription(/1.5 años/i);
 
     await userEvent.click(newPlan);
+
+    expect(window.alert).toHaveBeenCalledWith(
+      expect.stringMatching(/1.5 años/i),
+    );
     expect(newPlan).toHaveAttribute("aria-disabled", "true");
   });
 });

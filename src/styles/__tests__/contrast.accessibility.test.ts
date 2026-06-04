@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import ColorContrastChecker from "color-contrast-checker";
 
 describe("contraste de colores base SECUB", () => {
