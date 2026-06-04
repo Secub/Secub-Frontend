@@ -11,8 +11,11 @@ import userEvent from "@testing-library/user-event";
 import PanelSidebar from "../PanelSidebar";
 import type { PanelStepKey } from "../panelNavigation";
 
-let workflowState: "inProgress" | "completed" | "newAcademicPlan" = "inProgress";
+let workflowState: "inProgress" | "completed" | "newAcademicPlan" =
+  "inProgress";
+
 let renewalAvailable = false;
+
 const progress: Partial<Record<PanelStepKey, boolean>> = {
   "perfil-egreso": true,
   "proposito-formacion": false,
@@ -33,9 +36,14 @@ vi.mock("../../../config/demo.config", () => ({
 vi.mock("../academicWorkflow", () => ({
   WORKFLOW_LOCKED_MESSAGE: "Primero completa el paso anterior para continuar.",
   newAcademicPlanStartStep: "competencias-ra",
-  getAcademicWorkflowLockedDescription: () => "Este paso está bloqueado hasta completar el paso anterior.",
+
+  getAcademicWorkflowLockedDescription: () =>
+    "Este paso está bloqueado hasta completar el paso anterior.",
+
   getAcademicWorkflowState: () => workflowState,
+
   getCompletedAcademicWorkflowStepsCount: () => 1,
+
   getNewAcademicPlanRenewalAvailability: () => ({
     isAvailable: renewalAvailable,
     isCompleted: workflowState === "completed",
@@ -45,10 +53,18 @@ vi.mock("../academicWorkflow", () => ({
       ? undefined
       : "Solo puedes crear un nuevo plan académico cuando el ciclo actual haya cumplido 1.5 años.",
   }),
-  isAcademicWorkflowBaseStepInherited: (key: PanelStepKey) => key === "perfil-egreso" || key === "proposito-formacion",
-  isAcademicWorkflowStepCompleted: (key: PanelStepKey) => Boolean(progress[key]),
-  isAcademicWorkflowStepLocked: (key: PanelStepKey) => key !== "perfil-egreso" && !progress[key],
+
+  isAcademicWorkflowBaseStepInherited: (key: PanelStepKey) =>
+    key === "perfil-egreso" || key === "proposito-formacion",
+
+  isAcademicWorkflowStepCompleted: (key: PanelStepKey) =>
+    Boolean(progress[key]),
+
+  isAcademicWorkflowStepLocked: (key: PanelStepKey) =>
+    key !== "perfil-egreso" && !progress[key],
+
   startNewAcademicPlanFromCurrentProgress: vi.fn(),
+
   useAcademicPlanInfo: () => ({
     activePlan: {
       id: "plan-1",
@@ -60,6 +76,7 @@ vi.mock("../academicWorkflow", () => ({
     },
     archivedPlans: [],
   }),
+
   useAcademicWorkflowProgress: () => progress,
 }));
 
@@ -67,11 +84,15 @@ describe("PanelSidebar accesible", () => {
   beforeEach(() => {
     workflowState = "inProgress";
     renewalAvailable = false;
-    vi.spyOn(window, "alert").mockImplementation(() => {});
+
+    Object.defineProperty(window, "alert", {
+      writable: true,
+      value: vi.fn(),
+    });
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it("marca el paso actual con aria-current step y comunica pasos bloqueados", () => {
@@ -83,6 +104,7 @@ describe("PanelSidebar accesible", () => {
     });
 
     expect(currentStep).toBeInTheDocument();
+
     const blockedStep = screen.getByRole("button", {
       name: /paso 2: propósito de formación.*bloqueado/i,
     });
@@ -94,14 +116,23 @@ describe("PanelSidebar accesible", () => {
 
   it("expone Plan académico nuevo bloqueado con motivo accesible", async () => {
     workflowState = "completed";
+
     render(<PanelSidebar currentStep="perfil-egreso" />);
 
     const tablist = screen.getByRole("tablist", {
       name: /secciones completadas de gestión académica/i,
     });
-    expect(within(tablist).getByRole("tab", { name: /perfil de egreso/i })).toBeInTheDocument();
 
-    const newPlan = screen.getByRole("button", { name: /plan académico nuevo/i });
+    expect(
+      within(tablist).getByRole("tab", {
+        name: /perfil de egreso/i,
+      }),
+    ).toBeInTheDocument();
+
+    const newPlan = screen.getByRole("button", {
+      name: /plan académico nuevo/i,
+    });
+
     expect(newPlan).toHaveAttribute("aria-disabled", "true");
     expect(newPlan).toHaveAccessibleDescription(/1.5 años/i);
 
@@ -110,6 +141,7 @@ describe("PanelSidebar accesible", () => {
     expect(window.alert).toHaveBeenCalledWith(
       expect.stringMatching(/1.5 años/i),
     );
+
     expect(newPlan).toHaveAttribute("aria-disabled", "true");
   });
 });
