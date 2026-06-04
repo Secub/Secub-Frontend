@@ -44,7 +44,7 @@ export default function Breadcrumb({ items = [] }: BreadcrumbProps) {
             )}
 
             {!isLast ? (
-              <GoChevronRight className="text-base text-[var(--color-gray-4)]" />
+              <GoChevronRight aria-hidden="true" className="text-base text-[var(--color-gray-4)]" />
             ) : null}
           </span>
         );

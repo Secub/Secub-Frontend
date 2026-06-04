@@ -25,6 +25,8 @@ interface TableProps<T> {
   rowKey: (row: T, index: number) => string;
   actions?: TableAction<T>[];
   emptyMessage?: string;
+  caption?: string;
+  ariaLabel?: string;
 }
 
 export function Table<T>({
@@ -33,18 +35,22 @@ export function Table<T>({
   rowKey,
   actions = [],
   emptyMessage = "No hay datos disponibles.",
+  caption,
+  ariaLabel,
 }: TableProps<T>) {
   const hasActions = actions.length > 0;
 
   return (
     <div className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white shadow-sm">
       <div className="w-full overflow-x-auto">
-        <table className="w-full table-fixed border-separate border-spacing-0">
+        <table className="w-full table-fixed border-separate border-spacing-0" aria-label={caption ? undefined : ariaLabel}>
+          {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead className="bg-[var(--color-surface-soft)]">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
+                  scope="col"
                   className={[
                     "border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]",
                     column.headerClassName ?? "",
@@ -55,7 +61,7 @@ export function Table<T>({
               ))}
 
               {hasActions ? (
-                <th className="w-[110px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
+                <th scope="col" className="w-[110px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
                   Acciones
                 </th>
               ) : null}
@@ -114,7 +120,7 @@ export function Table<T>({
                               }}
                               disabled={isDisabled}
                               className={[
-                                "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200",
+                                "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]",
                                 "disabled:cursor-not-allowed disabled:opacity-45",
                                 action.variant === "danger"
                                   ? "text-[var(--color-error)] hover:bg-[color:rgba(235,87,87,0.10)]"
@@ -123,7 +129,9 @@ export function Table<T>({
                               aria-label={title}
                               title={title}
                             >
-                              {action.icon ?? (
+                              {action.icon ? (
+                                <span aria-hidden="true">{action.icon}</span>
+                              ) : (
                                 <span className="text-xs font-medium">
                                   {action.label}
                                 </span>

@@ -94,9 +94,9 @@ function SemesterFlow({
                   ].join(" ")}
                 >
                   {isCompleted ? (
-                    <GoCheckCircle className="text-xl" />
+                    <GoCheckCircle aria-hidden="true" className="text-xl" />
                   ) : isActive ? (
-                    <GoGoal className="text-xl" />
+                    <GoGoal aria-hidden="true" className="text-xl" />
                   ) : (
                     semester
                   )}

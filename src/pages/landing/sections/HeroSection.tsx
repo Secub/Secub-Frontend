@@ -1,5 +1,5 @@
 import CampusMosaic from "../../../components/shared/CampusMosaic";
-import { Button } from "../../../components/ui";
+import { LinkButton } from "../../../components/ui";
 import {motion} from "motion/react";
 
 export default function HeroSection() {
@@ -55,21 +55,18 @@ export default function HeroSection() {
             aseguramiento de la calidad.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href="#modulos">
-              <Button
-                variant="ghost"
-                size="md"
-                className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20"
-              >
-                Ver módulos
-              </Button>
-            </a>
+            <LinkButton
+              href="#modulos"
+              variant="ghost"
+              size="md"
+              className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20"
+            >
+              Ver módulos
+            </LinkButton>
 
-            <a href="/acceder">
-              <Button variant="accent" size="lg" className="rounded-full">
-                Acceder
-              </Button>
-            </a>
+            <LinkButton href="/acceder" variant="accent" size="lg" className="rounded-full">
+              Acceder
+            </LinkButton>
 
 
           </div>

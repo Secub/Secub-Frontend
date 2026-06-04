@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 import { GoX } from "react-icons/go";
 
 interface ModalProps {
@@ -26,11 +26,32 @@ export function Modal({
   children,
   footer,
 }: ModalProps) {
+  const titleId = useId();
+  const descriptionId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose, open]);
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#182233]/45 px-4 py-8 backdrop-blur-[2px]">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        tabIndex={-1}
         className={[
           "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[28px] border border-[var(--color-gray-6)] bg-white shadow-[0_24px_80px_rgba(24,34,51,0.18)]",
           sizeStyles[size],
@@ -38,11 +59,11 @@ export function Modal({
       >
         <div className="flex items-start justify-between gap-4 border-b border-[var(--color-gray-6)] px-6 py-5">
           <div>
-            <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
+            <h2 id={titleId} className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
               {title}
             </h2>
             {description ? (
-              <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
+              <p id={descriptionId} className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
                 {description}
               </p>
             ) : null}
@@ -51,10 +72,10 @@ export function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-gray-6)] text-[var(--color-gray-4)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)]"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-gray-6)] text-[var(--color-gray-4)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
             aria-label="Cerrar modal"
           >
-            <GoX className="text-2xl" />
+            <GoX aria-hidden="true" className="text-2xl" />
           </button>
         </div>
 

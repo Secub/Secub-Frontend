@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { ENABLE_ACADEMIC_WORKFLOW_LOCK } from "../../config/workflow.config";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
-import { mockBackend, subscribeToMockBackendChanges } from "../../services/mockBackend";
+import {
+  createNewAcademicPlanInstance,
+  getAcademicPlanRenewalAvailability,
+  getActiveAcademicPlanInstance,
+  listArchivedAcademicPlanInstances,
+  markActiveAcademicPlanCompleted,
+  mockBackend,
+  subscribeToMockBackendChanges,
+  type AcademicPlanInstance,
+} from "../../services/mockBackend";
 import { getCicloCatalogs } from "../../pages/panel/ciclo/ciclo.mock";
 import { isCompetenciaRaValidByLearningResults } from "../../utils/learningResultsRules";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
@@ -15,7 +24,15 @@ export const academicWorkflowSteps: PanelStepKey[] = [
   "asignar-ra",
 ];
 
+export const inheritedAcademicBaseSteps: PanelStepKey[] = [
+  "perfil-egreso",
+  "proposito-formacion",
+];
+
+export const newAcademicPlanStartStep: PanelStepKey = "competencias-ra";
+
 export type AcademicWorkflowProgress = Partial<Record<PanelStepKey, boolean>>;
+export type AcademicWorkflowState = "inProgress" | "completed" | "newAcademicPlan";
 
 export const WORKFLOW_LOCKED_MESSAGE = "Primero completa el paso anterior para continuar.";
 
@@ -42,9 +59,17 @@ type AcademicRecord = {
   cicloId?: string;
   asignacionRaId?: string;
   asignacionRaIds?: string[];
+  inheritedFromAcademicPlanInstanceId?: string;
+  inheritedFromRecordId?: string;
+  isInheritedAcademicBase?: boolean;
+  readonlyInherited?: boolean;
+  academicPlanInstanceId?: string;
   cursoId?: string;
   cursoIds?: string[];
   cursosMapeados?: Array<{ cursoId?: string; competenciaRaId?: string; nivel?: string }>;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
   completed?: boolean;
   isEvaluationLocked?: boolean;
   resultadosAprendizaje?: Array<{ id?: string; descripcion?: string }>;
@@ -382,6 +407,147 @@ export function readAcademicWorkflowProgress(): AcademicWorkflowProgress {
   };
 }
 
+export function getCompletedAcademicWorkflowStepsCount(progress: AcademicWorkflowProgress) {
+  return academicWorkflowSteps.filter((stepKey) => Boolean(progress[stepKey])).length;
+}
+
+export function isAcademicWorkflowCompleted(progress: AcademicWorkflowProgress = readAcademicWorkflowProgress()) {
+  return academicWorkflowSteps.every((stepKey) => Boolean(progress[stepKey]));
+}
+
+export function getAcademicWorkflowState(
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
+): AcademicWorkflowState {
+  if (isAcademicWorkflowCompleted(progress)) {
+    return "completed";
+  }
+
+  const activePlan = getActiveAcademicPlanInstance();
+  return activePlan.status === "newAcademicPlan" ? "newAcademicPlan" : "inProgress";
+}
+
+function buildInheritedRecordId(entityKey: string, newPlanId: string, sourceRecordId: string) {
+  return `${entityKey}-heredado-${newPlanId}-${sourceRecordId}`;
+}
+
+function cloneInheritedAcademicBaseRecords(
+  newPlan: AcademicPlanInstance,
+  snapshot: WorkflowSnapshot,
+) {
+  const user = getCurrentMockUser();
+  const now = newPlan.createdAt ?? new Date().toISOString();
+  const sourcePlanId = newPlan.inheritedBaseFromPlanId ?? newPlan.sourcePlanId;
+  const clonedPerfilIds = new Map<string, string>();
+
+  snapshot.perfiles.forEach((record) => {
+    const inheritedRecordId = buildInheritedRecordId("perfil-egreso", newPlan.id, record.id);
+    clonedPerfilIds.set(record.id, inheritedRecordId);
+
+    mockBackend.create<AcademicRecord>(
+      "perfilEgreso",
+      {
+        ...record,
+        id: inheritedRecordId,
+        academicPlanInstanceId: newPlan.id,
+        inheritedFromAcademicPlanInstanceId: sourcePlanId,
+        inheritedFromRecordId: record.id,
+        isInheritedAcademicBase: true,
+        readonlyInherited: true,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: undefined,
+      },
+      user,
+    );
+  });
+
+  snapshot.propositos.forEach((record) => {
+    const inheritedRecordId = buildInheritedRecordId("proposito-formacion", newPlan.id, record.id);
+    const inheritedPerfilId = record.perfilEgresoId
+      ? clonedPerfilIds.get(record.perfilEgresoId)
+      : undefined;
+
+    mockBackend.create<AcademicRecord>(
+      "propositosFormacion",
+      {
+        ...record,
+        id: inheritedRecordId,
+        perfilEgresoId: inheritedPerfilId ?? record.perfilEgresoId,
+        academicPlanInstanceId: newPlan.id,
+        inheritedFromAcademicPlanInstanceId: sourcePlanId,
+        inheritedFromRecordId: record.id,
+        isInheritedAcademicBase: true,
+        readonlyInherited: true,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: undefined,
+      },
+      user,
+    );
+  });
+}
+
+export function getNewAcademicPlanRenewalAvailability(
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
+) {
+  const activePlan = getActiveAcademicPlanInstance();
+  const planForValidation: AcademicPlanInstance = {
+    ...activePlan,
+    status: isAcademicWorkflowCompleted(progress) ? "completed" : activePlan.status,
+  };
+
+  return getAcademicPlanRenewalAvailability(planForValidation);
+}
+
+export function isAcademicWorkflowBaseStepInherited(
+  stepKey: PanelStepKey,
+  activePlan: AcademicPlanInstance = getActiveAcademicPlanInstance(),
+) {
+  return Boolean(
+    activePlan.inheritedBaseFromPlanId &&
+      activePlan.inheritedStepKeys?.includes(stepKey) &&
+      inheritedAcademicBaseSteps.includes(stepKey),
+  );
+}
+
+export function startNewAcademicPlanFromCurrentProgress(
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
+) {
+  const snapshot = readWorkflowSnapshot();
+  const completedStepCount = getCompletedAcademicWorkflowStepsCount(progress);
+  const isCompleted = isAcademicWorkflowCompleted(progress);
+
+  const newPlan = createNewAcademicPlanInstance({
+    status: isCompleted ? "completed" : "inProgress",
+    completedStepCount,
+    totalStepCount: academicWorkflowSteps.length,
+    completedAt: isCompleted ? new Date().toISOString() : undefined,
+  });
+
+  cloneInheritedAcademicBaseRecords(newPlan, snapshot);
+
+  return newPlan;
+}
+
+export function useAcademicPlanInfo() {
+  const [activePlan, setActivePlan] = useState<AcademicPlanInstance>(() => getActiveAcademicPlanInstance());
+  const [archivedPlans, setArchivedPlans] = useState<AcademicPlanInstance[]>(() =>
+    listArchivedAcademicPlanInstances(),
+  );
+
+  useEffect(() => {
+    const refreshPlanInfo = () => {
+      setActivePlan(getActiveAcademicPlanInstance());
+      setArchivedPlans(listArchivedAcademicPlanInstances());
+    };
+
+    refreshPlanInfo();
+    return subscribeToMockBackendChanges(refreshPlanInfo);
+  }, []);
+
+  return { activePlan, archivedPlans };
+}
+
 
 export function useAcademicWorkflowProgress() {
   const [progress, setProgress] = useState<AcademicWorkflowProgress>(() =>
@@ -389,7 +555,17 @@ export function useAcademicWorkflowProgress() {
   );
 
   useEffect(() => {
-    const refreshProgress = () => setProgress(readAcademicWorkflowProgress());
+    const refreshProgress = () => {
+      const nextProgress = readAcademicWorkflowProgress();
+      setProgress(nextProgress);
+
+      if (isAcademicWorkflowCompleted(nextProgress)) {
+        markActiveAcademicPlanCompleted({
+          completedStepCount: academicWorkflowSteps.length,
+          totalStepCount: academicWorkflowSteps.length,
+        });
+      }
+    };
 
     refreshProgress();
     return subscribeToMockBackendChanges(refreshProgress);

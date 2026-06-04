@@ -7,6 +7,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   success?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  hideLabel?: boolean;
 }
 
 export function Input({
@@ -16,12 +17,22 @@ export function Input({
   success,
   leftIcon,
   rightIcon,
+  hideLabel = false,
   id,
   className = "",
+  "aria-describedby": ariaDescribedBy,
   ...props
 }: InputProps) {
   const generatedId = React.useId();
   const inputId = id ?? generatedId;
+  const messageId = `${inputId}-message`;
+  const accessibleNameFallback =
+    !label && !props["aria-label"] && !props["aria-labelledby"]
+      ? props.placeholder
+      : undefined;
+  const describedBy = [ariaDescribedBy, error || success || helperText ? messageId : undefined]
+    .filter(Boolean)
+    .join(" ") || undefined;
 
   const stateClass = error
     ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:rgba(235,87,87,0.18)]"
@@ -34,22 +45,31 @@ export function Input({
       {label ? (
         <label
           htmlFor={inputId}
-          className="mb-1.5 block text-sm font-medium text-[var(--color-gray-2)]"
+          className={[
+            "mb-1.5 block text-sm font-medium text-[var(--color-gray-2)]",
+            hideLabel ? "sr-only" : "",
+          ].join(" ")}
         >
           {label}
+          {props.required ? <span aria-hidden="true"> *</span> : null}
         </label>
       ) : null}
 
       <div className="relative">
         {leftIcon ? (
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-gray-4)]">
+          <span
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-gray-4)]"
+            aria-hidden="true"
+          >
             {leftIcon}
           </span>
         ) : null}
 
         <input
           id={inputId}
-          aria-invalid={!!error}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={describedBy}
+          aria-label={accessibleNameFallback}
           className={[
             "w-full rounded-xl border bg-white text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
             "placeholder:text-[var(--color-gray-5)]",
@@ -64,18 +84,27 @@ export function Input({
         />
 
         {rightIcon ? (
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-gray-4)]">
+          <span
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-gray-4)]"
+            aria-hidden="true"
+          >
             {rightIcon}
           </span>
         ) : null}
       </div>
 
       {error ? (
-        <p className="mt-1.5 text-sm text-[var(--color-error)]">{error}</p>
+        <p id={messageId} role="alert" className="mt-1.5 text-sm text-[var(--color-error)]">
+          {error}
+        </p>
       ) : success ? (
-        <p className="mt-1.5 text-sm text-[var(--color-success)]">{success}</p>
+        <p id={messageId} className="mt-1.5 text-sm text-[var(--color-success)]">
+          {success}
+        </p>
       ) : helperText ? (
-        <p className="mt-1.5 text-sm text-[var(--color-gray-4)]">{helperText}</p>
+        <p id={messageId} className="mt-1.5 text-sm text-[var(--color-gray-4)]">
+          {helperText}
+        </p>
       ) : null}
     </div>
   );

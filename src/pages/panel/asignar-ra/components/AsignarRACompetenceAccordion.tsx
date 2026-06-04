@@ -47,7 +47,8 @@ export function AsignarRACompetenceAccordion({
       <button
         type="button"
         onClick={() => onToggleAccordion(competencia.id)}
-        className="flex w-full flex-col gap-4 p-5 text-left md:flex-row md:items-start md:justify-between"
+        className="flex w-full flex-col gap-4 p-5 text-left md:flex-row md:items-start md:justify-between focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+        aria-expanded={isExpanded}
       >
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
@@ -112,7 +113,7 @@ export function AsignarRACompetenceAccordion({
                     <Badge variant={selected ? "info" : "neutral"}>{getRaLabel(ra, raIndex)}</Badge>
                     {selected ? <Badge variant="success">Asignado</Badge> : null}
                     {isMeasured ? <Badge variant="success">Medido</Badge> : <Badge variant="warning">Pendiente</Badge>}
-                    {isMeasured ? <GoLock className="text-sm text-[var(--color-gray-4)]" /> : null}
+                    {isMeasured ? <GoLock aria-hidden="true" className="text-sm text-[var(--color-gray-4)]" /> : null}
                   </span>
                   <span className="mt-2 block text-sm leading-6 text-[var(--color-gray-3)]">
                     {ra.descripcion ?? "Sin descripción registrada."}

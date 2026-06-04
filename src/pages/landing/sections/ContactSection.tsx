@@ -1,4 +1,4 @@
-import { Button } from "../../../components/ui";
+import { LinkButton } from "../../../components/ui";
 
 export default function ContactSection() {
   return (
@@ -23,17 +23,13 @@ export default function ContactSection() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <a href="mailto:soporte.secub@usb.edu.co">
-              <Button variant="accent" size="md" className="rounded-full">
-                Contactar soporte
-              </Button>
-            </a>
+            <LinkButton href="mailto:soporte.secub@usb.edu.co" variant="accent" size="md" className="rounded-full">
+              Contactar soporte
+            </LinkButton>
 
-            <a href="/acceder">
-              <Button variant="outline" size="md" className="rounded-full">
-                Ir al acceso
-              </Button>
-            </a>
+            <LinkButton href="/acceder" variant="outline" size="md" className="rounded-full">
+              Ir al acceso
+            </LinkButton>
           </div>
         </div>
 

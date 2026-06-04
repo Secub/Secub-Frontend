@@ -48,7 +48,8 @@ export default function CampusMosaic({
           >
             <img
               src={campus.image}
-              alt={campus.title}
+              alt={hideTitles ? "" : campus.title}
+              aria-hidden={hideTitles ? "true" : undefined}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
 

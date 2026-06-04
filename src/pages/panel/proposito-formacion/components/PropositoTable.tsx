@@ -25,6 +25,16 @@ interface PropositoTableProps {
   onDelete: (record: PropositoEnriched) => void;
 }
 
+function isInheritedReadonlyRecord(row: PropositoEnriched) {
+  return Boolean(row.readonlyInherited || row.isInheritedAcademicBase);
+}
+
+function getInheritedReadonlyReason(row: PropositoEnriched, fallbackReason: string) {
+  return isInheritedReadonlyRecord(row)
+    ? "Este propósito de formación fue heredado del ciclo anterior y queda como información de consulta."
+    : fallbackReason;
+}
+
 export function PropositoTable({
   data,
   role,
@@ -56,6 +66,9 @@ export function PropositoTable({
           {row.planNombre.replace(" (Inactivo)", "")}
           {row.planEstado === "inactivo" ? (
             <Badge variant="neutral">Inactivo</Badge>
+          ) : null}
+          {isInheritedReadonlyRecord(row) ? (
+            <Badge variant="info">Heredado</Badge>
           ) : null}
         </span>
       ),
@@ -98,8 +111,8 @@ export function PropositoTable({
       label: "Editar propósito",
       onClick: onEdit,
       icon: <GoPencil className="text-lg" />,
-      disabled: (row) => !canEditProposito(role, row),
-      disabledReason: (row) => getEditDisabledReason(role, row),
+      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditProposito(role, row),
+      disabledReason: (row) => getInheritedReadonlyReason(row, getEditDisabledReason(role, row)),
       show: () => permissions.canUpdate,
     },
     {
@@ -108,6 +121,8 @@ export function PropositoTable({
       onClick: onDelete,
       icon: <GoTrash className="text-lg" />,
       show: () => role === "admin",
+      disabled: (row) => isInheritedReadonlyRecord(row),
+      disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar propósito"),
       variant: "danger",
     },
   ];

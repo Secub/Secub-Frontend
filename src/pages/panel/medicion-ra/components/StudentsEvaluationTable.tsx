@@ -87,18 +87,19 @@ export default function StudentsEvaluationTable({
       </div>
 
       <div className="w-full overflow-x-auto">
-        <table className="min-w-[980px] w-full border-separate border-spacing-0">
+        <table className="min-w-[980px] w-full border-separate border-spacing-0" aria-label="Tabla de evaluación de estudiantes por RA">
           <thead className="bg-[var(--color-surface-soft)]">
             <tr>
-              <th className="sticky left-0 z-10 w-[280px] border-b border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
+              <th scope="col" className="sticky left-0 z-10 w-[280px] border-b border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
                 Estudiante
               </th>
-              <th className="w-[170px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
+              <th scope="col" className="w-[170px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
                 Código
               </th>
               {activeCompetence.learningResults.map((ra) => (
                 <th
                   key={ra.id}
+                  scope="col"
                   className="min-w-[220px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left"
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -117,7 +118,7 @@ export default function StudentsEvaluationTable({
                       aria-label={`Ver descripción de ${ra.code}`}
                       title={`Ver descripción de ${ra.code}`}
                     >
-                      <GoInfo className="text-lg" />
+                      <GoInfo aria-hidden="true" className="text-lg" />
                     </button>
                   </div>
                 </th>
@@ -143,6 +144,7 @@ export default function StudentsEvaluationTable({
                 {activeCompetence.learningResults.map((ra) => {
                   const selectedLevel = evaluations[student.id]?.[ra.id] ?? "";
                   const hasLevelError = showValidationErrors && !selectedLevel;
+                  const errorId = `evaluation-${student.id}-${ra.id}-error`;
 
                   return (
                     <td
@@ -161,7 +163,8 @@ export default function StudentsEvaluationTable({
                           )
                         }
                         aria-label={`Nivel de ${student.name} para ${ra.code}`}
-                        aria-invalid={hasLevelError}
+                        aria-invalid={hasLevelError ? "true" : undefined}
+                        aria-describedby={hasLevelError ? errorId : undefined}
                         data-validation-field={`evaluation-${student.id}-${ra.id}`}
                         className={[
                           "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed",
@@ -180,7 +183,7 @@ export default function StudentsEvaluationTable({
                       </select>
 
                       {hasLevelError ? (
-                        <p className="mt-1 text-xs text-[var(--color-error)]">
+                        <p id={errorId} role="alert" className="mt-1 text-xs text-[var(--color-error)]">
                           Selecciona un nivel obligatorio.
                         </p>
                       ) : selectedLevel ? (

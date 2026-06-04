@@ -139,7 +139,7 @@ export default function LandingFooterSection() {
               aria-label="Volver arriba"
               className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
             >
-              <GoChevronUp className="text-[24px]" />
+              <GoChevronUp aria-hidden="true" className="text-[24px]" />
             </a>
           </div>
         </div>

@@ -19,6 +19,7 @@ export default function PropositoFormacionPage() {
     catalogs,
     permissions,
     isStepLocked,
+    isInheritedBaseStep,
     hasRecords,
     filters,
     selectedRecord,
@@ -56,7 +57,7 @@ export default function PropositoFormacionPage() {
       currentStep="proposito-formacion"
       title="Propósito de Formación"
       description="Gestión, consulta y exportación del propósito de formación según el alcance institucional del rol autenticado."
-      actions={!isStepLocked && hasRecords ? pageActions : undefined}
+      actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -69,8 +70,8 @@ export default function PropositoFormacionPage() {
         <WorkflowStateCard
           title="Aún no hay propósitos de formación creados"
           description="Cuando se cargue el primer propósito de formación, se habilitará la vista completa con filtros, tabla, acciones y exportación."
-          actionLabel={permissions.canCreate ? "Crear propósito de formación" : undefined}
-          onAction={permissions.canCreate ? openCreateModal : undefined}
+          actionLabel={permissions.canCreate && !isInheritedBaseStep ? "Crear propósito de formación" : undefined}
+          onAction={permissions.canCreate && !isInheritedBaseStep ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (

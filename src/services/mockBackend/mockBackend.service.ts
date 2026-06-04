@@ -1,3 +1,9 @@
+import {
+  getActiveAcademicPlanInstanceId,
+  isRecordFromActiveAcademicPlan,
+  markActiveAcademicPlanInProgress,
+  resetAcademicPlanState,
+} from "./academicPlanState";
 import { MAX_RA_PER_COMPETENCIA } from "../../utils/learningResultsRules";
 
 export type MockBackendEntityKey =
@@ -18,6 +24,11 @@ export interface MockBackendRecord {
   programaId?: string;
   academicProgramId?: string;
   planId?: string;
+  academicPlanInstanceId?: string;
+  inheritedFromAcademicPlanInstanceId?: string;
+  inheritedFromRecordId?: string;
+  isInheritedAcademicBase?: boolean;
+  readonlyInherited?: boolean;
   cicloId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -95,11 +106,27 @@ function isAdminLike(user?: MockBackendUser | null) {
   return user?.role === "admin" || user?.role === "super-admin";
 }
 
+function isAcademicWorkflowEntity(entityKey: MockBackendEntityKey) {
+  return (
+    entityKey === "perfilEgreso" ||
+    entityKey === "propositosFormacion" ||
+    entityKey === "competenciasRa" ||
+    entityKey === "mapeosCompetencias" ||
+    entityKey === "ciclosMedicion" ||
+    entityKey === "asignacionesRa"
+  );
+}
+
+
 function isVisibleForUser<T extends MockBackendRecord>(
   entityKey: MockBackendEntityKey,
   record: T,
   user?: MockBackendUser | null,
 ) {
+  if (isAcademicWorkflowEntity(entityKey) && !isRecordFromActiveAcademicPlan(record)) {
+    return false;
+  }
+
   if (!user || isAdminLike(user)) return true;
 
   const scope = user.scope ?? {};
@@ -149,12 +176,19 @@ function assertValidRecordForWrite<T extends MockBackendRecord>(
   }
 }
 
-function decorateRecord<T extends MockBackendRecord>(record: T, user?: MockBackendUser | null): T {
+function decorateRecord<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T {
   const now = new Date().toISOString();
   const scope = user?.scope ?? {};
 
+  if (isAcademicWorkflowEntity(entityKey) && !record.isInheritedAcademicBase) {
+    markActiveAcademicPlanInProgress();
+  }
+
   return {
     ...record,
+    academicPlanInstanceId: isAcademicWorkflowEntity(entityKey)
+      ? record.academicPlanInstanceId ?? getActiveAcademicPlanInstanceId()
+      : record.academicPlanInstanceId,
     userId: record.userId ?? user?.id,
     seccionalId: record.seccionalId ?? scope.seccionalId,
     facultadId: record.facultadId ?? scope.facultadId,
@@ -243,7 +277,7 @@ export const mockBackend = {
   create<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T[] {
     assertValidRecordForWrite(entityKey, record);
     const database = readDatabase();
-    const nextRecord = decorateRecord(record, user);
+    const nextRecord = decorateRecord(entityKey, record, user);
     const nextRecords = [nextRecord, ...(database[entityKey] ?? [])];
 
     writeDatabase({
@@ -257,7 +291,7 @@ export const mockBackend = {
   update<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T[] {
     assertValidRecordForWrite(entityKey, record);
     const database = readDatabase();
-    const nextRecord = decorateRecord(record, user);
+    const nextRecord = decorateRecord(entityKey, record, user);
     const nextRecords = (database[entityKey] ?? []).map((item) =>
       item.id === record.id ? nextRecord : item,
     );
@@ -313,6 +347,7 @@ export const mockBackend = {
     // Uso exclusivo para desarrollo/demo. No mostrar esta acción a usuarios finales.
     writeDatabase({ ...DEFAULT_COLLECTIONS });
     writeIntroFlags({});
+    resetAcademicPlanState();
   },
 
   seedDemoData(seed: Partial<MockBackendDatabase>) {
@@ -345,9 +380,11 @@ export function subscribeToMockBackendChanges(callback: () => void) {
   const handler = () => callback();
   window.addEventListener("secub:mock-backend-updated", handler);
   window.addEventListener("storage", handler);
+  window.addEventListener("secub:academic-plan-updated", handler);
 
   return () => {
     window.removeEventListener("secub:mock-backend-updated", handler);
     window.removeEventListener("storage", handler);
+    window.removeEventListener("secub:academic-plan-updated", handler);
   };
 }

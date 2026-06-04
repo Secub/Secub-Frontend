@@ -12,6 +12,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string;
   error?: string;
   helperText?: string;
+  hideLabel?: boolean;
 }
 
 export function Select({
@@ -20,13 +21,23 @@ export function Select({
   placeholder = "Selecciona una opción",
   error,
   helperText,
+  hideLabel = false,
   id,
   className = "",
   value,
+  "aria-describedby": ariaDescribedBy,
   ...props
 }: SelectProps) {
   const generatedId = React.useId();
   const selectId = id ?? generatedId;
+  const messageId = `${selectId}-message`;
+  const accessibleNameFallback =
+    !label && !props["aria-label"] && !props["aria-labelledby"]
+      ? placeholder
+      : undefined;
+  const describedBy = [ariaDescribedBy, error || helperText ? messageId : undefined]
+    .filter(Boolean)
+    .join(" ") || undefined;
 
   const stateClass = error
     ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:rgba(235,87,87,0.18)]"
@@ -37,16 +48,22 @@ export function Select({
       {label ? (
         <label
           htmlFor={selectId}
-          className="mb-1.5 block text-sm font-medium text-[var(--color-gray-2)]"
+          className={[
+            "mb-1.5 block text-sm font-medium text-[var(--color-gray-2)]",
+            hideLabel ? "sr-only" : "",
+          ].join(" ")}
         >
           {label}
+          {props.required ? <span aria-hidden="true"> *</span> : null}
         </label>
       ) : null}
 
       <div className="relative min-w-0">
         <select
           id={selectId}
-          aria-invalid={!!error}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={describedBy}
+          aria-label={accessibleNameFallback}
           value={value}
           className={[
             "w-full min-w-0 appearance-none rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
@@ -66,13 +83,18 @@ export function Select({
           ))}
         </select>
 
-        <GoChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--color-gray-4)]" />
+        <GoChevronDown
+          aria-hidden="true"
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--color-gray-4)]"
+        />
       </div>
 
       {error ? (
-        <p className="mt-1.5 text-sm text-[var(--color-error)]">{error}</p>
+        <p id={messageId} role="alert" className="mt-1.5 text-sm text-[var(--color-error)]">
+          {error}
+        </p>
       ) : helperText ? (
-        <p className="mt-1.5 text-sm text-[var(--color-gray-4)]">
+        <p id={messageId} className="mt-1.5 text-sm text-[var(--color-gray-4)]">
           {helperText}
         </p>
       ) : null}

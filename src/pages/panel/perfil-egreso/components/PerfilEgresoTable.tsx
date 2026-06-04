@@ -26,6 +26,16 @@ interface PerfilEgresoTableProps {
   onDelete: (record: PerfilEgresoEnriched) => void;
 }
 
+function isInheritedReadonlyRecord(row: PerfilEgresoEnriched) {
+  return Boolean(row.readonlyInherited || row.isInheritedAcademicBase);
+}
+
+function getInheritedReadonlyReason(row: PerfilEgresoEnriched, fallbackReason: string) {
+  return isInheritedReadonlyRecord(row)
+    ? "Este perfil de egreso fue heredado del ciclo anterior y queda como información de consulta."
+    : fallbackReason;
+}
+
 export function PerfilEgresoTable({
   data,
   role,
@@ -61,6 +71,9 @@ export function PerfilEgresoTable({
           {row.planNombre.replace(" (Inactivo)", "")}
           {row.planEstado === "inactivo" ? (
             <Badge variant="neutral">Inactivo</Badge>
+          ) : null}
+          {isInheritedReadonlyRecord(row) ? (
+            <Badge variant="info">Heredado</Badge>
           ) : null}
         </span>
       ),
@@ -103,8 +116,8 @@ export function PerfilEgresoTable({
       label: "Editar perfil",
       onClick: onEdit,
       icon: <GoPencil className="text-lg" />,
-      disabled: (row) => !canEditPerfil(role, row),
-      disabledReason: (row) => getEditDisabledReason(role, row),
+      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditPerfil(role, row),
+      disabledReason: (row) => getInheritedReadonlyReason(row, getEditDisabledReason(role, row)),
       show: () => permissions.canUpdate,
     },
     {
@@ -113,6 +126,8 @@ export function PerfilEgresoTable({
       onClick: onDelete,
       icon: <GoTrash className="text-lg" />,
       show: () => canDeletePerfil(role),
+      disabled: (row) => isInheritedReadonlyRecord(row),
+      disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar perfil"),
       variant: "danger",
     },
   ];

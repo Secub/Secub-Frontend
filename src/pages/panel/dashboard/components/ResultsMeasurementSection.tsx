@@ -39,10 +39,11 @@ export default function ResultsMeasurementSection({
           onClick={() => onOpenRaDetail(row)}
           className="text-left font-semibold text-[var(--color-secondary-1)] hover:underline"
           title="Ver detalle informativo del RA"
+          aria-label={`Ver detalle de ${row.competenceCode} ${row.raCode}`}
         >
           {row.competenceCode} · {row.raCode}
           <span className="ml-2 inline-flex align-middle text-[var(--color-gray-4)]">
-            <GoInfo />
+            <GoInfo aria-hidden="true" />
           </span>
         </button>
       ),

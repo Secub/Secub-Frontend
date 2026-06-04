@@ -45,7 +45,7 @@ export function AsignarRACoursesTable({
                   "Estado",
                   "Acción",
                 ].map((title) => (
-                  <th key={title} className="border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
+                  <th key={title} scope="col" className="border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
                     {title}
                   </th>
                 ))}
@@ -64,14 +64,14 @@ export function AsignarRACoursesTable({
                     <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-top">
                       <span className="flex items-center gap-2">
                         <Badge variant="info">{row.course.codigo}</Badge>
-                        {row.isSelected ? <GoCheck className="text-[var(--color-secondary-1)]" /> : null}
+                        {row.isSelected ? <GoCheck aria-hidden="true" className="text-[var(--color-secondary-1)]" /> : null}
                       </span>
                     </td>
                     <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-top">
                       <button
                         type="button"
                         onClick={() => onSelectCourse(row.course.id)}
-                        className="text-left font-heading text-sm font-semibold text-[var(--color-secondary-4)] hover:text-[var(--color-secondary-1)]"
+                        className="text-left font-heading text-sm font-semibold text-[var(--color-secondary-4)] hover:text-[var(--color-secondary-1)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
                       >
                         {row.course.nombre}
                       </button>
@@ -103,7 +103,7 @@ export function AsignarRACoursesTable({
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-sm text-[var(--color-gray-4)]">
                     <div className="mx-auto flex max-w-md flex-col items-center gap-3">
-                      <GoSearch className="text-2xl text-[var(--color-gray-4)]" />
+                      <GoSearch aria-hidden="true" className="text-2xl text-[var(--color-gray-4)]" />
                       <p>{isFiltered ? "Sin resultados para esta búsqueda." : "No hay cursos de Síntesis disponibles para este ciclo."}</p>
                     </div>
                   </td>

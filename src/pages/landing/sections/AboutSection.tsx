@@ -120,7 +120,7 @@ export default function AboutSection() {
                 aria-label="Ver slide anterior"
                 className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[var(--color-secondary-4)] shadow-sm backdrop-blur transition hover:bg-white"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft aria-hidden="true" size={18} />
               </button>
 
               <button
@@ -129,7 +129,7 @@ export default function AboutSection() {
                 aria-label="Ver siguiente slide"
                 className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[var(--color-secondary-4)] shadow-sm backdrop-blur transition hover:bg-white"
               >
-                <ChevronRight size={18} />
+                <ChevronRight aria-hidden="true" size={18} />
               </button>
             </motion.div>
 

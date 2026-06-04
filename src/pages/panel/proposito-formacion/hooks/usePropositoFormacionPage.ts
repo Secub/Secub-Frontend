@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
+import {
+  isAcademicWorkflowBaseStepInherited,
+  isAcademicWorkflowStepLocked,
+} from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCurrentUser, getCatalogs } from "../proposito-formacion.mock";
 import { rolePermissions } from "../proposito-formacion.permissions";
@@ -51,6 +54,7 @@ export function usePropositoFormacionPage() {
 
   const permissions = rolePermissions[currentUser.role];
   const isStepLocked = isAcademicWorkflowStepLocked("proposito-formacion");
+  const isInheritedBaseStep = isAcademicWorkflowBaseStepInherited("proposito-formacion");
   const hasRecords = records.length > 0;
 
   const enrichedRecords = useMemo(() => enrichPropositos(records, catalogs), [records]);
@@ -70,6 +74,11 @@ export function usePropositoFormacionPage() {
   const filteredRecords = useMemo(() => applyFilters(roleScopedRecords, filters), [filters, roleScopedRecords]);
 
   const openCreateModal = () => {
+    if (isInheritedBaseStep) {
+      window.alert("El Propósito de formación fue heredado del ciclo anterior y queda como información de consulta.");
+      return;
+    }
+
     setFormMode("create");
     setFormValues(getEmptyFormState(currentUser));
     setSelectedRecord(null);
@@ -77,6 +86,11 @@ export function usePropositoFormacionPage() {
   };
 
   const openEditModal = (record: PropositoEnriched) => {
+    if (record.readonlyInherited || record.isInheritedAcademicBase) {
+      window.alert("Este propósito de formación fue heredado del ciclo anterior y queda como información de consulta.");
+      return;
+    }
+
     setFormMode("edit");
     setSelectedRecord(record);
     setFormValues(mapRecordToForm(record));
@@ -89,6 +103,11 @@ export function usePropositoFormacionPage() {
   };
 
   const handleDelete = (record: PropositoEnriched) => {
+    if (record.readonlyInherited || record.isInheritedAcademicBase) {
+      window.alert("Este propósito de formación fue heredado del ciclo anterior y no se puede eliminar desde el nuevo plan.");
+      return;
+    }
+
     const confirmed = window.confirm(
       `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
     );
@@ -133,6 +152,12 @@ export function usePropositoFormacionPage() {
   };
 
   const handleFormSubmit = (values: FormState) => {
+    if (isInheritedBaseStep || selectedRecord?.readonlyInherited || selectedRecord?.isInheritedAcademicBase) {
+      window.alert("La información heredada del ciclo anterior queda en modo consulta.");
+      setFormOpen(false);
+      return;
+    }
+
     const nextRecord = buildRecordFromForm(values, formMode === "edit" ? selectedRecord : null);
 
     setRecords(
@@ -150,6 +175,7 @@ export function usePropositoFormacionPage() {
     catalogs,
     permissions,
     isStepLocked,
+    isInheritedBaseStep,
     hasRecords,
     filters,
     selectedRecord,

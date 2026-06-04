@@ -1,6 +1,6 @@
 import { GoChevronLeft } from "react-icons/go";
 import LogoUSB from "../../../assets/logos/logo-usb.png";
-import { Button } from "../../../components/ui";
+import { LinkButton } from "../../../components/ui";
 
 export default function AccessPanelSection() {
   const microsoftLoginUrl = "#";
@@ -12,7 +12,7 @@ export default function AccessPanelSection() {
           href="/"
           className="mb-7 inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-4)]"
         >
-          <GoChevronLeft className="text-[20px]" />
+          <GoChevronLeft aria-hidden="true" className="text-[20px]" />
           Volver al inicio
         </a>
 
@@ -36,23 +36,23 @@ export default function AccessPanelSection() {
         </div>
 
         <div className="mt-6">
-          <a href={microsoftLoginUrl} className="block">
-            <Button
-              variant="accent"
-              size="lg"
-              fullWidth
-              leftIcon={
-                <span className="grid grid-cols-2 gap-[2px] rounded-[4px] bg-white/15 p-[3px]">
-                  <span className="h-2.5 w-2.5 bg-[#f25022]" />
-                  <span className="h-2.5 w-2.5 bg-[#7fba00]" />
-                  <span className="h-2.5 w-2.5 bg-[#00a4ef]" />
-                  <span className="h-2.5 w-2.5 bg-[#ffb900]" />
-                </span>
-              }
-            >
-              Iniciar sesión con Microsoft
-            </Button>
-          </a>
+          <LinkButton
+            href={microsoftLoginUrl}
+            variant="accent"
+            size="lg"
+            fullWidth
+            aria-label="Iniciar sesión con Microsoft"
+            leftIcon={
+              <span className="grid grid-cols-2 gap-[2px] rounded-[4px] bg-white/15 p-[3px]">
+                <span className="h-2.5 w-2.5 bg-[#f25022]" />
+                <span className="h-2.5 w-2.5 bg-[#7fba00]" />
+                <span className="h-2.5 w-2.5 bg-[#00a4ef]" />
+                <span className="h-2.5 w-2.5 bg-[#ffb900]" />
+              </span>
+            }
+          >
+            Iniciar sesión con Microsoft
+          </LinkButton>
         </div>
 
         <div className="mt-6 rounded-[20px] border border-[var(--color-gray-6)] bg-white px-5 py-4 shadow-[0_10px_25px_rgba(24,34,51,0.04)]">

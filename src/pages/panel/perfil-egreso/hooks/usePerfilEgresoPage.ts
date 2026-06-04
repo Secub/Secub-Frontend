@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
+import {
+  isAcademicWorkflowBaseStepInherited,
+  isAcademicWorkflowStepLocked,
+} from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCatalogs, getCurrentUser } from "../perfil-egreso.mock";
 import { rolePermissions } from "../perfil-egreso.permissions";
@@ -51,6 +54,7 @@ export function usePerfilEgresoPage() {
 
   const permissions = rolePermissions[currentUser.role];
   const isStepLocked = isAcademicWorkflowStepLocked("perfil-egreso");
+  const isInheritedBaseStep = isAcademicWorkflowBaseStepInherited("perfil-egreso");
   const hasRecords = records.length > 0;
 
   const enrichedRecords = useMemo(() => enrichPerfilesEgreso(records, catalogs), [records]);
@@ -70,6 +74,11 @@ export function usePerfilEgresoPage() {
   const filteredRecords = useMemo(() => applyFilters(roleScopedRecords, filters), [filters, roleScopedRecords]);
 
   const openCreateModal = () => {
+    if (isInheritedBaseStep) {
+      window.alert("El Perfil de egreso fue heredado del ciclo anterior y queda como información de consulta.");
+      return;
+    }
+
     setFormMode("create");
     setFormValues(getEmptyFormState(currentUser));
     setSelectedRecord(null);
@@ -77,6 +86,11 @@ export function usePerfilEgresoPage() {
   };
 
   const openEditModal = (record: PerfilEgresoEnriched) => {
+    if (record.readonlyInherited || record.isInheritedAcademicBase) {
+      window.alert("Este perfil de egreso fue heredado del ciclo anterior y queda como información de consulta.");
+      return;
+    }
+
     setFormMode("edit");
     setSelectedRecord(record);
     setFormValues(mapRecordToForm(record));
@@ -89,6 +103,11 @@ export function usePerfilEgresoPage() {
   };
 
   const handleDelete = (record: PerfilEgresoEnriched) => {
+    if (record.readonlyInherited || record.isInheritedAcademicBase) {
+      window.alert("Este perfil de egreso fue heredado del ciclo anterior y no se puede eliminar desde el nuevo plan.");
+      return;
+    }
+
     const confirmed = window.confirm(
       `¿Seguro que deseas eliminar el perfil de egreso de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
     );
@@ -133,6 +152,12 @@ export function usePerfilEgresoPage() {
   };
 
   const handleFormSubmit = (values: FormState) => {
+    if (isInheritedBaseStep || selectedRecord?.readonlyInherited || selectedRecord?.isInheritedAcademicBase) {
+      window.alert("La información heredada del ciclo anterior queda en modo consulta.");
+      setFormOpen(false);
+      return;
+    }
+
     const nextRecord = buildRecordFromForm(values, formMode === "edit" ? selectedRecord : null);
 
     setRecords(
@@ -150,6 +175,7 @@ export function usePerfilEgresoPage() {
     catalogs,
     permissions,
     isStepLocked,
+    isInheritedBaseStep,
     hasRecords,
     filters,
     selectedRecord,

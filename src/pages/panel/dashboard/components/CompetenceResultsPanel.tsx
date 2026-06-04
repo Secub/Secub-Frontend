@@ -266,8 +266,9 @@ function RaResultsTable({
             onClick={() => onOpenRaDetail(result)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-secondary-4)] transition-colors hover:bg-[var(--color-surface-soft)]"
             title="Ver detalle informativo del RA"
+            aria-label={`Ver detalle del resultado de aprendizaje ${result.raCode}`}
           >
-            <GoEye className="text-lg" />
+            <GoEye aria-hidden="true" className="text-lg" />
           </button>
         </div>
       ),
@@ -429,13 +430,14 @@ export default function CompetenceResultsPanel({
                 <button
                   type="button"
                   onClick={() => toggleCompetence(group.id)}
-                  className="flex w-full flex-col gap-3 text-left md:flex-row md:items-center md:justify-between"
+                  className="flex w-full flex-col gap-3 text-left md:flex-row md:items-center md:justify-between focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+                  aria-expanded={expanded}
                 >
                   <span className="flex items-center gap-3">
                     {expanded ? (
-                      <GoChevronDown className="text-2xl text-[var(--color-secondary-4)]" />
+                      <GoChevronDown aria-hidden="true" className="text-2xl text-[var(--color-secondary-4)]" />
                     ) : (
-                      <GoChevronRight className="text-2xl text-[var(--color-secondary-4)]" />
+                      <GoChevronRight aria-hidden="true" className="text-2xl text-[var(--color-secondary-4)]" />
                     )}
                     <span className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
                       {group.name}

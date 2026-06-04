@@ -137,6 +137,7 @@ function MiniRaChart({
           className="font-heading font-semibold text-[var(--color-secondary-4)] underline-offset-2 hover:underline"
           onClick={() => onOpenRaDetail(result)}
           title={result.raName}
+          aria-label={`Ver detalle de ${result.raCode}`}
         >
           {result.raCode}
         </button>
@@ -341,13 +342,14 @@ export default function ResultsMeasurementPanel({
       render: (result) => (
         <button
           type="button"
-          className="inline-flex items-center gap-2 font-heading font-semibold text-[var(--color-secondary-4)] underline-offset-2 hover:underline"
+          className="inline-flex items-center gap-2 font-heading font-semibold text-[var(--color-secondary-4)] underline-offset-2 hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+          aria-label={`Ver detalle de ${result.raCode}`}
           onClick={() => {
             setSupportResultKey(result.key);
             onOpenRaDetail(result);
           }}
         >
-          <GoEye className="text-base" />
+          <GoEye aria-hidden="true" className="text-base" />
           {result.raCode}
         </button>
       ),

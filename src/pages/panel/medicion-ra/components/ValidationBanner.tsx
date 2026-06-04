@@ -66,7 +66,7 @@ export default function ValidationBanner({
               iconBoxStyles[feedback.type],
             ].join(" ")}
           >
-            <Icon className="text-xl" />
+            <Icon aria-hidden="true" className="text-xl" />
           </span>
 
           <div className="min-w-0 flex-1">
@@ -94,7 +94,7 @@ export default function ValidationBanner({
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-gray-4)] transition hover:bg-[var(--color-gray-7)] hover:text-[var(--color-secondary-4)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-info)]"
               aria-label="Cerrar notificación"
             >
-              <GoX className="text-lg" />
+              <GoX aria-hidden="true" className="text-lg" />
             </button>
           ) : null}
         </div>

@@ -19,6 +19,7 @@ export default function PerfilEgresoPage() {
     catalogs,
     permissions,
     isStepLocked,
+    isInheritedBaseStep,
     hasRecords,
     filters,
     selectedRecord,
@@ -56,7 +57,7 @@ export default function PerfilEgresoPage() {
       currentStep="perfil-egreso"
       title="Perfil de Egreso"
       description="Visualización, filtrado, creación, actualización, eliminación y exportación del perfil de egreso según el alcance institucional del rol autenticado."
-      actions={!isStepLocked && hasRecords ? pageActions : undefined}
+      actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -69,8 +70,8 @@ export default function PerfilEgresoPage() {
         <WorkflowStateCard
           title="Aún no hay perfiles de egreso creados"
           description="Cuando se cargue el primer perfil de egreso, se habilitará la vista completa con filtros, tabla, acciones y exportación."
-          actionLabel={permissions.canCreate ? "Crear perfil de egreso" : undefined}
-          onAction={permissions.canCreate ? openCreateModal : undefined}
+          actionLabel={permissions.canCreate && !isInheritedBaseStep ? "Crear perfil de egreso" : undefined}
+          onAction={permissions.canCreate && !isInheritedBaseStep ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (

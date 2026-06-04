@@ -10,6 +10,8 @@ import "@fontsource/lato/700.css";
 
 import "./index.css";
 
+document.documentElement.lang = "es";
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

@@ -49,6 +49,11 @@ export interface PerfilEgresoRecord {
   descripcion: string;
   createdAt: string;
   updatedAt: string;
+  academicPlanInstanceId?: string;
+  inheritedFromAcademicPlanInstanceId?: string;
+  inheritedFromRecordId?: string;
+  isInheritedAcademicBase?: boolean;
+  readonlyInherited?: boolean;
 }
 
 export interface CurrentUserScope {

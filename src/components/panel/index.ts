@@ -8,9 +8,13 @@ export { default as WorkflowStateCard } from "./WorkflowStateCard";
 export {
   WORKFLOW_LOCKED_MESSAGE,
   academicWorkflowSteps,
+  inheritedAcademicBaseSteps,
+  newAcademicPlanStartStep,
   getAcademicWorkflowLockedDescription,
   getAcademicWorkflowStepLabel,
   getPreviousAcademicWorkflowStep,
+  getNewAcademicPlanRenewalAvailability,
+  isAcademicWorkflowBaseStepInherited,
   isAcademicWorkflowStepCompleted,
   isAcademicWorkflowStepLocked,
   readAcademicWorkflowProgress,

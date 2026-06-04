@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)] disabled:pointer-events-none disabled:opacity-60";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -36,6 +36,26 @@ const sizeStyles: Record<ButtonSize, string> = {
   lg: "min-h-14 px-6 py-4 text-base",
 };
 
+export function getButtonClassName({
+  variant = "primary",
+  size = "md",
+  fullWidth = false,
+  className = "",
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+  className?: string;
+}) {
+  return [
+    baseStyles,
+    variantStyles[variant],
+    sizeStyles[size],
+    fullWidth ? "w-full" : "",
+    className,
+  ].join(" ");
+}
+
 export function Button({
   children,
   variant = "primary",
@@ -50,20 +70,23 @@ export function Button({
   return (
     <button
       type={type}
-      className={[
-        baseStyles,
-        variantStyles[variant],
-        sizeStyles[size],
-        fullWidth ? "w-full" : "",
-        className,
-      ].join(" ")}
+      className={getButtonClassName({ variant, size, fullWidth, className })}
       {...props}
     >
-      {leftIcon ? <span className="shrink-0">{leftIcon}</span> : null}
+      {leftIcon ? (
+        <span className="shrink-0" aria-hidden="true">
+          {leftIcon}
+        </span>
+      ) : null}
       <span>{children}</span>
-      {rightIcon ? <span className="shrink-0">{rightIcon}</span> : null}
+      {rightIcon ? (
+        <span className="shrink-0" aria-hidden="true">
+          {rightIcon}
+        </span>
+      ) : null}
     </button>
   );
 }
 
+export type { ButtonSize, ButtonVariant };
 export default Button;

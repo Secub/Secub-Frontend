@@ -6,6 +6,7 @@ interface TextareaProps
   helperText?: string;
   error?: string;
   success?: string;
+  hideLabel?: boolean;
 }
 
 export function Textarea({
@@ -13,12 +14,22 @@ export function Textarea({
   helperText,
   error,
   success,
+  hideLabel = false,
   id,
   className = "",
+  "aria-describedby": ariaDescribedBy,
   ...props
 }: TextareaProps) {
   const generatedId = React.useId();
   const textareaId = id ?? generatedId;
+  const messageId = `${textareaId}-message`;
+  const accessibleNameFallback =
+    !label && !props["aria-label"] && !props["aria-labelledby"]
+      ? props.placeholder
+      : undefined;
+  const describedBy = [ariaDescribedBy, error || success || helperText ? messageId : undefined]
+    .filter(Boolean)
+    .join(" ") || undefined;
 
   const stateClass = error
     ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:rgba(235,87,87,0.18)]"
@@ -31,15 +42,21 @@ export function Textarea({
       {label ? (
         <label
           htmlFor={textareaId}
-          className="mb-1.5 block text-sm font-medium text-[var(--color-gray-2)]"
+          className={[
+            "mb-1.5 block text-sm font-medium text-[var(--color-gray-2)]",
+            hideLabel ? "sr-only" : "",
+          ].join(" ")}
         >
           {label}
+          {props.required ? <span aria-hidden="true"> *</span> : null}
         </label>
       ) : null}
 
       <textarea
         id={textareaId}
-        aria-invalid={!!error}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={describedBy}
+        aria-label={accessibleNameFallback}
         className={[
           "w-full rounded-xl border bg-white px-4 py-3 text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
           "placeholder:text-[var(--color-gray-5)]",
@@ -52,11 +69,17 @@ export function Textarea({
       />
 
       {error ? (
-        <p className="mt-1.5 text-sm text-[var(--color-error)]">{error}</p>
+        <p id={messageId} role="alert" className="mt-1.5 text-sm text-[var(--color-error)]">
+          {error}
+        </p>
       ) : success ? (
-        <p className="mt-1.5 text-sm text-[var(--color-success)]">{success}</p>
+        <p id={messageId} className="mt-1.5 text-sm text-[var(--color-success)]">
+          {success}
+        </p>
       ) : helperText ? (
-        <p className="mt-1.5 text-sm text-[var(--color-gray-4)]">{helperText}</p>
+        <p id={messageId} className="mt-1.5 text-sm text-[var(--color-gray-4)]">
+          {helperText}
+        </p>
       ) : null}
     </div>
   );

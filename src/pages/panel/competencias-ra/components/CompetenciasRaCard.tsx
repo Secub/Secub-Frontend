@@ -64,9 +64,10 @@ export default function CompetenciasRaCard({
           onClick={() => onView(record)}
           className="rounded p-1.5 text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-gray-5)] hover:text-[var(--color-secondary-1)]"
           title="Ver más de la competencia"
+          aria-label={`Ver detalle de la competencia ${record.nombre}`}
           type="button"
         >
-          <GoEye className="text-lg" />
+          <GoEye aria-hidden="true" className="text-lg" />
         </button>
       </div>
 
@@ -104,7 +105,7 @@ export default function CompetenciasRaCard({
             </span>
           </span>
           <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)]/5 text-[var(--color-secondary-1)]">
-            {expandedRAs ? <GoChevronUp /> : <GoChevronDown />}
+            {expandedRAs ? <GoChevronUp aria-hidden="true" /> : <GoChevronDown aria-hidden="true" />}
           </span>
         </button>
 

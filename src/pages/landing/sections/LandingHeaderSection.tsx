@@ -1,12 +1,12 @@
 import LogoUSB from "../../../assets/logos/logo-usb.png";
 import LogoSecub from "../../../assets/logos/logo-secub.png";
-import { Button } from "../../../components/ui";
+import { LinkButton } from "../../../components/ui";
 
 export default function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-gray-6)] bg-white/90 backdrop-blur">
       <div className="container-secub flex h-20 items-center justify-between gap-6">
-        <a href="#inicio" className="flex items-center gap-3">
+        <a href="#inicio" className="flex items-center gap-3" aria-label="Ir al inicio de SECUB">
           <img
             src={LogoUSB}
             alt="Universidad de San Buenaventura"
@@ -14,7 +14,7 @@ export default function LandingHeader() {
           />
            <img
             src={LogoSecub}
-            alt="Universidad de San Buenaventura"
+            alt="SECUB"
             className="h-10 w-25 object-contain"
           />
         </a>
@@ -41,17 +41,13 @@ export default function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <a href="#acerca" className="hidden sm:block">
-            <Button variant="outline" size="md" className="rounded-full">
-              Conocer más
-            </Button>
-          </a>
+          <LinkButton href="#acerca" variant="outline" size="md" className="hidden rounded-full sm:inline-flex">
+            Conocer más
+          </LinkButton>
 
-          <a href="/acceder">
-            <Button variant="accent" size="md" className="rounded-full">
-              Acceder
-            </Button>
-          </a>
+          <LinkButton href="/acceder" variant="accent" size="md" className="rounded-full">
+            Acceder
+          </LinkButton>
         </div>
       </div>
     </header>

@@ -4,17 +4,17 @@ const accessibilityOptions = [
   {
     title: "Contraste visual",
     description: "Preparado para activar modo de alto contraste cuando se conecte la preferencia institucional.",
-    icon: <GoEye className="text-2xl" />,
+    icon: <GoEye aria-hidden="true" className="text-2xl" />,
   },
   {
     title: "Tamaño de texto",
     description: "Preparado para aumentar o reducir la lectura sin romper la estructura de la landing.",
-    icon: <GoChecklist className="text-2xl" />,
+    icon: <GoChecklist aria-hidden="true" className="text-2xl" />,
   },
   {
     title: "Navegación clara",
     description: "La landing conserva enlaces descriptivos, foco visible del navegador y estructura semántica por secciones.",
-    icon: <GoGoal className="text-2xl" />,
+    icon: <GoGoal aria-hidden="true" className="text-2xl" />,
   },
 ];
 
@@ -24,7 +24,7 @@ export default function AccessibilitySection() {
       <div className="container-secub">
         <div className="mx-auto max-w-3xl text-center">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 font-heading text-sm font-semibold text-[var(--color-secondary-4)] shadow-[var(--shadow-sm)]">
-            <GoInfo className="text-lg text-[var(--color-secondary-1)]" />
+            <GoInfo aria-hidden="true" className="text-lg text-[var(--color-secondary-1)]" />
             Accesibilidad
           </span>
 
