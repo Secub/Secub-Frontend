@@ -42,11 +42,11 @@ export default function StepCircleProgress({
       : Math.max(0, Math.round((lastCompletedIndex / (items.length - 1)) * 100));
 
   return (
-    <nav className="px-2 md:px-8" aria-label={ariaLabel}>
+    <nav className="step-circle-progress px-2 md:px-8" aria-label={ariaLabel}>
       <div className="relative">
-        <div className="absolute left-0 right-0 top-[22px] h-1 rounded-full bg-[var(--color-gray-6)]" aria-hidden="true" />
+        <div className="step-circle-progress__track absolute left-0 right-0 top-[22px] h-1 rounded-full" aria-hidden="true" />
         <div
-          className="absolute left-0 top-[22px] h-1 rounded-full bg-[var(--color-success)] transition-all duration-300"
+          className="step-circle-progress__fill absolute left-0 top-[22px] h-1 rounded-full transition-all duration-300"
           style={{ width: `${progressPercentage}%` }}
           aria-hidden="true"
         />
@@ -61,6 +61,13 @@ export default function StepCircleProgress({
             const isItemDisabled = disabled || Boolean(item.disabled);
             const disabledMessage = item.disabled ? item.disabledTooltip : disabled ? lockedTooltip : undefined;
             const disabledMessageId = disabledMessage ? `step-${item.id}-disabled-reason` : undefined;
+            const stepStateClass = isCompleted
+              ? "step-circle-progress__button--completed"
+              : isActive
+                ? "step-circle-progress__button--active"
+                : isItemDisabled
+                  ? "step-circle-progress__button--disabled"
+                  : "step-circle-progress__button--pending";
 
             return (
               <li key={item.id} className="min-w-0">
@@ -69,22 +76,13 @@ export default function StepCircleProgress({
                   onClick={() => !isItemDisabled && onChange?.(item.id)}
                   disabled={isItemDisabled}
                   title={disabledMessage}
-                  className="group flex min-w-0 flex-col items-center text-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-65"
+                  className={`step-circle-progress__button ${stepStateClass} group flex min-w-0 flex-col items-center text-center focus-visible:outline-none disabled:cursor-not-allowed`}
                   aria-current={isActive ? "step" : undefined}
                   aria-describedby={disabledMessageId}
                   aria-label={`${item.label}${isActive ? ", paso actual" : ""}${isCompleted ? ", completado" : ""}${isItemDisabled ? ", bloqueado" : ""}`}
                 >
                   <span
-                    className={[
-                      "inline-flex h-11 w-11 items-center justify-center rounded-full border-4 text-sm font-bold shadow-sm transition-all duration-200 group-focus-visible:ring-4 group-focus-visible:ring-[color:rgba(14,101,217,0.18)]",
-                      isCompleted
-                        ? "border-[var(--color-success)] bg-[var(--color-success)] text-white"
-                        : isActive
-                          ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-white"
-                          : isItemDisabled
-                        ? "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] text-[var(--color-gray-4)]"
-                        : "border-[var(--color-secondary-4)] bg-white text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
-                    ].join(" ")}
+                    className="step-circle-progress__marker inline-flex h-11 w-11 items-center justify-center rounded-full border-4 text-sm font-bold shadow-sm transition-all duration-200 group-focus-visible:ring-4 group-focus-visible:ring-[color:rgba(14,101,217,0.18)]"
                     aria-hidden="true"
                   >
                     {isCompleted ? (
@@ -96,24 +94,21 @@ export default function StepCircleProgress({
                     )}
                   </span>
 
-                  <span
-                    className={[
-                      "mt-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
-                      isActive
-                        ? "text-[var(--color-secondary-1)]"
-                        : isCompleted
-                          ? "text-[var(--color-success)]"
-                          : "text-[var(--color-gray-3)]",
-                    ].join(" ")}
-                  >
+                  <span className="step-circle-progress__label mt-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors">
                     {item.label}
                   </span>
+
                   {item.sublabel ? (
-                    <span className="mt-1 truncate text-sm font-semibold text-[var(--color-secondary-4)]">
+                    <span className="step-circle-progress__sublabel mt-1 truncate text-sm font-semibold">
                       {item.sublabel}
                     </span>
                   ) : null}
-                  {isItemDisabled ? <span className="mt-1 text-xs text-[var(--color-gray-4)]">Bloqueado</span> : null}
+
+                  {isItemDisabled ? (
+                    <span className="step-circle-progress__status mt-1 text-xs font-semibold">
+                      Bloqueado
+                    </span>
+                  ) : null}
                 </button>
                 {disabledMessage ? (
                   <span id={disabledMessageId} className="sr-only">

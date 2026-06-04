@@ -253,3 +253,87 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* StepCircleProgress: colores centralizados para cumplir contraste AA en Lighthouse */
+:root {
+  --color-success-strong: #166534;
+  --color-success-soft: #dcfce7;
+  --color-success-border: #22c55e;
+  --color-step-disabled-text: #374151;
+  --color-step-disabled-bg: #f8fafc;
+  --color-step-disabled-border: #9ca3af;
+}
+
+.step-circle-progress__track {
+  background: var(--color-gray-6);
+}
+
+.step-circle-progress__fill {
+  background: var(--color-success-strong);
+}
+
+.step-circle-progress__button {
+  color: var(--color-secondary-4);
+}
+
+.step-circle-progress__button:disabled {
+  opacity: 1;
+}
+
+.step-circle-progress__marker {
+  background: var(--color-white);
+  border-color: var(--color-secondary-4);
+  color: var(--color-secondary-4);
+}
+
+.step-circle-progress__label {
+  color: var(--color-gray-2);
+}
+
+.step-circle-progress__sublabel {
+  color: var(--color-secondary-4);
+}
+
+.step-circle-progress__status {
+  color: var(--color-step-disabled-text);
+}
+
+.step-circle-progress__button--active .step-circle-progress__marker {
+  background: var(--color-secondary-1);
+  border-color: var(--color-secondary-1);
+  color: var(--color-white);
+}
+
+.step-circle-progress__button--active .step-circle-progress__label {
+  color: var(--color-secondary-1);
+}
+
+.step-circle-progress__button--completed .step-circle-progress__marker {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-strong);
+  color: var(--color-success-strong);
+}
+
+.step-circle-progress__button--completed .step-circle-progress__label {
+  color: var(--color-success-strong);
+}
+
+.step-circle-progress__button--completed .step-circle-progress__sublabel {
+  color: var(--color-gray-1);
+}
+
+.step-circle-progress__button--disabled .step-circle-progress__marker {
+  background: var(--color-step-disabled-bg);
+  border-color: var(--color-step-disabled-border);
+  color: var(--color-step-disabled-text);
+}
+
+.step-circle-progress__button--disabled .step-circle-progress__label,
+.step-circle-progress__button--disabled .step-circle-progress__sublabel {
+  color: var(--color-step-disabled-text);
+}
+
+.step-circle-progress__button--pending:not(:disabled):hover .step-circle-progress__marker {
+  border-color: var(--color-secondary-1);
+  color: var(--color-secondary-1);
+}
