@@ -3,10 +3,12 @@ import { Badge, Button } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
 import type { MapeoCompetenciasEnriched } from "../MapeoCompetencias.types";
+import type { CompetenciaRaDemoRecord, NivelCompromiso } from "../MapeoCompetencias.types";
 import { formatDate, getEstadoBadgeVariant } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasConsolidatedSectionProps {
   records: MapeoCompetenciasEnriched[];
+  competenciasRa: CompetenciaRaDemoRecord[];          
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
   canOpenEdit: boolean;
@@ -15,10 +17,16 @@ interface MapeoCompetenciasConsolidatedSectionProps {
   onCreate: () => void;
   onEdit: (record: MapeoCompetenciasEnriched) => void;
   onDelete: (record: MapeoCompetenciasEnriched) => void;
+  onNivelChange?: (                                   
+    recordId: string,
+    cursoId: string,
+    competenciaId: string,
+    nivel: "" | NivelCompromiso
+  ) => void;
 }
-
 export default function MapeoCompetenciasConsolidatedSection({
   records,
+  competenciasRa,
   hasRequiredFilters,
   canOpenCreate,
   canOpenEdit,
@@ -27,6 +35,7 @@ export default function MapeoCompetenciasConsolidatedSection({
   onCreate,
   onEdit,
   onDelete,
+  onNivelChange
 }: MapeoCompetenciasConsolidatedSectionProps) {
   if (!hasRequiredFilters) {
     return (
@@ -62,7 +71,7 @@ export default function MapeoCompetenciasConsolidatedSection({
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-1)]">
-                Visualización de malla curricular
+                Visualización de Plan de Estudios
               </p>
               <h2 className="mt-1 font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
                 {record.programaNombre}

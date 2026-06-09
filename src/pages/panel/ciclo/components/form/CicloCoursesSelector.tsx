@@ -33,7 +33,7 @@ export default function CicloCoursesSelector({
             Cursos de Síntesis
           </h3>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Selecciona los cursos que harán parte del ciclo.
+            Selecciona los cursos que harán parte del ciclo de medición.
           </p>
         </div>
 

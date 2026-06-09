@@ -13,21 +13,23 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)] disabled:pointer-events-none disabled:opacity-60";
+    "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
+  // "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-60";
+
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--secub-secondary)] text-[var(--secub-secondary-text)] border border-[var(--secub-secondary)] hover:opacity-95 focus:ring-[color:var(--secub-secondary)]",
+    "bg-[var(--color-secondary-1)] text-white border border-[var(--color-secondary-1)] hover:opacity-95 focus:ring-[var(--color-secondary-1)]",
   primary_soft:
-    "bg-[color:rgba(14,101,217,0.08)] text-[var(--secub-text)] border border-[var(--secub-secondary)] hover:opacity-90 focus:ring-[color:var(--secub-secondary)]",
+    "bg-[var(--color-secondary-1)]/5 text-black border border-[var(--color-secondary-1)] hover:opacity-80 focus:ring-[var(--color-secondary-1)]",
   accent:
-    "bg-[var(--secub-primary)] text-[var(--secub-primary-text)] border border-[var(--secub-primary)] hover:opacity-95 focus:ring-[color:var(--secub-primary)]",
+    "bg-[var(--color-primary)] text-white border border-[var(--color-primary)] hover:opacity-95 focus:ring-[var(--color-primary)]",
   outline:
-    "bg-[var(--secub-surface)] text-[var(--secub-text)] border border-[var(--secub-border)] hover:bg-[var(--secub-surface-soft)] focus:ring-[color:var(--secub-secondary)]",
+    "bg-white text-[var(--color-secondary-4)] border border-[var(--color-gray-6)] hover:bg-[var(--color-surface-soft)] focus:ring-[var(--color-secondary-1)]",
   ghost:
-    "bg-transparent text-[var(--secub-text)] border border-transparent hover:bg-[var(--secub-surface-soft)] focus:ring-[color:var(--secub-secondary)]",
+    "bg-transparent text-[var(--color-secondary-4)] border border-transparent hover:bg-[var(--color-surface-soft)] focus:ring-[var(--color-secondary-1)]",
   danger:
-    "bg-[var(--color-error)] text-white border border-[var(--color-error)] hover:opacity-95 focus:ring-[color:var(--color-error)]",
+    "bg-[var(--color-error)] text-white border border-[var(--color-error)] hover:opacity-95 focus:ring-[var(--color-error)]",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -35,26 +37,6 @@ const sizeStyles: Record<ButtonSize, string> = {
   md: "min-h-12 px-5 py-3 text-sm",
   lg: "min-h-14 px-6 py-4 text-base",
 };
-
-export function getButtonClassName({
-  variant = "primary",
-  size = "md",
-  fullWidth = false,
-  className = "",
-}: {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  fullWidth?: boolean;
-  className?: string;
-}) {
-  return [
-    baseStyles,
-    variantStyles[variant],
-    sizeStyles[size],
-    fullWidth ? "w-full" : "",
-    className,
-  ].join(" ");
-}
 
 export function Button({
   children,
@@ -70,23 +52,20 @@ export function Button({
   return (
     <button
       type={type}
-      className={getButtonClassName({ variant, size, fullWidth, className })}
+      className={[
+        baseStyles,
+        variantStyles[variant],
+        sizeStyles[size],
+        fullWidth ? "w-full" : "",
+        className,
+      ].join(" ")}
       {...props}
     >
-      {leftIcon ? (
-        <span className="shrink-0" aria-hidden="true">
-          {leftIcon}
-        </span>
-      ) : null}
+      {leftIcon ? <span className="shrink-0">{leftIcon}</span> : null}
       <span>{children}</span>
-      {rightIcon ? (
-        <span className="shrink-0" aria-hidden="true">
-          {rightIcon}
-        </span>
-      ) : null}
+      {rightIcon ? <span className="shrink-0">{rightIcon}</span> : null}
     </button>
   );
 }
 
-export type { ButtonSize, ButtonVariant };
 export default Button;

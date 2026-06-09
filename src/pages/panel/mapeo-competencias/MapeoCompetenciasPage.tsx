@@ -20,6 +20,7 @@ export default function MapeoCompetenciasPage() {
   const {
     currentUser,
     catalogs,
+    competenciasRa,
     permissions,
     filters,
     filteredRecords,
@@ -35,6 +36,7 @@ export default function MapeoCompetenciasPage() {
     handleEdit,
     handleExportExcel,
     handleExportPdf,
+    handleNivelChange,
     confirmDelete,
   } = page;
 
@@ -136,6 +138,7 @@ export default function MapeoCompetenciasPage() {
 
           <MapeoCompetenciasConsolidatedSection
             records={filteredRecords}
+            competenciasRa={competenciasRa}
             hasRequiredFilters={Boolean(filters.programaId && filters.planId)}
             canOpenCreate={canOpenCreate}
             canOpenEdit={canOpenEdit}
@@ -144,6 +147,7 @@ export default function MapeoCompetenciasPage() {
             onCreate={handleCreate}
             onEdit={handleEdit}
             onDelete={setRecordToDelete}
+            onNivelChange={canOpenEdit ? handleNivelChange : undefined}
           />
 
           <ConfirmDialog

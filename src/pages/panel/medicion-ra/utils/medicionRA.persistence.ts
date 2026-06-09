@@ -41,3 +41,57 @@ export function pickCourseCompetenceState<T extends EvidenceState | ImprovementP
     return acc;
   }, {});
 }
+
+/**
+ * Extrae información de auditoría (timestamps) de un registro de Medición RA.
+ * 
+ * VARIABLES DE AUDITORÍA DISPONIBLES:
+ * ────────────────────────────────────────────────────────────────
+ * • createdAt (string | undefined)
+ *   - Timestamp ISO 8601 de creación del registro
+ *   - Generado automáticamente en la primera creación
+ *   - NO cambia en actualizaciones posteriores
+ *   - Formato: "2024-06-01T14:30:45.123Z"
+ *   - Ruta: MedicionRaDemoState.createdAt
+ *
+ * • updatedAt (string | undefined)
+ *   - Timestamp ISO 8601 de última modificación
+ *   - Actualizado automáticamente cada vez que el registro cambia
+ *   - Cambia con cada persistencia
+ *   - Formato: "2024-06-01T14:30:45.123Z"
+ *   - Ruta: MedicionRaDemoState.updatedAt
+ * 
+ * EJEMPLO DE CONSUMO EN BD:
+ * ────────────────────────────────────────────────────────────────
+ * ```typescript
+ * // 1. Obtener datos de auditoría
+ * const records = mockBackend.list<MedicionRaDemoState>("medicionesRa");
+ * const auditData = records.map(record => extractMedicionRaAuditInfo(record));
+ *
+ * // 2. Enviar a BD (INSERT/UPDATE)
+ * INSERT INTO mediciones_ra_audit (
+ *   id, created_at, updated_at, is_modified, days_since_creation
+ * ) VALUES (?, ?, ?, ?, ?);
+ *
+ * // 3. Query de reporte
+ * SELECT id, created_at, updated_at, 
+ *        TIMESTAMPDIFF(HOUR, created_at, updated_at) as hours_worked
+ * FROM mediciones_ra_audit
+ * WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+ * ORDER BY updated_at DESC;
+ * ```
+ */
+export function extractMedicionRaAuditInfo(record: { createdAt?: string; updatedAt?: string }) {
+  return {
+    // Variables de auditoría (consumibles)
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    // Valores derivados para facilitar consumo
+    createdAtDate: record.createdAt ? new Date(record.createdAt) : undefined,
+    updatedAtDate: record.updatedAt ? new Date(record.updatedAt) : undefined,
+    isModified: record.createdAt && record.updatedAt && record.createdAt !== record.updatedAt,
+    daysSinceCreation: record.createdAt
+      ? Math.floor((Date.now() - new Date(record.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+      : undefined,
+  };
+}

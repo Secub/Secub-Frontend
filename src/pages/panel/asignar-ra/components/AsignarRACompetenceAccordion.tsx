@@ -67,7 +67,7 @@ export function AsignarRACompetenceAccordion({
           </span>
           {hasValidationWarning ? (
             <span className="mt-2 block text-xs font-semibold text-[var(--color-error)]">
-              Selecciona al menos 1 RA para esta competencia.
+              Selecciona al menos 1 RA para este curso.
             </span>
           ) : null}
         </span>
