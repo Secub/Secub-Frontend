@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { GoChevronRight, GoLock, GoPlus } from "react-icons/go";
+import { GoLock, GoPlus } from "react-icons/go";
 import { HiCheck } from "react-icons/hi";
 import { LuCircleDot } from "react-icons/lu";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
@@ -21,6 +21,7 @@ import {
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
 import SidebarRoleSwitcher from "./SidebarRoleSwitcher";
+import { AccessibilityMenu } from "../../accessibility";
 
 interface PanelSidebarProps {
   currentStep: PanelStepKey;
@@ -36,18 +37,6 @@ const academicLabels = [
   "Creación del ciclo",
   "Asignar RA",
 ];
-
-function formatRenewalDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return "la fecha permitida";
-
-  return new Intl.DateTimeFormat("es-CO", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
 
 function getStepStatusLabel({
   isCurrent,
@@ -77,8 +66,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     .filter((item): item is NavigationItem => Boolean(item));
 
   const currentUser = getCurrentMockUser();
-  const userName = currentUser.nombre;
-  const userCargo = currentUser.cargo || "Cargo no registrado";
+
   const medicionRaItem = panelNavigation.find((item) => item.key === "medicion-ra");
   const canAccessMedicionRa = currentUser.role === "docente";
   const canSeeAcademicWorkflow = true;
@@ -101,7 +89,6 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     academicItems[2] ??
     academicItems[0];
   const MedicionRaIcon = medicionRaItem?.icon;
-  const newAcademicPlanHelpId = "new-academic-plan-help";
 
   const goTo = (href: string) => {
     // Mantiene el rol demo en la navegación. Cuando exista Auth real, el rol saldrá del usuario autenticado.
@@ -258,7 +245,6 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                         type="button"
                         onClick={handleStartNewAcademicPlan}
                         aria-disabled={!canStartNewAcademicPlan}
-                        aria-describedby={!canStartNewAcademicPlan ? newAcademicPlanHelpId : undefined}
                         title={
                           canStartNewAcademicPlan
                             ? "Crear un nuevo plan académico desde el paso 3"
@@ -301,11 +287,6 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                           <p className="truncate font-heading text-[0.9rem] font-medium leading-[1.15] text-[var(--color-white)]">
                             Plan académico nuevo
                           </p>
-                          {!canStartNewAcademicPlan ? (
-                            <p id={newAcademicPlanHelpId} className="mt-1 text-[0.62rem] leading-4 text-[var(--color-secondary-3)]">
-                              {newAcademicPlanLockedMessage} Disponible desde {formatRenewalDate(renewalAvailability.renewalDate)}.
-                            </p>
-                          ) : null}
                         </div>
                       </button>
                     </div>
@@ -439,7 +420,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
               {canAccessMedicionRa && medicionRaItem ? (
                 <li>
                   <p className="text-left text-[0.95rem] font-medium text-[var(--color-secondary-3)]">
-                    Evaluación docente
+                    Medicion RA
                   </p>
 
                   <button
@@ -491,37 +472,9 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
         <div className="shrink-0 space-y-4 border-t border-[var(--color-secondary-4)] px-6 py-4">
           {SHOW_DEMO_TOOLS ? <SidebarRoleSwitcher /> : null}
 
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] transition-colors hover:bg-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
-            aria-label={`Usuario actual: ${userName}. Cargo: ${userCargo}`}
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-warning)] text-[var(--color-secondary-4)]" aria-hidden="true">
-              <span className="text-base font-bold">
-                {userName.charAt(0).toUpperCase()}
-              </span>
-            </div>
+          <AccessibilityMenu className="accessibility-menu--sidebar" triggerText="Ajustes visuales" />
 
-            <div className="min-w-0 flex-1 text-left">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]">
-                Nombre
-              </p>
-
-              <p className="truncate font-heading text-[0.95rem] font-semibold text-[var(--color-white)]">
-                {userName}
-              </p>
-
-              <p className="mt-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]">
-                Cargo
-              </p>
-
-              <p className="truncate text-[0.78rem] font-medium text-[var(--color-secondary-3)]">
-                {userCargo}
-              </p>
-            </div>
-
-            <GoChevronRight aria-hidden="true" className="shrink-0 text-base text-[var(--color-secondary-3)]" />
-          </button>
+          
         </div>
       </div>
     </aside>

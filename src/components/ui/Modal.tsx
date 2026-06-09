@@ -53,11 +53,11 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={[
-          "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[28px] border border-[var(--color-gray-6)] bg-white shadow-[0_24px_80px_rgba(24,34,51,0.18)]",
+          "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[28px] border border-[var(--secub-border)] bg-[var(--secub-surface)] shadow-[0_24px_80px_rgba(24,34,51,0.18)]",
           sizeStyles[size],
         ].join(" ")}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--color-gray-6)] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--secub-border)] px-6 py-5">
           <div>
             <h2 id={titleId} className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
               {title}
@@ -72,7 +72,7 @@ export function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-gray-6)] text-[var(--color-gray-4)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-gray-6)] text-[var(--color-gray-4)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
             aria-label="Cerrar modal"
           >
             <GoX aria-hidden="true" className="text-2xl" />
@@ -84,7 +84,7 @@ export function Modal({
         </div>
 
         {footer ? (
-          <div className="border-t border-[var(--color-gray-6)] px-6 py-5">
+          <div className="border-t border-[var(--secub-border)] px-6 py-5">
             {footer}
           </div>
         ) : null}

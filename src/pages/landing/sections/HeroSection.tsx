@@ -59,7 +59,7 @@ export default function HeroSection() {
               href="#modulos"
               variant="ghost"
               size="md"
-              className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20"
+              className="hero-button-secondary rounded-full"
             >
               Ver módulos
             </LinkButton>

@@ -9,4 +9,18 @@ describe("contraste de colores base SECUB", () => {
     expect(checker.isLevelAA("#374151", "#ffffff", 14)).toBe(true);
     expect(checker.isLevelAA("#0e65d9", "#ffffff", 14)).toBe(true);
   });
+
+  it("mantiene contraste AA en el botón Ver módulos del hero", () => {
+    const checker = new ColorContrastChecker();
+
+    expect(checker.isLevelAA("#111827", "#ffffff", 14)).toBe(true);
+  });
+
+  it("mantiene contraste AA en el modo de alto contraste", () => {
+    const checker = new ColorContrastChecker();
+
+    expect(checker.isLevelAA("#ffffff", "#000000", 14)).toBe(true);
+    expect(checker.isLevelAA("#000000", "#ffd400", 14)).toBe(true);
+    expect(checker.isLevelAA("#ffffff", "#005fcc", 14)).toBe(true);
+  });
 });

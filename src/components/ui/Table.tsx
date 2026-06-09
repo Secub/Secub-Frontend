@@ -41,7 +41,7 @@ export function Table<T>({
   const hasActions = actions.length > 0;
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[20px] border border-[var(--secub-border)] bg-[var(--secub-surface)] shadow-sm">
       <div className="w-full overflow-x-auto">
         <table className="w-full table-fixed border-separate border-spacing-0" aria-label={caption ? undefined : ariaLabel}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
@@ -52,7 +52,7 @@ export function Table<T>({
                   key={column.key}
                   scope="col"
                   className={[
-                    "border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]",
+                    "border-b border-[var(--secub-border)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]",
                     column.headerClassName ?? "",
                   ].join(" ")}
                 >
@@ -61,7 +61,7 @@ export function Table<T>({
               ))}
 
               {hasActions ? (
-                <th scope="col" className="w-[110px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
+                <th scope="col" className="w-[110px] border-b border-[var(--secub-border)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
                   Acciones
                 </th>
               ) : null}
@@ -80,12 +80,12 @@ export function Table<T>({
               </tr>
             ) : (
               data.map((row, index) => (
-                <tr key={rowKey(row, index)} className="bg-white">
+                <tr key={rowKey(row, index)} className="bg-[var(--secub-surface)]">
                   {columns.map((column) => (
                     <td
                       key={column.key}
                       className={[
-                        "border-b border-[var(--color-gray-6)] px-5 py-4 align-top text-sm text-[var(--color-gray-2)]",
+                        "border-b border-[var(--secub-border)] px-5 py-4 align-top text-sm text-[var(--color-gray-2)]",
                         column.className ?? "",
                       ].join(" ")}
                     >
@@ -94,7 +94,7 @@ export function Table<T>({
                   ))}
 
                   {hasActions ? (
-                    <td className="w-[110px] border-b border-[var(--color-gray-6)] px-5 py-4 align-middle">
+                    <td className="w-[110px] border-b border-[var(--secub-border)] px-5 py-4 align-middle">
                       <div className="flex items-center gap-2">
                         {actions.map((action) => {
                           const isVisible = action.show ? action.show(row) : true;
@@ -120,7 +120,7 @@ export function Table<T>({
                               }}
                               disabled={isDisabled}
                               className={[
-                                "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]",
+                                "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
                                 "disabled:cursor-not-allowed disabled:opacity-45",
                                 action.variant === "danger"
                                   ? "text-[var(--color-error)] hover:bg-[color:rgba(235,87,87,0.10)]"

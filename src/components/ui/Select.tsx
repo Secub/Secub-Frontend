@@ -41,7 +41,7 @@ export function Select({
 
   const stateClass = error
     ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:rgba(235,87,87,0.18)]"
-    : "border-[var(--color-gray-6)] focus:border-[var(--color-secondary-1)] focus:ring-[color:rgba(14,101,217,0.16)]";
+    : "border-[var(--secub-border)] focus:border-[var(--secub-secondary)] focus:ring-[color:var(--secub-focus-soft)]";
 
   return (
     <div className="w-full min-w-0">
@@ -66,7 +66,7 @@ export function Select({
           aria-label={accessibleNameFallback}
           value={value}
           className={[
-            "w-full min-w-0 appearance-none rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-[var(--color-gray-1)] shadow-sm transition-all duration-200",
+            "w-full min-w-0 appearance-none rounded-xl border bg-[var(--secub-surface)] px-4 py-3 pr-11 text-sm text-[var(--secub-text)] shadow-sm transition-all duration-200",
             "focus:outline-none focus:ring-4",
             "disabled:cursor-not-allowed disabled:bg-[var(--color-gray-7)] disabled:text-[var(--color-gray-4)]",
             stateClass,

@@ -4,8 +4,8 @@ import { LinkButton } from "../../../components/ui";
 
 export default function LandingHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-gray-6)] bg-white/90 backdrop-blur">
-      <div className="container-secub flex h-20 items-center justify-between gap-6">
+    <header className="landing-header sticky top-0 z-50 border-b border-[var(--secub-border)] backdrop-blur">
+      <div className="container-secub flex min-h-20 items-center justify-between gap-6 py-3">
         <a href="#inicio" className="flex items-center gap-3" aria-label="Ir al inicio de SECUB">
           <img
             src={LogoUSB}
@@ -19,7 +19,7 @@ export default function LandingHeader() {
           />
         </a>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Navegación principal">
           <a href="#inicio" className="nav-link">
             Inicio
           </a>
@@ -34,9 +34,6 @@ export default function LandingHeader() {
           </a>
           <a href="#contacto" className="nav-link">
             Contacto
-          </a>
-          <a href="#accesibilidad" className="nav-link">
-            Accesibilidad
           </a>
         </nav>
 
