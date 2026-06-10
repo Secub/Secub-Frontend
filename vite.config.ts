@@ -4,6 +4,7 @@ import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  base: process.env.GITHUB_PAGES === "true" ? "/Secub-Frontend/" : "/",
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),

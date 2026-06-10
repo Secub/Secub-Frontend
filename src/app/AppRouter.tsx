@@ -19,9 +19,28 @@ function isAccessRoute(pathname: string) {
   );
 }
 
+function getAppPathname() {
+  const baseUrl = import.meta.env.BASE_URL ?? "/";
+  const normalizedBase =
+    baseUrl === "/" ? "" : baseUrl.replace(/\/$/, "");
+
+  const pathname = window.location.pathname;
+
+  if (normalizedBase && pathname.startsWith(normalizedBase)) {
+    const pathnameWithoutBase = pathname.slice(normalizedBase.length);
+    return pathnameWithoutBase || "/";
+  }
+
+  return pathname;
+}
+
 export default function AppRouter() {
-  const normalizedPath = normalizePathname(window.location.pathname);
-  const isPanelRoute = normalizedPath === ROUTES.panel || normalizedPath.startsWith(`${ROUTES.panel}/`);
+  const appPathname = getAppPathname();
+  const normalizedPath = normalizePathname(appPathname);
+
+  const isPanelRoute =
+    normalizedPath === ROUTES.panel ||
+    normalizedPath.startsWith(`${ROUTES.panel}/`);
 
   useInactivityLogout(isPanelRoute);
 

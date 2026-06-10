@@ -8,6 +8,7 @@ on:
       - dev/juliana
       - dev/santiago
       - dev/nico
+      - dev/fonseca
   pull_request:
     branches:
       - main
