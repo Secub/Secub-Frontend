@@ -15,12 +15,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}   # e.g. tu-org/secub-frontend
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # ──────────────────────────────────────────────────────────────
-  # JOB 1 · Lint + Build
-  # ──────────────────────────────────────────────────────────────
   build:
     name: Lint & Build
     runs-on: ubuntu-latest
@@ -32,8 +29,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Instalar dependencias
         run: npm ci
@@ -51,9 +49,6 @@ jobs:
           path: dist/
           retention-days: 1
 
-  # ──────────────────────────────────────────────────────────────
-  # JOB 2 · Docker build + push (solo en push a main o develop)
-  # ──────────────────────────────────────────────────────────────
   docker:
     name: Docker Build & Push
     runs-on: ubuntu-latest
@@ -62,7 +57,7 @@ jobs:
 
     permissions:
       contents: read
-      packages: write   # necesario para GHCR
+      packages: write
 
     steps:
       - name: Checkout código
@@ -75,10 +70,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configurar Docker Buildx        # nuevo paso para soportar cache y metadata
+      - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extraer metadata (tags y labels)
+      - name: Extraer metadata tags y labels
         id: meta
         uses: docker/metadata-action@v5
         with:
