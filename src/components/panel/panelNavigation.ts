@@ -9,6 +9,7 @@ import {
   GoHome,
 } from "react-icons/go";
 import type { IconType } from "react-icons";
+import { ROUTES } from "../../app/appRoutes";
 
 export type PanelStepKey =
   | "dashboard"
@@ -34,14 +35,14 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "dashboard",
     label: "Dashboard",
     description: "Resumen general",
-    href: "/panel/dashboard",
+    href: ROUTES.panelDashboard,
     icon: GoHome,
   },
   {
     key: "perfil-egreso",
     label: "Perfil de Egreso",
     description: "Paso 1",
-    href: "/panel/perfil-egreso",
+    href: ROUTES.panelPerfilEgreso,
     icon: GoGoal,
     order: 1,
   },
@@ -49,7 +50,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "proposito-formacion",
     label: "Propósito de Formación",
     description: "Paso 2",
-    href: "/panel/proposito-formacion",
+    href: ROUTES.panelPropositoFormacion,
     icon: GoChecklist,
     order: 2,
   },
@@ -57,7 +58,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "competencias-ra",
     label: "Competencias y RA",
     description: "Paso 3",
-    href: "/panel/competencias-ra",
+    href: ROUTES.panelCompetenciasRa,
     icon: GoBook,
     order: 3,
   },
@@ -65,7 +66,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "mapeo-competencias",
     label: "Mapeo de Competencias",
     description: "Paso 4",
-    href: "/panel/mapeo-competencias",
+    href: ROUTES.panelMapeoCompetencias,
     icon: GoRepo,
     order: 4,
   },
@@ -73,7 +74,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "ciclo",
     label: "Creación del ciclo",
     description: "Paso 5",
-    href: "/panel/ciclo",
+    href: ROUTES.panelCiclo,
     icon: GoProject,
     order: 5,
   },
@@ -81,7 +82,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "asignar-ra",
     label: "Asignar RA",
     description: "Paso 6",
-    href: "/panel/asignar-ra",
+    href: ROUTES.panelAsignarRa,
     icon: GoTasklist,
     order: 6,
   },
@@ -89,7 +90,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     key: "medicion-ra",
     label: "Medición RA",
     description: "Registro de medición de RA",
-    href: "/panel/medicion-ra",
+    href: ROUTES.panelMedicionRa,
     icon: GoGraph,
   },
 ];

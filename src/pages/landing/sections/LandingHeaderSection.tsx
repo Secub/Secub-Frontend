@@ -1,6 +1,7 @@
 import LogoUSB from "../../../assets/logos/logo-usb.png";
 import LogoSecub from "../../../assets/logos/logo-secub.png";
 import { LinkButton } from "../../../components/ui";
+import { ROUTES } from "../../../app/appRoutes";
 
 export default function LandingHeader() {
   return (
@@ -42,7 +43,7 @@ export default function LandingHeader() {
             Conocer más
           </LinkButton>
 
-          <LinkButton href="/acceder" variant="accent" size="md" className="rounded-full">
+          <LinkButton href={ROUTES.access} variant="accent" size="md" className="rounded-full">
             Acceder
           </LinkButton>
         </div>

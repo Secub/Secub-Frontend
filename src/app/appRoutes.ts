@@ -1,18 +1,20 @@
+export const APP_BASE_PATH = "/Secub-Frontend";
+
 export const ROUTES = {
-  landing: "/",
-  access: "/acceder",
-  accessAliases: ["/login", "/auth"],
-  panel: "/panel",
-  panelDashboard: "/panel/dashboard",
-  panelPerfilEgreso: "/panel/perfil-egreso",
-  panelPropositoFormacion: "/panel/proposito-formacion",
-  panelCompetenciasRa: "/panel/competencias-ra",
-  panelMapeoCompetencias: "/panel/mapeo-competencias",
-  panelMapeoCompetenciasCrear: "/panel/mapeo-competencias/crear",
-  panelMapeoCompetenciasEditar: "/panel/mapeo-competencias/editar",
-  panelCiclo: "/panel/ciclo",
-  panelAsignarRa: "/panel/asignar-ra",
-  panelMedicionRa: "/panel/medicion-ra",
+  landing: `${APP_BASE_PATH}/`,
+  access: `${APP_BASE_PATH}/acceder`,
+  accessAliases: [`${APP_BASE_PATH}/login`, `${APP_BASE_PATH}/auth`],
+  panel: `${APP_BASE_PATH}/panel`,
+  panelDashboard: `${APP_BASE_PATH}/panel/dashboard`,
+  panelPerfilEgreso: `${APP_BASE_PATH}/panel/perfil-egreso`,
+  panelPropositoFormacion: `${APP_BASE_PATH}/panel/proposito-formacion`,
+  panelCompetenciasRa: `${APP_BASE_PATH}/panel/competencias-ra`,
+  panelMapeoCompetencias: `${APP_BASE_PATH}/panel/mapeo-competencias`,
+  panelMapeoCompetenciasCrear: `${APP_BASE_PATH}/panel/mapeo-competencias/crear`,
+  panelMapeoCompetenciasEditar: `${APP_BASE_PATH}/panel/mapeo-competencias/editar`,
+  panelCiclo: `${APP_BASE_PATH}/panel/ciclo`,
+  panelAsignarRa: `${APP_BASE_PATH}/panel/asignar-ra`,
+  panelMedicionRa: `${APP_BASE_PATH}/panel/medicion-ra`,
 } as const;
 
 export function normalizePathname(pathname: string) {
