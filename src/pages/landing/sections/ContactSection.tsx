@@ -1,4 +1,5 @@
 import { LinkButton } from "../../../components/ui";
+import { ROUTES } from "../../../app/appRoutes";
 
 export default function ContactSection() {
   return (
@@ -27,7 +28,7 @@ export default function ContactSection() {
               Contactar soporte
             </LinkButton>
 
-            <LinkButton href="/acceder" variant="outline" size="md" className="rounded-full">
+            <LinkButton href={ROUTES.access} variant="outline" size="md" className="rounded-full">
               Ir al acceso
             </LinkButton>
           </div>
