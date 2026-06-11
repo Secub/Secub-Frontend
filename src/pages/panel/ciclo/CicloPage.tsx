@@ -30,12 +30,9 @@ export default function CicloPage() {
     savedMessage,
     roleScopedCycles,
     filteredCycles,
-    canCreateCycle,
-    createDisabledReason,
     handleFilterChange,
     openCreateModal,
     openEditModal,
-    openDuplicateModal,
     handleViewDetail,
     handleSubmit,
     confirmDelete,
@@ -46,22 +43,19 @@ export default function CicloPage() {
   } = page;
 
   const pageActions = (
-    <CicloPageActions
-      canCreate={canCreateCycle}
-      onCreate={openCreateModal}
-    />
+    <CicloPageActions canCreate={permissions.canCreateCycle} onCreate={openCreateModal} />
   );
 
   return (
     <PanelLayout
       currentStep="ciclo"
-      title="Creación del ciclo de medición"
+      title="Creación del ciclo"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles ? pageActions : undefined}
       breadcrumbItems={[
         { label: "Dashboard", href: "/panel/dashboard" },
         { label: "Gestión Académica" },
-        { label: "Creación del ciclo de medición" },
+        { label: "Creación del ciclo" },
       ]}
     >
       {isStepLocked ? (
@@ -77,18 +71,13 @@ export default function CicloPage() {
         <WorkflowStateCard
           title="Aún no hay ciclos de medición creados"
           description="Cuando se cree el primer ciclo, se habilitará el resumen con filtros, cursos seleccionados, periodo, estado y responsable."
-          actionLabel={permissions.canCreateCycle ? "Crear ciclo de medición" : undefined}
+          actionLabel={permissions.canCreateCycle ? "Crear ciclo" : undefined}
           onAction={permissions.canCreateCycle ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6">
           <CicloSavedMessage message={savedMessage} onClose={() => setSavedMessage("")} />
-          {!canCreateCycle && createDisabledReason && (
-            <p className="flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-              {createDisabledReason}
-            </p>
-          )}
 
           <CicloFilters
             user={user}
@@ -108,7 +97,6 @@ export default function CicloPage() {
             onView={handleViewDetail}
             onEdit={openEditModal}
             onDelete={setCycleToDelete}
-            onDuplicate={openDuplicateModal}
           />
         </div>
       )}

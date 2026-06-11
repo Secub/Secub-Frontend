@@ -7,14 +7,9 @@ interface CicloPageActionsProps {
 }
 
 export default function CicloPageActions({ canCreate, onCreate }: CicloPageActionsProps) {
-  return (
-    <Button 
-      variant="primary" 
-      leftIcon={<GoPlus className="text-lg" />} 
-      onClick={onCreate}
-      disabled={!canCreate}
-    >
-      Crear ciclo de medición
+  return canCreate ? (
+    <Button variant="primary" leftIcon={<GoPlus className="text-lg" />} onClick={onCreate}>
+      Crear ciclo
     </Button>
-  );
+  ) : null;
 }

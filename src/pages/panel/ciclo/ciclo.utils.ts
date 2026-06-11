@@ -176,37 +176,6 @@ export function getCourseEligibility(
   };
 }
 
-/**
- * Ordena cursos por tipo de vinculación docente.
- * Orden de prioridad: Tiempo Completo → Medio Tiempo → Cátedra
- */
-export function sortCoursesByContractType(courses: CursoSintesis[]): CursoSintesis[] {
-  const contractTypePriority: Record<string, number> = {
-    "tiempo completo": 0,
-    "medio tiempo": 1,
-    "catedra": 2,
-    "hora catedra": 2,
-  };
-
-  return [...courses].sort((a, b) => {
-    const normalizeType = (type: string) =>
-      type.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "");
-
-    const typeA = normalizeType(a.tipoVinculacion);
-    const typeB = normalizeType(b.tipoVinculacion);
-
-    const priorityA = contractTypePriority[typeA] ?? 3;
-    const priorityB = contractTypePriority[typeB] ?? 3;
-
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-
-    // Si tienen el mismo tipo de contrato, ordenar por semestre
-    return a.semestre - b.semestre;
-  });
-}
-
 export function enrichCiclos(ciclos: CicloMedicion[], catalogs: CicloCatalogs): CicloEnriched[] {
   return ciclos.map((ciclo) => {
     const seccional = catalogs.seccionales.find((item) => item.id === ciclo.seccionalId);

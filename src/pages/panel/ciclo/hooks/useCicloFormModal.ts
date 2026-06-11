@@ -6,7 +6,6 @@ import {
   getActivePlansByProgram,
   getCourseEligibility,
   getSynthesisCourses,
-  sortCoursesByContractType,
 } from "../ciclo.utils";
 
 function normalizeContractType(tipoVinculacion: string) {
@@ -87,11 +86,10 @@ export function useCicloFormModal({
   );
 
   const availableCourses = useMemo(() => {
-    const filtered = synthesisCourses.filter((course) => {
+    return synthesisCourses.filter((course) => {
+      if (isCatedraTeacher(course.tipoVinculacion)) return false;
       return getCourseEligibility(course, selectedPrograma, selectedPlan).selectable;
     });
-    // Ordenar por tipo de contrato: Tiempo Completo → Medio Tiempo → Cátedra
-    return sortCoursesByContractType(filtered);
   }, [selectedPlan, selectedPrograma, synthesisCourses]);
 
   const selectedCount = values.cursoIds.filter((cursoId) =>
@@ -140,8 +138,8 @@ export function useCicloFormModal({
     onSubmit(values);
   };
 
-  const title = { create: "Crear ciclo de medición", edit: "Editar ciclo", view: "Detalle del ciclo" }[mode];
-  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo de medición";
+  const title = { create: "Crear ciclo", edit: "Editar ciclo", view: "Detalle del ciclo" }[mode];
+  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo";
 
   return {
     values,
