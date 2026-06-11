@@ -63,7 +63,7 @@ export default function MapeoCompetenciasSemesterStep({
             Semestre {semestreNumero}
           </h3>
           <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-            Asigna competencias a opciones: Introduce, Refuerza, Afianza o No aplica.
+            Selecciona cómo aplica cada competencia al curso: Introduce, Refuerza, Afianza o No aplica.
           </p>
         </div>
 

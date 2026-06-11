@@ -35,42 +35,48 @@ export default function NucleoSemestreCard({
           <div className="min-w-0">
             <h4 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
               Semestre {semestreNumero}
+
             </h4>
+            <div>
+              <Badge
+                variant={getNucleoVariant(selectedNucleo)}
+                className="max-w-full shrink-0 overflow-hidden text-ellipsis"
+                title={getNucleoLabel(selectedNucleo)}
+              >
+                {getNucleoLabel(selectedNucleo)}
+              </Badge>
+            </div>
             <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
               {coursePreview || "Sin cursos cargados en ASIS/mock"}
               {cursos.length > 2 ? ` · +${cursos.length - 2}` : ""}
             </p>
           </div>
 
-          <Badge
-            variant={getNucleoVariant(selectedNucleo)}
-            className="max-w-full shrink-0 overflow-hidden text-ellipsis"
-            title={getNucleoLabel(selectedNucleo)}
-          >
-            {getNucleoLabel(selectedNucleo)}
-          </Badge>
+
+
+          <div className="mt-3 flex flex-wrap gap-3">
+            {NUCLEO_OPTIONS.map((nucleo) => (
+              <Button
+                key={nucleo}
+                variant={selectedNucleo === nucleo ? "primary" : "outline"}
+                size="sm"
+                disabled={disabled}
+                onClick={() => onSelectNucleo(nucleo)}
+                className="min-w-[150px] flex-1"
+              >
+                {getNucleoLabel(nucleo)}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="px-5 py-5 md:px-6 md:py-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-gray-4)]">
+        {/* <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-gray-4)]">
           Clasificar como:
-        </p>
+        </p> */}
 
-        <div className="mt-3 flex flex-wrap gap-3">
-          {NUCLEO_OPTIONS.map((nucleo) => (
-            <Button
-              key={nucleo}
-              variant={selectedNucleo === nucleo ? "primary" : "outline"}
-              size="sm"
-              disabled={disabled}
-              onClick={() => onSelectNucleo(nucleo)}
-              className="min-w-[150px] flex-1"
-            >
-              {getNucleoLabel(nucleo)}
-            </Button>
-          ))}
-        </div>
+
       </div>
     </article>
   );
