@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { GoLock, GoPlus } from "react-icons/go";
+import { GoChevronRight, GoLock, GoPlus } from "react-icons/go";
 import { HiCheck } from "react-icons/hi";
 import { LuCircleDot } from "react-icons/lu";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
@@ -66,7 +66,8 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     .filter((item): item is NavigationItem => Boolean(item));
 
   const currentUser = getCurrentMockUser();
-
+  const userName = currentUser.nombre;
+  const userCargo = currentUser.cargo || "Cargo no registrado";
   const medicionRaItem = panelNavigation.find((item) => item.key === "medicion-ra");
   const canAccessMedicionRa = currentUser.role === "docente";
   const canSeeAcademicWorkflow = true;
@@ -420,7 +421,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
               {canAccessMedicionRa && medicionRaItem ? (
                 <li>
                   <p className="text-left text-[0.95rem] font-medium text-[var(--color-secondary-3)]">
-                    Medicion RA
+                    Evaluación docente
                   </p>
 
                   <button
@@ -474,7 +475,37 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
 
           <AccessibilityMenu className="accessibility-menu--sidebar" triggerText="Ajustes visuales" />
 
-          
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] transition-colors hover:bg-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+            aria-label={`Usuario actual: ${userName}. Cargo: ${userCargo}`}
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-warning)] text-[var(--color-secondary-4)]" aria-hidden="true">
+              <span className="text-base font-bold">
+                {userName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]">
+                Nombre
+              </p>
+
+              <p className="truncate font-heading text-[0.95rem] font-semibold text-[var(--color-white)]">
+                {userName}
+              </p>
+
+              <p className="mt-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]">
+                Cargo
+              </p>
+
+              <p className="truncate text-[0.78rem] font-medium text-[var(--color-secondary-3)]">
+                {userCargo}
+              </p>
+            </div>
+
+            <GoChevronRight aria-hidden="true" className="shrink-0 text-base text-[var(--color-secondary-3)]" />
+          </button>
         </div>
       </div>
     </aside>
