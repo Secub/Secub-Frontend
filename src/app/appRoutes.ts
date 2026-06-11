@@ -4,6 +4,8 @@ export const ROUTES = {
   accessAliases: ["/login", "/auth"],
   panel: "/panel",
   panelDashboard: "/panel/dashboard",
+  panelSettings: "/panel/ajustes",
+  panelAccessibility: "/panel/accesibilidad",
   panelPerfilEgreso: "/panel/perfil-egreso",
   panelPropositoFormacion: "/panel/proposito-formacion",
   panelCompetenciasRa: "/panel/competencias-ra",

@@ -13,9 +13,9 @@ export const DEFAULT_DASHBOARD_ROLE: DashboardRole = "admin";
 export const dashboardRoleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vice / Seccional",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
 };
 
 export const dashboardUsers: Record<DashboardRole, DashboardUser> = {

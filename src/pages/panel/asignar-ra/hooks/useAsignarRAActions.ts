@@ -123,7 +123,7 @@ export function useAsignarRAActions({
     if (!selectedCourse) return "Selecciona un curso de Síntesis para asignar RA.";
     if (selectedCourse.nucleo !== "Síntesis") return "Solo se pueden asignar RA a cursos de Síntesis.";
     if (!courseCompetencias.length) return "El curso seleccionado no tiene competencias asociadas. Revisa el Mapeo de Competencias.";
-    if (!canManage) return "Solo el Director de Programa puede guardar asignaciones RA.";
+    if (!canManage) return "Solo Dirección de programa puede guardar asignaciones RA.";
     return "";
   };
 

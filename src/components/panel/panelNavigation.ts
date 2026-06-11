@@ -12,6 +12,8 @@ import type { IconType } from "react-icons";
 
 export type PanelStepKey =
   | "dashboard"
+  | "ajustes"
+  | "accesibilidad"
   | "perfil-egreso"
   | "proposito-formacion"
   | "competencias-ra"

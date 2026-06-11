@@ -6,10 +6,10 @@ import type {
 
 export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
-  vice: "Vicerrector (Seccional)",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  vice: "Vicerrectoría (Seccional)",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
 };
 
 // Regla funcional RF05: el Director define la Gestión Académica.

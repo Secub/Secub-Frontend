@@ -54,7 +54,7 @@ export default function MeasurementCycleCard({
   const improvementPlanLockedReason = !isMeasurementComplete
     ? "El plan de mejora se habilita cuando la Medición RA del ciclo esté completada al 100%."
     : !isDirector
-      ? "Solo el Director puede cargar el plan de mejora del ciclo."
+      ? "Solo Dirección de programa puede cargar el plan de mejora del ciclo."
       : "";
   const reportLockedReason = !isMeasurementComplete
     ? "El reporte se habilita cuando Gestión Académica, Medición RA y Plan de mejora estén completos."

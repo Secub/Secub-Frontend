@@ -1,16 +1,11 @@
+import { getNeutralRoleLabel, type MockUserRole } from "../../services/auth/mockUser";
 import { mockBackend } from "../../services/mockBackend";
 
-const devRoles = [
-  { value: "admin", label: "Super Admin" },
-  { value: "vice", label: "Vice/Admin" },
-  { value: "decano", label: "Decano" },
-  { value: "director", label: "Director" },
-  { value: "docente", label: "Docente" },
-];
+const devRoles: MockUserRole[] = ["admin", "vice", "decano", "director", "docente"];
 
 export default function DevRoleSelector() {
   const params = new URLSearchParams(window.location.search);
-  const currentRole = params.get("role") ?? "admin";
+  const currentRole = (params.get("role") ?? "admin") as MockUserRole;
 
   const handleChange = (role: string) => {
     const nextParams = new URLSearchParams(window.location.search);
@@ -46,8 +41,8 @@ export default function DevRoleSelector() {
         className="bg-transparent text-sm font-semibold text-[var(--color-secondary-4)] focus:outline-none"
       >
         {devRoles.map((role) => (
-          <option key={role.value} value={role.value}>
-            {role.label}
+          <option key={role} value={role}>
+            {getNeutralRoleLabel(role)}
           </option>
         ))}
       </select>

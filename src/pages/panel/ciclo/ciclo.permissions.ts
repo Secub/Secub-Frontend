@@ -7,10 +7,10 @@ import type {
 
 export const cicloRoleLabels: Record<CicloRole, string> = {
   admin: "Super Admin",
-  vice: "Vicerrector",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  vice: "Vicerrectoría",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
 };
 
 export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {

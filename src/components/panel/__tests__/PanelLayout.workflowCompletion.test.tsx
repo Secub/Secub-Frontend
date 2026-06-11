@@ -22,7 +22,7 @@ vi.mock("../PanelSidebar", () => ({
 vi.mock("../../../services/auth/mockUser", () => ({
   getCurrentMockUser: () => ({
     nombre: "Juliana Mejía",
-    cargo: "Directora de programa",
+    cargo: "Dirección de programa",
     role: "director",
   }),
 }));

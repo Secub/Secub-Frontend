@@ -6,10 +6,10 @@ import type {
 
 export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
-  vice: "Vicerrector (Seccional)",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  vice: "Vicerrectoría (Seccional)",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
 };
 
 /**
@@ -123,7 +123,7 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
 
 export function getAccessRestrictedDescription(role: MapeoCompetenciasRole) {
   if (RF05_ACCESS_POLICY === "director-only") {
-    return "La regla visual activa permite que solo el Director de Programa visualice RF05 — Mapeo de Competencias.";
+    return "La regla visual activa permite que solo Dirección de programa visualice RF05 — Mapeo de Competencias.";
   }
 
   return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias.";
@@ -159,7 +159,7 @@ export function getManageDisabledReason(
   programaEstado?: ProgramaEstado,
 ) {
   if (role !== "director") {
-    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad del Director de Programa.";
+    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Dirección de programa.";
   }
 
   if (programaEstado !== "activo") {

@@ -9,7 +9,11 @@ import MapeoCompetenciasCreatePage from "../pages/panel/mapeo-competencias/Mapeo
 import CicloPage from "../pages/panel/ciclo/CicloPage";
 import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
 import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
+import UserSettingsPage from "../pages/panel/ajustes/UserSettingsPage";
+import AccessibilitySettingsPage from "../pages/panel/accesibilidad/AccessibilitySettingsPage";
 import { ROUTES, normalizePathname } from "./appRoutes";
+import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
+import { getCurrentMockUser } from "../services/auth/mockUser";
 import { useInactivityLogout } from "../services/auth/useInactivityLogout";
 
 function isAccessRoute(pathname: string) {
@@ -25,6 +29,15 @@ export default function AppRouter() {
 
   useInactivityLogout(isPanelRoute);
 
+  if (isPanelRoute) {
+    const redirectPath = getPanelRouteAccessRedirect(normalizedPath, getCurrentMockUser().role);
+
+    if (redirectPath) {
+      window.history.replaceState(null, "", `${redirectPath}${window.location.search}`);
+      return <DashboardPage />;
+    }
+  }
+
   if (isAccessRoute(normalizedPath)) {
     return <AccessPage />;
   }
@@ -33,6 +46,10 @@ export default function AppRouter() {
     case ROUTES.panel:
     case ROUTES.panelDashboard:
       return <DashboardPage />;
+    case ROUTES.panelSettings:
+      return <UserSettingsPage />;
+    case ROUTES.panelAccessibility:
+      return <AccessibilitySettingsPage />;
     case ROUTES.panelPerfilEgreso:
       return <PerfilEgresoPage />;
     case ROUTES.panelPropositoFormacion:

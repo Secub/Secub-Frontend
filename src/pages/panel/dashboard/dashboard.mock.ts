@@ -727,9 +727,9 @@ export const courseMeasurements: CourseMeasurement[] = [
 const roleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vicerrectoría de seccional",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
 };
 
 const mockUsers: Record<DashboardRole, DashboardUser> = {

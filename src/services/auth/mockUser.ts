@@ -22,12 +22,28 @@ export interface CentralMockUser {
 
 export const DEFAULT_DEMO_ROLE: MockUserRole = "admin";
 
+const neutralRoleLabels: Record<MockUserRole, string> = {
+  admin: "Administración",
+  vice: "Vicerrectoría",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
+};
+
+export function getNeutralRoleLabel(role: MockUserRole) {
+  return neutralRoleLabels[role];
+}
+
+export function getNeutralUserCargo(user: Pick<CentralMockUser, "role" | "cargo">) {
+  return neutralRoleLabels[user.role] ?? user.cargo;
+}
+
 export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
   admin: {
     id: "usr-admin-001",
     nombre: "Camila Restrepo",
     email: "admin.demo@usb.edu.co",
-    cargo: "Super Admin",
+    cargo: "Administración",
     role: "admin",
     scope: {},
   },
@@ -44,7 +60,7 @@ export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
     id: "usr-decano-001",
     nombre: "Carlos Ramírez",
     email: "decano.ingenieria.bogota@usb.edu.co",
-    cargo: "Decano",
+    cargo: "Decanatura",
     role: "decano",
     seccionalId: "bogota",
     facultadId: "ing-bog",
@@ -54,7 +70,7 @@ export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
     id: "usr-director-001",
     nombre: "Laura Gómez",
     email: "directora.sistemas.bogota@usb.edu.co",
-    cargo: "Director de Programa",
+    cargo: "Dirección de programa",
     role: "director",
     seccionalId: "bogota",
     facultadId: "ing-bog",
@@ -73,7 +89,7 @@ export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
     id: "usr-docente-001",
     nombre: "Antonio Rodríguez",
     email: "antonio.rodriguez@usb.edu.co",
-    cargo: "Docente",
+    cargo: "Docencia",
     role: "docente",
     seccionalId: "bogota",
     facultadId: "ing-bog",

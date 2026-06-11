@@ -6,10 +6,10 @@ import type {
 
 export const roleLabels: Record<CompetenciasRaFormacionRole, string> = {
   admin: "Admin (Empresa)",
-  vice: "Vicerrector (Seccional)",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  vice: "Vicerrectoría (Seccional)",
+  decano: "Decanatura",
+  director: "Dirección de programa",
+  docente: "Docencia",
 };
 
 // Decisión funcional aplicada: solo el Director define contenido académico.

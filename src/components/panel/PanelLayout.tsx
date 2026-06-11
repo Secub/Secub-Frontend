@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { AccessibilityMenu } from "../../accessibility";
 import WorkflowCompletionAlert from "../WorkflowCompletionAlert";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
@@ -64,9 +63,6 @@ export default function PanelLayout({
           <main className="px-6 py-6 lg:px-8 lg:py-8">
             <Breadcrumb items={breadcrumbItems} />
 
-            <div className="panel-inline-accessibility xl:hidden">
-              <AccessibilityMenu className="accessibility-menu--inline" triggerText="Ajustes visuales" />
-            </div>
 
             <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div>

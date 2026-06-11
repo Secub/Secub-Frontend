@@ -18,7 +18,7 @@ function MedicionRAAccessRestricted({ cargo }: { cargo: string }) {
     <PanelLayout
       currentStep="medicion-ra"
       title="Medición RA"
-      description="Este módulo es independiente del flujo de Gestión Académica y está habilitado únicamente para el rol Docente."
+      description="Este módulo es independiente del flujo de Gestión Académica y está habilitado únicamente para el rol Docencia."
     >
       <div className="surface-card p-8">
         <div className="mx-auto max-w-3xl text-center">
@@ -31,7 +31,7 @@ function MedicionRAAccessRestricted({ cargo }: { cargo: string }) {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)]">
-            La medición de Resultados de Aprendizaje corresponde al rol Docente.
+            La medición de Resultados de Aprendizaje corresponde al rol Docencia.
             Este módulo no hace parte de los pasos de Gestión Académica del sidebar.
           </p>
 
@@ -99,7 +99,7 @@ function MedicionRAContent() {
         <WorkflowStateCard
           variant="locked"
           title="No tienes cursos asignados para medir"
-          description="La medición solo muestra cursos realmente asignados al docente autenticado. Cuando el Director asigne RA a un curso asociado a este docente, aparecerá en este módulo."
+          description="La medición solo muestra cursos realmente asignados al docente autenticado. Cuando Dirección de programa asigne RA a un curso asociado a este docente, aparecerá en este módulo."
           helperText="El fallback demo solo se usa cuando todavía no existen asignaciones reales en mockBackend."
         />
       </PanelLayout>

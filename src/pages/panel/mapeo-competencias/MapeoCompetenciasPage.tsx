@@ -132,7 +132,7 @@ export default function MapeoCompetenciasPage() {
 
           {currentUser.role !== "director" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-info)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
-              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Director de Programa.
+              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Dirección de programa.
             </div>
           ) : null}
 

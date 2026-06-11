@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { FaUniversalAccess } from "react-icons/fa";
 import { useAccessibilitySettings } from "./useAccessibilitySettings";
 import type { FontSizeMode } from "./AccessibilityProvider";
 
@@ -13,7 +14,10 @@ const fontSizeOptions: Array<{ value: FontSizeMode; label: string }> = [
   { value: "xlarge", label: "Texto extra grande" },
 ];
 
-export default function AccessibilityMenu({ className = "", triggerText = "Ajustes visuales" }: AccessibilityMenuProps) {
+export default function AccessibilityMenu({
+  className = "",
+  triggerText = "Accesibilidad",
+}: AccessibilityMenuProps) {
   const panelId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -61,7 +65,7 @@ export default function AccessibilityMenu({ className = "", triggerText = "Ajust
         onClick={() => setIsOpen((currentValue) => !currentValue)}
       >
         <span aria-hidden="true" className="accessibility-menu__trigger-icon">
-          Aa
+          <FaUniversalAccess />
         </span>
         <span className="accessibility-menu__trigger-text">{triggerText}</span>
       </button>
