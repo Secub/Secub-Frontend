@@ -1,7 +1,6 @@
+import { ROUTES } from "../../../../app/appRoutes";
 import type { DashboardFiltersState, EnrichedCycle } from "../dashboard.types";
 import type { DashboardView } from "../types/dashboard-page.types";
-
-const DASHBOARD_PATH = "/panel/dashboard";
 
 function getCycleLabel(cycle: EnrichedCycle | null) {
   return cycle?.name ?? "el ciclo seleccionado";
@@ -41,7 +40,7 @@ export function buildDashboardHref(userRole: string, params?: {
   if (params?.courseId) nextParams.set("courseId", params.courseId);
   if (params?.status) nextParams.set("status", params.status);
 
-  return `${DASHBOARD_PATH}?${nextParams.toString()}`;
+  return `${ROUTES.panelDashboard}?${nextParams.toString()}`;
 }
 
 export function useDashboardBreadcrumbs({
