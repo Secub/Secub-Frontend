@@ -15,7 +15,26 @@ export const ROUTES = {
   panelCiclo: `${APP_BASE_PATH}/panel/ciclo`,
   panelAsignarRa: `${APP_BASE_PATH}/panel/asignar-ra`,
   panelMedicionRa: `${APP_BASE_PATH}/panel/medicion-ra`,
+  privacyPolicy: `${APP_BASE_PATH}/politicas-de-uso-y-privacidad/`,
+  termsAndConditions: `${APP_BASE_PATH}/terminos-y-condiciones/`,
 } as const;
+
+export function buildRouteWithSearch(
+  route: string,
+  params: URLSearchParams | Record<string, string | undefined>,
+) {
+  const searchParams =
+    params instanceof URLSearchParams ? params : new URLSearchParams();
+
+  if (!(params instanceof URLSearchParams)) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) searchParams.set(key, value);
+    });
+  }
+
+  const search = searchParams.toString();
+  return search ? `${route}?${search}` : route;
+}
 
 export function normalizePathname(pathname: string) {
   return pathname.replace(/\/+$/, "") || "/";
