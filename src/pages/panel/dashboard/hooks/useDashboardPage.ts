@@ -71,10 +71,12 @@ export function useDashboardPage() {
   };
 
   const handleMeasureCourse = (course: EnrichedCourse) => {
-    window.location.href = buildRouteWithSearch(ROUTES.panelMedicionRa, {
-      role: "docente",
-      courseId: course.id,
-    });
+    window.location.assign(
+      buildRouteWithSearch(ROUTES.panelMedicionRa, {
+        role: "docente",
+        courseId: course.id,
+      }),
+    );
   };
 
   return {

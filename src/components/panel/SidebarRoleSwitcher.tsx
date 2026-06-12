@@ -14,7 +14,7 @@ export default function SidebarRoleSwitcher() {
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.set("role", role);
 
-    window.location.href = `${window.location.pathname}?${nextParams.toString()}`;
+    window.location.assign(`${window.location.pathname}?${nextParams.toString()}`);
   };
 
   const handleResetDemo = () => {

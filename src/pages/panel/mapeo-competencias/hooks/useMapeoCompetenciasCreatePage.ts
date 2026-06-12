@@ -21,7 +21,7 @@ function readInitialFilters() {
 }
 
 export function navigateToMapeoList(role: string) {
-  window.location.href = buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role });
+  window.location.assign(buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role }));
 }
 
 export function useMapeoCompetenciasCreatePage() {

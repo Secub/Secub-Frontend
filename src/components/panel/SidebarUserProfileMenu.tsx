@@ -20,12 +20,12 @@ function buildPanelHref(pathname: string) {
 
 function logoutCurrentUser() {
   clearSelectedProgramId();
-  window.location.href = ROUTES.access;
+  window.location.assign(ROUTES.access);
 }
 
 function changeCurrentProgram(role: string) {
   clearSelectedProgramId();
-  window.location.href = `${ROUTES.programSelector}?role=${role}`;
+  window.location.assign(`${ROUTES.programSelector}?role=${role}`);
 }
 
 export default function SidebarUserProfileMenu() {

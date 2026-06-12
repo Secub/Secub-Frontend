@@ -106,11 +106,11 @@ export function useMapeoCompetenciasPage() {
   }, [filteredRecords, selectedRecord]);
 
   const handleCreate = () => {
-    window.location.href = buildCreatePath(currentUser.role, filters.programaId, filters.planId);
+    window.location.assign(buildCreatePath(currentUser.role, filters.programaId, filters.planId));
   };
 
   const handleEdit = (record: MapeoCompetenciasEnriched) => {
-    window.location.href = buildEditPath(currentUser.role, record);
+    window.location.assign(buildEditPath(currentUser.role, record));
   };
 
   const handleExportExcel = () => {

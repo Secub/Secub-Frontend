@@ -14,7 +14,7 @@ function buildDashboardUrl() {
 export default function ProgramSelectorPage() {
   const handleSelectProgram = (programId: SecubProgramId) => {
     persistSelectedProgramId(programId);
-    window.location.href = buildDashboardUrl();
+    window.location.assign(buildDashboardUrl());
   };
 
   return (

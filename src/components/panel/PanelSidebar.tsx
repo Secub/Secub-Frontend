@@ -100,7 +100,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
 
   const goTo = (href: string) => {
     // Mantiene el rol demo en la navegación. Cuando exista Auth real, el rol saldrá del usuario autenticado.
-    window.location.href = `${href}${window.location.search}`;
+    window.location.assign(`${href}${window.location.search}`);
   };
 
   const handleStartNewAcademicPlan = () => {
