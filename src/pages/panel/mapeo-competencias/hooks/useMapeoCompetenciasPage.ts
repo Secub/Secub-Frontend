@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import { useEffect, useMemo, useState } from "react";
-=======
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
->>>>>>> origin/test
+
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
 import type {

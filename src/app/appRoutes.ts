@@ -1,31 +1,19 @@
 export const APP_BASE_PATH = "/Secub-Frontend";
 
 export const ROUTES = {
-<<<<<<< HEAD
-  landing: "/",
-  access: "/acceder",
-  accessAliases: ["/login", "/auth"],
-  programSelector: "/seleccionar-programa",
-  programSelectorAliases: ["/program-selector"],
-  panel: "/panel",
-  panelDashboard: "/panel/dashboard",
-  panelSettings: "/panel/ajustes",
-  panelAccessibility: "/panel/accesibilidad",
-  panelPerfilEgreso: "/panel/perfil-egreso",
-  panelPropositoFormacion: "/panel/proposito-formacion",
-  panelCompetenciasRa: "/panel/competencias-ra",
-  panelMapeoCompetencias: "/panel/mapeo-competencias",
-  panelMapeoCompetenciasCrear: "/panel/mapeo-competencias/crear",
-  panelMapeoCompetenciasEditar: "/panel/mapeo-competencias/editar",
-  panelCiclo: "/panel/ciclo",
-  panelAsignarRa: "/panel/asignar-ra",
-  panelMedicionRa: "/panel/medicion-ra",
-=======
   landing: `${APP_BASE_PATH}/`,
+
   access: `${APP_BASE_PATH}/acceder`,
   accessAliases: [`${APP_BASE_PATH}/login`, `${APP_BASE_PATH}/auth`],
+
+  programSelector: `${APP_BASE_PATH}/seleccionar-programa`,
+  programSelectorAliases: [`${APP_BASE_PATH}/program-selector`],
+
   panel: `${APP_BASE_PATH}/panel`,
   panelDashboard: `${APP_BASE_PATH}/panel/dashboard`,
+  panelSettings: `${APP_BASE_PATH}/panel/ajustes`,
+  panelAccessibility: `${APP_BASE_PATH}/panel/accesibilidad`,
+
   panelPerfilEgreso: `${APP_BASE_PATH}/panel/perfil-egreso`,
   panelPropositoFormacion: `${APP_BASE_PATH}/panel/proposito-formacion`,
   panelCompetenciasRa: `${APP_BASE_PATH}/panel/competencias-ra`,
@@ -35,9 +23,9 @@ export const ROUTES = {
   panelCiclo: `${APP_BASE_PATH}/panel/ciclo`,
   panelAsignarRa: `${APP_BASE_PATH}/panel/asignar-ra`,
   panelMedicionRa: `${APP_BASE_PATH}/panel/medicion-ra`,
+
   privacyPolicy: `${APP_BASE_PATH}/politicas-de-uso-y-privacidad/`,
   termsAndConditions: `${APP_BASE_PATH}/terminos-y-condiciones/`,
->>>>>>> origin/test
 } as const;
 
 export function buildRouteWithSearch(

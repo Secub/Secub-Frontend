@@ -2,23 +2,16 @@ import { GoPencil, GoPlus, GoTrash } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
-<<<<<<< HEAD
-import type { MapeoCompetenciasEnriched } from "../MapeoCompetencias.types";
-=======
 import type {
   CompetenciaRaDemoRecord,
   MapeoCompetenciasEnriched,
   NivelCompromiso,
 } from "../MapeoCompetencias.types";
->>>>>>> origin/test
 import { formatDate, getEstadoBadgeVariant } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasConsolidatedSectionProps {
   records: MapeoCompetenciasEnriched[];
-<<<<<<< HEAD
-=======
   competenciasRa?: CompetenciaRaDemoRecord[];
->>>>>>> origin/test
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
   canOpenEdit: boolean;
@@ -27,15 +20,12 @@ interface MapeoCompetenciasConsolidatedSectionProps {
   onCreate: () => void;
   onEdit: (record: MapeoCompetenciasEnriched) => void;
   onDelete: (record: MapeoCompetenciasEnriched) => void;
-<<<<<<< HEAD
-=======
   onNivelChange?: (
     recordId: string,
     cursoId: string,
     competenciaId: string,
     nivel: "" | NivelCompromiso
   ) => void;
->>>>>>> origin/test
 }
 
 export default function MapeoCompetenciasConsolidatedSection({
@@ -64,12 +54,17 @@ export default function MapeoCompetenciasConsolidatedSection({
         <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
           Aún no hay datos disponibles para el mapeo de competencias
         </h2>
+
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
-          Cuando Jefatura de programa cree el mapeo, aquí se visualizará la malla curricular por semestres, cursos, núcleos y niveles I-R-A-NA.
+          Cuando Jefatura de programa cree el mapeo, aquí se visualizará la
+          malla curricular por semestres, cursos, núcleos y niveles I-R-A-NA.
         </p>
+
         {canOpenCreate ? (
           <div className="mt-5">
-            <Button leftIcon={<GoPlus />} onClick={onCreate}>Crear mapeo</Button>
+            <Button leftIcon={<GoPlus />} onClick={onCreate}>
+              Crear mapeo
+            </Button>
           </div>
         ) : null}
       </section>
@@ -79,29 +74,49 @@ export default function MapeoCompetenciasConsolidatedSection({
   return (
     <section className="space-y-6">
       {records.map((record) => (
-        <article key={record.id} className="surface-card overflow-hidden rounded-xl p-6">
+        <article
+          key={record.id}
+          className="surface-card overflow-hidden rounded-xl p-6"
+        >
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-1)]">
                 Visualización de malla curricular
               </p>
+
               <h2 className="mt-1 font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
                 {record.programaNombre}
               </h2>
+
               <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-                {record.planNombre} · Actualizado {formatDate(record.updatedAt)} · {record.semestresResumen.length} semestre(s)
+                {record.planNombre} · Actualizado {formatDate(record.updatedAt)} ·{" "}
+                {record.semestresResumen.length} semestre(s)
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Badge variant={getEstadoBadgeVariant(record.estado)}>{record.estado}</Badge>
+              <Badge variant={getEstadoBadgeVariant(record.estado)}>
+                {record.estado}
+              </Badge>
+
               {canOpenEdit && record.id === selectedRecord?.id ? (
-                <Button size="sm" variant="outline" leftIcon={<GoPencil />} onClick={() => onEdit(record)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  leftIcon={<GoPencil />}
+                  onClick={() => onEdit(record)}
+                >
                   Editar mapeo
                 </Button>
               ) : null}
+
               {canDelete ? (
-                <Button size="sm" variant="danger" leftIcon={<GoTrash />} onClick={() => onDelete(record)}>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  leftIcon={<GoTrash />}
+                  onClick={() => onDelete(record)}
+                >
                   Eliminar
                 </Button>
               ) : null}

@@ -2,7 +2,7 @@ import { GoChevronLeft } from "react-icons/go";
 import { ROUTES } from "../../../app/appRoutes";
 import LogoUSB from "../../../assets/logos/logo-usb.png";
 import { LinkButton } from "../../../components/ui";
-import { ROUTES } from "../../../app/appRoutes";
+
 
 export default function AccessPanelSection() {
   const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
