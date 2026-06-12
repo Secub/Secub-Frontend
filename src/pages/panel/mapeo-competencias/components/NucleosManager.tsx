@@ -90,6 +90,14 @@ export default function NucleosManager({
         </div>
       ) : null}
 
+      {evaluatedCount === totalSemestres && (nucleosSummary.fundamentacion === 0 || nucleosSummary.profesionalizacion === 0 || nucleosSummary.sintesis === 0) && (
+        <div className="rounded-lg border-l-4 border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-4">
+          <p className="text-sm font-medium text-[var(--color-warning)]">
+            Todos los semestres deben cubrir los tres núcleos: Fundamentación, Profesionalización y Síntesis. Ajusta la clasificación antes de continuar.
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-col gap-6">
         {semesters.map((semester) => (
           <NucleoSemestreCard
@@ -97,6 +105,7 @@ export default function NucleosManager({
             semestreNumero={semester}
             cursos={coursesBySemester[semester] ?? []}
             selectedNucleo={value[semester] ?? null}
+            allNucleos={value}
             disabled={disabled}
             onSelectNucleo={(nucleo) => onChange(semester, nucleo)}
           />

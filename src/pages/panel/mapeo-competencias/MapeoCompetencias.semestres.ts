@@ -131,6 +131,15 @@ export function areAllSemestersClassified(draft: NucleosDraft, total = SAFE_FALL
   return buildSemesterNumbers(total).every((semester) => Boolean(draft[semester]));
 }
 
+export function allNucleosRepresented(draft: NucleosDraft): boolean {
+  const values = Object.values(draft).filter(Boolean) as NucleoFormacion[];
+  return (
+    values.includes("fundamentacion") &&
+    values.includes("profesionalizacion") &&
+    values.includes("sintesis")
+  );
+}
+
 export function serializeSemestresClasificados(
   draft: NucleosDraft,
   planId: string,

@@ -129,7 +129,7 @@ export default function MapeoCompetenciasSemesterStep({
 
                     {competencias.map((competencia) => {
                       const key = getMappingKey(curso.id, competencia.id);
-                      const nivel = nivelesDraft[key] ?? "no-aplica";
+                      const nivel = nivelesDraft[key] ?? "Selecciona una opción";
 
                       return (
                         <td
@@ -139,7 +139,7 @@ export default function MapeoCompetenciasSemesterStep({
                           <Select
                             value={nivel}
                             options={nivelOptions}
-                            placeholder="No aplica"
+                            placeholder="Selecciona una opción"
                             disabled={disabled || !nucleo}
                             onChange={(event) =>
                               onNivelChange(

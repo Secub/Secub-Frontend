@@ -10,6 +10,7 @@ import type {
   NucleosDraft,
 } from "../MapeoCompetencias.types";
 import {
+  allNucleosRepresented,
   areAllSemestersClassified,
   buildEmptyNucleosDraft,
   buildMapeoRecord,
@@ -73,7 +74,7 @@ export function useMapeoCompetenciasManager({
   }, [activeSemester, totalSemestres]);
 
   const classificationComplete = useMemo(
-    () => areAllSemestersClassified(nucleosDraft, totalSemestres),
+    () => areAllSemestersClassified(nucleosDraft, totalSemestres) && allNucleosRepresented(nucleosDraft),
     [nucleosDraft, totalSemestres],
   );
 

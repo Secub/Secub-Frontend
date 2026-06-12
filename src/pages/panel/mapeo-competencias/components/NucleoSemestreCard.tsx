@@ -1,11 +1,13 @@
+import { useMemo } from "react";
 import { Badge, Button } from "../../../../components/ui";
-import type { CursoAsis, NucleoFormacion } from "../MapeoCompetencias.types";
+import type { CursoAsis, NucleoFormacion, NucleosDraft } from "../MapeoCompetencias.types";
 import { getNucleoLabel, getNucleoVariant } from "../MapeoCompetencias.utils";
 
 interface NucleoSemestreCardProps {
   semestreNumero: number;
   cursos: CursoAsis[];
   selectedNucleo: NucleoFormacion | null;
+  allNucleos: NucleosDraft;
   disabled?: boolean;
   onSelectNucleo: (nucleo: NucleoFormacion) => void;
 }
@@ -16,10 +18,17 @@ const NUCLEO_OPTIONS: NucleoFormacion[] = [
   "sintesis",
 ];
 
+const NUCLEO_ORDER: Record<NucleoFormacion, number> = {
+  fundamentacion: 0,
+  profesionalizacion: 1,
+  sintesis: 2,
+};
+
 export default function NucleoSemestreCard({
   semestreNumero,
   cursos,
   selectedNucleo,
+  allNucleos,
   disabled = false,
   onSelectNucleo,
 }: NucleoSemestreCardProps) {
@@ -28,6 +37,28 @@ export default function NucleoSemestreCard({
     .map((curso) => curso.nombre)
     .join(" · ");
 
+  // Highest nucleo index selected in any earlier semester (enforces ascending order)
+  const prevMax = useMemo(() => {
+    const values = Object.entries(allNucleos)
+      .filter(([sem, n]) => Number(sem) < semestreNumero && n != null)
+      .map(([, n]) => NUCLEO_ORDER[n!]);
+    return values.length > 0 ? Math.max(...values) : -1;
+  }, [allNucleos, semestreNumero]);
+
+  // Lowest nucleo index selected in any later semester
+  const nextMin = useMemo(() => {
+    const values = Object.entries(allNucleos)
+      .filter(([sem, n]) => Number(sem) > semestreNumero && n != null)
+      .map(([, n]) => NUCLEO_ORDER[n!]);
+    return values.length > 0 ? Math.min(...values) : 3;
+  }, [allNucleos, semestreNumero]);
+
+  const isOptionDisabled = (nucleo: NucleoFormacion) => {
+    if (disabled) return true;
+    const idx = NUCLEO_ORDER[nucleo];
+    return idx < prevMax || idx > nextMin;
+  };
+
   return (
     <article className="w-full overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-white shadow-sm transition-shadow hover:shadow-md">
       <div className="border-b border-[var(--color-gray-6)] px-5 py-4 md:px-6">
@@ -35,7 +66,6 @@ export default function NucleoSemestreCard({
           <div className="min-w-0">
             <h4 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
               Semestre {semestreNumero}
-
             </h4>
             <div>
               <Badge
@@ -52,15 +82,13 @@ export default function NucleoSemestreCard({
             </p>
           </div>
 
-
-
           <div className="mt-3 flex flex-wrap gap-3">
             {NUCLEO_OPTIONS.map((nucleo) => (
               <Button
                 key={nucleo}
                 variant={selectedNucleo === nucleo ? "primary" : "outline"}
                 size="sm"
-                disabled={disabled}
+                disabled={isOptionDisabled(nucleo)}
                 onClick={() => onSelectNucleo(nucleo)}
                 className="min-w-[150px] flex-1"
               >
@@ -71,13 +99,7 @@ export default function NucleoSemestreCard({
         </div>
       </div>
 
-      <div className="px-5 py-5 md:px-6 md:py-6">
-        {/* <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-gray-4)]">
-          Clasificar como:
-        </p> */}
-
-
-      </div>
+      <div className="px-5 py-5 md:px-6 md:py-6" />
     </article>
   );
 }
