@@ -17,19 +17,20 @@ function normalizeContractType(tipoVinculacion: string) {
 }
 
 export function isCatedraTeacher(tipoVinculacion: string) {
-  return normalizeContractType(tipoVinculacion).includes("catedra");
+  return normalizeContractType(tipoVinculacion).includes("HC");
 }
 
 export function isExceptionalTeacher(tipoVinculacion: string) {
-  return normalizeContractType(tipoVinculacion).includes("medio tiempo");
+  return normalizeContractType(tipoVinculacion).includes("MT");
 }
 
 export function getTeacherContractAlert(tipoVinculacion: string) {
-  if (normalizeContractType(tipoVinculacion).includes("tiempo completo")) return "";
+  if (normalizeContractType(tipoVinculacion).includes("TC")) return "";
   if (isExceptionalTeacher(tipoVinculacion)) {
     return "Caso excepcional: docente de medio tiempo. Prioriza tiempo completo cuando exista disponibilidad.";
   }
-  return "Caso excepcional: valida la dedicación docente antes de confirmar el ciclo.";
+  // return "Caso excepcional: valida la dedicación docente antes de confirmar el ciclo."; 
+  // OJO: Se comenta esta alerta porque el proceso de validación ya no bloquea la confirmación, pero se mantiene la función por si se quiere mostrar un mensaje informativo en el futuro.
 }
 
 interface UseCicloFormModalParams {
