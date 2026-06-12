@@ -5,7 +5,7 @@ export function canReadAsignarRA(_user: CentralMockUser) {
 }
 
 export function canManageAsignarRA(user: CentralMockUser) {
-  // RF07: la asignación operativa de RA queda a cargo de Dirección de programa.
+  // RF07: la asignación operativa de RA queda a cargo de Jefatura de programa.
   // Admin, Vice y Decano consultan y hacen seguimiento según alcance; no editan en esta versión demo.
   return user.role === "director";
 }

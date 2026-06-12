@@ -99,7 +99,7 @@ function MedicionRAContent() {
         <WorkflowStateCard
           variant="locked"
           title="No tienes cursos asignados para medir"
-          description="La medición solo muestra cursos realmente asignados al docente autenticado. Cuando Dirección de programa asigne RA a un curso asociado a este docente, aparecerá en este módulo."
+          description="La medición solo muestra cursos realmente asignados al docente autenticado. Cuando Jefatura de programa asigne RA a un curso asociado a este docente, aparecerá en este módulo."
           helperText="El fallback demo solo se usa cuando todavía no existen asignaciones reales en mockBackend."
         />
       </PanelLayout>

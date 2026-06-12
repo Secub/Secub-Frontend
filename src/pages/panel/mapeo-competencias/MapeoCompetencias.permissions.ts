@@ -8,14 +8,14 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  director: "Dirección de programa",
+  director: "Jefatura de programa",
   docente: "Docencia",
 };
 
 /**
  * Regla visual RF05.
- * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Director edita.
- * - "director-only": solo Director visualiza RF05; los demás roles ven acceso restringido.
+ * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Jefatura de programa edita.
+ * - "director-only": solo Jefatura de programa visualiza RF05; los demás roles ven acceso restringido.
  */
 export const RF05_ACCESS_POLICY = "matrix-readonly" as "matrix-readonly" | "director-only";
 
@@ -123,7 +123,7 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
 
 export function getAccessRestrictedDescription(role: MapeoCompetenciasRole) {
   if (RF05_ACCESS_POLICY === "director-only") {
-    return "La regla visual activa permite que solo Dirección de programa visualice RF05 — Mapeo de Competencias.";
+    return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias.";
   }
 
   return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias.";
@@ -159,7 +159,7 @@ export function getManageDisabledReason(
   programaEstado?: ProgramaEstado,
 ) {
   if (role !== "director") {
-    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Dirección de programa.";
+    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Jefatura de programa.";
   }
 
   if (programaEstado !== "activo") {

@@ -32,7 +32,7 @@ export function PerfilEgresoFilters({
   onReset,
 }: PerfilEgresoFiltersProps) {
   const effectiveSeccionalId = filters.seccionalId || user.scope.seccionalId || "";
-  const isLugarLocked = effectiveSeccionalId !== "medellin";
+  const isLugarLocked = Boolean(effectiveSeccionalId);
 
   return (
     <div className="surface-card p-6">

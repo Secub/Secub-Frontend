@@ -1,8 +1,9 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { GoChevronDown, GoLock, GoShieldCheck } from "react-icons/go";
+import { GoBook, GoChevronDown, GoLock, GoShieldCheck } from "react-icons/go";
 import { FaUniversalAccess } from "react-icons/fa";
 import { ROUTES } from "../../app/appRoutes";
-import { getCurrentMockUser, getNeutralUserCargo } from "../../services/auth/mockUser";
+import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { clearSelectedProgramId } from "../../services/programSelection";
 import UserProfileActionCard from "./UserProfileActionCard";
 
 function getInitials(name: string) {
@@ -18,12 +19,18 @@ function buildPanelHref(pathname: string) {
 }
 
 function logoutCurrentUser() {
+  clearSelectedProgramId();
   window.location.href = ROUTES.access;
+}
+
+function changeCurrentProgram(role: string) {
+  clearSelectedProgramId();
+  window.location.href = `${ROUTES.programSelector}?role=${role}`;
 }
 
 export default function SidebarUserProfileMenu() {
   const currentUser = getCurrentMockUser();
-  const roleLabel = getNeutralUserCargo(currentUser);
+  const roleLabel = currentUser.cargo;
   const initials = useMemo(() => getInitials(currentUser.nombre), [currentUser.nombre]);
   const menuId = useId();
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +61,11 @@ export default function SidebarUserProfileMenu() {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
   }, [isOpen]);
+
+  const handleChangeProgram = () => {
+    setIsOpen(false);
+    changeCurrentProgram(currentUser.role);
+  };
 
   const handleLogout = () => {
     setIsOpen(false);
@@ -125,6 +137,14 @@ export default function SidebarUserProfileMenu() {
               title="Accesibilidad"
               description="Ajusta contraste o tamaño de texto"
               onClick={() => setIsOpen(false)}
+            />
+
+            <UserProfileActionCard
+              role="menuitem"
+              icon={<GoBook />}
+              title="Cambiar programa"
+              description="Selecciona Psicología o Derecho"
+              onClick={handleChangeProgram}
             />
 
             <UserProfileActionCard

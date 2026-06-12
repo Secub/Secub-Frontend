@@ -114,7 +114,7 @@ export default function MapeoCompetenciasFilters({
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {showSeccional ? (
           <Select
-            label="Sede / Seccional"
+            label="Seccional"
             value={filters.seccionalId}
             options={toOptions(seccionales)}
             placeholder="Todas"

@@ -1,9 +1,10 @@
 import { GoChevronLeft } from "react-icons/go";
 import LogoUSB from "../../../assets/logos/logo-usb.png";
 import { LinkButton } from "../../../components/ui";
+import { ROUTES } from "../../../app/appRoutes";
 
 export default function AccessPanelSection() {
-  const microsoftLoginUrl = "/panel/dashboard?role=director";
+  const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#f7f7f8] px-6 py-8 sm:px-8 lg:px-10 lg:py-10 xl:px-12">

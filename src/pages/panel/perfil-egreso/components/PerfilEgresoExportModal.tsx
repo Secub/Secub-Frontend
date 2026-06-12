@@ -164,7 +164,7 @@ export function PerfilEgresoExportModal({
           {permissions.canFilterBySeccional ? (
             <div className="panel-filter-item">
               <Select
-                label="Seccional / Sede"
+                label="Seccional"
                 value={filters.seccionalId}
                 onChange={(event) =>
                   setFilters((current) => ({

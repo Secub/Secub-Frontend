@@ -27,7 +27,7 @@ export default function MonitoringSection({
           Monitoreo de competencias y RA
         </h2>
         <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--color-gray-3)]">
-          Vista jerárquica exclusiva para Dirección de Programa. Permite revisar competencias, Resultados de Aprendizaje y cursos asociados dentro del ciclo seleccionado.
+          Vista jerárquica exclusiva para Jefatura de programa. Permite revisar competencias, Resultados de Aprendizaje y cursos asociados dentro del ciclo seleccionado.
         </p>
       </div>
 

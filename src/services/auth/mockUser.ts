@@ -1,3 +1,5 @@
+import { getSelectedProgram, getSelectedProgramScope } from "../programSelection";
+
 export type MockUserRole = "admin" | "vice" | "decano" | "director" | "docente";
 
 export interface CentralMockUser {
@@ -23,10 +25,10 @@ export interface CentralMockUser {
 export const DEFAULT_DEMO_ROLE: MockUserRole = "admin";
 
 const neutralRoleLabels: Record<MockUserRole, string> = {
-  admin: "Administración",
+  admin: "Administrador SECUB",
   vice: "Vicerrectoría",
   decano: "Decanatura",
-  director: "Dirección de programa",
+  director: "Jefatura de programa",
   docente: "Docencia",
 };
 
@@ -42,67 +44,47 @@ export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
   admin: {
     id: "usr-admin-001",
     nombre: "Camila Restrepo",
-    email: "admin.demo@usb.edu.co",
-    cargo: "Administración",
+    email: "admin.cali@usb.edu.co",
+    cargo: "Administrador SECUB",
     role: "admin",
-    scope: {},
+    seccionalId: "cali",
+    scope: { seccionalId: "cali" },
   },
   vice: {
     id: "usr-vice-001",
     nombre: "Andrea Londoño",
-    email: "vice.bogota@usb.edu.co",
+    email: "vice.cali@usb.edu.co",
     cargo: "Vicerrectoría Académica",
     role: "vice",
-    seccionalId: "bogota",
-    scope: { seccionalId: "bogota" },
+    seccionalId: "cali",
+    scope: { seccionalId: "cali" },
   },
   decano: {
     id: "usr-decano-001",
     nombre: "Carlos Ramírez",
-    email: "decano.ingenieria.bogota@usb.edu.co",
+    email: "decano.cali@usb.edu.co",
     cargo: "Decanatura",
     role: "decano",
-    seccionalId: "bogota",
-    facultadId: "ing-bog",
-    scope: { seccionalId: "bogota", facultadId: "ing-bog" },
+    seccionalId: "cali",
+    scope: { seccionalId: "cali" },
   },
   director: {
     id: "usr-director-001",
-    nombre: "Laura Gómez",
-    email: "directora.sistemas.bogota@usb.edu.co",
-    cargo: "Dirección de programa",
+    nombre: "Jefatura SECUB",
+    email: "jefatura.programa.cali@usb.edu.co",
+    cargo: "Jefatura de programa",
     role: "director",
-    seccionalId: "bogota",
-    facultadId: "ing-bog",
-    programaId: "sis-bog",
-    academicProgramId: "sis-bog",
-    planId: "sis-bog-2024-2",
-    scope: {
-      seccionalId: "bogota",
-      facultadId: "ing-bog",
-      programaId: "sis-bog",
-      academicProgramId: "sis-bog",
-      planId: "sis-bog-2024-2",
-    },
+    seccionalId: "cali",
+    scope: { seccionalId: "cali" },
   },
   docente: {
     id: "usr-docente-001",
-    nombre: "Antonio Rodríguez",
-    email: "antonio.rodriguez@usb.edu.co",
+    nombre: "Docente SECUB",
+    email: "docente.cali@usb.edu.co",
     cargo: "Docencia",
     role: "docente",
-    seccionalId: "bogota",
-    facultadId: "ing-bog",
-    programaId: "sis-bog",
-    academicProgramId: "sis-bog",
-    planId: "sis-bog-2024-2",
-    scope: {
-      seccionalId: "bogota",
-      facultadId: "ing-bog",
-      programaId: "sis-bog",
-      academicProgramId: "sis-bog",
-      planId: "sis-bog-2024-2",
-    },
+    seccionalId: "cali",
+    scope: { seccionalId: "cali" },
   },
 };
 
@@ -113,16 +95,11 @@ export interface DemoDocenteInstitucional {
 }
 
 export const demoDocentesInstitucionales: DemoDocenteInstitucional[] = [
-  { id: "usr-docente-001", nombre: "Antonio Rodríguez", email: "antonio.rodriguez@usb.edu.co" },
-  { id: "usr-docente-nelly", nombre: "Nelly Torres", email: "nelly.torres@usb.edu.co" },
-  { id: "usr-docente-camilo", nombre: "Camilo Castro", email: "camilo.castro@usb.edu.co" },
-  { id: "usr-docente-juliana", nombre: "Juliana Mejía", email: "juliana.mejia@usb.edu.co" },
-  { id: "usr-docente-santiago-fonseca", nombre: "Santiago Fonseca", email: "santiago.fonseca@usb.edu.co" },
-  { id: "usr-docente-laura", nombre: "Laura Ramírez", email: "laura.ramirez@usb.edu.co" },
-  { id: "usr-docente-marcela", nombre: "Marcela Ruiz", email: "marcela.ruiz@usb.edu.co" },
-  { id: "usr-docente-paula", nombre: "Paula Ríos", email: "paula.rios@usb.edu.co" },
-  { id: "usr-docente-diana", nombre: "Diana Cardona", email: "diana.cardona@usb.edu.co" },
-  { id: "usr-docente-hernando", nombre: "Hernando Díaz", email: "hernando.diaz@usb.edu.co" },
+  { id: "usr-docente-001", nombre: "Docente SECUB", email: "docente.cali@usb.edu.co" },
+  { id: "usr-docente-psicologia", nombre: "Docente Psicología", email: "docente.psicologia@usb.edu.co" },
+  { id: "usr-docente-derecho", nombre: "Docente Derecho", email: "docente.derecho@usb.edu.co" },
+  { id: "usr-docente-investigacion", nombre: "Docente Investigación", email: "docente.investigacion@usb.edu.co" },
+  { id: "usr-docente-practica", nombre: "Docente Práctica", email: "docente.practica@usb.edu.co" },
 ];
 
 export function normalizeDemoDocenteName(value?: string) {
@@ -172,11 +149,30 @@ export function normalizeMockRole(rawRole: string | null | undefined): MockUserR
 }
 
 export function getCurrentMockUser(): CentralMockUser {
-  if (typeof window === "undefined") return centralMockUsers[DEFAULT_DEMO_ROLE];
-
-  const params = new URLSearchParams(window.location.search);
+  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const role = normalizeMockRole(params.get("role"));
-  return centralMockUsers[role];
+  const fallbackUser = centralMockUsers[role];
+  const selectedProgram = getSelectedProgram();
+  const selectedScope = getSelectedProgramScope();
+  const directorName = selectedProgram ? selectedProgram.directorRoleLabel : fallbackUser.nombre;
+
+  return {
+    ...fallbackUser,
+    nombre: role === "director" && selectedProgram ? directorName : fallbackUser.nombre,
+    email: role === "director" && selectedProgram
+      ? `jefatura.${selectedProgram.id}@usb.edu.co`
+      : fallbackUser.email,
+    cargo: role === "director" && selectedProgram ? selectedProgram.directorRoleLabel : fallbackUser.cargo,
+    seccionalId: selectedScope.seccionalId ?? fallbackUser.seccionalId,
+    facultadId: selectedScope.facultadId ?? fallbackUser.facultadId,
+    programaId: selectedScope.programaId ?? fallbackUser.programaId,
+    academicProgramId: selectedScope.academicProgramId ?? fallbackUser.academicProgramId,
+    planId: selectedScope.planId ?? fallbackUser.planId,
+    scope: {
+      ...fallbackUser.scope,
+      ...selectedScope,
+    },
+  };
 }
 
 export function getSeccionalFromUser(user: Pick<CentralMockUser, "seccionalId" | "scope" | "email">) {
@@ -184,34 +180,8 @@ export function getSeccionalFromUser(user: Pick<CentralMockUser, "seccionalId" |
 }
 
 export function getSeccionalFromEmail(email: string) {
-  const normalizedEmail = String(email ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactEmail = normalizedEmail.replace(/[^a-z0-9]/g, "");
-  const tokens = normalizedEmail.split(/[^a-z0-9]+/).filter(Boolean);
-  const hasToken = (...values: string[]) => values.some((value) => tokens.includes(value));
-
-  // TODO: reemplazar esta inferencia demo por la seccional institucional entregada desde Microsoft/Auth o backend.
-  // Esta lógica solo soporta abreviaciones y dominios comunes mientras llega la fuente real de identidad.
-  if (compactEmail.includes("usbcali") || hasToken("cali") || compactEmail.endsWith("cali")) {
-    return "cali";
-  }
-
-  if (hasToken("med", "medellin") || compactEmail.includes("usbmed") || compactEmail.includes("medellin")) {
-    return "medellin";
-  }
-
-  if (hasToken("bog", "bogota") || compactEmail.includes("usbbog") || compactEmail.includes("bogota")) {
-    return "bogota";
-  }
-
-  if (hasToken("ctg", "cartagena") || compactEmail.includes("usbctg") || compactEmail.includes("cartagena")) {
-    return "cartagena";
-  }
-
-  return "";
+  const normalizedEmail = String(email ?? "").trim().toLowerCase();
+  return normalizedEmail ? "cali" : "";
 }
 
 export function canUserSelectSeccional(user: Pick<CentralMockUser, "role">) {

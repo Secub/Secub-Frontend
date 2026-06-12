@@ -9,7 +9,7 @@ export const cicloRoleLabels: Record<CicloRole, string> = {
   admin: "Super Admin",
   vice: "Vicerrectoría",
   decano: "Decanatura",
-  director: "Dirección de programa",
+  director: "Jefatura de programa",
   docente: "Docencia",
 };
 

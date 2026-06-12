@@ -438,7 +438,7 @@ export function notifyDirectorCycleCompletionService(
 ) {
   // Punto de integración futura con backend.
   // Cuando exista el endpoint/directorio institucional, esta función deberá:
-  // 1. Consultar el Director asociado al programa académico usando payload.academicProgramId.
+  // 1. Consultar la Jefatura de programa asociada al programa académico usando payload.academicProgramId.
   // 2. Obtener su correo institucional desde el directorio o servicio de usuarios.
   // 3. Enviar la notificación de cierre de fase del ciclo completado.
   // 4. Registrar en backend que la notificación ya fue enviada para evitar duplicados
@@ -446,7 +446,7 @@ export function notifyDirectorCycleCompletionService(
   //
   // No se inventan correos ni se simula un envío real desde frontend.
   console.info(
-    "[SECUB] Integración pendiente: notificación al Director por ciclo completado.",
+    "[SECUB] Integración pendiente: notificación a la Jefatura de programa por ciclo completado.",
     payload,
   );
 }

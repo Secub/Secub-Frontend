@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { GoInfo, GoX } from "react-icons/go";
 import { Badge, Select } from "../../../../components/ui";
 import type {
   CompetenciaRaDemoRecord,
@@ -28,6 +29,78 @@ interface MapeoCompetenciasSemesterStepProps {
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
 }
 
+interface CompetenciaHeaderTooltipProps {
+  competencia: CompetenciaRaDemoRecord;
+  displayName: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+}
+
+function getCompetenciaDescription(competencia: CompetenciaRaDemoRecord) {
+  const description = competencia.descripcion?.trim();
+  const name = competencia.nombre?.trim();
+
+  if (description) return description;
+  if (name) return name;
+  return "Esta competencia no tiene una descripción registrada todavía.";
+}
+
+function CompetenciaHeaderTooltip({
+  competencia,
+  displayName,
+  isOpen,
+  onToggle,
+  onClose,
+}: CompetenciaHeaderTooltipProps) {
+  const tooltipId = `competencia-tooltip-${competencia.id}`;
+  const description = getCompetenciaDescription(competencia);
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center justify-center gap-1.5">
+        <span className="line-clamp-2 text-center leading-4">
+          {displayName}
+        </span>
+
+        <button
+          type="button"
+          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--color-secondary-1)] bg-white text-[var(--color-secondary-1)] transition hover:bg-[var(--color-secondary-1)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.28)] focus-visible:ring-offset-2"
+          aria-label={`Ver descripción de ${displayName}`}
+          aria-describedby={isOpen ? tooltipId : undefined}
+          aria-expanded={isOpen}
+          onClick={onToggle}
+        >
+          <GoInfo aria-hidden="true" className="text-sm" />
+        </button>
+      </div>
+
+      {isOpen ? (
+        <div
+          id={tooltipId}
+          role="tooltip"
+          className="w-full rounded-lg border border-[var(--color-secondary-5)] bg-[var(--color-surface-soft)] p-3 text-left text-xs font-normal leading-5 text-[var(--color-gray-2)] shadow-[var(--shadow-sm)]"
+        >
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <p className="font-semibold text-[var(--color-secondary-4)]">
+              Descripción de la competencia
+            </p>
+            <button
+              type="button"
+              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[var(--color-gray-4)] transition hover:bg-white hover:text-[var(--color-secondary-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+              aria-label={`Cerrar descripción de ${displayName}`}
+              onClick={onClose}
+            >
+              <GoX aria-hidden="true" className="text-sm" />
+            </button>
+          </div>
+          <p>{description}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function MapeoCompetenciasSemesterStep({
   semestreNumero,
   totalSemestres,
@@ -39,12 +112,28 @@ export default function MapeoCompetenciasSemesterStep({
   onNivelChange,
 }: MapeoCompetenciasSemesterStepProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const [openCompetenciaTooltipId, setOpenCompetenciaTooltipId] = useState<string | null>(null);
 
   useEffect(() => {
     window.requestAnimationFrame(() => {
       sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }, [semestreNumero]);
+
+  useEffect(() => {
+    setOpenCompetenciaTooltipId(null);
+  }, [semestreNumero]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenCompetenciaTooltipId(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const nivelOptions = useMemo(
     () =>
@@ -101,15 +190,29 @@ export default function MapeoCompetenciasSemesterStep({
                     Curso
                   </th>
 
-                  {competencias.map((competencia, index) => (
-                    <th
-                      key={competencia.id}
-                      className="w-[180px] border-b border-[var(--color-gray-6)] px-3 py-3 text-center font-medium"
-                      title={competencia.descripcion}
-                    >
-                      {getCompetenciaDisplayName(competencia, index)}
-                    </th>
-                  ))}
+                  {competencias.map((competencia, index) => {
+                    const displayName = getCompetenciaDisplayName(competencia, index);
+                    const isOpen = openCompetenciaTooltipId === competencia.id;
+
+                    return (
+                      <th
+                        key={competencia.id}
+                        className="w-[220px] border-b border-[var(--color-gray-6)] px-3 py-3 text-center font-medium align-top"
+                      >
+                        <CompetenciaHeaderTooltip
+                          competencia={competencia}
+                          displayName={displayName}
+                          isOpen={isOpen}
+                          onToggle={() =>
+                            setOpenCompetenciaTooltipId((currentId) =>
+                              currentId === competencia.id ? null : competencia.id,
+                            )
+                          }
+                          onClose={() => setOpenCompetenciaTooltipId(null)}
+                        />
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
 

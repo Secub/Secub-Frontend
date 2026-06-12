@@ -2,6 +2,8 @@ export const ROUTES = {
   landing: "/",
   access: "/acceder",
   accessAliases: ["/login", "/auth"],
+  programSelector: "/seleccionar-programa",
+  programSelectorAliases: ["/program-selector"],
   panel: "/panel",
   panelDashboard: "/panel/dashboard",
   panelSettings: "/panel/ajustes",

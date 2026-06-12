@@ -48,13 +48,11 @@ export function formatDate(value: string) {
 
 export function getDefaultLugarBySeccional(seccionalId: string) {
   if (!seccionalId) return "";
-  if (seccionalId === "medellin") return "medellin";
-  return seccionalId;
+  return "cali";
 }
 
-
-export function isMedellinSeccional(seccionalId: string) {
-  return seccionalId === "medellin";
+export function isLugarEditableForSeccional(_seccionalId: string) {
+  return false;
 }
 
 export function formatPlanLabel(
@@ -388,7 +386,7 @@ export function getEstadoBadgeVariant(estado: CompetenciasRaEstado) {
 export function buildCsvLikeExcel(records: CompetenciasRaEnriched[]) {
   const rows = [
     [
-      "Seccional / Sede",
+      "Seccional",
       "Lugar de desarrollo",
       "Facultad",
       "Programa académico",

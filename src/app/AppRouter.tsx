@@ -1,5 +1,6 @@
 import AccessPage from "../pages/access/AccessPage";
 import LandingPage from "../pages/landing/LandingPage";
+import ProgramSelectorPage from "../pages/program-selector/ProgramSelectorPage";
 import DashboardPage from "../pages/panel/dashboard/DashboardPage";
 import PerfilEgresoPage from "../pages/panel/perfil-egreso/PerfilEgresoPage";
 import PropositoFormacionPage from "../pages/panel/proposito-formacion/PropositoFormacionPage";
@@ -15,6 +16,7 @@ import { ROUTES, normalizePathname } from "./appRoutes";
 import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
 import { getCurrentMockUser } from "../services/auth/mockUser";
 import { useInactivityLogout } from "../services/auth/useInactivityLogout";
+import { hasSelectedProgram } from "../services/programSelection";
 
 function isAccessRoute(pathname: string) {
   return (
@@ -23,11 +25,33 @@ function isAccessRoute(pathname: string) {
   );
 }
 
+function isProgramSelectorRoute(pathname: string) {
+  return (
+    pathname === ROUTES.programSelector ||
+    (ROUTES.programSelectorAliases as readonly string[]).includes(pathname)
+  );
+}
+
+function redirectToProgramSelector() {
+  const params = new URLSearchParams(window.location.search);
+  params.set("role", params.get("role") ?? "director");
+  window.history.replaceState(null, "", `${ROUTES.programSelector}?${params.toString()}`);
+}
+
 export default function AppRouter() {
   const normalizedPath = normalizePathname(window.location.pathname);
   const isPanelRoute = normalizedPath === ROUTES.panel || normalizedPath.startsWith(`${ROUTES.panel}/`);
 
   useInactivityLogout(isPanelRoute);
+
+  if (isProgramSelectorRoute(normalizedPath)) {
+    return <ProgramSelectorPage />;
+  }
+
+  if (isPanelRoute && !hasSelectedProgram()) {
+    redirectToProgramSelector();
+    return <ProgramSelectorPage />;
+  }
 
   if (isPanelRoute) {
     const redirectPath = getPanelRouteAccessRedirect(normalizedPath, getCurrentMockUser().role);

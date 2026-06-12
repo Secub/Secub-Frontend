@@ -61,30 +61,10 @@ export default function LandingFooterSection() {
 
             <div>
               <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-white">
-                Sede y seccionales
+                Seccional
               </h3>
 
               <ul className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-white">
-                <li>
-                  <a
-                    href="https://www.usbbog.edu.co/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition-opacity hover:opacity-80"
-                  >
-                    - Bogotá
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.usbmed.edu.co/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition-opacity hover:opacity-80"
-                  >
-                    - Medellín
-                  </a>
-                </li>
                 <li>
                   <a
                     href="https://usbcali.edu.co/"
@@ -92,17 +72,7 @@ export default function LandingFooterSection() {
                     rel="noreferrer"
                     className="transition-opacity hover:opacity-80"
                   >
-                    - Cali
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://usbcartagena.edu.co/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition-opacity hover:opacity-80"
-                  >
-                    - Cartagena
+                    - Seccional Cali
                   </a>
                 </li>
               </ul>
