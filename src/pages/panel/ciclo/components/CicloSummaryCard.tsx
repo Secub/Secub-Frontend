@@ -15,7 +15,7 @@ import {
   getCycleActionDisabledReason,
   getDuplicateCycleDisabledReason,
 } from "../ciclo.permissions";
-import { formatDate, formatDateTime, getNivelCompromisoLabel } from "../ciclo.utils";
+import { formatCicloTitle, formatDate, formatDateTime, getNivelCompromisoLabel } from "../ciclo.utils";
 
 interface CicloSummaryCardProps {
   ciclo: CicloEnriched;
@@ -60,7 +60,7 @@ export default function CicloSummaryCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-              {ciclo.nombre}
+              {formatCicloTitle(ciclo)}
             </h3>
             <Badge variant={statusVariant[ciclo.estado]}>{statusLabel[ciclo.estado]}</Badge>
             {ciclo.planEstado === "inactivo" ? (

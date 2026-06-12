@@ -98,8 +98,6 @@ export default function NucleoSemestreCard({
           </div>
         </div>
       </div>
-
-      <div className="px-5 py-5 md:px-6 md:py-6" />
     </article>
   );
 }

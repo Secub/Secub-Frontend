@@ -47,6 +47,15 @@ export function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+function getAcademicPeriod(dateStr: string): string {
+  const [year, month] = dateStr.split("-").map(Number);
+  return `${year}-${month <= 6 ? 1 : 2}`;
+}
+
+export function formatCicloTitle(ciclo: Pick<CicloMedicion, "fechaInicio" | "fechaFin">): string {
+  return `Ciclo ${getAcademicPeriod(ciclo.fechaInicio)} / ${getAcademicPeriod(ciclo.fechaFin)}`;
+}
+
 export function addEighteenMonths(date: string) {
   const [year, month, day] = date.split("-").map(Number);
   const base = new Date(year, month - 1, day || 1);
