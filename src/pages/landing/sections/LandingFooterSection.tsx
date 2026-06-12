@@ -1,4 +1,5 @@
 import { GoChevronUp } from "react-icons/go";
+import { ROUTES } from "../../../app/appRoutes";
 import LogoUsbFooter from "../../../assets/logos/logo-usb-footer.png";
 import LogoAltaCalidad from "../../../assets/logos/logo-alta-calidad.png";
 
@@ -90,14 +91,14 @@ export default function LandingFooterSection() {
           <div className="flex items-center justify-between gap-6 md:justify-end">
             <div className="text-left text-[0.92rem] font-bold leading-6">
               <a
-                href="/politicas-de-uso-y-privacidad/"
+                href={ROUTES.privacyPolicy}
                 className="transition-opacity hover:opacity-80"
               >
                 Políticas de uso y privacidad
               </a>
               <span className="mx-2">|</span>
               <a
-                href="/terminos-y-condiciones/"
+                href={ROUTES.termsAndConditions}
                 className="transition-opacity hover:opacity-80"
               >
                 Términos y condiciones

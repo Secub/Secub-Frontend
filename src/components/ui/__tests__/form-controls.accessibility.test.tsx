@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
+import { ROUTES } from "../../../app/appRoutes";
 import { Button, Input, LinkButton, Select, Textarea } from "..";
 
 describe("componentes UI accesibles", () => {
@@ -34,12 +35,12 @@ describe("componentes UI accesibles", () => {
     render(
       <div>
         <Button leftIcon={<span>+</span>}>Agregar RA</Button>
-        <LinkButton href="/acceder" variant="accent">Acceder</LinkButton>
+        <LinkButton href={ROUTES.access} variant="accent">Acceder</LinkButton>
       </div>,
     );
 
     expect(screen.getByRole("button", { name: "Agregar RA" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Acceder" })).toHaveAttribute("href", "/acceder");
+    expect(screen.getByRole("link", { name: "Acceder" })).toHaveAttribute("href", ROUTES.access);
 
     await user.tab();
     expect(screen.getByRole("button", { name: "Agregar RA" })).toHaveFocus();

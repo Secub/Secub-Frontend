@@ -1,6 +1,7 @@
 import CampusMosaic from "../../../components/shared/CampusMosaic";
 import { LinkButton } from "../../../components/ui";
 import {motion} from "motion/react";
+import { ROUTES } from "../../../app/appRoutes";
 
 export default function HeroSection() {
   return (
@@ -64,7 +65,7 @@ export default function HeroSection() {
               Ver módulos
             </LinkButton>
 
-            <LinkButton href="/acceder" variant="accent" size="lg" className="rounded-full">
+            <LinkButton href={ROUTES.access} variant="accent" size="lg" className="rounded-full">
               Acceder
             </LinkButton>
 

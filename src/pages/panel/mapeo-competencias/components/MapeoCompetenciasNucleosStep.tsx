@@ -9,7 +9,7 @@ interface MapeoCompetenciasNucleosStepProps {
   coursesBySemester: Record<number, CursoAsis[]>;
   programaNombre?: string;
   classificationComplete: boolean;
-  onNucleoChange: (semestre: number, nucleo: NucleoFormacion) => void;
+  onNucleoChange: (semestre: number, nucleo: NucleoFormacion | null) => void; // ahora permite valores nulos
   onSave: () => void;
   onContinue: () => void;
 }
@@ -28,6 +28,7 @@ export default function MapeoCompetenciasNucleosStep({
   return (
     <div className="space-y-6">
       <MapeoCompetenciasCardInfoNucleos />
+
       <NucleosManager
         value={nucleosDraft}
         disabled={!canManage}

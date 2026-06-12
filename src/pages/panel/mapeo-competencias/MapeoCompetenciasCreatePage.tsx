@@ -1,4 +1,5 @@
 import { GoArrowLeft } from "react-icons/go";
+import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
 import { PanelLayout } from "../../../components/panel";
 import { Button, ConfirmDialog } from "../../../components/ui";
 import {
@@ -50,7 +51,7 @@ export default function MapeoCompetenciasCreatePage() {
       }
       breadcrumbItems={[
         { label: "Gestión Académica" },
-        { label: "Mapeo de Competencias", href: `/panel/mapeo-competencias?role=${currentUser.role}` },
+        { label: "Mapeo de Competencias", href: buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role: currentUser.role }) },
         { label: existingRecord ? "Editar mapeo" : "Crear mapeo" },
       ]}
     >

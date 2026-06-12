@@ -40,7 +40,10 @@ function redirectToProgramSelector() {
 
 export default function AppRouter() {
   const normalizedPath = normalizePathname(window.location.pathname);
-  const isPanelRoute = normalizedPath === ROUTES.panel || normalizedPath.startsWith(`${ROUTES.panel}/`);
+
+  const isPanelRoute =
+    normalizedPath === ROUTES.panel ||
+    normalizedPath.startsWith(`${ROUTES.panel}/`);
 
   useInactivityLogout(isPanelRoute);
 

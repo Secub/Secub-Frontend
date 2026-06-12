@@ -2,11 +2,23 @@ import { GoPencil, GoPlus, GoTrash } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
+<<<<<<< HEAD
 import type { MapeoCompetenciasEnriched } from "../MapeoCompetencias.types";
+=======
+import type {
+  CompetenciaRaDemoRecord,
+  MapeoCompetenciasEnriched,
+  NivelCompromiso,
+} from "../MapeoCompetencias.types";
+>>>>>>> origin/test
 import { formatDate, getEstadoBadgeVariant } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasConsolidatedSectionProps {
   records: MapeoCompetenciasEnriched[];
+<<<<<<< HEAD
+=======
+  competenciasRa?: CompetenciaRaDemoRecord[];
+>>>>>>> origin/test
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
   canOpenEdit: boolean;
@@ -15,6 +27,15 @@ interface MapeoCompetenciasConsolidatedSectionProps {
   onCreate: () => void;
   onEdit: (record: MapeoCompetenciasEnriched) => void;
   onDelete: (record: MapeoCompetenciasEnriched) => void;
+<<<<<<< HEAD
+=======
+  onNivelChange?: (
+    recordId: string,
+    cursoId: string,
+    competenciaId: string,
+    nivel: "" | NivelCompromiso
+  ) => void;
+>>>>>>> origin/test
 }
 
 export default function MapeoCompetenciasConsolidatedSection({

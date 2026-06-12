@@ -26,10 +26,12 @@ export function useMedicionRA() {
     initialPersistedDemoState,
   } = useMedicionRAData();
 
+  const normalizedInitialPersistedDemoState = initialPersistedDemoState ?? undefined;
+
   const selection = useMedicionRASelection({
     availableCourses,
     initialCourseId,
-    initialPersistedDemoState,
+    initialPersistedDemoState: normalizedInitialPersistedDemoState,
   });
 
   const [feedback, setFeedback] = useState<ValidationFeedback | null>(null);
@@ -52,13 +54,15 @@ export function useMedicionRA() {
     [backendVersion, computedDraft.medicionRaDemoStateId],
   );
 
+  const normalizedPersistedDemoState = persistedDemoState ?? undefined;
+
   const hydrated = useMedicionRAHydration({
     availableCourses,
     selectedCourseId: selection.selectedCourseId,
     selectedCourse: computedDraft.selectedCourse,
-    persistedDemoState,
+    persistedDemoState: normalizedPersistedDemoState,
     medicionRaDemoStateId: computedDraft.medicionRaDemoStateId,
-    initialPersistedDemoState,
+    initialPersistedDemoState: normalizedInitialPersistedDemoState,
     setSelectedCourseId: selection.setSelectedCourseId,
     setActiveCompetenceId: selection.setActiveCompetenceId,
   });

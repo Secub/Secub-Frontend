@@ -121,7 +121,7 @@ const directorOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> = 
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
   RF05_ACCESS_POLICY === "director-only" ? directorOnlyPermissions : matrixReadOnlyPermissions;
 
-export function getAccessRestrictedDescription(role: MapeoCompetenciasRole) {
+export function getAccessRestrictedDescription(_role: MapeoCompetenciasRole) { // el parametro role esta sin leer dentro de la funcion, se deja con "_" para que eslint evite problemas con el build.
   if (RF05_ACCESS_POLICY === "director-only") {
     return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias.";
   }

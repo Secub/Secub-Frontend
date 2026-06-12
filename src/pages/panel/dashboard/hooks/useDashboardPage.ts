@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
 import type { EnrichedCourse, EnrichedCycle, EnrichedRaResult } from "../dashboard.types";
 import { useDashboardBreadcrumbs } from "./useDashboardBreadcrumbs";
 import { useDashboardData } from "./useDashboardData";
@@ -70,7 +71,10 @@ export function useDashboardPage() {
   };
 
   const handleMeasureCourse = (course: EnrichedCourse) => {
-    window.location.href = `/panel/medicion-ra?role=docente&courseId=${course.id}`;
+    window.location.href = buildRouteWithSearch(ROUTES.panelMedicionRa, {
+      role: "docente",
+      courseId: course.id,
+    });
   };
 
   return {

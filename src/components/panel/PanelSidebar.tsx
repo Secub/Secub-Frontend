@@ -238,7 +238,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     <aside className="sticky top-0 hidden h-screen w-[320px] shrink-0 self-start xl:flex" aria-label="Barra lateral del panel SECUB">
       <div className="flex h-screen w-full flex-col overflow-hidden border-r border-[var(--color-secondary-4)] bg-[var(--color-footer-dark)] text-[var(--color-white)]">
         <div className="shrink-0 px-7 pb-4 pt-6">
-          <a href="/panel/dashboard" className="flex items-center" aria-label="Ir al dashboard de SECUB">
+          <a href={dashboardItem.href} className="flex items-center" aria-label="Ir al dashboard de SECUB">
             <img
               src={LogoSecub}
               alt="SECUB"

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import { useEffect, useMemo, useState } from "react";
+=======
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
+>>>>>>> origin/test
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
 import type {
@@ -22,12 +27,12 @@ function buildCreatePath(role: string, programaId?: string, planId?: string) {
   const params = new URLSearchParams({ role });
   if (programaId) params.set("programaId", programaId);
   if (planId) params.set("planId", planId);
-  return `/panel/mapeo-competencias/crear?${params.toString()}`;
+  return buildRouteWithSearch(ROUTES.panelMapeoCompetenciasCrear, params);
 }
 
 function buildEditPath(role: string, record: MapeoCompetenciasEnriched) {
   const params = new URLSearchParams({ role, id: record.id, programaId: record.programaId, planId: record.planId });
-  return `/panel/mapeo-competencias/editar?${params.toString()}`;
+  return buildRouteWithSearch(ROUTES.panelMapeoCompetenciasEditar, params);
 }
 
 export function useMapeoCompetenciasPage() {

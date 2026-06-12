@@ -387,7 +387,8 @@ function getPersistedDashboardData(): DashboardData | null {
   };
 }
 
-function getPersistedDashboardCycles(): MeasurementCycle[] {
+//se comenta para evitar errores de build, ya que es una funcion no usada.
+/* function getPersistedDashboardCycles(): MeasurementCycle[] {
   const user = getCurrentMockUser();
 
   return mockBackend.list<PersistedCycleDemo>("ciclosMedicion", user).map((cycle) => ({
@@ -405,16 +406,17 @@ function getPersistedDashboardCycles(): MeasurementCycle[] {
       .list<PersistedPlanMejoraDemo>("planesMejora", user)
       .some((planMejora) => planMejora.cicloId === cycle.id),
   }));
-}
+} */
 
-function mergePersistedCycles(baseCycles: MeasurementCycle[]) {
+//se comenta para evitar errores de build, ya que es una funcion no usada.
+/* function mergePersistedCycles(baseCycles: MeasurementCycle[]) {
   const persistedCycles = getPersistedDashboardCycles();
   const existingIds = new Set(baseCycles.map((cycle) => cycle.id));
   return [
     ...persistedCycles.filter((cycle) => !existingIds.has(cycle.id)),
     ...baseCycles,
   ];
-}
+} */
 
 export const TARGET_COMPLIANCE = 70;
 
