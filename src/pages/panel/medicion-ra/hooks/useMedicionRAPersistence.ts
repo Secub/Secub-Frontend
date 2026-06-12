@@ -60,9 +60,6 @@ export function useMedicionRAPersistence({
     if (!hasProgress || hydratedStateId !== medicionRaDemoStateId) return;
 
     const { relatedCiclo, cicloId, asignacionRaIds } = medicionRaContext;
-    
-    // Preservar createdAt si el registro ya existe (solo para upsert)
-    const existingRecord = mockBackend.getById<MedicionRaDemoState>("medicionesRa", medicionRaDemoStateId);
 
     ignoreNextBackendChangeRef.current = true;
     mockBackend.upsert<MedicionRaDemoState>(
@@ -86,8 +83,6 @@ export function useMedicionRAPersistence({
         facultadId: selectedCourse.facultadId ?? relatedCiclo?.facultadId,
         programaId: selectedCourse.programaId ?? relatedCiclo?.programaId,
         planId: selectedCourse.planId ?? relatedCiclo?.planId,
-        // Preservar createdAt si existe; mockBackend.decorateRecord() lo manejará
-        createdAt: existingRecord?.createdAt,
       },
       currentUser,
     );

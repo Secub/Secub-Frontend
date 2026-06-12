@@ -104,7 +104,7 @@ export function CompetenciasRaDetailModal({
       </div>
 
       <div className="mt-8 grid gap-6 border-t border-[var(--color-gray-6)] pt-6 md:grid-cols-2">
-        <DetailItem label="Seccional / Sede" value={record.seccionalNombre} />
+        <DetailItem label="Seccional" value={record.seccionalNombre} />
         <DetailItem label="Lugar de desarrollo" value={record.lugarNombre} />
         <DetailItem label="Facultad" value={record.facultadNombre} />
         <DetailItem label="Programa académico" value={record.programaNombre} />

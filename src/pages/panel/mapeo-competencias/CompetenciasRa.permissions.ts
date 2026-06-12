@@ -6,13 +6,13 @@ import type {
 
 export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
-  vice: "Vicerrector (Seccional)",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  vice: "Vicerrectoría (Seccional)",
+  decano: "Decanatura",
+  director: "Jefatura de programa",
+  docente: "Docencia",
 };
 
-// Regla funcional RF05: el Director define la Gestión Académica.
+// Regla funcional RF05: la Jefatura de programa define la Gestión Académica.
 // Admin, Vicerrector y Decano consultan/exportan según alcance; Docente visualiza el módulo en modo consulta.
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   admin: {

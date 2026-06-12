@@ -39,7 +39,7 @@ export default function ImprovementPlanModal({
       <div className="space-y-4">
         <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-sm leading-6 text-[var(--color-gray-3)]">
           El plan se guarda en <strong>mockBackend.planesMejora</strong> como preparación para el backend real.
-          Queda relacionado con ciclo, programa, plan y Director.
+          Queda relacionado con ciclo, programa, plan y Jefatura de programa.
         </div>
 
         <Textarea

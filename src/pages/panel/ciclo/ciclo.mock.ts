@@ -1,4 +1,11 @@
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import {
+  secubAcademicCourses,
+  secubFacultades,
+  secubPlanes,
+  secubProgramas,
+  secubSeccionales,
+} from "../../../data/secubAcademicPrograms";
 import { cicloRoleLabels } from "./ciclo.permissions";
 import type {
   CicloCatalogs,
@@ -14,12 +21,10 @@ import type {
 
 export const DEFAULT_CICLO_ROLE: CicloRole = "director";
 
-export const seccionales: Seccional[] = [
-  { id: "cali", nombre: "Seccional Cali" },
-  { id: "bogota", nombre: "Sede Bogotá" },
-  { id: "medellin", nombre: "Seccional Medellín" },
-  { id: "cartagena", nombre: "Seccional Cartagena" },
-];
+export const seccionales: Seccional[] = secubSeccionales;
+export const facultades: Facultad[] = secubFacultades;
+export const programas: ProgramaAcademico[] = secubProgramas;
+export const planes: PlanEstudio[] = secubPlanes.map(({ totalSemestres: _totalSemestres, ...plan }) => plan);
 
 export const facultades: Facultad[] = [
   { id: "ing-cali", nombre: "Facultad de Ingeniería", seccionalId: "cali" },
@@ -617,35 +622,35 @@ const mockUsers: Record<CicloRole, CurrentUser> = {
     nombre: "Juliana Mejía",
     cargo: cicloRoleLabels.admin,
     role: "admin",
-    scope: {},
+    scope: { seccionalId: "cali" },
   },
   vice: {
     id: "usr-vice-001",
     nombre: "Ana María Restrepo",
     cargo: cicloRoleLabels.vice,
     role: "vice",
-    scope: { seccionalId: "bogota" },
+    scope: { seccionalId: "cali" },
   },
   decano: {
     id: "usr-decano-001",
     nombre: "Carlos Medina",
     cargo: cicloRoleLabels.decano,
     role: "decano",
-    scope: { seccionalId: "bogota", facultadId: "ing-bog" },
+    scope: { seccionalId: "cali" },
   },
   director: {
     id: "usr-director-001",
-    nombre: "Laura Gómez",
+    nombre: "Jefatura SECUB",
     cargo: cicloRoleLabels.director,
     role: "director",
-    scope: { seccionalId: "cali", facultadId: "ing-cali", programaId: "sis-cali" },
+    scope: { seccionalId: "cali" },
   },
   docente: {
     id: "usr-docente-001",
-    nombre: "Santiago Torres",
+    nombre: "Docente SECUB",
     cargo: cicloRoleLabels.docente,
     role: "docente",
-    scope: { seccionalId: "cali", facultadId: "ing-cali", programaId: "sis-cali" },
+    scope: { seccionalId: "cali" },
   },
 };
 
@@ -694,6 +699,6 @@ export function getCicloCatalogs(): CicloCatalogs {
     facultades,
     programas,
     planes,
-    cursos: [...cursosSintesis, ...cursosRegulares],
+    cursos: cursosSintesis,
   };
 }

@@ -1,164 +1,44 @@
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import {
+  secubFacultades,
+  secubLugares,
+  secubPlanes,
+  secubProgramas,
+  secubSeccionales,
+} from "../../../data/secubAcademicPrograms";
 import { roleLabels } from "./perfil-egreso.permissions";
 import type {
   Catalogs,
   CurrentUser,
   Facultad,
   LugarDesarrollo,
-  PerfilEgresoRecord,
-  PerfilEgresoRole,
   PlanEstudio,
   ProgramaAcademico,
+  PerfilEgresoRecord,
+  PerfilEgresoRole,
   Seccional,
 } from "./perfil-egreso.types";
 
 export const DEFAULT_ROLE: PerfilEgresoRole = "admin";
 
-export const seccionales: Seccional[] = [
-  { id: "cali", nombre: "Seccional Cali" },
-  { id: "bogota", nombre: "Sede Bogotá" },
-  { id: "medellin", nombre: "Seccional Medellín" },
-  { id: "cartagena", nombre: "Seccional Cartagena" },
-];
-
-export const lugares: LugarDesarrollo[] = [
-  { id: "cali", nombre: "Cali", seccionalId: "cali" },
-  { id: "bogota", nombre: "Bogotá", seccionalId: "bogota" },
-  { id: "medellin", nombre: "Medellín", seccionalId: "medellin" },
-  { id: "bello", nombre: "Bello", seccionalId: "medellin" },
-  { id: "armenia", nombre: "Armenia", seccionalId: "medellin" },
-  { id: "cartagena", nombre: "Cartagena", seccionalId: "cartagena" },
-];
-
-export const facultades: Facultad[] = [
-  { id: "ing-cali", nombre: "Facultad de Ingeniería", seccionalId: "cali" },
-  { id: "artes-cali", nombre: "Facultad de Artes y Diseño", seccionalId: "cali" },
-  { id: "ing-bog", nombre: "Facultad de Ingeniería", seccionalId: "bogota" },
-  { id: "salud-bog", nombre: "Facultad de Salud", seccionalId: "bogota" },
-  { id: "ing-med", nombre: "Facultad de Ingeniería", seccionalId: "medellin" },
-  { id: "ing-ctg", nombre: "Facultad de Ingeniería", seccionalId: "cartagena" },
-];
-
-export const programas: ProgramaAcademico[] = [
-  {
-    id: "sis-cali",
-    nombre: "Ingeniería de Sistemas",
-    facultadId: "ing-cali",
-    seccionalId: "cali",
-  },
-  {
-    id: "ind-cali",
-    nombre: "Ingeniería Industrial",
-    facultadId: "ing-cali",
-    seccionalId: "cali",
-  },
-  {
-    id: "danza-cali",
-    nombre: "Licenciatura en Danza y Performance",
-    facultadId: "artes-cali",
-    seccionalId: "cali",
-  },
-  {
-    id: "sis-bog",
-    nombre: "Ingeniería de Sistemas",
-    facultadId: "ing-bog",
-    seccionalId: "bogota",
-  },
-  {
-    id: "multimedia-bog",
-    nombre: "Ingeniería Multimedia",
-    facultadId: "ing-bog",
-    seccionalId: "bogota",
-  },
-  {
-    id: "biomedica-bog",
-    nombre: "Ingeniería Biomédica",
-    facultadId: "salud-bog",
-    seccionalId: "bogota",
-  },
-  {
-    id: "agro-med",
-    nombre: "Ingeniería Agroindustrial",
-    facultadId: "ing-med",
-    seccionalId: "medellin",
-  },
-  {
-    id: "meca-ctg",
-    nombre: "Ingeniería Mecánica",
-    facultadId: "ing-ctg",
-    seccionalId: "cartagena",
-  },
-];
-
-export const planes: PlanEstudio[] = [
-  { id: "sis-cali-2024-2", nombre: "Plan 2024-2", programaId: "sis-cali", estado: "activo" },
-  { id: "sis-cali-2024-1", nombre: "Plan 2024-1", programaId: "sis-cali", estado: "activo" },
-  { id: "sis-cali-2018-2", nombre: "Plan 2018-2", programaId: "sis-cali", estado: "inactivo" },
-  { id: "ind-cali-2024-2", nombre: "Plan 2024-2", programaId: "ind-cali", estado: "activo" },
-  { id: "danza-cali-2015-1", nombre: "Plan 2015-1", programaId: "danza-cali", estado: "inactivo" },
-  { id: "sis-bog-2024-2", nombre: "Plan 2024-2", programaId: "sis-bog", estado: "activo" },
-  { id: "sis-bog-2015-1", nombre: "Plan 2015-1", programaId: "sis-bog", estado: "inactivo" },
-  { id: "multimedia-bog-2024-2", nombre: "Plan 2024-2", programaId: "multimedia-bog", estado: "activo" },
-  { id: "biomedica-bog-2015-1", nombre: "Plan 2015-1", programaId: "biomedica-bog", estado: "inactivo" },
-  { id: "agro-med-2024-2", nombre: "Plan 2024-2", programaId: "agro-med", estado: "activo" },
-    { id: "meca-ctg-2024-2", nombre: "Plan 2024-2", programaId: "meca-ctg", estado: "activo" },
-];
+export const seccionales: Seccional[] = secubSeccionales;
+export const lugares: LugarDesarrollo[] = secubLugares;
+export const facultades: Facultad[] = secubFacultades;
+export const programas: ProgramaAcademico[] = secubProgramas.map(({ estado: _estado, ...program }) => program);
+export const planes: PlanEstudio[] = secubPlanes.map(({ totalSemestres: _totalSemestres, ...plan }) => plan);
 
 export const mockPerfilesEgreso: PerfilEgresoRecord[] = [];
 
 export const mockUsers: Record<PerfilEgresoRole, CurrentUser> = {
-  admin: {
-    id: "usr-admin-001",
-    nombre: "Camila Restrepo",
-    cargo: roleLabels.admin,
-    role: "admin",
-    scope: {},
-  },
-  vice: {
-    id: "usr-vice-001",
-    nombre: "Andrea Londoño",
-    cargo: roleLabels.vice,
-    role: "vice",
-    scope: { seccionalId: "bogota" },
-  },
-  decano: {
-    id: "usr-decano-001",
-    nombre: "Carlos Ramírez",
-    cargo: roleLabels.decano,
-    role: "decano",
-    scope: { facultadId: "ing-bog", seccionalId: "bogota" },
-  },
-  director: {
-    id: "usr-director-001",
-    nombre: "Laura Gómez",
-    cargo: roleLabels.director,
-    role: "director",
-    scope: {
-      seccionalId: "bogota",
-      facultadId: "ing-bog",
-      programaId: "sis-bog",
-    },
-  },
-  docente: {
-    id: "usr-docente-001",
-    nombre: "Santiago Torres",
-    cargo: roleLabels.docente,
-    role: "docente",
-    scope: {
-      seccionalId: "bogota",
-      facultadId: "ing-bog",
-      programaId: "sis-bog",
-    },
-  },
+  admin: { id: "usr-admin-001", nombre: "Camila Restrepo", cargo: roleLabels.admin, role: "admin", scope: { seccionalId: "cali" } },
+  vice: { id: "usr-vice-001", nombre: "Andrea Londoño", cargo: roleLabels.vice, role: "vice", scope: { seccionalId: "cali" } },
+  decano: { id: "usr-decano-001", nombre: "Carlos Ramírez", cargo: roleLabels.decano, role: "decano", scope: { seccionalId: "cali" } },
+  director: { id: "usr-director-001", nombre: "Jefatura SECUB", cargo: roleLabels.director, role: "director", scope: { seccionalId: "cali" } },
+  docente: { id: "usr-docente-001", nombre: "Docente SECUB", cargo: roleLabels.docente, role: "docente", scope: { seccionalId: "cali" } },
 };
 
-export function normalizeRole(
-  rawRole: string | null | undefined,
-): PerfilEgresoRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase();
-
+export function normalizeRole(rawRole: string | null | undefined): PerfilEgresoRole {
+  const normalized = String(rawRole ?? "").trim().toLowerCase();
   const aliases: Record<string, PerfilEgresoRole> = {
     admin: "admin",
     administrador: "admin",
@@ -197,11 +77,5 @@ export function getCurrentUser(): CurrentUser {
 }
 
 export function getCatalogs(): Catalogs {
-  return {
-    seccionales,
-    lugares,
-    facultades,
-    programas,
-    planes,
-  };
+  return { seccionales, lugares, facultades, programas, planes };
 }

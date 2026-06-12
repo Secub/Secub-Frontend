@@ -20,7 +20,6 @@ export default function MapeoCompetenciasPage() {
   const {
     currentUser,
     catalogs,
-    competenciasRa,
     permissions,
     filters,
     filteredRecords,
@@ -36,7 +35,6 @@ export default function MapeoCompetenciasPage() {
     handleEdit,
     handleExportExcel,
     handleExportPdf,
-    handleNivelChange,
     confirmDelete,
   } = page;
 
@@ -132,13 +130,12 @@ export default function MapeoCompetenciasPage() {
 
           {currentUser.role !== "director" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-info)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
-              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Director de Programa.
+              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Jefatura de programa.
             </div>
           ) : null}
 
           <MapeoCompetenciasConsolidatedSection
             records={filteredRecords}
-            competenciasRa={competenciasRa}
             hasRequiredFilters={Boolean(filters.programaId && filters.planId)}
             canOpenCreate={canOpenCreate}
             canOpenEdit={canOpenEdit}
@@ -147,7 +144,6 @@ export default function MapeoCompetenciasPage() {
             onCreate={handleCreate}
             onEdit={handleEdit}
             onDelete={setRecordToDelete}
-            onNivelChange={canOpenEdit ? handleNivelChange : undefined}
           />
 
           <ConfirmDialog

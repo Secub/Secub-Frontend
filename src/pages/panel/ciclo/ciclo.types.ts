@@ -129,7 +129,6 @@ export interface CicloRolePermissions {
   canCreateCycle: boolean;
   canEditCycle: boolean;
   canDeleteCycle: boolean;
-  canDuplicateCycle: boolean;
   canConfirmSelection: boolean;
   canFilterBySeccional: boolean;
   canFilterByFacultad: boolean;

@@ -152,7 +152,7 @@ export function useMapeoCompetenciasManager({
     if (!canManage) {
       setFeedback({
         type: "warning",
-        message: "Solo el Director de Programa puede guardar cambios en el mapeo.",
+        message: "Solo Jefatura de programa puede guardar cambios en el mapeo.",
       });
       return null;
     }

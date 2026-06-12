@@ -100,7 +100,7 @@ export function enrichMapeoRecords(
       semestresClasificados: record.semestresClasificados ?? [],
       nivelesCompromiso: record.nivelesCompromiso ?? [],
       cursosMapeados: record.cursosMapeados ?? [],
-      seccionalNombre: seccional?.nombre ?? "Sin sede/seccional",
+      seccionalNombre: seccional?.nombre ?? "Sin seccional",
       facultadNombre: facultad?.nombre ?? "Sin facultad",
       lugarNombre: lugar?.nombre ?? "Sin lugar",
       programaNombre: programa?.nombre ?? "Sin programa",

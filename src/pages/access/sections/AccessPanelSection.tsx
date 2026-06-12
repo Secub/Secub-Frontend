@@ -3,8 +3,9 @@ import { ROUTES } from "../../../app/appRoutes";
 import LogoUSB from "../../../assets/logos/logo-usb.png";
 import { LinkButton } from "../../../components/ui";
 
+
 export default function AccessPanelSection() {
-  const microsoftLoginUrl = "#";
+  const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#f7f7f8] px-6 py-8 sm:px-8 lg:px-10 lg:py-10 xl:px-12">
@@ -42,7 +43,7 @@ export default function AccessPanelSection() {
             variant="accent"
             size="lg"
             fullWidth
-            aria-label="Iniciar sesión con Microsoft"
+            aria-label="Acceder con Microsoft"
             leftIcon={
               <span className="grid grid-cols-2 gap-[2px] rounded-[4px] bg-white/15 p-[3px]">
                 <span className="h-2.5 w-2.5 bg-[#f25022]" />
@@ -52,7 +53,7 @@ export default function AccessPanelSection() {
               </span>
             }
           >
-            Iniciar sesión con Microsoft
+            Acceder con Microsoft
           </LinkButton>
         </div>
 

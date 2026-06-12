@@ -1,18 +1,14 @@
+import { getNeutralRoleLabel, type MockUserRole } from "../../services/auth/mockUser";
 import { mockBackend } from "../../services/mockBackend";
 
-const demoRoles = [
-  { value: "admin", label: "Admin" },
-  { value: "vice", label: "Vice" },
-  { value: "decano", label: "Decano" },
-  { value: "director", label: "Director" },
-  { value: "docente", label: "Docente" },
-];
+const demoRoles: MockUserRole[] = ["admin", "vice", "decano", "director", "docente"];
 
 export default function SidebarRoleSwitcher() {
   const params = new URLSearchParams(window.location.search);
-  const currentRole = params.get("role") ?? "admin";
-  const currentRoleLabel =
-    demoRoles.find((role) => role.value === currentRole)?.label ?? "Admin";
+  const currentRole = (params.get("role") ?? "admin") as MockUserRole;
+  const currentRoleLabel = demoRoles.includes(currentRole)
+    ? getNeutralRoleLabel(currentRole)
+    : getNeutralRoleLabel("admin");
 
   const handleChange = (role: string) => {
     const nextParams = new URLSearchParams(window.location.search);
@@ -56,8 +52,8 @@ export default function SidebarRoleSwitcher() {
           className="w-full rounded-[var(--radius-md)] border border-[color:rgba(255,255,255,0.16)] bg-[var(--color-footer-dark)] px-3 py-2 text-sm font-semibold text-[var(--color-white)] outline-none transition-colors hover:border-[var(--color-secondary-3)] focus:border-[var(--color-secondary-1)]"
         >
           {demoRoles.map((role) => (
-            <option key={role.value} value={role.value}>
-              {role.label}
+            <option key={role} value={role}>
+              {getNeutralRoleLabel(role)}
             </option>
           ))}
         </select>
