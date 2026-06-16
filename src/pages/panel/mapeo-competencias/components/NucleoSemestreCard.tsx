@@ -76,10 +76,6 @@ export default function NucleoSemestreCard({
                 {getNucleoLabel(selectedNucleo)}
               </Badge>
             </div>
-            <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-              {coursePreview || "Sin cursos cargados en ASIS/mock"}
-              {cursos.length > 2 ? ` · +${cursos.length - 2}` : ""}
-            </p>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-3">
