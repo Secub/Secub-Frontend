@@ -1,4 +1,5 @@
 import {
+  DEMO_DOCENTE_SECUB,
   buildDemoDocenteIdFromName,
   getCurrentMockUser,
   resolveDemoDocenteByName,
@@ -427,6 +428,7 @@ function getAcademicCourseOrThrow(courseId: string) {
 }
 
 const dashboardTeacherCatalog = [
+  { id: DEMO_DOCENTE_SECUB.id, name: DEMO_DOCENTE_SECUB.nombre, email: DEMO_DOCENTE_SECUB.email },
   { id: "usr-docente-psicologia", name: "Docente Psicología", email: "docente.psicologia@usb.edu.co" },
   { id: "usr-docente-derecho", name: "Docente Derecho", email: "docente.derecho@usb.edu.co" },
   { id: "usr-docente-investigacion", name: "Docente Investigación", email: "docente.investigacion@usb.edu.co" },
@@ -506,7 +508,7 @@ export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((co
   const course = getAcademicCourseOrThrow(courseId);
   const program = secubAcademicPrograms.find((item) => item.id === course.programId)!;
   const cycleId = `ciclo-${program.id}-2026-1`;
-  const teacherId = course.programId === "psicologia" ? "usr-docente-psicologia" : "usr-docente-derecho";
+  const teacherId = DEMO_DOCENTE_SECUB.id;
   const competenceIds = index % 2 === 0
     ? ["comp-investigacion-contexto", "comp-etica-responsabilidad"]
     : ["comp-intervencion-argumentacion", "comp-etica-responsabilidad"];
@@ -578,11 +580,11 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
     scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] },
   },
   docente: {
-    id: "usr-docente",
-    name: "Docente SECUB",
+    id: DEMO_DOCENTE_SECUB.id,
+    name: DEMO_DOCENTE_SECUB.nombre,
     role: "docente",
     label: roleLabels.docente,
-    scope: { seccionalId: "cali", docenteId: "usr-docente-psicologia" },
+    scope: { seccionalId: "cali", docenteId: DEMO_DOCENTE_SECUB.id },
   },
 };
 
@@ -605,6 +607,7 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
     directorprograma: "director",
     director_de_programa: "director",
     docente: "docente",
+    docencia: "docente",
   };
 
   return aliases[normalized] ?? DEFAULT_DASHBOARD_ROLE;
@@ -651,7 +654,7 @@ export function getDashboardData(): DashboardData {
     return {
       catalogs: dashboardCatalogs,
       cycles: measurementCycles,
-      courses: courseMeasurements.filter((course) => course.teacherId !== "usr-docente-psicologia"),
+      courses: courseMeasurements.filter((course) => course.teacherId !== DEMO_DOCENTE_SECUB.id),
     };
   }
 

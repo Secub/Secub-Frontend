@@ -40,6 +40,18 @@ export function getNeutralUserCargo(user: Pick<CentralMockUser, "role" | "cargo"
   return neutralRoleLabels[user.role] ?? user.cargo;
 }
 
+export const DEMO_DOCENTE_SECUB = {
+  id: "docente-secub",
+  nombre: "Docente SECUB",
+  email: "docente.cali@usb.edu.co",
+} as const;
+
+export const LEGACY_DEMO_DOCENTE_IDS = [
+  "usr-docente-001",
+  "usr-docente-psicologia",
+  "usr-docente-derecho",
+] as const;
+
 export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
   admin: {
     id: "usr-admin-001",
@@ -78,9 +90,9 @@ export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
     scope: { seccionalId: "cali" },
   },
   docente: {
-    id: "usr-docente-001",
-    nombre: "Docente SECUB",
-    email: "docente.cali@usb.edu.co",
+    id: DEMO_DOCENTE_SECUB.id,
+    nombre: DEMO_DOCENTE_SECUB.nombre,
+    email: DEMO_DOCENTE_SECUB.email,
     cargo: "Docencia",
     role: "docente",
     seccionalId: "cali",
@@ -95,7 +107,7 @@ export interface DemoDocenteInstitucional {
 }
 
 export const demoDocentesInstitucionales: DemoDocenteInstitucional[] = [
-  { id: "usr-docente-001", nombre: "Docente SECUB", email: "docente.cali@usb.edu.co" },
+  DEMO_DOCENTE_SECUB,
   { id: "usr-docente-psicologia", nombre: "Docente Psicología", email: "docente.psicologia@usb.edu.co" },
   { id: "usr-docente-derecho", nombre: "Docente Derecho", email: "docente.derecho@usb.edu.co" },
   { id: "usr-docente-investigacion", nombre: "Docente Investigación", email: "docente.investigacion@usb.edu.co" },
@@ -142,6 +154,7 @@ export function normalizeMockRole(rawRole: string | null | undefined): MockUserR
     directorprograma: "director",
     director_de_programa: "director",
     docente: "docente",
+    docencia: "docente",
     teacher: "docente",
   };
 

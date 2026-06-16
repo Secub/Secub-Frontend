@@ -1,4 +1,8 @@
-import { getCurrentMockUser } from "../../../../services/auth/mockUser";
+import {
+  DEMO_DOCENTE_SECUB,
+  LEGACY_DEMO_DOCENTE_IDS,
+  getCurrentMockUser,
+} from "../../../../services/auth/mockUser";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCicloCatalogs } from "../../ciclo/ciclo.mock";
 import { mockCourses } from "../medicion-ra.mock";
@@ -29,12 +33,59 @@ function normalizeComparableText(value?: string) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+const docenteSecubCompatibleIds = new Set<string>([
+  DEMO_DOCENTE_SECUB.id,
+  ...LEGACY_DEMO_DOCENTE_IDS,
+]);
+
+const docenteSecubCompatibleNames = new Set(
+  [DEMO_DOCENTE_SECUB.nombre, "Docente Psicología", "Docente Derecho"].map(normalizeComparableText),
+);
+
+const docenteSecubCompatibleEmails = new Set(
+  [DEMO_DOCENTE_SECUB.email, "docente.psicologia@usb.edu.co", "docente.derecho@usb.edu.co"].map(
+    normalizeComparableText,
+  ),
+);
+
+function isDocenteSecubDemoUser(user: ReturnType<typeof getCurrentMockUser>) {
+  return Boolean(
+    user.role === "docente" &&
+      (docenteSecubCompatibleIds.has(user.id) ||
+        normalizeComparableText(user.nombre) === normalizeComparableText(DEMO_DOCENTE_SECUB.nombre) ||
+        normalizeComparableText(user.email) === normalizeComparableText(DEMO_DOCENTE_SECUB.email)),
+  );
+}
+
+function isDemoDocenteAssignment(
+  asignacion: AsignacionRaDemoRecord,
+  course: { docente?: string } | undefined,
+) {
+  const docenteId = asignacion.docenteId ?? "";
+  const docenteNombre = normalizeComparableText(asignacion.docenteNombre);
+  const courseDocenteNombre = normalizeComparableText(course?.docente);
+  const docenteEmail = normalizeComparableText(asignacion.docenteEmail);
+
+  return Boolean(
+    docenteSecubCompatibleIds.has(docenteId) ||
+      docenteSecubCompatibleNames.has(docenteNombre) ||
+      docenteSecubCompatibleNames.has(courseDocenteNombre) ||
+      docenteSecubCompatibleEmails.has(docenteEmail),
+  );
+}
+
 function isAssignmentVisibleForDocente(
   asignacion: AsignacionRaDemoRecord,
   course: { docente?: string } | undefined,
   user: ReturnType<typeof getCurrentMockUser>,
 ) {
-  if (asignacion.docenteId) return asignacion.docenteId === user.id;
+  if (asignacion.docenteId) {
+    if (asignacion.docenteId === user.id) return true;
+
+    // Compatibilidad demo: las asignaciones creadas antes podían quedar guardadas
+    // con ids de Docente Psicología/Derecho o con el id anterior usr-docente-001.
+    return isDocenteSecubDemoUser(user) && isDemoDocenteAssignment(asignacion, course);
+  }
 
   const docenteNombre = normalizeComparableText(asignacion.docenteNombre);
   const courseDocenteNombre = normalizeComparableText(course?.docente);
@@ -43,8 +94,9 @@ function isAssignmentVisibleForDocente(
   // Fallback demo solo para asignaciones antiguas que todavía no tengan docenteId.
   // La lógica real debe depender del id institucional del docente.
   return Boolean(
-    currentDocenteNombre &&
-      (docenteNombre === currentDocenteNombre || courseDocenteNombre === currentDocenteNombre),
+    (currentDocenteNombre &&
+      (docenteNombre === currentDocenteNombre || courseDocenteNombre === currentDocenteNombre)) ||
+      (isDocenteSecubDemoUser(user) && isDemoDocenteAssignment(asignacion, course)),
   );
 }
 
