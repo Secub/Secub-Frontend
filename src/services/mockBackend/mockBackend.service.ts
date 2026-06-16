@@ -4,6 +4,7 @@ import {
   markActiveAcademicPlanInProgress,
   resetAcademicPlanState,
 } from "./academicPlanState";
+import { DEMO_DOCENTE_SECUB, LEGACY_DEMO_DOCENTE_IDS } from "../auth/mockUser";
 import { MAX_RA_PER_COMPETENCIA } from "../../utils/learningResultsRules";
 
 export type MockBackendEntityKey =
@@ -62,6 +63,8 @@ const DEFAULT_COLLECTIONS: Record<MockBackendEntityKey, MockBackendRecord[]> = {
   medicionesRa: [],
   planesMejora: [],
 };
+
+const legacyDemoDocenteIds = new Set<string>(LEGACY_DEMO_DOCENTE_IDS);
 
 type MockBackendDatabase = typeof DEFAULT_COLLECTIONS;
 
@@ -134,7 +137,10 @@ function isVisibleForUser<T extends MockBackendRecord>(
   // En modo demo, la Medición RA conserva progreso por usuario/ciclo/asignación.
   // TODO: cuando exista backend, reemplazar esta regla por permisos reales del servicio.
   if (entityKey === "medicionesRa" && record.userId && record.userId !== user.id) {
-    return false;
+    const isCurrentDocenteSecubDemo = user.role === "docente" && user.id === DEMO_DOCENTE_SECUB.id;
+    const isLegacyDocenteMeasurement = legacyDemoDocenteIds.has(record.userId);
+
+    if (!isCurrentDocenteSecubDemo || !isLegacyDocenteMeasurement) return false;
   }
 
   if (scope.seccionalId && record.seccionalId && record.seccionalId !== scope.seccionalId) {

@@ -1,4 +1,5 @@
 import { secubAcademicCourses, secubAcademicPrograms } from "../../../data/secubAcademicPrograms";
+import { DEMO_DOCENTE_SECUB } from "../../../services/auth/mockUser";
 import type {
   CourseRecord,
   EvaluationMatrix,
@@ -132,9 +133,9 @@ export const mockCourses: CourseRecord[] = courseIds.map((courseId) => {
     program: getProgramName(course.programId),
     studyPlan: getPlanName(course.programId),
     measurementCycle: `Ciclo de medición ${program.name} 2026-1`,
-    teacher: course.programId === "psicologia" ? "Docente Psicología" : "Docente Derecho",
-    teacherId: course.programId === "psicologia" ? "usr-docente-psicologia" : "usr-docente-derecho",
-    teacherEmail: course.programId === "psicologia" ? "docente.psicologia@usb.edu.co" : "docente.derecho@usb.edu.co",
+    teacher: DEMO_DOCENTE_SECUB.nombre,
+    teacherId: DEMO_DOCENTE_SECUB.id,
+    teacherEmail: DEMO_DOCENTE_SECUB.email,
     cycleId: `ciclo-${course.programId}-2026-1`,
     seccionalId: program.seccionalId,
     facultadId: program.facultyId,

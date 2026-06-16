@@ -1,4 +1,4 @@
-import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import { DEMO_DOCENTE_SECUB, getCurrentMockUser } from "../../../services/auth/mockUser";
 import {
   secubAcademicCourses,
   secubFacultades,
@@ -35,7 +35,7 @@ export const cursosSintesis: CursoSintesis[] = secubAcademicCourses.map((course)
   nucleo: course.cycle,
   programaId: course.programId,
   planId: course.planId,
-  docente: course.programId === "psicologia" ? "Docente Psicología" : "Docente Derecho",
+  docente: DEMO_DOCENTE_SECUB.nombre,
   tipoVinculacion: "Tiempo completo",
   competenciasAsignadas: course.cycle === "Síntesis" ? 2 : 0,
   nivelCompromiso: course.cycle === "Síntesis" ? "A" : "",
@@ -74,8 +74,8 @@ const mockUsers: Record<CicloRole, CurrentUser> = {
     scope: { seccionalId: "cali" },
   },
   docente: {
-    id: "usr-docente-001",
-    nombre: "Docente SECUB",
+    id: DEMO_DOCENTE_SECUB.id,
+    nombre: DEMO_DOCENTE_SECUB.nombre,
     cargo: cicloRoleLabels.docente,
     role: "docente",
     scope: { seccionalId: "cali" },
@@ -98,6 +98,7 @@ export function normalizeCicloRole(rawRole: string | null | undefined): CicloRol
     directorprograma: "director",
     director_de_programa: "director",
     docente: "docente",
+    docencia: "docente",
   };
 
   return aliases[normalized] ?? DEFAULT_CICLO_ROLE;
