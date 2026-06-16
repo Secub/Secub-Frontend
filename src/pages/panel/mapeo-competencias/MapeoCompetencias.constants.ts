@@ -51,20 +51,11 @@ export const NIVELES_COMPROMISO: Array<{
   variant: BadgeVariant;
 }> = [
   {
-    value: "introduce",
-    short: "I",
-    label: "Introduce (I)",
-    description:
-      "El curso introduce la competencia al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con la competencia.",
-    variant: "info",
-  },
-  {
-    value: "refuerza",
-    short: "R",
-    label: "Refuerza (R)",
-    description:
-      "El curso refuerza la competencia previamente introducida. Se profundizan los conceptos y se consolidan habilidades mediante aplicaciones más complejas.",
-    variant: "warning",
+    value: "no-aplica",
+    short: "NA",
+    label: "No Aplica (NA)",
+    description: "El curso no aborda ni contribuye al desarrollo de esta competencia.",
+    variant: "neutral",
   },
   {
     value: "afianza",
@@ -75,10 +66,20 @@ export const NIVELES_COMPROMISO: Array<{
     variant: "success",
   },
   {
-    value: "no-aplica",
-    short: "NA",
-    label: "No Aplica (NA)",
-    description: "El curso no aborda ni contribuye al desarrollo de esta competencia.",
-    variant: "neutral",
+    value: "refuerza",
+    short: "R",
+    label: "Refuerza (R)",
+    description:
+      "El curso refuerza la competencia previamente introducida. Se profundizan los conceptos y se consolidan habilidades mediante aplicaciones más complejas.",
+    variant: "warning",
   },
+  {
+    value: "introduce",
+    short: "I",
+    label: "Introduce (I)",
+    description:
+      "El curso introduce la competencia al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con la competencia.",
+    variant: "info",
+  },
+  
 ];

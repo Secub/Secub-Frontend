@@ -101,7 +101,7 @@ export default function DashboardFilters({
         {showSeccional ? (
           <div className="panel-filter-item">
             <Select
-              label="Seccional / sede"
+              label="Seccional"
               placeholder="Todas"
               value={filters.seccionalId}
               options={seccionalOptions}

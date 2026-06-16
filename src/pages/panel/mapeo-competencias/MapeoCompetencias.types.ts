@@ -14,10 +14,10 @@ export type NucleoFormacion =
   | "sintesis";
 
 export type NivelCompromiso =
+  | "no-aplica"
   | "introduce"
   | "refuerza"
-  | "afianza"
-  | "no-aplica";
+  | "afianza";
 
 export type NivelCompromisoCorto = "I" | "R" | "A" | "NA";
 export type SemestreMapeoEstado = "pendiente" | "en-progreso" | "completo" | "sin-cursos";

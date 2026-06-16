@@ -5,6 +5,14 @@ import {
 } from "../../../services/auth/mockUser";
 import { mockBackend } from "../../../services/mockBackend";
 import { getCicloCatalogs } from "../ciclo/ciclo.mock";
+import {
+  secubAcademicCourses,
+  secubAcademicPrograms,
+  secubFacultades,
+  secubPlanes,
+  secubProgramas,
+  secubSeccionales,
+} from "../../../data/secubAcademicPrograms";
 import type {
   CourseMeasurement,
   DashboardCatalogs,
@@ -412,326 +420,132 @@ function getPersistedDashboardData(): DashboardData | null {
 
 export const TARGET_COMPLIANCE = 70;
 
+function getAcademicCourseOrThrow(courseId: string) {
+  const course = secubAcademicCourses.find((item) => item.id === courseId);
+  if (!course) throw new Error(`Curso académico no encontrado: ${courseId}`);
+  return course;
+}
+
+const dashboardTeacherCatalog = [
+  { id: "usr-docente-psicologia", name: "Docente Psicología", email: "docente.psicologia@usb.edu.co" },
+  { id: "usr-docente-derecho", name: "Docente Derecho", email: "docente.derecho@usb.edu.co" },
+  { id: "usr-docente-investigacion", name: "Docente Investigación", email: "docente.investigacion@usb.edu.co" },
+  { id: "usr-docente-practica", name: "Docente Práctica", email: "docente.practica@usb.edu.co" },
+];
+
 export const dashboardCatalogs: DashboardCatalogs = {
-  seccionales: [
-    { id: "cali", name: "Seccional Cali" },
-    { id: "bogota", name: "Sede Bogotá" },
-    { id: "medellin", name: "Seccional Medellín" },
-    { id: "cartagena", name: "Seccional Cartagena" },
-  ],
-  facultades: [
-    { id: "ing-cali", name: "Facultad de Ingeniería", seccionalId: "cali" },
-    { id: "artes-cali", name: "Facultad de Artes y Diseño", seccionalId: "cali" },
-    { id: "ing-bog", name: "Facultad de Ingeniería", seccionalId: "bogota" },
-    { id: "salud-bog", name: "Facultad de Salud", seccionalId: "bogota" },
-    { id: "ing-med", name: "Facultad de Ingeniería", seccionalId: "medellin" },
-  ],
-  programas: [
-    { id: "sis-cali", name: "Ingeniería de Sistemas", facultadId: "ing-cali", seccionalId: "cali" },
-    { id: "ind-cali", name: "Ingeniería Industrial", facultadId: "ing-cali", seccionalId: "cali" },
-    { id: "sis-bog", name: "Ingeniería de Sistemas", facultadId: "ing-bog", seccionalId: "bogota" },
-    { id: "multimedia-bog", name: "Ingeniería Multimedia", facultadId: "ing-bog", seccionalId: "bogota" },
-    { id: "agro-med", name: "Ingeniería Agroindustrial", facultadId: "ing-med", seccionalId: "medellin" },
-  ],
-  planes: [
-    { id: "sis-cali-2024-2", name: "Plan 2024-2", programaId: "sis-cali", estado: "activo" },
-    { id: "sis-cali-2024-1", name: "Plan 2024-1", programaId: "sis-cali", estado: "activo" },
-    { id: "sis-cali-2018-2", name: "Plan 2018-2", programaId: "sis-cali", estado: "inactivo" },
-    { id: "ind-cali-2024-2", name: "Plan 2024-2", programaId: "ind-cali", estado: "activo" },
-    { id: "sis-bog-2024-2", name: "Plan 2024-2", programaId: "sis-bog", estado: "activo" },
-    { id: "sis-bog-2015-1", name: "Plan 2015-1", programaId: "sis-bog", estado: "inactivo" },
-    { id: "multimedia-bog-2024-2", name: "Plan 2024-2", programaId: "multimedia-bog", estado: "activo" },
-    { id: "agro-med-2024-2", name: "Plan 2024-2", programaId: "agro-med", estado: "activo" },
-  ],
-  teachers: [
-    { id: "doc-santiago", name: "Santiago Torres", email: "santiago.torres@usb.edu.co" },
-    { id: "doc-antonio", name: "Antonio Rodríguez", email: "antonio.rodriguez@usb.edu.co" },
-    { id: "doc-camilo", name: "Camilo Castro", email: "camilo.castro@usb.edu.co" },
-    { id: "doc-marcela", name: "Marcela Ruiz", email: "marcela.ruiz@usb.edu.co" },
-    { id: "doc-paula", name: "Paula Ríos", email: "paula.rios@usb.edu.co" },
-    { id: "doc-diana", name: "Diana Cardona", email: "diana.cardona@usb.edu.co" },
-  ],
+  seccionales: secubSeccionales.map((item) => ({ id: item.id, name: item.nombre })),
+  facultades: secubFacultades.map((item) => ({ id: item.id, name: item.nombre, seccionalId: item.seccionalId })),
+  programas: secubProgramas.map((item) => ({ id: item.id, name: item.nombre, facultadId: item.facultadId, seccionalId: item.seccionalId })),
+  planes: secubPlanes.map((item) => ({ id: item.id, name: item.nombre, programaId: item.programaId, estado: item.estado })),
+  teachers: dashboardTeacherCatalog,
   competences: [
     {
-      id: "comp-analisis",
+      id: "comp-investigacion-contexto",
       code: "C1",
-      name: "Análisis y diseño de soluciones",
-      description:
-        "Analiza problemas del contexto, formula alternativas de solución y sustenta decisiones de diseño con criterios técnicos y académicos.",
+      name: "Investigación y análisis del contexto",
+      description: "Analiza problemas del contexto disciplinar y sustenta decisiones académicas con evidencias pertinentes.",
       learningResults: [
-        {
-          id: "ra-01",
-          code: "RA 01",
-          name: "Comprende el problema",
-          description:
-            "El curso introduce la competencia al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con los componentes del análisis.",
-        },
-        {
-          id: "ra-02",
-          code: "RA 02",
-          name: "Propone alternativas de solución",
-          description:
-            "El estudiante propone alternativas pertinentes y argumenta la selección de una solución de acuerdo con las necesidades del contexto.",
-        },
+        { id: "ra-investigacion-01", code: "RA 01", name: "Reconoce el contexto", description: "Identifica elementos del contexto académico, social o jurídico asociados al problema de estudio." },
+        { id: "ra-investigacion-02", code: "RA 02", name: "Sustenta con evidencias", description: "Argumenta decisiones con fuentes, datos y criterios propios del programa académico." },
       ],
     },
     {
-      id: "comp-construccion",
+      id: "comp-intervencion-argumentacion",
       code: "C2",
-      name: "Construcción y validación",
-      description:
-        "Construye productos, valida resultados y documenta evidencias trazables para el seguimiento académico del programa.",
+      name: "Intervención y argumentación profesional",
+      description: "Propone alternativas de intervención, acompañamiento o gestión del conflicto con criterios éticos y disciplinares.",
       learningResults: [
-        {
-          id: "ra-03",
-          code: "RA 03",
-          name: "Implementa la solución",
-          description:
-            "El estudiante desarrolla la solución definida aplicando criterios de calidad, integración y documentación técnica.",
-        },
-        {
-          id: "ra-04",
-          code: "RA 04",
-          name: "Evalúa resultados",
-          description:
-            "El estudiante analiza resultados, evidencias y oportunidades de mejora para fortalecer el desempeño del curso.",
-        },
+        { id: "ra-intervencion-01", code: "RA 03", name: "Propone alternativas", description: "Formula alternativas coherentes con las necesidades del contexto y del programa." },
+        { id: "ra-intervencion-02", code: "RA 04", name: "Evalúa resultados", description: "Valora resultados y oportunidades de mejora a partir de evidencias de aprendizaje." },
       ],
     },
     {
-      id: "comp-investigacion",
+      id: "comp-etica-responsabilidad",
       code: "C3",
-      name: "Investigación aplicada",
-      description:
-        "Integra métodos de investigación, evidencias y comunicación académica para resolver situaciones propias del campo profesional.",
+      name: "Ética y responsabilidad social",
+      description: "Integra criterios éticos, humanísticos y de responsabilidad social en el desempeño académico y profesional.",
       learningResults: [
-        {
-          id: "ra-05",
-          code: "RA 05",
-          name: "Formula ruta investigativa",
-          description:
-            "El estudiante delimita preguntas, objetivos y fuentes de información con coherencia metodológica.",
-        },
-        {
-          id: "ra-06",
-          code: "RA 06",
-          name: "Comunica hallazgos",
-          description:
-            "El estudiante comunica hallazgos de forma clara, sustentada y coherente con los criterios del programa.",
-        },
+        { id: "ra-etica-01", code: "RA 05", name: "Aplica criterios éticos", description: "Reconoce implicaciones éticas de sus decisiones en escenarios académicos y profesionales." },
+        { id: "ra-etica-02", code: "RA 06", name: "Comunica decisiones", description: "Comunica hallazgos y decisiones de forma clara, respetuosa y sustentada." },
       ],
     },
   ],
 };
 
-export const measurementCycles: MeasurementCycle[] = [
-  {
-    id: "ciclo-2026-1",
-    name: "Ciclo 2026 1",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "sis-cali",
-    planId: "sis-cali-2024-2",
+export const measurementCycles: MeasurementCycle[] = secubAcademicPrograms.map((program) => {
+  const synthesisCourses = secubAcademicCourses
+    .filter((course) => course.programId === program.id && course.cycle === "Síntesis")
+    .slice(0, 3)
+    .map((course) => course.id);
+
+  return {
+    id: `ciclo-${program.id}-2026-1`,
+    name: `Ciclo ${program.name} 2026-1`,
+    seccionalId: program.seccionalId,
+    facultadId: program.facultyId,
+    programaId: program.id,
+    planId: program.planId,
     period: "2026-1",
     startDate: "2026-01-15",
     endDate: "2027-07-15",
-    courseIds: ["curso-intro-programacion", "curso-bases-datos", "curso-optimizacion-industrial"],
-  },
-  {
-    id: "ciclo-2024-2",
-    name: "Ciclo 2024 2",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "sis-cali",
-    planId: "sis-cali-2024-2",
-    period: "2024-2",
-    startDate: "2024-07-15",
-    endDate: "2026-01-15",
-    courseIds: ["curso-proyecto-integrador", "curso-practica-profesional"],
-  },
-  {
-    id: "ciclo-bog-2024-2",
-    name: "Ciclo Bogotá 2024 2",
-    seccionalId: "bogota",
-    facultadId: "ing-bog",
-    programaId: "sis-bog",
-    planId: "sis-bog-2024-2",
-    period: "2024-2",
-    startDate: "2024-07-15",
-    endDate: "2026-01-15",
-    courseIds: ["curso-bog-proyecto-software", "curso-bog-trabajo-grado"],
-  },
-  {
-    id: "ciclo-med-2024-2",
-    name: "Ciclo Medellín 2024 2",
-    seccionalId: "medellin",
-    facultadId: "ing-med",
-    programaId: "agro-med",
-    planId: "agro-med-2024-2",
-    period: "2024-2",
-    startDate: "2024-07-15",
-    endDate: "2026-01-15",
-    courseIds: ["curso-agro-proyecto"],
-  },
+    courseIds: synthesisCourses,
+  };
+});
+
+const fallbackCourseIds = [
+  "psicologia-sem8-practica-profesional-i",
+  "psicologia-sem8-modalidad-de-grado-i",
+  "psicologia-sem9-practica-profesional-ii",
+  "derecho-sem7-procesal-civil-ii",
+  "derecho-sem7-arbitraje",
+  "derecho-sem8-programa-complementario-de-formacion-avanzada",
 ];
 
-export const courseMeasurements: CourseMeasurement[] = [
-  {
-    id: "curso-intro-programacion",
-    code: "SIS-701",
-    name: "Introducción a la programación",
-    cycleId: "ciclo-2026-1",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "sis-cali",
-    planId: "sis-cali-2024-2",
-    teacherId: "doc-santiago",
-    competenceIds: ["comp-analisis", "comp-construccion"],
+export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((courseId, index) => {
+  const course = getAcademicCourseOrThrow(courseId);
+  const program = secubAcademicPrograms.find((item) => item.id === course.programId)!;
+  const cycleId = `ciclo-${program.id}-2026-1`;
+  const teacherId = course.programId === "psicologia" ? "usr-docente-psicologia" : "usr-docente-derecho";
+  const competenceIds = index % 2 === 0
+    ? ["comp-investigacion-contexto", "comp-etica-responsabilidad"]
+    : ["comp-intervencion-argumentacion", "comp-etica-responsabilidad"];
+  const evaluatedRa = index % 3 === 0 ? 2 : 1;
+
+  return {
+    id: `medicion-${course.id}`,
+    code: course.code,
+    name: course.name,
+    cycleId,
+    seccionalId: program.seccionalId,
+    facultadId: program.facultyId,
+    programaId: program.id,
+    planId: program.planId,
+    teacherId,
+    competenceIds,
     totalRa: 4,
-    evaluatedRa: 1,
+    evaluatedRa,
     results: [
-      { raId: "ra-01", totalStudents: 30, approvedStudents: 4, notApprovedStudents: 26, instrumentFile: "instrumento-ra01.docx", evidenceFile: "evidencia-ra01.zip", improvementPlanFile: "plan-mejora-ra01.pdf", improvementPlanSummary: "Reforzar conceptos base y proponer ejercicios guiados antes de la siguiente medición." },
+      {
+        competenciaId: competenceIds[0],
+        raId: competenceIds[0] === "comp-investigacion-contexto" ? "ra-investigacion-01" : "ra-intervencion-01",
+        totalStudents: course.programId === "psicologia" ? 28 : 32,
+        approvedStudents: course.programId === "psicologia" ? 22 : 25,
+        notApprovedStudents: course.programId === "psicologia" ? 6 : 7,
+        instrumentFile: `instrumento-${course.id}.docx`,
+        evidenceFile: `evidencias-${course.id}.zip`,
+        improvementPlanSummary: "Reforzar acompañamiento y retroalimentación con evidencias de aprendizaje del programa seleccionado.",
+      },
     ],
-  },
-  {
-    id: "curso-bases-datos",
-    code: "SIS-702",
-    name: "Bases de Datos",
-    cycleId: "ciclo-2026-1",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "sis-cali",
-    planId: "sis-cali-2024-2",
-    teacherId: "doc-santiago",
-    competenceIds: ["comp-analisis", "comp-investigacion"],
-    totalRa: 4,
-    evaluatedRa: 2,
-    results: [
-      { raId: "ra-01", totalStudents: 28, approvedStudents: 20, notApprovedStudents: 8, instrumentFile: "rubrica-bases-ra01.docx", evidenceFile: "evidencias-bases-ra01.zip" },
-      { raId: "ra-05", totalStudents: 28, approvedStudents: 17, notApprovedStudents: 11, instrumentFile: "instrumento-bases-ra05.docx", evidenceFile: "evidencias-bases-ra05.zip", improvementPlanFile: "plan-mejora-bases-ra05.pdf", improvementPlanSummary: "Fortalecer la formulación de preguntas y el análisis de fuentes académicas." },
-    ],
-  },
-  {
-    id: "curso-optimizacion-industrial",
-    code: "IND-701",
-    name: "Resolución de Problemas Computacionales",
-    cycleId: "ciclo-2026-1",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "ind-cali",
-    planId: "ind-cali-2024-2",
-    teacherId: "doc-marcela",
-    competenceIds: ["comp-analisis", "comp-construccion"],
-    totalRa: 4,
-    evaluatedRa: 1,
-    results: [
-      { raId: "ra-02", totalStudents: 24, approvedStudents: 12, notApprovedStudents: 12, instrumentFile: "instrumento-ind-ra02.docx", evidenceFile: "evidencia-ind-ra02.zip", improvementPlanFile: "plan-mejora-ind-ra02.pdf", improvementPlanSummary: "Ajustar acompañamiento y retroalimentación en la fase de diseño de alternativas." },
-    ],
-  },
-  {
-    id: "curso-proyecto-integrador",
-    code: "SIS-801",
-    name: "Proyecto Integrador I",
-    cycleId: "ciclo-2024-2",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "sis-cali",
-    planId: "sis-cali-2024-2",
-    teacherId: "doc-santiago",
-    competenceIds: ["comp-analisis", "comp-construccion"],
-    totalRa: 4,
-    evaluatedRa: 4,
-    results: [
-      { raId: "ra-01", totalStudents: 20, approvedStudents: 16, notApprovedStudents: 4, instrumentFile: "instrumento-proyecto-ra01.docx", evidenceFile: "evidencia-proyecto-ra01.zip" },
-      { raId: "ra-02", totalStudents: 20, approvedStudents: 12, notApprovedStudents: 8, instrumentFile: "instrumento-proyecto-ra02.docx", evidenceFile: "evidencia-proyecto-ra02.zip", improvementPlanFile: "plan-mejora-proyecto-ra02.pdf", improvementPlanSummary: "Acompañar la argumentación de alternativas con sesiones de retroalimentación por equipos." },
-      { raId: "ra-03", totalStudents: 20, approvedStudents: 5, notApprovedStudents: 15, instrumentFile: "instrumento-proyecto-ra03.docx", evidenceFile: "evidencia-proyecto-ra03.zip", improvementPlanFile: "plan-mejora-proyecto-ra03.pdf", improvementPlanSummary: "Reforzar criterios de implementación y validación de entregables parciales." },
-      { raId: "ra-04", totalStudents: 20, approvedStudents: 10, notApprovedStudents: 10, instrumentFile: "instrumento-proyecto-ra04.docx", evidenceFile: "evidencia-proyecto-ra04.zip", improvementPlanFile: "plan-mejora-proyecto-ra04.pdf", improvementPlanSummary: "Definir talleres de análisis de resultados y cierre de evidencias." },
-    ],
-  },
-  {
-    id: "curso-practica-profesional",
-    code: "SIS-802",
-    name: "Práctica Profesional",
-    cycleId: "ciclo-2024-2",
-    seccionalId: "cali",
-    facultadId: "ing-cali",
-    programaId: "sis-cali",
-    planId: "sis-cali-2024-2",
-    teacherId: "doc-antonio",
-    competenceIds: ["comp-analisis", "comp-investigacion"],
-    totalRa: 4,
-    evaluatedRa: 4,
-    results: [
-      { raId: "ra-01", totalStudents: 22, approvedStudents: 18, notApprovedStudents: 4, instrumentFile: "instrumento-practica-ra01.docx", evidenceFile: "evidencia-practica-ra01.zip" },
-      { raId: "ra-02", totalStudents: 22, approvedStudents: 19, notApprovedStudents: 3, instrumentFile: "instrumento-practica-ra02.docx", evidenceFile: "evidencia-practica-ra02.zip" },
-      { raId: "ra-05", totalStudents: 22, approvedStudents: 14, notApprovedStudents: 8, instrumentFile: "instrumento-practica-ra05.docx", evidenceFile: "evidencia-practica-ra05.zip", improvementPlanFile: "plan-mejora-practica-ra05.pdf", improvementPlanSummary: "Mejorar la formulación de objetivos y la trazabilidad de fuentes." },
-      { raId: "ra-06", totalStudents: 22, approvedStudents: 20, notApprovedStudents: 2, instrumentFile: "instrumento-practica-ra06.docx", evidenceFile: "evidencia-practica-ra06.zip" },
-    ],
-  },
-  {
-    id: "curso-bog-proyecto-software",
-    code: "SIS-701",
-    name: "Proyecto Integrador de Software",
-    cycleId: "ciclo-bog-2024-2",
-    seccionalId: "bogota",
-    facultadId: "ing-bog",
-    programaId: "sis-bog",
-    planId: "sis-bog-2024-2",
-    teacherId: "doc-antonio",
-    competenceIds: ["comp-analisis", "comp-construccion"],
-    totalRa: 4,
-    evaluatedRa: 4,
-    results: [
-      { raId: "ra-01", totalStudents: 26, approvedStudents: 21, notApprovedStudents: 5, instrumentFile: "bog-ra01.docx", evidenceFile: "bog-ra01.zip" },
-      { raId: "ra-02", totalStudents: 26, approvedStudents: 20, notApprovedStudents: 6, instrumentFile: "bog-ra02.docx", evidenceFile: "bog-ra02.zip" },
-      { raId: "ra-03", totalStudents: 26, approvedStudents: 19, notApprovedStudents: 7, instrumentFile: "bog-ra03.docx", evidenceFile: "bog-ra03.zip" },
-      { raId: "ra-04", totalStudents: 26, approvedStudents: 22, notApprovedStudents: 4, instrumentFile: "bog-ra04.docx", evidenceFile: "bog-ra04.zip" },
-    ],
-  },
-  {
-    id: "curso-bog-trabajo-grado",
-    code: "SIS-703",
-    name: "Trabajo de Grado",
-    cycleId: "ciclo-bog-2024-2",
-    seccionalId: "bogota",
-    facultadId: "ing-bog",
-    programaId: "sis-bog",
-    planId: "sis-bog-2024-2",
-    teacherId: "doc-paula",
-    competenceIds: ["comp-investigacion"],
-    totalRa: 2,
-    evaluatedRa: 2,
-    results: [
-      { raId: "ra-05", totalStudents: 18, approvedStudents: 13, notApprovedStudents: 5, instrumentFile: "trabajo-grado-ra05.docx", evidenceFile: "trabajo-grado-ra05.zip" },
-      { raId: "ra-06", totalStudents: 18, approvedStudents: 16, notApprovedStudents: 2, instrumentFile: "trabajo-grado-ra06.docx", evidenceFile: "trabajo-grado-ra06.zip" },
-    ],
-  },
-  {
-    id: "curso-agro-proyecto",
-    code: "AGR-701",
-    name: "Proyecto Agroindustrial Aplicado",
-    cycleId: "ciclo-med-2024-2",
-    seccionalId: "medellin",
-    facultadId: "ing-med",
-    programaId: "agro-med",
-    planId: "agro-med-2024-2",
-    teacherId: "doc-diana",
-    competenceIds: ["comp-analisis"],
-    totalRa: 2,
-    evaluatedRa: 2,
-    results: [
-      { raId: "ra-01", totalStudents: 21, approvedStudents: 18, notApprovedStudents: 3, instrumentFile: "agro-ra01.docx", evidenceFile: "agro-ra01.zip" },
-      { raId: "ra-02", totalStudents: 21, approvedStudents: 17, notApprovedStudents: 4, instrumentFile: "agro-ra02.docx", evidenceFile: "agro-ra02.zip" },
-    ],
-  },
-];
+  };
+});
 
 const roleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vicerrectoría de seccional",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  decano: "Decanatura",
+  director: "Jefatura de programa",
+  docente: "Docencia",
 };
 
 const mockUsers: Record<DashboardRole, DashboardUser> = {
@@ -740,35 +554,35 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
     name: "Juliana Mejía",
     role: "admin",
     label: roleLabels.admin,
-    scope: {},
+    scope: { seccionalId: "cali" },
   },
   vice: {
     id: "usr-vice",
     name: "Ana María Restrepo",
     role: "vice",
     label: roleLabels.vice,
-    scope: { seccionalId: "bogota" },
+    scope: { seccionalId: "cali" },
   },
   decano: {
     id: "usr-decano",
     name: "Carlos Medina",
     role: "decano",
     label: roleLabels.decano,
-    scope: { seccionalId: "bogota", facultadId: "ing-bog" },
+    scope: { seccionalId: "cali" },
   },
   director: {
     id: "usr-director",
-    name: "Laura Gómez",
+    name: "Jefatura SECUB",
     role: "director",
     label: roleLabels.director,
-    scope: { seccionalId: "cali", facultadId: "ing-cali", programaIds: ["sis-cali", "ind-cali"] },
+    scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] },
   },
   docente: {
     id: "usr-docente",
-    name: "Santiago Torres",
+    name: "Docente SECUB",
     role: "docente",
     label: roleLabels.docente,
-    scope: { seccionalId: "cali", facultadId: "ing-cali", programaIds: ["sis-cali"], docenteId: "doc-santiago" },
+    scope: { seccionalId: "cali", docenteId: "usr-docente-psicologia" },
   },
 };
 
@@ -837,7 +651,7 @@ export function getDashboardData(): DashboardData {
     return {
       catalogs: dashboardCatalogs,
       cycles: measurementCycles,
-      courses: courseMeasurements.filter((course) => course.teacherId !== "doc-santiago"),
+      courses: courseMeasurements.filter((course) => course.teacherId !== "usr-docente-psicologia"),
     };
   }
 

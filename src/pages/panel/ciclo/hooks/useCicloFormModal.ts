@@ -6,7 +6,6 @@ import {
   getActivePlansByProgram,
   getCourseEligibility,
   getSynthesisCourses,
-  sortCoursesByContractType,
 } from "../ciclo.utils";
 
 function normalizeContractType(tipoVinculacion: string) {
@@ -17,19 +16,20 @@ function normalizeContractType(tipoVinculacion: string) {
 }
 
 export function isCatedraTeacher(tipoVinculacion: string) {
-  return normalizeContractType(tipoVinculacion).includes("catedra");
+  return normalizeContractType(tipoVinculacion).includes("HC");
 }
 
 export function isExceptionalTeacher(tipoVinculacion: string) {
-  return normalizeContractType(tipoVinculacion).includes("medio tiempo");
+  return normalizeContractType(tipoVinculacion).includes("MT");
 }
 
 export function getTeacherContractAlert(tipoVinculacion: string) {
-  if (normalizeContractType(tipoVinculacion).includes("tiempo completo")) return "";
+  if (normalizeContractType(tipoVinculacion).includes("TC")) return "";
   if (isExceptionalTeacher(tipoVinculacion)) {
     return "Caso excepcional: docente de medio tiempo. Prioriza tiempo completo cuando exista disponibilidad.";
   }
-  return "Caso excepcional: valida la dedicación docente antes de confirmar el ciclo.";
+  // return "Caso excepcional: valida la dedicación docente antes de confirmar el ciclo."; 
+  // OJO: Se comenta esta alerta porque el proceso de validación ya no bloquea la confirmación, pero se mantiene la función por si se quiere mostrar un mensaje informativo en el futuro.
 }
 
 interface UseCicloFormModalParams {
@@ -87,11 +87,10 @@ export function useCicloFormModal({
   );
 
   const availableCourses = useMemo(() => {
-    const filtered = synthesisCourses.filter((course) => {
+    return synthesisCourses.filter((course) => {
+      if (isCatedraTeacher(course.tipoVinculacion)) return false;
       return getCourseEligibility(course, selectedPrograma, selectedPlan).selectable;
     });
-    // Ordenar por tipo de contrato: Tiempo Completo → Medio Tiempo → Cátedra
-    return sortCoursesByContractType(filtered);
   }, [selectedPlan, selectedPrograma, synthesisCourses]);
 
   const selectedCount = values.cursoIds.filter((cursoId) =>
@@ -140,8 +139,8 @@ export function useCicloFormModal({
     onSubmit(values);
   };
 
-  const title = { create: "Crear ciclo de medición", edit: "Editar ciclo", view: "Detalle del ciclo" }[mode];
-  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo de medición";
+  const title = { create: "Crear ciclo", edit: "Editar ciclo", view: "Detalle del ciclo" }[mode];
+  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo";
 
   return {
     values,

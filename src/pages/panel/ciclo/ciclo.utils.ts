@@ -47,6 +47,15 @@ export function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+function getAcademicPeriod(dateStr: string): string {
+  const [year, month] = dateStr.split("-").map(Number);
+  return `${year}-${month <= 6 ? 1 : 2}`;
+}
+
+export function formatCicloTitle(ciclo: Pick<CicloMedicion, "fechaInicio" | "fechaFin">): string {
+  return `Ciclo ${getAcademicPeriod(ciclo.fechaInicio)} / ${getAcademicPeriod(ciclo.fechaFin)}`;
+}
+
 export function addEighteenMonths(date: string) {
   const [year, month, day] = date.split("-").map(Number);
   const base = new Date(year, month - 1, day || 1);
@@ -182,10 +191,10 @@ export function getCourseEligibility(
  */
 export function sortCoursesByContractType(courses: CursoSintesis[]): CursoSintesis[] {
   const contractTypePriority: Record<string, number> = {
-    "tiempo completo": 0,
-    "medio tiempo": 1,
-    "catedra": 2,
-    "hora catedra": 2,
+    "TC": 0, // Tiempo Completo
+    "MT": 1, // Medio Tiempo
+    "CA": 2, // Cátedra
+    "HC": 2, // Hora Cátedra
   };
 
   return [...courses].sort((a, b) => {

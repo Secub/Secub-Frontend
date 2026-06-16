@@ -22,8 +22,8 @@ export function AsignarRAAccessState({ variant }: AsignarRAAccessStateProps) {
   return (
     <WorkflowStateCard
       variant="locked"
-      title="Asignar RA no está disponible para Docente"
-      description="El Docente no edita asignaciones. Su flujo empieza en Dashboard y Medición RA para registrar resultados."
+      title="Asignar RA no está disponible para Docencia"
+      description="Docencia no edita asignaciones. Su flujo empieza en Dashboard y Medición RA para registrar resultados."
     />
   );
 }

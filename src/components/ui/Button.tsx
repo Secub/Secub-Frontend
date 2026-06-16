@@ -1,13 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant =
-  | "primary"
-  | "accent"
-  | "outline"
-  | "ghost"
-  | "danger"
-  | "primary_soft";
-
+type ButtonVariant = "primary" | "accent" | "outline" | "ghost" | "danger" | "primary_soft";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -20,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)] disabled:pointer-events-none disabled:opacity-60";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -85,9 +78,7 @@ export function Button({
           {leftIcon}
         </span>
       ) : null}
-
       <span>{children}</span>
-
       {rightIcon ? (
         <span className="shrink-0" aria-hidden="true">
           {rightIcon}
@@ -98,5 +89,4 @@ export function Button({
 }
 
 export type { ButtonSize, ButtonVariant };
-
 export default Button;

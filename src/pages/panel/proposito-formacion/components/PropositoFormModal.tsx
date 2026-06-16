@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Modal, Select, Textarea } from "../../../../components/ui";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { getActivePlansByProgram, getDefaultLugarBySeccional, isMedellinSeccional } from "../proposito-formacion.utils";
+import { getActivePlansByProgram, getDefaultLugarBySeccional, isLugarEditableForSeccional } from "../proposito-formacion.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -89,7 +89,7 @@ export function PropositoFormModal({
 
   const canEditStructure = mode === "create";
   const isDirectorScoped = Boolean(user.scope.programaId);
-  const isLugarLocked = !canEditStructure || !isMedellinSeccional(form.seccionalId);
+  const isLugarLocked = !canEditStructure || !isLugarEditableForSeccional(form.seccionalId);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => {
@@ -125,7 +125,7 @@ export function PropositoFormModal({
   const validate = () => {
     const nextErrors: FormErrors = {};
 
-    if (!form.seccionalId) nextErrors.seccionalId = "Selecciona una seccional o sede.";
+    if (!form.seccionalId) nextErrors.seccionalId = "Selecciona una seccional.";
     if (!form.lugarId) nextErrors.lugarId = "Selecciona un lugar de desarrollo.";
     if (!form.facultadId) nextErrors.facultadId = "Selecciona una facultad.";
     if (!form.programaId) nextErrors.programaId = "Selecciona un programa.";
@@ -182,7 +182,7 @@ export function PropositoFormModal({
       }
       description={
         mode === "create"
-          ? "Registra un nuevo propósito asociado a una seccional o sede, lugar de desarrollo, facultad, programa y plan específico."
+          ? "Registra un nuevo propósito asociado a una seccional, lugar de desarrollo, facultad, programa y plan específico."
           : "En edición solo se modifica el estado y el texto descriptivo, manteniendo la estructura académica bloqueada."
       }
       size="lg"
@@ -208,14 +208,14 @@ export function PropositoFormModal({
 
       <div className="grid gap-5 md:grid-cols-2">
         <Select
-          label="Seccional / Sede"
+          label="Seccional"
           value={form.seccionalId}
           onChange={(event) => updateField("seccionalId", event.target.value)}
           options={catalogs.seccionales.map((item) => ({
             label: item.nombre,
             value: item.id,
           }))}
-          placeholder="Selecciona una seccional o sede"
+          placeholder="Selecciona una seccional"
           disabled={!canEditStructure || !!user.scope.seccionalId}
           id="seccionalId"
           data-validation-field="seccionalId"

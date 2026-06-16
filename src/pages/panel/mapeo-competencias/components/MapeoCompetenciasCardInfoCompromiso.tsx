@@ -15,19 +15,19 @@ export default function MapeoCompetenciasCardInfoCompromiso({
         <div className="mt-4 flex flex-col gap-3 text-sm leading-6 text-[var(--color-gray-2)]">
           <p>
             <strong className="font-semibold uppercase">Introduce (I): </strong>
-            el curso introduce la competencia al estudiante. Se presentan conceptos fundamentales y se inicia la familiarización con la competencia.
+            El curso introduce la competencia al estudiante. Se presentan conceptos fundamentales y se inicia la familiarización con la competencia.
           </p>
           <p>
             <strong className="font-semibold uppercase">Refuerza (R): </strong>
-            el curso refuerza una competencia previamente introducida. Se profundizan conceptos, se amplían habilidades y se consolida el conocimiento mediante aplicaciones más complejas.
+            El curso refuerza una competencia previamente introducida. Se profundizan conceptos, se amplían habilidades y se consolida el conocimiento mediante aplicaciones más complejas.
           </p>
           <p>
             <strong className="font-semibold uppercase">Afianza (A): </strong>
-            el curso afianza la competencia. El estudiante demuestra mayor dominio, integración y aplicación en contextos académicos o profesionales.
+            El curso afianza la competencia. El estudiante demuestra mayor dominio, integración y aplicación en contextos académicos o profesionales.
           </p>
           <p>
             <strong className="font-semibold uppercase">No aplica (NA): </strong>
-            el curso no aborda ni contribuye al desarrollo de esa competencia en particular.
+              La competencia no se desarrolla en el curso. 
           </p>
         </div>
       </div>

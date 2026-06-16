@@ -1,7 +1,4 @@
-import seccionalCali     from "../../assets/seccionales/seccional-cali.jpg";
-import seccionalMedellin from "../../assets/seccionales/seccional-medellin.jpg";
-import seccionalBogota   from "../../assets/seccionales/seccional-bogota.jpg";
-import seccionalCartagena from "../../assets/seccionales/seccional-cartagena.webp";
+import seccionalCali from "../../assets/seccionales/seccional-cali.jpg";
 
 type CampusMosaicProps = {
   className?: string;
@@ -11,22 +8,10 @@ type CampusMosaicProps = {
 };
 
 const campuses = [
-  {
-    title: "Sede Cali",
-    image: seccionalCali,
-  },
-  {
-    title: "Sede Medellín",
-    image: seccionalMedellin,
-  },
-  {
-    title: "Sede Bogotá",
-    image: seccionalBogota,
-  },
-  {
-    title: "Sede Cartagena",
-    image: seccionalCartagena,
-  },
+  { title: "Seccional Cali", image: seccionalCali },
+  { title: "Psicología", image: seccionalCali },
+  { title: "Derecho", image: seccionalCali },
+  { title: "Gestión académica SECUB", image: seccionalCali },
 ];
 
 export default function CampusMosaic({
@@ -38,14 +23,9 @@ export default function CampusMosaic({
 
   return (
     <div className={`w-full ${isFill ? "h-full" : ""} ${className}`}>
-      <div
-        className={`grid grid-cols-2 ${isFill ? "h-full grid-rows-2" : "aspect-square"}`}
-      >
+      <div className={`grid grid-cols-2 ${isFill ? "h-full grid-rows-2" : "aspect-square"}`}>
         {campuses.map((campus) => (
-          <article
-            key={campus.title}
-            className="group relative h-full w-full overflow-hidden"
-          >
+          <article key={campus.title} className="group relative h-full w-full overflow-hidden">
             <img
               src={campus.image}
               alt={hideTitles ? "" : campus.title}
@@ -54,7 +34,7 @@ export default function CampusMosaic({
             />
 
             {!hideTitles && (
-              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+              <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.58))] p-3 sm:p-4">
                 <p className="font-heading text-xs font-semibold text-white sm:text-sm md:text-base">
                   {campus.title}
                 </p>

@@ -40,11 +40,12 @@ export default function HeroSection() {
         <div className="absolute right-[24%] top-[50%] h-4 w-4 rounded-full bg-white shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
       </div>
 
-      <motion.div 
-      initial={{opacity:0, y: -40}}
-      animate={{opacity:1, y: 0}}
-      transition={{duration: 0.8, ease:"easeIn"}}
-      className="container-secub relative z-10 flex min-h-[calc(100vh-80px)] items-center justify-center py-16 lg:py-20">
+      <motion.div
+        initial={{ y: -40 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.8, ease: "easeIn" }}
+        className="container-secub relative z-10 flex min-h-[calc(100vh-80px)] items-center justify-center py-16 lg:py-20"
+      >
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="font-heading text-4xl font-semibold leading-[1.05] text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.65)] md:text-6xl xl:text-7xl">
             SECUB: Sistema de Evaluación Curricular Bonaventuriano

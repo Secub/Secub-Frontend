@@ -55,7 +55,7 @@ export default function WorkflowCompletionAlert({ open, onClose }: WorkflowCompl
         </h2>
 
         <p id="completion-alert-description" className="completion-alert-description">
-          Has terminado todos los pasos del panel. A partir de ahora, los módulos quedarán disponibles en modo visualización para consulta y seguimiento.
+          Acabas de terminar el flujo de Gestión Académica. A partir de ahora, los módulos quedarán disponibles en modo visualización para consulta y seguimiento.
         </p>
 
         <div className="completion-alert-actions">
