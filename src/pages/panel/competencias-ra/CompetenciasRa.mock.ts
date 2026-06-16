@@ -34,7 +34,7 @@ const mockUsers: Record<CompetenciasRaFormacionRole, CurrentUser> = {
   vice: { id: "usr-vice-001", nombre: "Ana María Restrepo", cargo: roleLabels.vice, role: "vice", scope: { seccionalId: "cali" } },
   decano: { id: "usr-decano-001", nombre: "Carlos Medina", cargo: roleLabels.decano, role: "decano", scope: { seccionalId: "cali" } },
   director: { id: "usr-director-001", nombre: "Jefatura SECUB", cargo: roleLabels.director, role: "director", scope: { seccionalId: "cali" } },
-  docente: { id: "usr-docente-001", nombre: "Docente SECUB", cargo: roleLabels.docente, role: "docente", scope: { seccionalId: "cali" } },
+  docente: { id: "docente-secub", nombre: "Docente SECUB", cargo: roleLabels.docente, role: "docente", scope: { seccionalId: "cali" } },
 };
 
 export function normalizeRole(rawRole: string | null | undefined): CompetenciasRaFormacionRole {

@@ -125,6 +125,7 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
     directorprograma: "director",
     director_de_programa: "director",
     docente: "docente",
+    docencia: "docente",
     teacher: "docente",
   };
 
