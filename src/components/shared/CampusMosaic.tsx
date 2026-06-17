@@ -1,4 +1,7 @@
 import seccionalCali from "../../assets/seccionales/seccional-cali.jpg";
+import seccionalCartagena from "../../assets/seccionales/seccional-cartagena.webp";
+import seccionalMedellin from "../../assets/seccionales/seccional-medellin.jpg";
+import seccionalBogota from "../../assets/seccionales/seccional-bogota.jpg";
 
 type CampusMosaicProps = {
   className?: string;
@@ -9,9 +12,9 @@ type CampusMosaicProps = {
 
 const campuses = [
   { title: "Seccional Cali", image: seccionalCali },
-  { title: "Psicología", image: seccionalCali },
-  { title: "Derecho", image: seccionalCali },
-  { title: "Gestión académica SECUB", image: seccionalCali },
+  { title: "Seccional Medellin", image: seccionalMedellin },
+  { title: "Seccional Bogotá", image: seccionalBogota },
+  { title: "Seccional Cartagena", image: seccionalCartagena },
 ];
 
 export default function CampusMosaic({
