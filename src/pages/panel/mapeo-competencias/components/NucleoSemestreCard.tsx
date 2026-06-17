@@ -26,16 +26,17 @@ const NUCLEO_ORDER: Record<NucleoFormacion, number> = {
 
 export default function NucleoSemestreCard({
   semestreNumero,
-  cursos,
+  // cursos,
   selectedNucleo,
   allNucleos,
   disabled = false,
   onSelectNucleo,
-}: NucleoSemestreCardProps) {
-  const coursePreview = cursos
-    .slice(0, 2)
-    .map((curso) => curso.nombre)
-    .join(" · ");
+}: NucleoSemestreCardProps) 
+{
+  // const coursePreview = cursos
+  //   .slice(0, 2)
+  //   .map((curso) => curso.nombre)
+  //   .join(" · ");
 
   // Highest nucleo index selected in any earlier semester (enforces ascending order)
   const prevMax = useMemo(() => {

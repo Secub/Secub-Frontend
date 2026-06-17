@@ -9,7 +9,7 @@
  *   await downloadPdf({ records, title, logoUrl });
  */
 
-import React from "react";
+// import React from "react";
 import {
   pdf,
   Document,
@@ -18,7 +18,7 @@ import {
   Text,
   Image,
   StyleSheet,
-  Font,
+  // Font,
 } from "@react-pdf/renderer";
 
 // ─── Tipado de datos ────────────────────────────────────────────────────────
