@@ -44,7 +44,7 @@ export default function DashboardPage() {
         <DashboardEmptyState
           title="Aún no se han creado ciclos de medición"
           description="Para visualizar avances, pendientes y reportes consolidados primero se debe crear un ciclo de medición desde el módulo Creación del ciclo."
-          helperText="La creación del ciclo es exclusiva del Director de Programa. Los demás roles solo consultan la información disponible."
+          helperText="La creación del ciclo es exclusiva de Jefatura de programa. Los demás roles solo consultan la información disponible."
         />
       </PanelLayout>
     );

@@ -13,6 +13,8 @@ import { ROUTES } from "../../app/appRoutes";
 
 export type PanelStepKey =
   | "dashboard"
+  | "ajustes"
+  | "accesibilidad"
   | "perfil-egreso"
   | "proposito-formacion"
   | "competencias-ra"

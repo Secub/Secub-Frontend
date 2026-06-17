@@ -203,7 +203,7 @@ export function CompetenciasRaExportModal({
         <div className="panel-filters-grid">
           {permissions.canFilterBySeccional ? (
             <Select
-              label="Seccional / Sede"
+              label="Seccional"
               value={filters.seccionalId}
               onChange={(event) =>
                 setFilters((current) => ({

@@ -7,12 +7,6 @@ import type {
 
 export function getLugaresBySeccional(lugares: Catalogs["lugares"], seccionalId: string) {
   if (!seccionalId) return lugares;
-
-  if (seccionalId === "medellin") {
-    const medellinLugarIds = new Set(["medellin", "bello", "armenia"]);
-    return lugares.filter((lugar) => lugar.seccionalId === "medellin" || medellinLugarIds.has(lugar.id));
-  }
-
   return lugares.filter((lugar) => lugar.seccionalId === seccionalId);
 }
 

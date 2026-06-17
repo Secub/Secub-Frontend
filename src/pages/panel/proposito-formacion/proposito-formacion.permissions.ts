@@ -6,13 +6,13 @@ import type {
 
 export const roleLabels: Record<PropositoFormacionRole, string> = {
   admin: "Admin (Empresa)",
-  vice: "Vicerrector (Seccional)",
-  decano: "Decano",
-  director: "Director de programa",
-  docente: "Docente",
+  vice: "Vicerrectoría (Seccional)",
+  decano: "Decanatura",
+  director: "Jefatura de programa",
+  docente: "Docencia",
 };
 
-// Decisión funcional aplicada: solo el Director define contenido académico.
+// Decisión funcional aplicada: solo la Jefatura de programa define contenido académico.
 // Admin/Vicerrectoría conservan lectura, filtros y exportación; CRUD queda bloqueado hasta confirmación de negocio.
 export const rolePermissions: Record<PropositoFormacionRole, RolePermissions> = {
   admin: {

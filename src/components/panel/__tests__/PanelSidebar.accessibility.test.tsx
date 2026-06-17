@@ -24,9 +24,11 @@ const progress: Partial<Record<PanelStepKey, boolean>> = {
 vi.mock("../../../services/auth/mockUser", () => ({
   getCurrentMockUser: () => ({
     nombre: "Juliana Mejía",
-    cargo: "Directora de programa",
+    cargo: "Jefatura de programa",
     role: "director",
   }),
+  getNeutralUserCargo: () => "Jefatura de programa",
+  getNeutralRoleLabel: () => "Jefatura de programa",
 }));
 
 vi.mock("../../../config/demo.config", () => ({
@@ -56,6 +58,9 @@ vi.mock("../academicWorkflow", () => ({
 
   isAcademicWorkflowBaseStepInherited: (key: PanelStepKey) =>
     key === "perfil-egreso" || key === "proposito-formacion",
+
+  isAcademicWorkflowStep: (key: PanelStepKey) =>
+    ["perfil-egreso", "proposito-formacion", "competencias-ra", "mapeo-competencias", "ciclo", "asignar-ra"].includes(key),
 
   isAcademicWorkflowStepCompleted: (key: PanelStepKey) =>
     Boolean(progress[key]),
@@ -119,12 +124,12 @@ describe("PanelSidebar accesible", () => {
 
     render(<PanelSidebar currentStep="perfil-egreso" />);
 
-    const tablist = screen.getByRole("tablist", {
+    const completedNavigation = screen.getByRole("navigation", {
       name: /secciones completadas de gestión académica/i,
     });
 
     expect(
-      within(tablist).getByRole("tab", {
+      within(completedNavigation).getByRole("button", {
         name: /perfil de egreso/i,
       }),
     ).toBeInTheDocument();

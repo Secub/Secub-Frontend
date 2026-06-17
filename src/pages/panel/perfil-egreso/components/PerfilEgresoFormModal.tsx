@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Modal, Select, Textarea, Input } from "../../../../components/ui";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { formatDate, getActivePlansByProgram, getDefaultLugarBySeccional, isMedellinSeccional } from "../perfil-egreso.utils";
+import { formatDate, getActivePlansByProgram, getDefaultLugarBySeccional, isLugarEditableForSeccional } from "../perfil-egreso.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -90,7 +90,7 @@ export function PerfilEgresoFormModal({
 
   const canEditStructure = mode === "create";
   const isDirectorScoped = Boolean(user.scope.programaId);
-  const isLugarLocked = !canEditStructure || !isMedellinSeccional(form.seccionalId);
+  const isLugarLocked = !canEditStructure || !isLugarEditableForSeccional(form.seccionalId);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => {

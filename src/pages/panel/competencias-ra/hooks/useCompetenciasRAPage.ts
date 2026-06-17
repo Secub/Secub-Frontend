@@ -33,8 +33,7 @@ export function useCompetenciasRAPage() {
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
   const permissions = rolePermissions[currentUser.role];
-  // Los docentes no están sujetos al workflow académico, solo pueden consultar
-  const isStepLocked = currentUser.role === "docente" ? false : isAcademicWorkflowStepLocked("competencias-ra");
+  const isStepLocked = isAcademicWorkflowStepLocked("competencias-ra");
   const hasRecords = records.length > 0;
   const filtersState = useCompetenciasRAFilters({ records, catalogs, currentUser });
   const {
