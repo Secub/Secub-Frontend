@@ -279,7 +279,7 @@ export const secubAcademicPrograms: SecubAcademicProgram[] = [
   {
     id: "psicologia",
     name: "Psicología",
-    directorRoleLabel: "Jefatura del Programa de Psicología",
+    directorRoleLabel: "Dirección del Programa de Psicología",
     faculty: "Facultad de Ciencias Humanas y Sociales",
     facultyId: "fac-ciencias-humanas-sociales-cali",
     seccional: "Seccional Cali",
@@ -307,7 +307,7 @@ export const secubAcademicPrograms: SecubAcademicProgram[] = [
   {
     id: "derecho",
     name: "Derecho",
-    directorRoleLabel: "Jefatura del Programa de Derecho",
+    directorRoleLabel: "Dirección del Programa de Derecho",
     faculty: "Facultad de Derecho y Ciencias Políticas",
     facultyId: "fac-derecho-ciencias-politicas-cali",
     seccional: "Seccional Cali",

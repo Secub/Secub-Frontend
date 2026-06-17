@@ -24,11 +24,11 @@ const progress: Partial<Record<PanelStepKey, boolean>> = {
 vi.mock("../../../services/auth/mockUser", () => ({
   getCurrentMockUser: () => ({
     nombre: "Juliana Mejía",
-    cargo: "Jefatura de programa",
-    role: "director",
+    cargo: "Dirección de programa",
+    role: "direccion-programa",
   }),
-  getNeutralUserCargo: () => "Jefatura de programa",
-  getNeutralRoleLabel: () => "Jefatura de programa",
+  getNeutralUserCargo: () => "Dirección de programa",
+  getNeutralRoleLabel: () => "Dirección de programa",
 }));
 
 vi.mock("../../../config/demo.config", () => ({

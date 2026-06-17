@@ -2,7 +2,7 @@ export type MapeoCompetenciasRole =
   | "admin"
   | "vice"
   | "decano"
-  | "director"
+  | "direccion-programa"
   | "docente";
 
 export type MapeoCompetenciasEstado = "activo" | "inactivo";

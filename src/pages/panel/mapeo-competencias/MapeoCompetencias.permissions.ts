@@ -8,14 +8,14 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  director: "Jefatura de programa",
+  "direccion-programa": "Dirección de programa",
   docente: "Docencia",
 };
 
 /**
  * Regla visual RF05.
- * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Jefatura de programa edita.
- * - "director-only": solo Jefatura de programa visualiza RF05; los demás roles ven acceso restringido.
+ * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Dirección de programa edita.
+ * - "director-only": solo Dirección de programa visualiza RF05; los demás roles ven acceso restringido.
  */
 export const RF05_ACCESS_POLICY = "matrix-readonly" as "matrix-readonly" | "director-only";
 
@@ -62,7 +62,7 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canFilterByPlan: true,
     canFilterByEstado: true,
   },
-  director: {
+  "direccion-programa": {
     canRead: true,
     canCreate: true,
     canUpdate: true,
@@ -114,7 +114,7 @@ const directorOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> = 
     canExportPdf: false,
     canExportExcel: false,
   },
-  director: matrixReadOnlyPermissions.director,
+  "direccion-programa": matrixReadOnlyPermissions["direccion-programa"],
   docente: matrixReadOnlyPermissions.docente,
 };
 
@@ -123,7 +123,7 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
 
 export function getAccessRestrictedDescription(_role: MapeoCompetenciasRole) { // el parametro role esta sin leer dentro de la funcion, se deja con "_" para que eslint evite problemas con el build.
   if (RF05_ACCESS_POLICY === "director-only") {
-    return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias.";
+    return "La regla visual activa permite que solo Dirección de programa visualice RF05 — Mapeo de Competencias.";
   }
 
   return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias.";
@@ -133,7 +133,7 @@ export function canManageMapeo(
   role: MapeoCompetenciasRole,
   programaEstado?: ProgramaEstado,
 ) {
-  return role === "director" && programaEstado === "activo";
+  return role === "direccion-programa" && programaEstado === "activo";
 }
 
 export function canCreateAcademicMapeo(
@@ -158,8 +158,8 @@ export function getManageDisabledReason(
   role: MapeoCompetenciasRole,
   programaEstado?: ProgramaEstado,
 ) {
-  if (role !== "director") {
-    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Jefatura de programa.";
+  if (role !== "direccion-programa") {
+    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Dirección de programa.";
   }
 
   if (programaEstado !== "activo") {

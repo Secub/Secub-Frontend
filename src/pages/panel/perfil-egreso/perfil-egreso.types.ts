@@ -2,7 +2,7 @@ export type PerfilEgresoRole =
   | "admin"
   | "vice"
   | "decano"
-  | "director"
+  | "direccion-programa"
   | "docente";
 
 export type PerfilEgresoEstado = "activo" | "inactivo";
