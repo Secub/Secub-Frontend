@@ -1,9 +1,22 @@
-import { useId, useMemo, useState } from "react";
-import { GoChevronDown, GoLock, GoPlus } from "react-icons/go";
-import { HiCheck } from "react-icons/hi";
-import { LuCircleDot } from "react-icons/lu";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
+import {
+  BarChart3,
+  BookOpen,
+  Check,
+  ChevronDown,
+  LockKeyhole,
+  Plus,
+} from "lucide-react";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
-import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import {
   WORKFLOW_LOCKED_MESSAGE,
   getAcademicWorkflowLockedDescription,
@@ -21,7 +34,6 @@ import {
 } from "./academicWorkflow";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
-import SidebarRoleSwitcher from "./SidebarRoleSwitcher";
 import SidebarUserProfileMenu from "./SidebarUserProfileMenu";
 
 interface PanelSidebarProps {
@@ -29,6 +41,26 @@ interface PanelSidebarProps {
 }
 
 type NavigationItem = (typeof panelNavigation)[number];
+
+const SIDEBAR_STORAGE_KEY = "secub-sidebar-width";
+const SIDEBAR_MIN_WIDTH = 240;
+const SIDEBAR_DEFAULT_WIDTH = 320;
+const SIDEBAR_MAX_WIDTH = 360;
+const SIDEBAR_RESIZE_STEP = 12;
+
+function clampSidebarWidth(width: number) {
+  return Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, width));
+}
+
+function getInitialSidebarWidth() {
+  if (typeof window === "undefined") return SIDEBAR_DEFAULT_WIDTH;
+
+  const storedWidth = Number(window.localStorage.getItem(SIDEBAR_STORAGE_KEY));
+
+  return Number.isFinite(storedWidth)
+    ? clampSidebarWidth(storedWidth)
+    : SIDEBAR_DEFAULT_WIDTH;
+}
 
 const academicStepKeys: PanelStepKey[] = [
   "perfil-egreso",
@@ -65,29 +97,33 @@ function getStepStatusLabel({
 }
 
 export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
+  const sidebarRef = useRef<HTMLElement | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(getInitialSidebarWidth);
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
   const currentUser = getCurrentMockUser();
   const academicMenuId = useId();
   const dashboardItem =
     panelNavigation.find((item) => item.key === "dashboard") ??
     panelNavigation[0];
 
-  const academicKeys = currentUser.role === "docente" ? docenteAcademicStepKeys : academicStepKeys;
+  const academicKeys =
+    currentUser.role === "docente" ? docenteAcademicStepKeys : academicStepKeys;
   const academicItems = academicKeys
     .map((key) => panelNavigation.find((item) => item.key === key))
     .filter((item): item is NavigationItem => Boolean(item));
-  const isCurrentInsideAcademicWorkflow = academicItems.some((item) => item.key === currentStep);
+  const isCurrentInsideAcademicWorkflow = academicItems.some(
+    (item) => item.key === currentStep,
+  );
   const [isAcademicMenuOpen, setIsAcademicMenuOpen] = useState(true);
 
   const workflowProgress = useAcademicWorkflowProgress();
   const { activePlan } = useAcademicPlanInfo();
   const workflowState = getAcademicWorkflowState(workflowProgress);
-  const completedStepsCount = getCompletedAcademicWorkflowStepsCount(workflowProgress);
-  const progressPercentage = academicItems.length
-    ? Math.round((completedStepsCount / academicItems.length) * 100)
-    : 0;
+  const completedStepsCount =
+    getCompletedAcademicWorkflowStepsCount(workflowProgress);
   const isWorkflowCompleted = workflowState === "completed";
-  const isNewAcademicPlan = workflowState === "newAcademicPlan";
-  const renewalAvailability = getNewAcademicPlanRenewalAvailability(workflowProgress);
+  const renewalAvailability =
+    getNewAcademicPlanRenewalAvailability(workflowProgress);
   const canStartNewAcademicPlan = renewalAvailability.isAvailable;
   const canManageNewAcademicPlan = currentUser.role !== "docente";
   const newAcademicPlanLockedMessage =
@@ -97,6 +133,81 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     academicItems.find((item) => item.key === newAcademicPlanStartStep) ??
     academicItems[2] ??
     academicItems[0];
+
+  const updateSidebarWidth = useCallback(
+    (nextWidth: number | ((currentWidth: number) => number)) => {
+      setSidebarWidth((currentWidth) => {
+        const resolvedWidth =
+          typeof nextWidth === "function" ? nextWidth(currentWidth) : nextWidth;
+        const clampedWidth = clampSidebarWidth(resolvedWidth);
+
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(
+            SIDEBAR_STORAGE_KEY,
+            String(clampedWidth),
+          );
+        }
+
+        return clampedWidth;
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!isResizingSidebar) return;
+
+    const handlePointerMove = (event: globalThis.PointerEvent) => {
+      const sidebarLeft = sidebarRef.current?.getBoundingClientRect().left ?? 0;
+      updateSidebarWidth(event.clientX - sidebarLeft);
+    };
+
+    const handlePointerUp = () => {
+      setIsResizingSidebar(false);
+    };
+
+    const previousCursor = document.body.style.cursor;
+    const previousUserSelect = document.body.style.userSelect;
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+
+    return () => {
+      document.body.style.cursor = previousCursor;
+      document.body.style.userSelect = previousUserSelect;
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [isResizingSidebar, updateSidebarWidth]);
+
+  const handleResizePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsResizingSidebar(true);
+  };
+
+  const handleResizeKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      updateSidebarWidth((currentWidth) => currentWidth - SIDEBAR_RESIZE_STEP);
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      updateSidebarWidth((currentWidth) => currentWidth + SIDEBAR_RESIZE_STEP);
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+      updateSidebarWidth(SIDEBAR_MIN_WIDTH);
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+      updateSidebarWidth(SIDEBAR_MAX_WIDTH);
+    }
+  };
 
   const goTo = (href: string) => {
     // Mantiene el rol demo en la navegación. Cuando exista Auth real, el rol saldrá del usuario autenticado.
@@ -116,7 +227,8 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
         goTo(newAcademicPlanTarget.href);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : newAcademicPlanLockedMessage;
+      const message =
+        error instanceof Error ? error.message : newAcademicPlanLockedMessage;
       window.alert(message);
     }
   };
@@ -142,16 +254,28 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
         isCompleted,
         isLocked,
         isInherited,
-        statusLabel: getStepStatusLabel({ isCurrent, isCompleted, isInherited, isLocked }),
+        statusLabel: getStepStatusLabel({
+          isCurrent,
+          isCompleted,
+          isInherited,
+          isLocked,
+        }),
       };
     });
   }, [academicItems, activePlan, currentStep, workflowProgress]);
 
-  const renderAcademicItem = (item: (typeof academicProgress)[number], completedView = false) => {
+  const DashboardIcon = BarChart3;
+
+  const renderAcademicItem = (
+    item: (typeof academicProgress)[number],
+    completedView = false,
+  ) => {
     const ItemIcon = item.icon;
     const lockedDescription = item.isLocked
       ? getAcademicWorkflowLockedDescription(item.key)
       : item.label;
+    const shouldShowProgressStatus =
+      !completedView && item.isCurrent && !item.isCompleted && !item.isLocked;
 
     const handleClick = () => {
       if (item.isLocked) {
@@ -162,6 +286,45 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
       goTo(item.href);
     };
 
+    if (completedView) {
+      return (
+        <li key={item.key}>
+          <button
+            type="button"
+            onClick={handleClick}
+            title={lockedDescription}
+            disabled={item.isLocked}
+            aria-current={item.isCurrent ? "page" : undefined}
+            aria-label={`Sección: ${item.label}. Estado: ${item.statusLabel}.`}
+            className={[
+              "group flex w-full items-center gap-2.5 rounded-[12px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+              item.isLocked
+                ? "cursor-not-allowed opacity-55"
+                : item.isCurrent
+                  ? "cursor-pointer border-l-2 border-l-[var(--color-success)] bg-[color:rgba(118,202,102,0.12)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.10)]"
+                  : "cursor-pointer text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
+            ].join(" ")}
+          >
+            <span
+              className={[
+                "flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-pill)] transition-colors",
+                item.isCurrent
+                  ? "bg-[color:rgba(118,202,102,0.14)] text-[var(--color-success)]"
+                  : "text-[color:rgba(217,221,231,0.70)] group-hover:text-[var(--color-white)]",
+              ].join(" ")}
+              aria-hidden="true"
+            >
+              <ItemIcon className="text-[0.78rem]" />
+            </span>
+
+            <span className="min-w-0 flex-1 truncate font-heading text-[0.86rem] font-semibold leading-5">
+              {item.label}
+            </span>
+          </button>
+        </li>
+      );
+    }
+
     return (
       <li key={item.key}>
         <button
@@ -169,100 +332,123 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
           onClick={handleClick}
           title={lockedDescription}
           disabled={item.isLocked}
-          aria-current={item.isCurrent ? (completedView ? "page" : "step") : undefined}
-          aria-label={`${completedView ? "Sección" : `Paso ${item.stepNumber}`}: ${item.label}. Estado: ${item.statusLabel}.`}
+          aria-current={item.isCurrent ? "step" : undefined}
+          aria-label={`Paso ${item.stepNumber}: ${item.label}. Estado: ${item.statusLabel}.`}
           className={[
-            "group flex w-full items-center gap-3 rounded-[var(--radius-lg)] border px-3 py-2.5 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+            "group flex w-full items-start gap-2.5 rounded-[13px] border border-transparent px-2.5 py-2.5 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
             item.isLocked
-              ? "cursor-not-allowed border-[color:rgba(255,255,255,0.08)] bg-transparent opacity-55"
+              ? "cursor-not-allowed opacity-50"
               : item.isCurrent
-                ? "cursor-pointer border-[var(--color-secondary-1)] bg-[color:rgba(127,86,217,0.24)] shadow-[var(--shadow-sm)]"
-                : item.isCompleted
-                  ? "cursor-pointer border-[color:rgba(118,202,102,0.45)] bg-[color:rgba(118,202,102,0.12)] hover:bg-[color:rgba(118,202,102,0.18)]"
-                  : "cursor-pointer border-[color:rgba(255,255,255,0.10)] bg-[color:rgba(255,255,255,0.04)] hover:border-[var(--color-secondary-3)] hover:bg-[var(--color-secondary-4)]",
+                ? "cursor-pointer border-[color:rgba(14,101,217,0.22)] bg-[color:rgba(14,101,217,0.16)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]"
+                : "cursor-pointer hover:bg-[color:rgba(255,255,255,0.05)]",
           ].join(" ")}
         >
-          <div
-            className={[
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
-              item.isLocked
-                ? "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)]"
-                : item.isCompleted
-                  ? "border-[var(--color-success)] bg-[var(--color-success)] text-[var(--color-secondary-4)]"
-                  : item.isCurrent
-                    ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-[var(--color-white)]"
-                    : "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)] group-hover:border-[var(--color-white)] group-hover:text-[var(--color-white)]",
-            ].join(" ")}
+          <span
+            className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center"
             aria-hidden="true"
           >
-            {item.isLocked ? (
-              <GoLock className="text-[0.78rem]" />
-            ) : item.isCompleted ? (
-              <HiCheck className="text-sm" />
-            ) : item.isCurrent ? (
-              <ItemIcon className="text-[0.85rem]" />
-            ) : (
-              <LuCircleDot className="text-[0.78rem]" />
-            )}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <p className="text-[0.48rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-secondary-2)]">
-              {completedView ? "Consulta" : item.isInherited ? "Heredado" : `Paso ${item.stepNumber}`}
-            </p>
-
-            <p
+            <span
               className={[
-                "truncate font-heading text-[0.9rem] font-medium leading-[1.15] transition-colors",
+                "flex h-3.5 w-3.5 items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
+                item.isLocked
+                  ? "border-[color:rgba(179,206,226,0.30)] text-[color:rgba(179,206,226,0.30)]"
+                  : item.isCompleted
+                    ? "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.12)] text-[var(--color-success)]"
+                    : item.isCurrent
+                      ? "border-[var(--color-info)] text-[var(--color-info)]"
+                      : "border-[color:rgba(179,206,226,0.42)] text-[color:rgba(179,206,226,0.62)] group-hover:border-[color:rgba(179,206,226,0.62)]",
+              ].join(" ")}
+            >
+              {item.isCompleted ? (
+                <Check className="h-2.5 w-2.5" strokeWidth={3} />
+              ) : item.isCurrent ? (
+                <span className="h-1.5 w-1.5 rounded-[var(--radius-pill)] bg-current" />
+              ) : null}
+            </span>
+          </span>
+
+          <span className="min-w-0 flex-1">
+            <span
+              className={[
+                "block font-heading text-[0.86rem] font-semibold leading-[1.25] transition-colors",
                 item.isCurrent && !item.isLocked
                   ? "text-[var(--color-white)]"
                   : item.isLocked
-                    ? "text-[var(--color-secondary-3)]"
-                    : "text-[var(--color-secondary-3)] group-hover:text-[var(--color-white)]",
+                    ? "text-[color:rgba(217,221,231,0.58)]"
+                    : item.isCompleted
+                      ? "text-[var(--color-secondary-2)] group-hover:text-[var(--color-white)]"
+                      : "text-[var(--color-secondary-3)] group-hover:text-[var(--color-white)]",
               ].join(" ")}
             >
               {item.label}
-            </p>
-            {!completedView ? (
-              <p className="mt-1 text-[0.62rem] leading-4 text-[var(--color-secondary-3)]">
-                {item.statusLabel}
-              </p>
+            </span>
+
+            {shouldShowProgressStatus ? (
+              <span className="mt-1 block text-[0.75rem] font-semibold leading-4 text-[var(--color-info)]">
+                En progreso
+              </span>
             ) : null}
-          </div>
+          </span>
         </button>
       </li>
     );
   };
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-[320px] shrink-0 self-start xl:flex" aria-label="Barra lateral del panel SECUB">
-      <div className="flex h-screen w-full flex-col overflow-hidden border-r border-[var(--color-secondary-4)] bg-[var(--color-footer-dark)] text-[var(--color-white)]">
-        <div className="shrink-0 px-7 pb-4 pt-6">
-          <a href={dashboardItem.href} className="flex items-center" aria-label="Ir al dashboard de SECUB">
+    <aside
+      ref={sidebarRef}
+      className="sticky top-0 hidden h-screen shrink-0 self-start xl:flex"
+      aria-label="Barra lateral del panel SECUB"
+      style={{
+        width: `${sidebarWidth}px`,
+        minWidth: `${SIDEBAR_MIN_WIDTH}px`,
+        maxWidth: `${SIDEBAR_MAX_WIDTH}px`,
+      }}
+    >
+      <div className="relative flex h-screen w-full flex-col overflow-hidden border-r border-[color:rgba(217,221,231,0.10)] bg-[var(--color-footer-dark)] text-[var(--color-white)]">
+        <div className="shrink-0 border-b border-[color:rgba(217,221,231,0.10)] px-4 pb-4 pt-5">
+          <a
+            href={dashboardItem.href}
+            className="inline-flex rounded-[12px] p-1.5 transition-colors hover:bg-[color:rgba(255,255,255,0.055)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+            aria-label="Ir al dashboard de SECUB"
+          >
             <img
               src={LogoSecub}
               alt="SECUB"
-              className="h-10 w-auto object-contain"
+              className="h-9 w-auto object-contain"
             />
           </a>
         </div>
 
-        <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto px-7 pb-4">
-          <nav className="space-y-4" aria-label="Navegación principal del panel">
-            <ul className="space-y-4">
+        <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-4">
+          <nav
+            className="space-y-3"
+            aria-label="Navegación principal del panel"
+          >
+            <p className="px-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-[color:rgba(179,206,226,0.72)]">
+              Navegación
+            </p>
+
+            <ul className="space-y-1.5">
               <li>
                 <button
                   type="button"
                   onClick={() => goTo(dashboardItem.href)}
-                  aria-current={currentStep === dashboardItem.key ? "page" : undefined}
+                  aria-current={
+                    currentStep === dashboardItem.key ? "page" : undefined
+                  }
                   className={[
-                    "flex w-full items-center rounded-[var(--radius-pill)] px-4 py-2.5 text-left text-[0.95rem] font-medium transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+                    "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
                     currentStep === dashboardItem.key
-                      ? "bg-[var(--color-secondary-3)] text-[var(--color-secondary-1)]"
-                      : "text-[var(--color-secondary-3)] hover:bg-[var(--color-secondary-4)] hover:text-[var(--color-white)]",
+                      ? "border-l-2 border-l-[var(--color-success)] bg-[color:rgba(118,202,102,0.13)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.12)]"
+                      : "text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
                   ].join(" ")}
                 >
-                  Dashboard
+                  <DashboardIcon
+                    className="h-4 w-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">Estado del ciclo</span>
                 </button>
               </li>
 
@@ -271,69 +457,56 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                   type="button"
                   aria-expanded={isAcademicMenuOpen}
                   aria-controls={academicMenuId}
-                  onClick={() => setIsAcademicMenuOpen((currentValue) => !currentValue)}
+                  onClick={() =>
+                    setIsAcademicMenuOpen((currentValue) => !currentValue)
+                  }
                   className={[
-                    "flex w-full items-center justify-between gap-3 rounded-[var(--radius-pill)] px-4 py-2.5 text-left text-[0.95rem] font-medium transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+                    "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
                     isCurrentInsideAcademicWorkflow
-                      ? "bg-[var(--color-secondary-3)] text-[var(--color-secondary-1)]"
-                      : "text-[var(--color-secondary-3)] hover:bg-[var(--color-secondary-4)] hover:text-[var(--color-white)]",
+                      ? "border-l-2 border-l-[var(--color-success)] bg-[color:rgba(118,202,102,0.13)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.12)]"
+                      : "text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
                   ].join(" ")}
                 >
-                  <span>Gestión Académica</span>
-                  <GoChevronDown
-                    className={["text-[1rem] transition-transform", isAcademicMenuOpen ? "rotate-180" : ""].join(" ")}
+                  <BookOpen className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="min-w-0 flex-1 truncate">
+                    Gestión Académica
+                  </span>
+                  <span className="rounded-[var(--radius-pill)] bg-[color:rgba(118,202,102,0.12)] px-2 py-0.5 text-[0.72rem] font-bold leading-4 text-[var(--color-success)]">
+                    {completedStepsCount}/{academicItems.length}
+                  </span>
+                  <ChevronDown
+                    className={[
+                      "h-3.5 w-3.5 shrink-0 text-[var(--color-secondary-2)] transition-transform",
+                      isAcademicMenuOpen ? "rotate-180" : "",
+                    ].join(" ")}
                     aria-hidden="true"
                   />
                 </button>
 
                 {isAcademicMenuOpen ? (
-                  <div id={academicMenuId} className="mt-4 space-y-3">
+                  <div
+                    id={academicMenuId}
+                    className={
+                      isWorkflowCompleted
+                        ? "mt-2"
+                        : "ml-4 mt-2 border-l border-[color:rgba(217,221,231,0.12)] pl-2.5"
+                    }
+                  >
                     {isWorkflowCompleted ? (
                       <nav aria-label="Secciones completadas de Gestión Académica">
-                        <ol className="space-y-3">
-                          {academicProgress.map((item) => renderAcademicItem(item, true))}
+                        <ol className="space-y-1">
+                          {academicProgress.map((item) =>
+                            renderAcademicItem(item, true),
+                          )}
                         </ol>
                       </nav>
                     ) : (
-                      <div className="space-y-3">
-                        <div className="rounded-[var(--radius-lg)] border border-[color:rgba(255,255,255,0.10)] bg-[color:rgba(255,255,255,0.04)] p-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-secondary-2)]">
-                              {isNewAcademicPlan ? activePlan.title : "Avance del flujo"}
-                            </p>
-
-                            <span className="text-[0.72rem] font-semibold text-[var(--color-white)]">
-                              {completedStepsCount}/{academicItems.length}
-                            </span>
-                          </div>
-
-                          <div
-                            className="mt-3 h-2 overflow-hidden rounded-[var(--radius-pill)] bg-[color:rgba(255,255,255,0.10)]"
-                            aria-hidden="true"
-                          >
-                            <div
-                              className="h-full rounded-[var(--radius-pill)] bg-[linear-gradient(90deg,var(--color-primary),var(--color-secondary-1))] transition-[width] duration-700 ease-out"
-                              style={{ width: `${progressPercentage}%` }}
-                            />
-                          </div>
-
-                          <progress
-                            className="sr-only"
-                            value={completedStepsCount}
-                            max={academicItems.length}
-                            aria-label="Avance de Gestión Académica"
-                          />
-
-                          <p className="mt-2 text-[0.68rem] leading-5 text-[var(--color-secondary-3)]">
-                            {isNewAcademicPlan
-                              ? "Este plan heredó Perfil de egreso y Propósito de formación. Continúa desde Competencias y RA."
-                              : `${progressPercentage}% completado`}
-                          </p>
-                        </div>
-
+                      <div className="space-y-2">
                         <nav aria-label="Flujo de Gestión Académica">
-                          <ol className="space-y-3">
-                            {academicProgress.map((item) => renderAcademicItem(item))}
+                          <ol className="space-y-1">
+                            {academicProgress.map((item) =>
+                              renderAcademicItem(item),
+                            )}
                           </ol>
                         </nav>
                       </div>
@@ -350,43 +523,45 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                             : newAcademicPlanLockedMessage
                         }
                         className={[
-                          "group flex w-full items-center gap-3 rounded-[var(--radius-lg)] border px-3 py-2.5 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+                          "group mt-2 flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
                           canStartNewAcademicPlan
-                            ? "cursor-pointer border-[color:rgba(248,129,29,0.45)] bg-[color:rgba(248,129,29,0.10)] hover:bg-[color:rgba(248,129,29,0.16)]"
-                            : "cursor-not-allowed border-[color:rgba(255,255,255,0.10)] bg-[color:rgba(255,255,255,0.04)] opacity-65",
+                            ? "cursor-pointer bg-[color:rgba(248,129,29,0.10)] hover:bg-[color:rgba(248,129,29,0.16)]"
+                            : "cursor-not-allowed bg-[color:rgba(255,255,255,0.045)] opacity-65",
                         ].join(" ")}
                       >
-                        <div
+                        <span
                           className={[
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] border",
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-pill)]",
                             canStartNewAcademicPlan
-                              ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-white)]"
-                              : "border-[var(--color-secondary-3)] bg-transparent text-[var(--color-secondary-3)]",
+                              ? "bg-[color:rgba(248,129,29,0.16)] text-[var(--color-primary)]"
+                              : "text-[var(--color-secondary-3)]",
                           ].join(" ")}
                           aria-hidden="true"
                         >
                           {canStartNewAcademicPlan ? (
-                            <GoPlus className="text-[0.85rem]" />
+                            <Plus className="h-3.5 w-3.5" />
                           ) : (
-                            <GoLock className="text-[0.78rem]" />
+                            <LockKeyhole className="h-3.5 w-3.5" />
                           )}
-                        </div>
+                        </span>
 
-                        <div className="min-w-0 flex-1">
-                          <p
+                        <span className="min-w-0 flex-1">
+                          <span
                             className={[
-                              "text-[0.48rem] font-semibold uppercase tracking-[0.16em]",
+                              "block text-[0.75rem] font-bold uppercase tracking-[0.12em]",
                               canStartNewAcademicPlan
                                 ? "text-[var(--color-warning)]"
                                 : "text-[var(--color-secondary-2)]",
                             ].join(" ")}
                           >
-                            {canStartNewAcademicPlan ? "Nuevo ciclo" : "Bloqueado"}
-                          </p>
-                          <p className="truncate font-heading text-[0.9rem] font-medium leading-[1.15] text-[var(--color-white)]">
-                            Plan académico nuevo
-                          </p>
-                        </div>
+                            {canStartNewAcademicPlan
+                              ? "Nuevo ciclo"
+                              : "Bloqueado"}
+                          </span>
+                          <span className="block truncate font-heading text-[0.82rem] font-medium leading-4 text-[var(--color-white)]">
+                            Ciclo nuevo
+                          </span>
+                        </span>
                       </button>
                     ) : null}
                   </div>
@@ -396,10 +571,27 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
           </nav>
         </div>
 
-        <div className="shrink-0 space-y-4 border-t border-[var(--color-secondary-4)] px-6 py-4">
-          {SHOW_DEMO_TOOLS ? <SidebarRoleSwitcher /> : null}
+        <div className="shrink-0 space-y-3 border-t border-[color:rgba(217,221,231,0.10)] px-3 py-3">
           <SidebarUserProfileMenu />
         </div>
+
+        <div
+          role="separator"
+          tabIndex={0}
+          aria-label="Redimensionar barra lateral"
+          aria-orientation="vertical"
+          aria-valuemin={SIDEBAR_MIN_WIDTH}
+          aria-valuemax={SIDEBAR_MAX_WIDTH}
+          aria-valuenow={sidebarWidth}
+          onPointerDown={handleResizePointerDown}
+          onKeyDown={handleResizeKeyDown}
+          className={[
+            "absolute inset-y-0 right-0 z-20 w-2 translate-x-1 cursor-col-resize touch-none outline-none transition-colors",
+            "after:absolute after:inset-y-3 after:left-1/2 after:w-px after:-translate-x-1/2 after:rounded-full after:bg-[color:rgba(217,221,231,0.12)] after:opacity-0 after:transition-opacity",
+            "hover:after:opacity-100 focus-visible:after:opacity-100 focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+            isResizingSidebar ? "after:opacity-100" : "",
+          ].join(" ")}
+        />
       </div>
     </aside>
   );
