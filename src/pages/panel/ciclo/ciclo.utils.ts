@@ -126,9 +126,7 @@ export function getSynthesisCourses(catalogs: CicloCatalogs, programaId: string,
       curso.programaId === programaId &&
       curso.planId === planId &&
       curso.nucleo === "Síntesis" &&
-      curso.asignadoANucleoSintesis &&
-      curso.competenciasAsignadas > 0 &&
-      Boolean(curso.nivelCompromiso),
+      curso.asignadoANucleoSintesis,
   );
 }
 
@@ -162,20 +160,6 @@ export function getCourseEligibility(
     return {
       selectable: false,
       reason: "El curso aún no está confirmado dentro del núcleo de Síntesis.",
-    };
-  }
-
-  if (course.competenciasAsignadas <= 0) {
-    return {
-      selectable: false,
-      reason: "El curso no tiene competencias asignadas.",
-    };
-  }
-
-  if (!course.nivelCompromiso) {
-    return {
-      selectable: false,
-      reason: "El curso no tiene nivel de compromiso I-R-A definido.",
     };
   }
 

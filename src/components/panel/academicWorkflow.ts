@@ -36,8 +36,6 @@ export type AcademicWorkflowState = "inProgress" | "completed" | "newAcademicPla
 
 export const WORKFLOW_LOCKED_MESSAGE = "Primero completa el paso anterior para continuar.";
 
-const cicloCatalogs = getCicloCatalogs();
-
 type AcademicRecord = {
   id: string;
   estado?: string;
@@ -275,6 +273,7 @@ function getRequiredCompetenciasForCourse(
 
 function getSynthesisCourseIdsForCycle(cycle: AcademicRecord) {
   const cycleCourseIds = new Set(cycle.cursoIds ?? []);
+  const cicloCatalogs = getCicloCatalogs();
   const synthesisCourseIds = cicloCatalogs.cursos
     .filter((course) => cycleCourseIds.has(course.id) && course.nucleo === "Síntesis" && course.asignadoANucleoSintesis !== false)
     .map((course) => course.id);

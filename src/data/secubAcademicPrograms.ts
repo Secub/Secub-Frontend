@@ -7,7 +7,7 @@ export interface SecubAcademicCourse {
   credits: number;
   semester: number;
   component: string;
-  cycle: "Fundamentación" | "Profesionalización" | "Síntesis";
+  cycle?: "Fundamentación" | "Profesionalización" | "Síntesis";
   programId: SecubProgramId;
   planId: string;
 }
@@ -59,18 +59,6 @@ function getCourseId(programId: SecubProgramId, semester: number, courseName: st
 
 function getCode(programId: SecubProgramId, semester: number, index: number) {
   return `${programId === "psicologia" ? "PSI" : "DER"}-${String(semester).padStart(2, "0")}${String(index + 1).padStart(2, "0")}`;
-}
-
-function getPsychologyCycle(semester: number): SecubAcademicCourse["cycle"] {
-  if (semester <= 3) return "Fundamentación";
-  if (semester <= 7) return "Profesionalización";
-  return "Síntesis";
-}
-
-function getLawCycle(semester: number): SecubAcademicCourse["cycle"] {
-  if (semester <= 3) return "Fundamentación";
-  if (semester <= 6) return "Profesionalización";
-  return "Síntesis";
 }
 
 const psychologySemesterCredits = [17, 15, 16, 15, 16, 17, 17, 17, 16];
@@ -242,7 +230,7 @@ const lawRawCourses: Array<Array<{ name: string; credits: number; component: str
   ],
 ];
 
-function buildCourses(programId: SecubProgramId, planId: string, raw: typeof psychologyRawCourses, cycleFactory: (semester: number) => SecubAcademicCourse["cycle"]) {
+function buildCourses(programId: SecubProgramId, planId: string, raw: typeof psychologyRawCourses) {
   return raw.flatMap((semesterCourses, semesterIndex) => {
     const semester = semesterIndex + 1;
     return semesterCourses.map<SecubAcademicCourse>((course, courseIndex) => ({
@@ -252,7 +240,6 @@ function buildCourses(programId: SecubProgramId, planId: string, raw: typeof psy
       credits: course.credits,
       semester,
       component: course.component,
-      cycle: cycleFactory(semester),
       programId,
       planId,
     }));
@@ -272,8 +259,8 @@ function buildSemesters(programId: SecubProgramId, planId: string, courses: Secu
   });
 }
 
-const psychologyCourses = buildCourses("psicologia", "psicologia-2021-1", psychologyRawCourses, getPsychologyCycle);
-const lawCourses = buildCourses("derecho", "derecho-2025-1", lawRawCourses, getLawCycle);
+const psychologyCourses = buildCourses("psicologia", "psicologia-2021-1", psychologyRawCourses);
+const lawCourses = buildCourses("derecho", "derecho-2025-1", lawRawCourses);
 
 export const secubAcademicPrograms: SecubAcademicProgram[] = [
   {
