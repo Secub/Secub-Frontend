@@ -29,18 +29,18 @@ export default function SidebarRoleSwitcher() {
   };
 
   return (
-    <details className="group rounded-[var(--radius-lg)] border border-[color:rgba(255,255,255,0.12)] bg-[color:rgba(255,255,255,0.04)] px-4 py-3 text-left">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[var(--color-secondary-3)] transition-colors hover:text-[var(--color-white)] [&::-webkit-details-marker]:hidden">
+    <details className="group rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.045)] px-3 py-2.5 text-left">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-[0.82rem] font-semibold text-[var(--color-secondary-3)] transition-colors hover:text-[var(--color-white)] [&::-webkit-details-marker]:hidden">
         <span>Rol demo</span>
-        <span className="rounded-[var(--radius-pill)] bg-[color:rgba(255,255,255,0.08)] px-2.5 py-1 text-[0.7rem] uppercase tracking-[0.12em] text-[var(--color-white)]">
+        <span className="min-w-0 truncate rounded-[var(--radius-pill)] bg-[color:rgba(255,255,255,0.08)] px-2 py-0.5 text-[0.72rem] font-bold text-[var(--color-white)]">
           {currentRoleLabel}
         </span>
       </summary>
 
-      <div className="mt-3 space-y-3 border-t border-[color:rgba(255,255,255,0.10)] pt-3">
+      <div className="mt-3 space-y-2 border-t border-[color:rgba(217,221,231,0.10)] pt-3">
         <label
           htmlFor="sidebar-role-selector"
-          className="block text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-2)]"
+          className="block text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[var(--color-secondary-2)]"
         >
           Seleccionar rol
         </label>
@@ -49,7 +49,7 @@ export default function SidebarRoleSwitcher() {
           id="sidebar-role-selector"
           value={currentRole}
           onChange={(event) => handleChange(event.target.value)}
-          className="w-full rounded-[var(--radius-md)] border border-[color:rgba(255,255,255,0.16)] bg-[var(--color-footer-dark)] px-3 py-2 text-sm font-semibold text-[var(--color-white)] outline-none transition-colors hover:border-[var(--color-secondary-3)] focus:border-[var(--color-secondary-1)]"
+          className="w-full rounded-[12px] border border-[color:rgba(217,221,231,0.16)] bg-[var(--color-footer-dark)] px-3 py-2 text-[0.84rem] font-semibold text-[var(--color-white)] outline-none transition-colors hover:border-[var(--color-secondary-3)] focus:border-[var(--color-secondary-1)]"
         >
           {demoRoles.map((role) => (
             <option key={role} value={role}>
@@ -61,7 +61,7 @@ export default function SidebarRoleSwitcher() {
         <button
           type="button"
           onClick={handleResetDemo}
-          className="w-full rounded-[var(--radius-md)] border border-[color:rgba(235,87,87,0.38)] px-3 py-2 text-xs font-semibold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.12)]"
+          className="w-full rounded-[12px] border border-[color:rgba(235,87,87,0.34)] px-3 py-2 text-[0.78rem] font-bold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.12)]"
           title="Reiniciar datos demo persistidos solo en este navegador"
         >
           Reset demo
