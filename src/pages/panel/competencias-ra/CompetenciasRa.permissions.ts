@@ -8,7 +8,7 @@ export const roleLabels: Record<CompetenciasRaFormacionRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  "direccion-programa": "Dirección de programa",
+  direccionPrograma: "Dirección de programa",
   docente: "Docencia",
 };
 
@@ -57,7 +57,7 @@ export const rolePermissions: Record<CompetenciasRaFormacionRole, RolePermission
     canFilterByPlan: true,
     canFilterByEstado: true,
   },
-  "direccion-programa": {
+  direccionPrograma: {
     canRead: true,
     canCreate: true,
     canUpdate: true,

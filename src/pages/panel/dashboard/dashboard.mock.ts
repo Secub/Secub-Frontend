@@ -546,7 +546,7 @@ const roleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vicerrectoría de seccional",
   decano: "Decanatura",
-  "direccion-programa": "Dirección de programa",
+  direccionPrograma: "Dirección de programa",
   docente: "Docencia",
 };
 
@@ -572,11 +572,11 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
     label: roleLabels.decano,
     scope: { seccionalId: "cali" },
   },
-  "direccion-programa": {
+  direccionPrograma: {
     id: "direccion-programa-secub",
     name: "Dirección de programa",
-    role: "direccion-programa",
-    label: roleLabels["direccion-programa"],
+    role: "direccionPrograma",
+    label: roleLabels["direccionPrograma"],
     scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] },
   },
   docente: {
@@ -608,12 +608,12 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "direccion-programa",
-    directorprograma: "direccion-programa",
-    director_de_programa: "direccion-programa",
-    "direccion-programa": "direccion-programa",
-    direccionprograma: "direccion-programa",
-    direccion_de_programa: "direccion-programa",
+    director: "direccionPrograma",
+    directorprograma: "direccionPrograma",
+    director_de_programa: "direccionPrograma",
+    direccionPrograma: "direccionPrograma",
+    direccionprograma: "direccionPrograma",
+    direccion_de_programa: "direccionPrograma",
     docente: "docente",
     docencia: "docente",
   };

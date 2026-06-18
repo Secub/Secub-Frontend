@@ -19,7 +19,7 @@ import type {
   Seccional,
 } from "./ciclo.types";
 
-export const DEFAULT_CICLO_ROLE: CicloRole = "direccion-programa";
+export const DEFAULT_CICLO_ROLE: CicloRole = "direccionPrograma";
 
 export const seccionales: Seccional[] = secubSeccionales;
 export const facultades: Facultad[] = secubFacultades;
@@ -66,11 +66,11 @@ const mockUsers: Record<CicloRole, CurrentUser> = {
     role: "decano",
     scope: { seccionalId: "cali" },
   },
-  "direccion-programa": {
+  direccionPrograma: {
     id: "direccion-programa-secub",
     nombre: "Dirección de programa",
-    cargo: cicloRoleLabels["direccion-programa"],
-    role: "direccion-programa",
+    cargo: cicloRoleLabels["direccionPrograma"],
+    role: "direccionPrograma",
     scope: { seccionalId: "cali" },
   },
   docente: {
@@ -99,12 +99,12 @@ export function normalizeCicloRole(rawRole: string | null | undefined): CicloRol
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "direccion-programa",
-    directorprograma: "direccion-programa",
-    director_de_programa: "direccion-programa",
-    "direccion-programa": "direccion-programa",
-    direccionprograma: "direccion-programa",
-    direccion_de_programa: "direccion-programa",
+    director: "direccionPrograma",
+    directorprograma: "direccionPrograma",
+    director_de_programa: "direccionPrograma",
+    direccionPrograma: "direccionPrograma",
+    direccionprograma: "direccionPrograma",
+    direccion_de_programa: "direccionPrograma",
     docente: "docente",
     docencia: "docente",
   };

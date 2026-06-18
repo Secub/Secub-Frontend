@@ -66,7 +66,7 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canRead: true,
     canCreate: true,
     canUpdate: true,
-    canDelete: false,
+    canDelete: true,
     canExportPdf: true,
     canExportExcel: true,
     canFilterBySeccional: false,

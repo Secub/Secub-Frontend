@@ -8,7 +8,7 @@ export const roleLabels: Record<PerfilEgresoRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  "direccion-programa": "Dirección de programa",
+  direccionPrograma: "Dirección de programa",
   docente: "Docencia",
 };
 
@@ -54,7 +54,7 @@ export const rolePermissions: Record<PerfilEgresoRole, RolePermissions> = {
     canFilterByPlan: true,
     canFilterByEstado: true,
   },
-  "direccion-programa": {
+  direccionPrograma: {
     canRead: true,
     canCreate: true,
     canUpdate: true,
