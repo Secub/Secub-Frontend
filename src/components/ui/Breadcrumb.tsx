@@ -1,5 +1,4 @@
 import { GoChevronRight } from "react-icons/go";
-import { isInternalRouteHref, navigateToRoute } from "../../app/appRoutes";
 
 export interface BreadcrumbItem {
   label: string;
@@ -26,11 +25,6 @@ export default function Breadcrumb({ items = [] }: BreadcrumbProps) {
             {item.href && !isLast ? (
               <a
                 href={item.href}
-                onClick={(event) => {
-                  if (!isInternalRouteHref(item.href)) return;
-                  event.preventDefault();
-                  navigateToRoute(item.href ?? "");
-                }}
                 className="font-medium text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-1)]"
               >
                 {item.label}

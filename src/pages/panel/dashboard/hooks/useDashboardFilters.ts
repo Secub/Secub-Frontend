@@ -74,7 +74,7 @@ export function useDashboardFilters({
     setFilters((current) => ({
       ...current,
       cycleId: cycle.id,
-      status: "",
+      status: "pendiente",
       competenceId: "",
       teacherId: "",
     }));

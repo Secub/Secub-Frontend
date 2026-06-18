@@ -33,17 +33,12 @@ const mockUsers: Record<PropositoFormacionRole, CurrentUser> = {
   admin: { id: "usr-admin-001", nombre: "Juliana Mejía", cargo: roleLabels.admin, role: "admin", scope: { seccionalId: "cali" } },
   vice: { id: "usr-vice-001", nombre: "Ana María Restrepo", cargo: roleLabels.vice, role: "vice", scope: { seccionalId: "cali" } },
   decano: { id: "usr-decano-001", nombre: "Carlos Medina", cargo: roleLabels.decano, role: "decano", scope: { seccionalId: "cali" } },
-  "direccion-programa": { id: "direccion-programa-secub", nombre: "Dirección de programa", cargo: roleLabels["direccion-programa"], role: "direccion-programa", scope: { seccionalId: "cali" } },
+  director: { id: "usr-director-001", nombre: "Jefatura SECUB", cargo: roleLabels.director, role: "director", scope: { seccionalId: "cali" } },
   docente: { id: "docente-secub", nombre: "Docente SECUB", cargo: roleLabels.docente, role: "docente", scope: { seccionalId: "cali" } },
 };
 
 export function normalizeRole(rawRole: string | null | undefined): PropositoFormacionRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
+  const normalized = String(rawRole ?? "").trim().toLowerCase();
   const aliases: Record<string, PropositoFormacionRole> = {
     admin: "admin",
     administrador: "admin",
@@ -53,17 +48,14 @@ export function normalizeRole(rawRole: string | null | undefined): PropositoForm
     vicerrectoría: "vice",
     vicerrectoria: "vice",
     decano: "decano",
-    director: "direccion-programa",
-    directorprograma: "direccion-programa",
-    director_de_programa: "direccion-programa",
-    "direccion-programa": "direccion-programa",
-    direccionprograma: "direccion-programa",
-    direccion_de_programa: "direccion-programa",
+    director: "director",
+    directorprograma: "director",
+    director_de_programa: "director",
     docente: "docente",
     teacher: "docente",
   };
 
-  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_ROLE;
+  return aliases[normalized] ?? DEFAULT_ROLE;
 }
 
 export function getCurrentUser(): CurrentUser {

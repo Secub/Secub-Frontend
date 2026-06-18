@@ -1,8 +1,7 @@
-import { navigateToRoute } from "../../app/appRoutes";
 import { getNeutralRoleLabel, type MockUserRole } from "../../services/auth/mockUser";
 import { mockBackend } from "../../services/mockBackend";
 
-const demoRoles: MockUserRole[] = ["admin", "vice", "decano", "direccion-programa", "docente"];
+const demoRoles: MockUserRole[] = ["admin", "vice", "decano", "director", "docente"];
 
 export default function SidebarRoleSwitcher() {
   const params = new URLSearchParams(window.location.search);
@@ -15,7 +14,7 @@ export default function SidebarRoleSwitcher() {
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.set("role", role);
 
-    navigateToRoute(`${window.location.pathname}?${nextParams.toString()}`);
+    window.location.assign(`${window.location.pathname}?${nextParams.toString()}`);
   };
 
   const handleResetDemo = () => {
@@ -26,7 +25,7 @@ export default function SidebarRoleSwitcher() {
     if (!confirmed) return;
 
     mockBackend.clearDemoData();
-    navigateToRoute(`${window.location.pathname}${window.location.search}`, { replace: true });
+    window.location.reload();
   };
 
   return (

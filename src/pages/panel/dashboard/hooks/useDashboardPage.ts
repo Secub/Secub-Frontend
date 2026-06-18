@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
+import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
 import type { EnrichedCourse, EnrichedCycle, EnrichedRaResult } from "../dashboard.types";
 import { useDashboardBreadcrumbs } from "./useDashboardBreadcrumbs";
 import { useDashboardData } from "./useDashboardData";
@@ -71,7 +71,7 @@ export function useDashboardPage() {
   };
 
   const handleMeasureCourse = (course: EnrichedCourse) => {
-    navigateToRoute(
+    window.location.assign(
       buildRouteWithSearch(ROUTES.panelMedicionRa, {
         role: "docente",
         courseId: course.id,

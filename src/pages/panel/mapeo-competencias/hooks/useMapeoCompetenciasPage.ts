@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
+import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
 
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
@@ -72,14 +72,14 @@ export function useMapeoCompetenciasPage() {
 
   const canOpenCreate =
     permissions.canCreate &&
-    currentUser.role === "direccion-programa" &&
+    currentUser.role === "director" &&
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
     Boolean(filters.programaId && filters.planId) &&
     !selectedRecord;
   const canOpenEdit =
     permissions.canUpdate &&
-    currentUser.role === "direccion-programa" &&
+    currentUser.role === "director" &&
     selectedRecord?.programaEstado === "activo" &&
     selectedRecord?.planEstado === "activo";
 
@@ -106,11 +106,11 @@ export function useMapeoCompetenciasPage() {
   }, [filteredRecords, selectedRecord]);
 
   const handleCreate = () => {
-    navigateToRoute(buildCreatePath(currentUser.role, filters.programaId, filters.planId));
+    window.location.assign(buildCreatePath(currentUser.role, filters.programaId, filters.planId));
   };
 
   const handleEdit = (record: MapeoCompetenciasEnriched) => {
-    navigateToRoute(buildEditPath(currentUser.role, record));
+    window.location.assign(buildEditPath(currentUser.role, record));
   };
 
   const handleExportExcel = () => {

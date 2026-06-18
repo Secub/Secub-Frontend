@@ -9,7 +9,7 @@ export const cicloRoleLabels: Record<CicloRole, string> = {
   admin: "Super Admin",
   vice: "Vicerrectoría",
   decano: "Decanatura",
-  "direccion-programa": "Dirección de programa",
+  director: "Jefatura de programa",
   docente: "Docencia",
 };
 
@@ -50,7 +50,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByPeriodo: true,
     canFilterByEstado: true,
   },
-  "direccion-programa": {
+  director: {
     canReadSummary: true,
     canCreateCycle: true,
     canEditCycle: true,
@@ -82,7 +82,7 @@ export function canManageCycle(user: CurrentUser, ciclo: CicloEnriched) {
   if (!permissions.canEditCycle) return false;
   if (ciclo.estado === "finalizado") return false;
 
-  if (user.role === "direccion-programa") {
+  if (user.role === "director") {
     return user.scope.programaId === ciclo.programaId && ciclo.planEstado === "activo";
   }
 
@@ -98,7 +98,7 @@ export function getCycleActionDisabledReason(user: CurrentUser, ciclo: CicloEnri
     return "Los ciclos finalizados no se pueden editar ni eliminar.";
   }
 
-  if (user.role === "direccion-programa" && user.scope.programaId !== ciclo.programaId) {
+  if (user.role === "director" && user.scope.programaId !== ciclo.programaId) {
     return "Solo puedes editar ciclos asociados a tu programa académico.";
   }
 

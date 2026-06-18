@@ -1,4 +1,4 @@
-export type CicloRole = "admin" | "vice" | "decano" | "direccion-programa" | "docente";
+export type CicloRole = "admin" | "vice" | "decano" | "director" | "docente";
 
 export type ProgramaEstado = "activo" | "inactivo";
 export type CicloEstado = "borrador" | "activo" | "finalizado" | "pendiente";

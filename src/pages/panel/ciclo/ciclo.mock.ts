@@ -19,7 +19,7 @@ import type {
   Seccional,
 } from "./ciclo.types";
 
-export const DEFAULT_CICLO_ROLE: CicloRole = "direccion-programa";
+export const DEFAULT_CICLO_ROLE: CicloRole = "director";
 
 export const seccionales: Seccional[] = secubSeccionales;
 export const facultades: Facultad[] = secubFacultades;
@@ -66,11 +66,11 @@ const mockUsers: Record<CicloRole, CurrentUser> = {
     role: "decano",
     scope: { seccionalId: "cali" },
   },
-  "direccion-programa": {
-    id: "direccion-programa-secub",
-    nombre: "Dirección de programa",
-    cargo: cicloRoleLabels["direccion-programa"],
-    role: "direccion-programa",
+  director: {
+    id: "usr-director-001",
+    nombre: "Jefatura SECUB",
+    cargo: cicloRoleLabels.director,
+    role: "director",
     scope: { seccionalId: "cali" },
   },
   docente: {
@@ -83,12 +83,7 @@ const mockUsers: Record<CicloRole, CurrentUser> = {
 };
 
 export function normalizeCicloRole(rawRole: string | null | undefined): CicloRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
+  const normalized = String(rawRole ?? "").trim().toLowerCase();
 
   const aliases: Record<string, CicloRole> = {
     admin: "admin",
@@ -99,17 +94,14 @@ export function normalizeCicloRole(rawRole: string | null | undefined): CicloRol
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "direccion-programa",
-    directorprograma: "direccion-programa",
-    director_de_programa: "direccion-programa",
-    "direccion-programa": "direccion-programa",
-    direccionprograma: "direccion-programa",
-    direccion_de_programa: "direccion-programa",
+    director: "director",
+    directorprograma: "director",
+    director_de_programa: "director",
     docente: "docente",
     docencia: "docente",
   };
 
-  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_CICLO_ROLE;
+  return aliases[normalized] ?? DEFAULT_CICLO_ROLE;
 }
 
 export function getCurrentCicloUser(): CurrentUser {

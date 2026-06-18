@@ -3,7 +3,7 @@ import { GoArrowRight, GoBook, GoChevronLeft } from "react-icons/go";
 import LogoSECUB from "../../assets/logos/logo-secub.png";
 import LogoUSB from "../../assets/logos/logo-usb.png";
 import { secubAcademicPrograms, type SecubProgramId } from "../../data/secubAcademicPrograms";
-import { ROUTES, navigateToRoute } from "../../app/appRoutes";
+import { ROUTES } from "../../app/appRoutes";
 import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import { mockBackend } from "../../services/mockBackend";
 import { persistSelectedProgramId } from "../../services/programSelection";
@@ -15,7 +15,7 @@ const selectableRoles: Array<{
   description: string;
 }> = [
   {
-    role: "direccion-programa",
+    role: "director",
     label: "Dirección de programa",
     description: "Gestiona el flujo académico del programa.",
   },
@@ -42,9 +42,9 @@ const selectableRoles: Array<{
 ];
 
 function getInitialRole() {
-  if (typeof window === "undefined") return "direccion-programa" as MockUserRole;
+  if (typeof window === "undefined") return "director" as MockUserRole;
   const params = new URLSearchParams(window.location.search);
-  return normalizeMockRole(params.get("role") ?? "direccion-programa");
+  return normalizeMockRole(params.get("role") ?? "director");
 }
 
 function buildDashboardUrl(role: MockUserRole) {
@@ -58,7 +58,7 @@ export default function ProgramSelectorPage() {
 
   const handleSelectProgram = (programId: SecubProgramId) => {
     persistSelectedProgramId(programId);
-    navigateToRoute(buildDashboardUrl(selectedRole));
+    window.location.assign(buildDashboardUrl(selectedRole));
   };
 
   const handleResetDemo = () => {
@@ -69,21 +69,20 @@ export default function ProgramSelectorPage() {
     if (!confirmed) return;
 
     mockBackend.clearDemoData();
-    navigateToRoute(`${ROUTES.programSelector}?role=${selectedRole}`, { replace: true });
+    window.location.reload();
   };
 
   return (
     <main className="min-h-screen bg-[var(--color-surface-soft)] px-5 py-8 sm:px-8 lg:px-12">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl flex-col">
         <header className="flex flex-wrap items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => navigateToRoute(ROUTES.access)}
+          <a
+            href={ROUTES.access}
             className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] px-3 py-2 text-sm font-semibold text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
           >
             <GoChevronLeft aria-hidden="true" />
             Volver al acceso
-          </button>
+          </a>
 
           <div className="flex items-center gap-4">
             <img src={LogoUSB} alt="Universidad de San Buenaventura" className="h-12 w-auto object-contain" />

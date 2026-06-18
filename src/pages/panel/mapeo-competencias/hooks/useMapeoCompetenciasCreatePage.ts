@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
+import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
 import { canManageMapeo, getManageDisabledReason, rolePermissions } from "../MapeoCompetencias.permissions";
 import type { MapeoCompetenciasFilters as FiltersState, MapeoCompetenciasRecord } from "../MapeoCompetencias.types";
 import {
@@ -21,7 +21,7 @@ function readInitialFilters() {
 }
 
 export function navigateToMapeoList(role: string) {
-  navigateToRoute(buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role }));
+  window.location.assign(buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role }));
 }
 
 export function useMapeoCompetenciasCreatePage() {

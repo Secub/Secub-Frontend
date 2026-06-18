@@ -515,7 +515,7 @@ export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((co
   const evaluatedRa = index % 3 === 0 ? 2 : 1;
 
   return {
-    id: course.id,
+    id: `medicion-${course.id}`,
     code: course.code,
     name: course.name,
     cycleId,
@@ -546,7 +546,7 @@ const roleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vicerrectoría de seccional",
   decano: "Decanatura",
-  "direccion-programa": "Dirección de programa",
+  director: "Jefatura de programa",
   docente: "Docencia",
 };
 
@@ -572,11 +572,11 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
     label: roleLabels.decano,
     scope: { seccionalId: "cali" },
   },
-  "direccion-programa": {
-    id: "direccion-programa-secub",
-    name: "Dirección de programa",
-    role: "direccion-programa",
-    label: roleLabels["direccion-programa"],
+  director: {
+    id: "usr-director",
+    name: "Jefatura SECUB",
+    role: "director",
+    label: roleLabels.director,
     scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] },
   },
   docente: {
@@ -591,12 +591,7 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
 export const DEFAULT_DASHBOARD_ROLE: DashboardRole = "docente";
 
 export function normalizeDashboardRole(rawRole: string | null | undefined): DashboardRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
+  const normalized = String(rawRole ?? "").trim().toLowerCase();
 
   const aliases: Record<string, DashboardRole> = {
     admin: "admin",
@@ -608,17 +603,14 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "direccion-programa",
-    directorprograma: "direccion-programa",
-    director_de_programa: "direccion-programa",
-    "direccion-programa": "direccion-programa",
-    direccionprograma: "direccion-programa",
-    direccion_de_programa: "direccion-programa",
+    director: "director",
+    directorprograma: "director",
+    director_de_programa: "director",
     docente: "docente",
     docencia: "docente",
   };
 
-  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_DASHBOARD_ROLE;
+  return aliases[normalized] ?? DEFAULT_DASHBOARD_ROLE;
 }
 
 export function getCurrentDashboardUser(): DashboardUser {

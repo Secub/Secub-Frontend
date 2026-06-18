@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
 import AccessPage from "../pages/access/AccessPage";
 import LandingPage from "../pages/landing/LandingPage";
 import ProgramSelectorPage from "../pages/program-selector/ProgramSelectorPage";
@@ -13,13 +12,7 @@ import AsignarRAPage from "../pages/panel/asignar-ra/AsignarRAPage";
 import MedicionRAPage from "../pages/panel/medicion-ra/MedicionRAPage";
 import UserSettingsPage from "../pages/panel/ajustes/UserSettingsPage";
 import AccessibilitySettingsPage from "../pages/panel/accesibilidad/AccessibilitySettingsPage";
-import {
-  APP_NAVIGATION_EVENT,
-  ROUTES,
-  buildRouteWithSearch,
-  navigateToRoute,
-  normalizePathname,
-} from "./appRoutes";
+import { ROUTES, normalizePathname } from "./appRoutes";
 import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
 import { getCurrentMockUser } from "../services/auth/mockUser";
 import { useInactivityLogout } from "../services/auth/useInactivityLogout";
@@ -39,35 +32,14 @@ function isProgramSelectorRoute(pathname: string) {
   );
 }
 
-function getCurrentLocation() {
-  if (typeof window === "undefined") return { pathname: ROUTES.landing, search: "" };
-  return { pathname: window.location.pathname, search: window.location.search };
-}
-
 function redirectToProgramSelector() {
   const params = new URLSearchParams(window.location.search);
-  params.set("role", params.get("role") ?? "direccion-programa");
-  navigateToRoute(buildRouteWithSearch(ROUTES.programSelector, params), { replace: true, notify: false });
+  params.set("role", params.get("role") ?? "director");
+  window.history.replaceState(null, "", `${ROUTES.programSelector}?${params.toString()}`);
 }
 
 export default function AppRouter() {
-  const [location, setLocation] = useState(getCurrentLocation);
-  const normalizedPath = useMemo(
-    () => normalizePathname(location.pathname),
-    [location.pathname],
-  );
-
-  useEffect(() => {
-    const handleRouteChange = () => setLocation(getCurrentLocation());
-
-    window.addEventListener("popstate", handleRouteChange);
-    window.addEventListener(APP_NAVIGATION_EVENT, handleRouteChange);
-
-    return () => {
-      window.removeEventListener("popstate", handleRouteChange);
-      window.removeEventListener(APP_NAVIGATION_EVENT, handleRouteChange);
-    };
-  }, []);
+  const normalizedPath = normalizePathname(window.location.pathname);
 
   const isPanelRoute =
     normalizedPath === ROUTES.panel ||
@@ -88,7 +60,7 @@ export default function AppRouter() {
     const redirectPath = getPanelRouteAccessRedirect(normalizedPath, getCurrentMockUser().role);
 
     if (redirectPath) {
-      navigateToRoute(buildRouteWithSearch(redirectPath, new URLSearchParams(location.search)), { replace: true, notify: false });
+      window.history.replaceState(null, "", `${redirectPath}${window.location.search}`);
       return <DashboardPage />;
     }
   }

@@ -1,23 +1,22 @@
 import { GoChevronLeft } from "react-icons/go";
-import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
+import { ROUTES } from "../../../app/appRoutes";
 import LogoUSB from "../../../assets/logos/logo-usb.png";
 import { LinkButton } from "../../../components/ui";
 
 
 export default function AccessPanelSection() {
-  const microsoftLoginUrl = `${ROUTES.programSelector}?role=direccion-programa`;
+  const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#f7f7f8] px-6 py-8 sm:px-8 lg:px-10 lg:py-10 xl:px-12">
       <div className="w-full max-w-[360px] sm:max-w-[390px]">
-        <button
-          type="button"
-          onClick={() => navigateToRoute(ROUTES.landing)}
+        <a
+          href={ROUTES.landing}
           className="mb-7 inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-4)]"
         >
           <GoChevronLeft aria-hidden="true" className="text-[20px]" />
           Volver al inicio
-        </button>
+        </a>
 
         <div className="mb-8">
           <img
