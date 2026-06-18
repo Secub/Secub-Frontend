@@ -100,8 +100,8 @@ export default function CicloCoursesSelector({
         </div>
       ) : (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-6 text-sm leading-6 text-[var(--color-gray-3)]">
-          No hay cursos de Síntesis asociados al programa y plan seleccionados. Cuando el backend esté conectado,
-          este bloque debe consumir el endpoint de cursos por plan de estudios.
+          No hay cursos en semestres clasificados como Síntesis para el programa y plan seleccionados. Revisa la
+          clasificación guardada en Mapeo de competencias.
         </div>
       )}
 

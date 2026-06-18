@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
-import { mockBackend } from "../../../../services/mockBackend";
+import { mockBackend, subscribeToMockBackendChanges } from "../../../../services/mockBackend";
 import { getCicloCatalogs, getCurrentCicloUser } from "../ciclo.mock";
 import { cicloRolePermissions } from "../ciclo.permissions";
 import type { CicloEnriched, CicloFilters as CicloFiltersState, CicloFormState, CicloMedicion } from "../ciclo.types";
@@ -15,9 +15,9 @@ import {
 } from "../ciclo.utils";
 
 const user = getCurrentCicloUser();
-const catalogs = getCicloCatalogs();
 
 export function useCicloPage() {
+  const [catalogs, setCatalogs] = useState(() => getCicloCatalogs(user));
   const [cycles, setCycles] = useState<CicloMedicion[]>(() =>
     mockBackend.list<CicloMedicion>("ciclosMedicion", user),
   );
@@ -36,7 +36,17 @@ export function useCicloPage() {
   const enrichedCycles = useMemo(() => enrichCiclos(cycles, catalogs), [cycles]);
   const roleScopedCycles = useMemo(() => applyRoleScope(enrichedCycles, user), [enrichedCycles]);
   const filteredCycles = useMemo(() => applyCycleFilters(roleScopedCycles, filters), [filters, roleScopedCycles]);
-  const defaultForm = useMemo(() => getDefaultFormState(user, catalogs), []);
+  const defaultForm = useMemo(() => getDefaultFormState(user, catalogs), [catalogs]);
+
+  useEffect(() => {
+    const refreshData = () => {
+      setCatalogs(getCicloCatalogs(user));
+      setCycles(mockBackend.list<CicloMedicion>("ciclosMedicion", user));
+    };
+
+    refreshData();
+    return subscribeToMockBackendChanges(refreshData);
+  }, []);
 
   const handleFilterChange = <K extends keyof CicloFiltersState>(key: K, value: CicloFiltersState[K]) => {
     setFilters((current) => {

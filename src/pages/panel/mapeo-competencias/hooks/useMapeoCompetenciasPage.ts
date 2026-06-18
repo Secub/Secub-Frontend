@@ -59,6 +59,7 @@ export function useMapeoCompetenciasPage() {
     [catalogs, competenciasRa, cursos, records],
   );
   const scopedRecords = useMemo(() => applyRoleScope(enrichedRecords, currentUser), [currentUser, enrichedRecords]);
+  const hasRecords = scopedRecords.length > 0;
   const filteredRecords = useMemo(() => applyFilters(scopedRecords, filters), [filters, scopedRecords]);
   const selectedPrograma = useMemo(
     () => catalogs.programas.find((programa) => programa.id === filters.programaId),
@@ -131,6 +132,7 @@ export function useMapeoCompetenciasPage() {
     currentUser,
     catalogs,
     permissions,
+    hasRecords,
     filters,
     filteredRecords,
     selectedPrograma,

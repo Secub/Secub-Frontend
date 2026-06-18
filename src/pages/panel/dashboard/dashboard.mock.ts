@@ -475,11 +475,20 @@ export const dashboardCatalogs: DashboardCatalogs = {
   ],
 };
 
+const fallbackCourseIds = [
+  "psicologia-sem8-practica-profesional-i",
+  "psicologia-sem8-modalidad-de-grado-i",
+  "psicologia-sem9-practica-profesional-ii",
+  "derecho-sem7-procesal-civil-ii",
+  "derecho-sem7-arbitraje",
+  "derecho-sem8-programa-complementario-de-formacion-avanzada",
+];
+
 export const measurementCycles: MeasurementCycle[] = secubAcademicPrograms.map((program) => {
-  const synthesisCourses = secubAcademicCourses
-    .filter((course) => course.programId === program.id && course.cycle === "Síntesis")
-    .slice(0, 3)
-    .map((course) => course.id);
+  const synthesisCourses = fallbackCourseIds.filter((courseId) => {
+    const course = secubAcademicCourses.find((item) => item.id === courseId);
+    return course?.programId === program.id;
+  });
 
   return {
     id: `ciclo-${program.id}-2026-1`,
@@ -494,15 +503,6 @@ export const measurementCycles: MeasurementCycle[] = secubAcademicPrograms.map((
     courseIds: synthesisCourses,
   };
 });
-
-const fallbackCourseIds = [
-  "psicologia-sem8-practica-profesional-i",
-  "psicologia-sem8-modalidad-de-grado-i",
-  "psicologia-sem9-practica-profesional-ii",
-  "derecho-sem7-procesal-civil-ii",
-  "derecho-sem7-arbitraje",
-  "derecho-sem8-programa-complementario-de-formacion-avanzada",
-];
 
 export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((courseId, index) => {
   const course = getAcademicCourseOrThrow(courseId);

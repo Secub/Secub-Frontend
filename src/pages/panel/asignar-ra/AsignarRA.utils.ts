@@ -19,8 +19,6 @@ import type {
   SummaryMetrics,
 } from "./AsignarRA.types";
 
-const cicloCatalogs = getCicloCatalogs();
-
 export function getAssignmentId(cicloId: string, cursoId: string, competenciaId: string, raId: string) {
   return `asignacion-${cicloId}-${cursoId}-${competenciaId}-${raId}`;
 }
@@ -39,6 +37,7 @@ export function getCycleCourses(cycle?: CicloDemoRecord) {
   if (!cycle) return [];
 
   const courseIds = new Set(cycle.cursoIds ?? []);
+  const cicloCatalogs = getCicloCatalogs();
 
   return cicloCatalogs.cursos.filter((course) => {
     if (!courseIds.has(course.id)) return false;
