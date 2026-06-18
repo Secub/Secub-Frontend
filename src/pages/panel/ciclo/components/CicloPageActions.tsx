@@ -3,13 +3,20 @@ import { Button } from "../../../../components/ui";
 
 interface CicloPageActionsProps {
   canCreate: boolean;
+  disabledReason?: string;
   onCreate: () => void;
 }
 
-export default function CicloPageActions({ canCreate, onCreate }: CicloPageActionsProps) {
-  return canCreate ? (
-    <Button variant="primary" leftIcon={<GoPlus className="text-lg" />} onClick={onCreate}>
-      Crear ciclo
+export default function CicloPageActions({ canCreate, disabledReason, onCreate }: CicloPageActionsProps) {
+  return (
+    <Button 
+      variant="primary" 
+      leftIcon={<GoPlus className="text-lg" />} 
+      onClick={onCreate}
+      disabled={!canCreate}
+      title={!canCreate ? disabledReason : "Crear ciclo de medición"}
+    >
+      Crear ciclo de medición
     </Button>
-  ) : null;
+  );
 }

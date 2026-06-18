@@ -1,26 +1,41 @@
-import { GoCheckCircle } from "react-icons/go";
+import { GoAlert, GoCheckCircle } from "react-icons/go";
 
 interface CicloSavedMessageProps {
   message: string;
-  onClose: () => void;
+  onClose?: () => void;
+  variant?: "success" | "warning";
 }
 
-export default function CicloSavedMessage({ message, onClose }: CicloSavedMessageProps) {
+const messageStyles = {
+  success:
+    "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.14)] text-[var(--color-secondary-4)]",
+  warning:
+    "border-amber-300 bg-amber-50 text-amber-800",
+} as const;
+
+export default function CicloSavedMessage({ message, onClose, variant = "success" }: CicloSavedMessageProps) {
   if (!message) return null;
 
+  const Icon = variant === "warning" ? GoAlert : GoCheckCircle;
+
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--color-success)] bg-[color:rgba(118,202,102,0.14)] px-5 py-4 text-sm text-[var(--color-secondary-4)]">
+    <div
+      role={variant === "warning" ? "alert" : "status"}
+      className={`flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border px-5 py-4 text-sm ${messageStyles[variant]}`}
+    >
       <span className="inline-flex items-center gap-2">
-        <GoCheckCircle aria-hidden="true" className="text-xl" />
+        <Icon aria-hidden="true" className="text-xl" />
         {message}
       </span>
-      <button
-        type="button"
-        className="font-semibold text-[var(--color-secondary-1)]"
-        onClick={onClose}
-      >
-        Cerrar
-      </button>
+      {onClose ? (
+        <button
+          type="button"
+          className="font-semibold text-[var(--color-secondary-1)]"
+          onClick={onClose}
+        >
+          Cerrar
+        </button>
+      ) : null}
     </div>
   );
 }
