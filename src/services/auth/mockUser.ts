@@ -1,6 +1,6 @@
 import { getSelectedProgram, getSelectedProgramScope } from "../programSelection";
 
-export type MockUserRole = "admin" | "vice" | "decano" | "director" | "docente";
+export type MockUserRole = "admin" | "vice" | "decano" | "direccion-programa" | "docente";
 
 export interface CentralMockUser {
   id: string;
@@ -28,7 +28,7 @@ const neutralRoleLabels: Record<MockUserRole, string> = {
   admin: "Administrador SECUB",
   vice: "Vicerrectoría",
   decano: "Decanatura",
-  director: "Jefatura de programa",
+  "direccion-programa": "Dirección de programa",
   docente: "Docencia",
 };
 
@@ -80,12 +80,12 @@ export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
     seccionalId: "cali",
     scope: { seccionalId: "cali" },
   },
-  director: {
-    id: "usr-director-001",
-    nombre: "Jefatura SECUB",
-    email: "jefatura.programa.cali@usb.edu.co",
-    cargo: "Jefatura de programa",
-    role: "director",
+  "direccion-programa": {
+    id: "direccion-programa-secub",
+    nombre: "Dirección de programa",
+    email: "direccion.programa.cali@usb.edu.co",
+    cargo: "Dirección de programa",
+    role: "direccion-programa",
     seccionalId: "cali",
     scope: { seccionalId: "cali" },
   },
@@ -139,7 +139,12 @@ export function buildDemoDocenteIdFromName(nombre?: string) {
 }
 
 export function normalizeMockRole(rawRole: string | null | undefined): MockUserRole {
-  const normalized = String(rawRole ?? "").trim().toLowerCase();
+  const normalized = String(rawRole ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
   const aliases: Record<string, MockUserRole> = {
     admin: "admin",
     administrador: "admin",
@@ -150,15 +155,18 @@ export function normalizeMockRole(rawRole: string | null | undefined): MockUserR
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "director",
-    directorprograma: "director",
-    director_de_programa: "director",
+    director: "direccion-programa",
+    directorprograma: "direccion-programa",
+    director_de_programa: "direccion-programa",
+    "direccion-programa": "direccion-programa",
+    direccionprograma: "direccion-programa",
+    direccion_de_programa: "direccion-programa",
     docente: "docente",
     docencia: "docente",
     teacher: "docente",
   };
 
-  return aliases[normalized] ?? DEFAULT_DEMO_ROLE;
+  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_DEMO_ROLE;
 }
 
 export function getCurrentMockUser(): CentralMockUser {
@@ -171,11 +179,11 @@ export function getCurrentMockUser(): CentralMockUser {
 
   return {
     ...fallbackUser,
-    nombre: role === "director" && selectedProgram ? directorName : fallbackUser.nombre,
-    email: role === "director" && selectedProgram
-      ? `jefatura.${selectedProgram.id}@usb.edu.co`
+    nombre: role === "direccion-programa" && selectedProgram ? directorName : fallbackUser.nombre,
+    email: role === "direccion-programa" && selectedProgram
+      ? `direccion.${selectedProgram.id}@usb.edu.co`
       : fallbackUser.email,
-    cargo: role === "director" && selectedProgram ? selectedProgram.directorRoleLabel : fallbackUser.cargo,
+    cargo: role === "direccion-programa" && selectedProgram ? selectedProgram.directorRoleLabel : fallbackUser.cargo,
     seccionalId: selectedScope.seccionalId ?? fallbackUser.seccionalId,
     facultadId: selectedScope.facultadId ?? fallbackUser.facultadId,
     programaId: selectedScope.programaId ?? fallbackUser.programaId,

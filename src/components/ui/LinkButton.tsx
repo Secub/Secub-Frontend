@@ -1,4 +1,5 @@
-import type { AnchorHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from "react";
+import { isInternalRouteHref, navigateToRoute } from "../../app/appRoutes";
 import { getButtonClassName, type ButtonSize, type ButtonVariant } from "./Button";
 
 interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -18,11 +19,34 @@ export function LinkButton({
   leftIcon,
   rightIcon,
   className = "",
+  href,
+  onClick,
   ...props
 }: LinkButtonProps) {
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    onClick?.(event);
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      props.target === "_blank" ||
+      !isInternalRouteHref(href)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateToRoute(href ?? "");
+  };
+
   return (
     <a
       className={getButtonClassName({ variant, size, fullWidth, className })}
+      href={href}
+      onClick={handleClick}
       {...props}
     >
       {leftIcon ? (
