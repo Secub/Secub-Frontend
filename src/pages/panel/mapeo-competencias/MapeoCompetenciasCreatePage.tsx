@@ -44,17 +44,18 @@ export default function MapeoCompetenciasCreatePage() {
       currentStep="mapeo-competencias"
       title={existingRecord ? "Editar mapeo" : "Crear mapeo"}
       description="Clasifica los núcleos de formación por semestre y define el nivel I-R-A-NA por curso y competencia."
-      actions={
-        <Button variant="outline" leftIcon={<GoArrowLeft />} onClick={handleGoBack}>
-          Volver
-        </Button>
-      }
       breadcrumbItems={[
         { label: "Gestión Académica" },
         { label: "Mapeo de Competencias", href: buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role: currentUser.role }) },
         { label: existingRecord ? "Editar mapeo" : "Crear mapeo" },
       ]}
     >
+      <div className="mb-6">
+        <Button variant="outline" leftIcon={<GoArrowLeft />} onClick={handleGoBack}>
+          Volver
+        </Button>
+      </div>
+
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
           title="Acceso restringido"

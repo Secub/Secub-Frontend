@@ -53,6 +53,8 @@ export default function AsignarRAPage() {
     getCourseStatus,
   } = asignarRA;
 
+  const isCourseDetailView = Boolean(selectedCourse);
+
   return (
     <PanelLayout
       currentStep="asignar-ra"
@@ -77,67 +79,69 @@ export default function AsignarRAPage() {
             </div>
           ) : null}
 
-          <div ref={refs.filtersRef}>
-            <AsignarRAFilters
-              filters={filters}
-              options={filterOptions}
-              locks={filterLocks}
-              coursesLength={courses.length}
-              cyclesLength={cycles.length}
-              onSeccionalChange={handleSeccionalChange}
-              onFacultadChange={handleFacultadChange}
-              onProgramChange={handleProgramChange}
-              onPlanChange={handlePlanChange}
-              onCycleChange={handleCycleChange}
-              onCourseFilterChange={handleCourseFilterChange}
-            />
-          </div>
-
-          {!selectedCycle ? (
-            <WorkflowStateCard
-              title="Selecciona el ciclo de medición"
-              description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
-            />
-          ) : !courses.length ? (
-            <WorkflowStateCard
-              title="No hay cursos de Síntesis disponibles"
-              description="El ciclo seleccionado no tiene cursos de Síntesis asociados. Revisa Creación del ciclo antes de asignar RA."
-            />
+          {isCourseDetailView ? (
+            <div ref={refs.assignmentPanelRef}>
+              <AsignarRACourseDetail
+                selectedCourse={selectedCourse}
+                selectedCycle={selectedCycle}
+                selectedCourseAssignments={selectedCourseAssignments}
+                courseCompetencias={courseCompetencias}
+                draftSelections={draftSelections}
+                expandedCompetenciaIds={expandedCompetenciaIds}
+                measurements={measurements}
+                canManage={access.canManage}
+                canDelete={access.canDelete}
+                hasUnsavedChanges={hasUnsavedChanges()}
+                status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
+                onBackToCourses={handleBackToCourses}
+                onSave={handleSaveAssignment}
+                onReset={handleResetDraft}
+                onDelete={() => setShowDeleteConfirm(true)}
+                onToggleAccordion={toggleCompetenciaAccordion}
+                onToggleRa={toggleRaSelection}
+                getRaAssignment={getRaAssignment}
+                isRaSelected={isRaSelected}
+              />
+            </div>
           ) : (
             <>
-              <div ref={refs.coursesRef}>
-                <AsignarRACoursesTable
-                  rows={courseRows}
-                  totalCourses={courses.length}
-                  isFiltered={Boolean(filters.courseFilterId || filters.courseSearchTerm)}
-                  canManage={access.canManage}
-                  onSelectCourse={handleSelectCourse}
+              <div ref={refs.filtersRef}>
+                <AsignarRAFilters
+                  filters={filters}
+                  options={filterOptions}
+                  locks={filterLocks}
+                  coursesLength={courses.length}
+                  cyclesLength={cycles.length}
+                  onSeccionalChange={handleSeccionalChange}
+                  onFacultadChange={handleFacultadChange}
+                  onProgramChange={handleProgramChange}
+                  onPlanChange={handlePlanChange}
+                  onCycleChange={handleCycleChange}
+                  onCourseFilterChange={handleCourseFilterChange}
                 />
               </div>
 
-              <div ref={refs.assignmentPanelRef}>
-                <AsignarRACourseDetail
-                  selectedCourse={selectedCourse}
-                  selectedCycle={selectedCycle}
-                  selectedCourseAssignments={selectedCourseAssignments}
-                  courseCompetencias={courseCompetencias}
-                  draftSelections={draftSelections}
-                  expandedCompetenciaIds={expandedCompetenciaIds}
-                  measurements={measurements}
-                  canManage={access.canManage}
-                  canDelete={access.canDelete}
-                  hasUnsavedChanges={hasUnsavedChanges()}
-                  status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
-                  onBackToCourses={handleBackToCourses}
-                  onSave={handleSaveAssignment}
-                  onReset={handleResetDraft}
-                  onDelete={() => setShowDeleteConfirm(true)}
-                  onToggleAccordion={toggleCompetenciaAccordion}
-                  onToggleRa={toggleRaSelection}
-                  getRaAssignment={getRaAssignment}
-                  isRaSelected={isRaSelected}
+              {!selectedCycle ? (
+                <WorkflowStateCard
+                  title="Selecciona el ciclo de medición"
+                  description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
                 />
-              </div>
+              ) : !courses.length ? (
+                <WorkflowStateCard
+                  title="No hay cursos de Síntesis disponibles"
+                  description="El ciclo seleccionado no tiene cursos de Síntesis asociados. Revisa Creación del ciclo antes de asignar RA."
+                />
+              ) : (
+                <div ref={refs.coursesRef}>
+                  <AsignarRACoursesTable
+                    rows={courseRows}
+                    totalCourses={courses.length}
+                    isFiltered={Boolean(filters.courseFilterId || filters.courseSearchTerm)}
+                    canManage={access.canManage}
+                    onSelectCourse={handleSelectCourse}
+                  />
+                </div>
+              )}
             </>
           )}
 

@@ -48,10 +48,23 @@ export function useDashboardNavigation({
     setView("detail");
   };
 
+  const goBackToControl = () => {
+    setDetailCourseId("");
+    setDetailCompetenceId("");
+    setView("control");
+  };
+
+  const goBackToCourses = () => {
+    setDetailCourseId("");
+    setDetailCompetenceId("");
+    setView("courses");
+  };
+
   const resetNavigation = () => {
     setSelectedCycleId("");
     setDetailCourseId("");
     setDetailCompetenceId("");
+    setView("control");
   };
 
   return {
@@ -66,6 +79,8 @@ export function useDashboardNavigation({
     goToPendingCourses,
     goToCycleResults,
     goToCourseDetail,
+    goBackToControl,
+    goBackToCourses,
     resetNavigation,
   };
 }

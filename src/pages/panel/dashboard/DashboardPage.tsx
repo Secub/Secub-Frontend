@@ -1,4 +1,6 @@
+import { GoArrowLeft } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
+import { Button } from "../../../components/ui";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -12,6 +14,27 @@ import MeasurementSummaryCards, {
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { simulateEvidenceDownload } from "./dashboard.utils";
+
+function DashboardBackButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="mb-5">
+      <Button
+        variant="ghost"
+        size="sm"
+        leftIcon={<GoArrowLeft className="text-lg" />}
+        onClick={onClick}
+      >
+        {label}
+      </Button>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
@@ -110,6 +133,11 @@ export default function DashboardPage() {
 
       {dashboard.view === "courses" ? (
         <div className="space-y-6">
+          <DashboardBackButton
+            label="Volver al Estado del ciclo"
+            onClick={dashboard.goBackToControl}
+          />
+
           <DashboardFilters
             user={dashboard.user}
             catalogs={dashboard.dashboardData.catalogs}
@@ -130,27 +158,41 @@ export default function DashboardPage() {
       ) : null}
 
       {dashboard.view === "detail" ? (
-        <ResultsMeasurementPanel
-          results={dashboard.detailResults}
-          courses={dashboard.detailCoursesForSelect}
-          selectedCourseId={dashboard.detailCourseId}
-          selectedCompetenceId={dashboard.detailCompetenceId}
-          onCourseChange={(courseId) => {
-            dashboard.setDetailCourseId(courseId);
-            dashboard.setDetailCompetenceId("");
-          }}
-          onCompetenceChange={dashboard.setDetailCompetenceId}
-          onDownloadFile={simulateEvidenceDownload}
-          onOpenRaDetail={dashboard.setSelectedRa}
-        />
+        <div className="space-y-6">
+          <DashboardBackButton
+            label="Volver a cursos"
+            onClick={dashboard.goBackToCourses}
+          />
+
+          <ResultsMeasurementPanel
+            results={dashboard.detailResults}
+            courses={dashboard.detailCoursesForSelect}
+            selectedCourseId={dashboard.detailCourseId}
+            selectedCompetenceId={dashboard.detailCompetenceId}
+            onCourseChange={(courseId) => {
+              dashboard.setDetailCourseId(courseId);
+              dashboard.setDetailCompetenceId("");
+            }}
+            onCompetenceChange={dashboard.setDetailCompetenceId}
+            onDownloadFile={simulateEvidenceDownload}
+            onOpenRaDetail={dashboard.setSelectedRa}
+          />
+        </div>
       ) : null}
 
       {dashboard.view === "results" ? (
-        <CompetenceResultsPanel
-          results={dashboard.consolidatedResults}
-          onDownloadFile={simulateEvidenceDownload}
-          onOpenRaDetail={dashboard.setSelectedRa}
-        />
+        <div className="space-y-6">
+          <DashboardBackButton
+            label="Volver al Estado del ciclo"
+            onClick={dashboard.goBackToControl}
+          />
+
+          <CompetenceResultsPanel
+            results={dashboard.consolidatedResults}
+            onDownloadFile={simulateEvidenceDownload}
+            onOpenRaDetail={dashboard.setSelectedRa}
+          />
+        </div>
       ) : null}
 
       <DashboardModals

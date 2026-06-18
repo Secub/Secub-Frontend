@@ -168,7 +168,7 @@ export function PropositoFormModal({
 
   const handleSubmit = () => {
     if (!validate()) return;
-    onSubmit(form);
+    onSubmit(mode === "create" ? { ...form, estado: "activo" } : form);
   };
 
   return (
@@ -283,18 +283,20 @@ export function PropositoFormModal({
           error={errors.planId}
         />
 
-        <Select
-          label="Estado"
-          value={form.estado}
-          onChange={(event) =>
-            updateField("estado", event.target.value as FormState["estado"])
-          }
-          options={[
-            { label: "Activo", value: "activo" },
-            { label: "Inactivo", value: "inactivo" },
-          ]}
-          placeholder="Selecciona un estado"
-        />
+        {mode === "edit" ? (
+          <Select
+            label="Estado"
+            value={form.estado}
+            onChange={(event) =>
+              updateField("estado", event.target.value as FormState["estado"])
+            }
+            options={[
+              { label: "Activo", value: "activo" },
+              { label: "Inactivo", value: "inactivo" },
+            ]}
+            placeholder="Selecciona un estado"
+          />
+        ) : null}
       </div>
 
       
