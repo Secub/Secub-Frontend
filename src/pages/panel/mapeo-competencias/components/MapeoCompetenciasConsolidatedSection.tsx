@@ -56,7 +56,7 @@ export default function MapeoCompetenciasConsolidatedSection({
         </h2>
 
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
-          Cuando Jefatura de programa cree el mapeo, aquí se visualizará la
+          Cuando Dirección de programa cree el mapeo, aquí se visualizará la
           malla curricular por semestres, cursos, núcleos y niveles I-R-A-NA.
         </p>
 

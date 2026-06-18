@@ -1,11 +1,7 @@
 import { useEffect } from "react";
-import { ROUTES } from "../../app/appRoutes";
+import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 
- export const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
-
-// export const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutos
-
-// export const INACTIVITY_TIMEOUT = 5 * 1000; // 5 segundos
+export const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
 
 const AUTH_STORAGE_KEYS = [
   "secub:auth:user",
@@ -62,7 +58,7 @@ export function useInactivityLogout(enabled: boolean) {
         redirect: currentRoute,
       });
 
-      window.location.replace(`${ROUTES.access}?${params.toString()}`);
+      navigateToRoute(`${ROUTES.access}?${params.toString()}`, { replace: true });
     };
 
     const resetTimer = () => {

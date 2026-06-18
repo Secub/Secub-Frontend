@@ -2,7 +2,7 @@ export type CompetenciasRaFormacionRole =
   | "admin"
   | "vice"
   | "decano"
-  | "director"
+  | "direccion-programa"
   | "docente";
 
 export type CompetenciasRaEstado = "activo" | "inactivo";

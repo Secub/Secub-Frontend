@@ -20,7 +20,7 @@ export default function CicloAccessState({ user }: CicloAccessStateProps) {
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)]">
-          Este flujo está habilitado para perfiles administrativos, de jefatura y
+          Este flujo está habilitado para perfiles administrativos, de dirección y
           docentes con alcance académico. El rol actual solo puede
           continuar en los módulos asignados a su alcance institucional.
         </p>

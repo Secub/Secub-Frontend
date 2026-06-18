@@ -8,7 +8,7 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  director: "Jefatura de programa",
+  direccionPrograma: "Dirección de programa",
   docente: "Docencia",
 };
 
@@ -62,7 +62,7 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canFilterByPlan: true,
     canFilterByEstado: true,
   },
-  director: {
+  direccionPrograma: {
     canRead: true,
     canCreate: true,
     canUpdate: true,
@@ -114,14 +114,14 @@ const directorOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> = 
     canExportPdf: false,
     canExportExcel: false,
   },
-  director: matrixReadOnlyPermissions.director,
+  direccionPrograma: matrixReadOnlyPermissions.direccionPrograma,
   docente: matrixReadOnlyPermissions.docente,
 };
 
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
   RF05_ACCESS_POLICY === "director-only" ? directorOnlyPermissions : matrixReadOnlyPermissions;
 
-export function getAccessRestrictedDescription(_role: MapeoCompetenciasRole) { // el parametro role esta sin leer dentro de la funcion, se deja con "_" para que eslint evite problemas con el build.
+export function getAccessRestrictedDescription(_role: MapeoCompetenciasRole) {
   if (RF05_ACCESS_POLICY === "director-only") {
     return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias.";
   }
@@ -133,7 +133,7 @@ export function canManageMapeo(
   role: MapeoCompetenciasRole,
   programaEstado?: ProgramaEstado,
 ) {
-  return role === "director" && programaEstado === "activo";
+  return role === "direccionPrograma" && programaEstado === "activo";
 }
 
 export function canCreateAcademicMapeo(
@@ -158,7 +158,7 @@ export function getManageDisabledReason(
   role: MapeoCompetenciasRole,
   programaEstado?: ProgramaEstado,
 ) {
-  if (role !== "director") {
+  if (role !== "direccionPrograma") {
     return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Jefatura de programa.";
   }
 

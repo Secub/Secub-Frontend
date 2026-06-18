@@ -8,7 +8,7 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  director: "Jefatura de programa",
+  direccionPrograma: "Jefatura de programa",
   docente: "Docencia",
 };
 
@@ -57,7 +57,7 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
     canFilterByPlan: true,
     canFilterByEstado: true,
   },
-  director: {
+  direccionPrograma: {
     canRead: true,
     canCreate: true,
     canUpdate: true,

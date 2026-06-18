@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { GoGear, GoSignOut } from "react-icons/go";
-import { ROUTES } from "../../app/appRoutes";
+import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
 import {
   clearSelectedProgramId,
@@ -14,27 +14,15 @@ function getInitials(name: string) {
   return `${firstInitial}${secondInitial}`.toUpperCase();
 }
 
-function buildPanelHref(pathname: string) {
-  if (typeof window === "undefined") return pathname;
-  return `${pathname}${window.location.search}`;
-}
-
 function logoutCurrentUser() {
   clearSelectedProgramId();
-  window.location.assign(ROUTES.access);
-}
-
-function getVisibleRoleLabel(label: string) {
-  return label
-    .replace(/Jefatura del Programa/g, "Dirección del Programa")
-    .replace(/Jefatura de programa/g, "Dirección de programa")
-    .replace(/Jefatura SECUB/g, "Dirección SECUB");
+  navigateToRoute(ROUTES.access);
 }
 
 export default function SidebarUserProfileMenu() {
   const currentUser = getCurrentMockUser();
   const selectedProgram = getSelectedProgram();
-  const roleLabel = getVisibleRoleLabel(currentUser.cargo);
+  const roleLabel = currentUser.cargo;
   const profileSubtitle = selectedProgram
     ? `${selectedProgram.name} · ${selectedProgram.faculty}`
     : currentUser.email;
@@ -75,13 +63,14 @@ export default function SidebarUserProfileMenu() {
         role="group"
         aria-label="Acciones de usuario"
       >
-        <a
-          href={buildPanelHref(ROUTES.panelSettings)}
+        <button
+          type="button"
+          onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
           className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
         >
           <GoGear className="shrink-0 text-base" aria-hidden="true" />
           <span>Ajustes</span>
-        </a>
+        </button>
 
         <button
           type="button"
