@@ -475,11 +475,20 @@ export const dashboardCatalogs: DashboardCatalogs = {
   ],
 };
 
+const fallbackCourseIds = [
+  "psicologia-sem8-practica-profesional-i",
+  "psicologia-sem8-modalidad-de-grado-i",
+  "psicologia-sem9-practica-profesional-ii",
+  "derecho-sem7-procesal-civil-ii",
+  "derecho-sem7-arbitraje",
+  "derecho-sem8-programa-complementario-de-formacion-avanzada",
+];
+
 export const measurementCycles: MeasurementCycle[] = secubAcademicPrograms.map((program) => {
-  const synthesisCourses = secubAcademicCourses
-    .filter((course) => course.programId === program.id && course.cycle === "Síntesis")
-    .slice(0, 3)
-    .map((course) => course.id);
+  const synthesisCourses = fallbackCourseIds.filter((courseId) => {
+    const course = secubAcademicCourses.find((item) => item.id === courseId);
+    return course?.programId === program.id;
+  });
 
   return {
     id: `ciclo-${program.id}-2026-1`,
@@ -495,15 +504,6 @@ export const measurementCycles: MeasurementCycle[] = secubAcademicPrograms.map((
   };
 });
 
-const fallbackCourseIds = [
-  "psicologia-sem8-practica-profesional-i",
-  "psicologia-sem8-modalidad-de-grado-i",
-  "psicologia-sem9-practica-profesional-ii",
-  "derecho-sem7-procesal-civil-ii",
-  "derecho-sem7-arbitraje",
-  "derecho-sem8-programa-complementario-de-formacion-avanzada",
-];
-
 export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((courseId, index) => {
   const course = getAcademicCourseOrThrow(courseId);
   const program = secubAcademicPrograms.find((item) => item.id === course.programId)!;
@@ -515,7 +515,7 @@ export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((co
   const evaluatedRa = index % 3 === 0 ? 2 : 1;
 
   return {
-    id: `medicion-${course.id}`,
+    id: course.id,
     code: course.code,
     name: course.name,
     cycleId,
@@ -546,7 +546,7 @@ const roleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vicerrectoría de seccional",
   decano: "Decanatura",
-  director: "Jefatura de programa",
+  direccionPrograma: "Dirección de programa",
   docente: "Docencia",
 };
 
@@ -572,11 +572,11 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
     label: roleLabels.decano,
     scope: { seccionalId: "cali" },
   },
-  director: {
-    id: "usr-director",
-    name: "Jefatura SECUB",
-    role: "director",
-    label: roleLabels.director,
+  direccionPrograma: {
+    id: "direccion-programa-secub",
+    name: "Dirección de programa",
+    role: "direccionPrograma",
+    label: roleLabels["direccionPrograma"],
     scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] },
   },
   docente: {
@@ -591,7 +591,12 @@ const mockUsers: Record<DashboardRole, DashboardUser> = {
 export const DEFAULT_DASHBOARD_ROLE: DashboardRole = "docente";
 
 export function normalizeDashboardRole(rawRole: string | null | undefined): DashboardRole {
-  const normalized = String(rawRole ?? "").trim().toLowerCase();
+  const normalized = String(rawRole ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
 
   const aliases: Record<string, DashboardRole> = {
     admin: "admin",
@@ -603,14 +608,17 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "director",
-    directorprograma: "director",
-    director_de_programa: "director",
+    director: "direccionPrograma",
+    directorprograma: "direccionPrograma",
+    director_de_programa: "direccionPrograma",
+    direccionPrograma: "direccionPrograma",
+    direccionprograma: "direccionPrograma",
+    direccion_de_programa: "direccionPrograma",
     docente: "docente",
     docencia: "docente",
   };
 
-  return aliases[normalized] ?? DEFAULT_DASHBOARD_ROLE;
+  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_DASHBOARD_ROLE;
 }
 
 export function getCurrentDashboardUser(): DashboardUser {

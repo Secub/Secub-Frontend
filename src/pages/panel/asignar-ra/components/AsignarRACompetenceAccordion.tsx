@@ -40,7 +40,6 @@ export function AsignarRACompetenceAccordion({
   const ras = getLearningResults(competencia);
   const selectedCount = selectedRaIds.length;
   const hasValidationWarning = selectedCount === 0;
-  const progress = Math.min(selectedCount, 4) * 25;
 
   return (
     <article className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)]">
@@ -61,9 +60,6 @@ export function AsignarRACompetenceAccordion({
           </span>
           <span className="mt-2 block text-sm leading-6 text-[var(--color-gray-3)]">
             {competencia.descripcion ?? "Sin descripción registrada."}
-          </span>
-          <span className="mt-4 block h-2 overflow-hidden rounded-full bg-white">
-            <span className="block h-full rounded-full bg-[var(--color-success)] transition-all" style={{ width: `${progress}%` }} />
           </span>
           {hasValidationWarning ? (
             <span className="mt-2 block text-xs font-semibold text-[var(--color-error)]">

@@ -32,7 +32,7 @@ export default function MapeoCompetenciasFilters({
   showEstado = true,
 }: MapeoCompetenciasFiltersProps) {
   const scopedProgramId = currentUser.scope.programaId ?? currentUser.scope.academicProgramId;
-  const showSeccional = permissions.canFilterBySeccional && currentUser.role !== "director" && currentUser.role !== "decano";
+  const showSeccional = permissions.canFilterBySeccional && currentUser.role !== "direccionPrograma" && currentUser.role !== "decano";
   const showFacultad = permissions.canFilterByFacultad;
   const showPrograma = permissions.canFilterByPrograma;
 

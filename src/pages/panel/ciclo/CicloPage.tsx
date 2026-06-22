@@ -31,9 +31,13 @@ export default function CicloPage() {
     savedMessage,
     roleScopedCycles,
     filteredCycles,
+    activeCycle,
+    canCreateCycle,
+    activeCycleLockMessage,
     handleFilterChange,
     openCreateModal,
     openEditModal,
+    openDuplicateModal,
     handleViewDetail,
     handleSubmit,
     confirmDelete,
@@ -44,7 +48,11 @@ export default function CicloPage() {
   } = page;
 
   const pageActions = (
-    <CicloPageActions canCreate={permissions.canCreateCycle} onCreate={openCreateModal} />
+    <CicloPageActions
+      canCreate={canCreateCycle}
+      disabledReason={activeCycleLockMessage ?? undefined}
+      onCreate={openCreateModal}
+    />
   );
 
   return (
@@ -72,13 +80,16 @@ export default function CicloPage() {
         <WorkflowStateCard
           title="Aún no hay ciclos de medición creados"
           description="Cuando se cree el primer ciclo, se habilitará el resumen con filtros, cursos seleccionados, periodo, estado y responsable."
-          actionLabel={permissions.canCreateCycle ? "Crear ciclo" : undefined}
-          onAction={permissions.canCreateCycle ? openCreateModal : undefined}
+          actionLabel={canCreateCycle ? "Crear ciclo" : undefined}
+          onAction={canCreateCycle ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6">
           <CicloSavedMessage message={savedMessage} onClose={() => setSavedMessage("")} />
+          {activeCycleLockMessage ? (
+            <CicloSavedMessage message={activeCycleLockMessage} variant="warning" />
+          ) : null}
 
           <CicloFilters
             user={user}
@@ -98,6 +109,8 @@ export default function CicloPage() {
             onView={handleViewDetail}
             onEdit={openEditModal}
             onDelete={setCycleToDelete}
+            onDuplicate={openDuplicateModal}
+            activeCycle={activeCycle}
           />
         </div>
       )}

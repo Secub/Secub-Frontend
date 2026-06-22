@@ -31,27 +31,29 @@ export default function MapeoCompetenciasStepProgress({
         </span>
       </div>
 
-      <StepCircleProgress
-        activeId={activeStep}
-        completedIds={completedStepIds}
-        items={[
-          {
-            id: "nucleos",
-            label: "Núcleos",
-            sublabel: "Selecciona núcleos de formación",
-            icon: <GoGoal className="text-xl" />,
-          },
-          {
-            id: "mapeo",
-            label: "Niveles de compromiso",
-            sublabel: "Selecciona I-R-A-NA",
-            icon: <GoCheck className="text-xl" />,
-            disabled: !classificationComplete,
-            disabledTooltip: "Clasifica todos los semestres antes de continuar.",
-          },
-        ]}
-        onChange={(id) => onChange(id as "nucleos" | "mapeo")}
-      />
+        <StepCircleProgress
+          activeId={activeStep}
+          completedIds={completedStepIds}
+          items={[
+            {
+              id: "nucleos",
+              label: "Núcleos",
+              sublabel: "Selecciona núcleos de formación",
+              icon: <GoGoal className="text-xl" />,
+            },
+            {
+              id: "mapeo",
+              label: "Niveles de compromiso",
+              sublabel: "Selecciona I-R-A-NA",
+              icon: <GoCheck className="text-xl" />,
+              disabled: !classificationComplete,
+              disabledTooltip: "Clasifica todos los semestres antes de continuar.",
+            },
+          ]}
+          onChange={(id) => onChange(id as "nucleos" | "mapeo")}
+        />
+
+
     </section>
   );
 }

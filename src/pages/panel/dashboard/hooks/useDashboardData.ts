@@ -18,7 +18,7 @@ export function useDashboardData() {
   const user = useMemo(() => getCurrentDashboardUser(), [backendVersion]);
   const dashboardData = useMemo(() => getDashboardData(), [backendVersion]);
   const isTeacher = user.role === "docente";
-  const isDirector = user.role === "director";
+  const isDirector = user.role === "direccionPrograma";
 
   const enrichedCycles = useMemo(
     () => enrichCycles(dashboardData.cycles, dashboardData.courses, dashboardData.catalogs),

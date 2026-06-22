@@ -5,12 +5,14 @@ import type { CicloEnriched, CurrentUser } from "../ciclo.types";
 interface CicloListSectionProps {
   cycles: CicloEnriched[];
   user: CurrentUser;
+  activeCycle: CicloEnriched | null;
   onView: (cycle: CicloEnriched) => void;
   onEdit: (cycle: CicloEnriched) => void;
   onDelete: (cycle: CicloEnriched) => void;
+  onDuplicate: (cycle: CicloEnriched) => void;
 }
 
-export default function CicloListSection({ cycles, user, onView, onEdit, onDelete }: CicloListSectionProps) {
+export default function CicloListSection({ cycles, user, activeCycle, onView, onEdit, onDelete, onDuplicate }: CicloListSectionProps) {
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -35,9 +37,11 @@ export default function CicloListSection({ cycles, user, onView, onEdit, onDelet
             key={cycle.id}
             ciclo={cycle}
             user={user}
+            activeCycle={activeCycle}
             onView={onView}
             onEdit={onEdit}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         ))
       ) : (

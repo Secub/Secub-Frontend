@@ -1,6 +1,7 @@
 import {
   GoCalendar,
   GoEye,
+  GoCopy,
   GoPencil,
   GoTrash,
   GoVerified,
@@ -8,18 +9,22 @@ import {
 import { Badge, Button } from "../../../../components/ui";
 import type { CicloEnriched, CurrentUser } from "../ciclo.types";
 import {
+  canDuplicateCycle,
   canManageCycle,
   cicloRolePermissions,
   getCycleActionDisabledReason,
+  getDuplicateCycleDisabledReason,
 } from "../ciclo.permissions";
 import { formatCicloTitle, formatDate, formatDateTime, getNivelCompromisoLabel } from "../ciclo.utils";
 
 interface CicloSummaryCardProps {
   ciclo: CicloEnriched;
   user: CurrentUser;
+  activeCycle: CicloEnriched | null;
   onView: (ciclo: CicloEnriched) => void;
   onEdit: (ciclo: CicloEnriched) => void;
   onDelete: (ciclo: CicloEnriched) => void;
+  onDuplicate: (ciclo: CicloEnriched) => void;
 }
 
 const statusVariant = {
@@ -39,13 +44,20 @@ const statusLabel = {
 export default function CicloSummaryCard({
   ciclo,
   user,
+  activeCycle,
   onView,
   onEdit,
   onDelete,
+  onDuplicate,
 }: CicloSummaryCardProps) {
   const permissions = cicloRolePermissions[user.role];
   const canEdit = canManageCycle(user, ciclo);
   const disabledReason = getCycleActionDisabledReason(user, ciclo);
+  const activeCycleDuplicateReason = activeCycle
+    ? `Ya existe un ciclo en curso: "${activeCycle.nombre}". No se podrá duplicar un ciclo existente hasta que su estado sea diferente a "En curso".`
+    : "";
+  const canDuplicate = !activeCycle && canDuplicateCycle(user, ciclo);
+  const duplicateDisabledReason = activeCycleDuplicateReason || getDuplicateCycleDisabledReason(user, ciclo);
 
   return (
     <article className="surface-card p-6">
@@ -67,7 +79,7 @@ export default function CicloSummaryCard({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex shrink-0 flex-nowrap items-center gap-3">
           {permissions.canEditCycle ? (
             <Button
               variant="outline"
@@ -90,6 +102,28 @@ export default function CicloSummaryCard({
           >
             Ver detalle
           </Button>
+
+          {permissions.canDuplicateCycle ? (
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<GoCopy className="text-lg" />}
+              onClick={() => onDuplicate(ciclo)}
+              disabled={!canDuplicate}
+              title={
+                !canDuplicate
+                  ? duplicateDisabledReason
+                  : "Duplicar ciclo"
+              }
+              className={
+                !canDuplicate
+                  ? "cursor-not-allowed hover:text-red-600"
+                  : ""
+              }
+            >
+              Duplicar
+            </Button>
+          ) : null}
 
           {permissions.canDeleteCycle ? (
             <Button

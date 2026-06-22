@@ -1,4 +1,5 @@
 export const APP_BASE_PATH = "/Secub-Frontend";
+export const APP_NAVIGATION_EVENT = "secub:navigation";
 
 export const ROUTES = {
   landing: `${APP_BASE_PATH}/`,
@@ -47,4 +48,45 @@ export function buildRouteWithSearch(
 
 export function normalizePathname(pathname: string) {
   return pathname.replace(/\/+$/, "") || "/";
+}
+
+export function isInternalRouteHref(href?: string) {
+  if (!href || href.startsWith("#")) return false;
+
+  try {
+    const url = new URL(href, window.location.origin);
+    return url.origin === window.location.origin && url.pathname.startsWith(APP_BASE_PATH);
+  } catch {
+    return href.startsWith(APP_BASE_PATH);
+  }
+}
+
+export function navigateToRoute(
+  href: string,
+  options: { replace?: boolean; preserveSearch?: boolean; notify?: boolean } = {},
+) {
+  if (typeof window === "undefined") return;
+
+  const hasSearch = href.includes("?");
+  const nextHref = options.preserveSearch && !hasSearch
+    ? `${href}${window.location.search}`
+    : href;
+  const currentHref = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+  if (nextHref === currentHref) {
+    if (options.notify !== false) {
+      window.dispatchEvent(new Event(APP_NAVIGATION_EVENT));
+    }
+    return;
+  }
+
+  if (options.replace) {
+    window.history.replaceState(null, "", nextHref);
+  } else {
+    window.history.pushState(null, "", nextHref);
+  }
+
+  if (options.notify !== false) {
+    window.dispatchEvent(new Event(APP_NAVIGATION_EVENT));
+  }
 }

@@ -1,4 +1,4 @@
-export type DashboardRole = "admin" | "vice" | "decano" | "director" | "docente";
+export type DashboardRole = "admin" | "vice" | "decano" | "direccionPrograma" | "docente";
 
 export type MeasurementStatus = "pendiente" | "finalizado";
 

@@ -9,6 +9,7 @@ const docenteAllowedPanelRoutes = new Set<string>([
   ROUTES.panelPerfilEgreso,
   ROUTES.panelPropositoFormacion,
   ROUTES.panelCompetenciasRa,
+  ROUTES.panelMapeoCompetencias,
   ROUTES.panelMedicionRa,
 ]);
 

@@ -14,6 +14,7 @@
   "dependencies": {
     "@fontsource/lato": "^5.2.7",
     "@fontsource/poppins": "^5.2.7",
+    "@react-pdf/renderer": "^4.5.1",
     "@tailwindcss/vite": "^4.2.2",
     "lucide-react": "^1.8.0",
     "motion": "^12.38.0",
@@ -33,7 +34,7 @@
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react": "^6.0.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "color-contrast-checker": "^2.1.0",
     "eslint": "^9.39.4",
@@ -43,7 +44,7 @@
     "happy-dom": "^20.10.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",
-    "vite": "^8.0.1",
+    "vite": "^8.0.16",
     "vitest": "^4.1.8"
   }
 }

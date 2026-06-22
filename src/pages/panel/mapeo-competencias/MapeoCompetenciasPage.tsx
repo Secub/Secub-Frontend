@@ -1,5 +1,5 @@
 import { GoDownload, GoPencil, GoPlus, GoTrash } from "react-icons/go";
-import { PanelLayout } from "../../../components/panel";
+import { PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { Button, ConfirmDialog } from "../../../components/ui";
 import {
   MapeoCompetenciasAccessState,
@@ -21,6 +21,7 @@ export default function MapeoCompetenciasPage() {
     currentUser,
     catalogs,
     permissions,
+    hasRecords,
     filters,
     filteredRecords,
     selectedPrograma,
@@ -57,6 +58,14 @@ export default function MapeoCompetenciasPage() {
         <MapeoCompetenciasAccessState
           title="Acceso restringido"
           description={getAccessRestrictedDescription(currentUser.role)}
+        />
+      ) : !hasRecords ? (
+        <WorkflowStateCard
+          title="Aún no hay mapeos de competencias creados"
+          description="Cuando se cargue el primer mapeo de competencias, se habilitará la vista completa con filtros, consolidado, acciones y exportación."
+          actionLabel={canOpenCreate ? "Crear mapeo" : undefined}
+          onAction={canOpenCreate ? handleCreate : undefined}
+          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6">
@@ -128,9 +137,9 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : null}
 
-          {currentUser.role !== "director" ? (
+          {currentUser.role !== "direccionPrograma" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-info)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
-              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Jefatura de programa.
+              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Dirección de programa.
             </div>
           ) : null}
 

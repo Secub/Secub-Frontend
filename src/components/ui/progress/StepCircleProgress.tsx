@@ -52,7 +52,7 @@ export default function StepCircleProgress({
         />
 
         <ol
-          className="relative z-10 grid gap-3"
+          className="relative z-10 grid gap-3 items-start justify-items-center"
           style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
         >
           {items.map((item, index) => {
@@ -70,7 +70,7 @@ export default function StepCircleProgress({
                   : "step-circle-progress__button--pending";
 
             return (
-              <li key={item.id} className="min-w-0">
+              <li key={item.id} className="min-w-0 flex justify-center">
                 <button
                   type="button"
                   onClick={() => !isItemDisabled && onChange?.(item.id)}

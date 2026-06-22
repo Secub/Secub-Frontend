@@ -1,11 +1,11 @@
-import { getNeutralRoleLabel, type MockUserRole } from "../../services/auth/mockUser";
+import { getNeutralRoleLabel, normalizeMockRole, type MockUserRole } from "../../services/auth/mockUser";
 import { mockBackend } from "../../services/mockBackend";
 
-const devRoles: MockUserRole[] = ["admin", "vice", "decano", "director", "docente"];
+const devRoles: MockUserRole[] = ["admin", "vice", "decano", "direccionPrograma", "docente"];
 
 export default function DevRoleSelector() {
   const params = new URLSearchParams(window.location.search);
-  const currentRole = (params.get("role") ?? "admin") as MockUserRole;
+  const currentRole = normalizeMockRole(params.get("role") ?? "admin");
 
   const handleChange = (role: string) => {
     const nextParams = new URLSearchParams(window.location.search);

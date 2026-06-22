@@ -2,7 +2,7 @@ export type PropositoFormacionRole =
   | "admin"
   | "vice"
   | "decano"
-  | "director"
+  | "direccionPrograma"
   | "docente";
 
 export type PropositoEstado = "activo" | "inactivo";

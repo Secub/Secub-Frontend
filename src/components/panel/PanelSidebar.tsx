@@ -16,7 +16,12 @@ import {
   LockKeyhole,
   Plus,
 } from "lucide-react";
+import { navigateToRoute } from "../../app/appRoutes";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { mockBackend } from "../../services/mockBackend";
+import type { MedicionRaDemoState } from "../../pages/panel/medicion-ra/types/medicionRA.persistence.types";
+import { buildCoursesFromRealAssignments } from "../../pages/panel/medicion-ra/utils/medicionRA.assignments";
+import { buildMedicionRaDemoStateId } from "../../pages/panel/medicion-ra/utils/medicionRA.persistence";
 import {
   WORKFLOW_LOCKED_MESSAGE,
   getAcademicWorkflowLockedDescription,
@@ -75,8 +80,39 @@ const docenteAcademicStepKeys: PanelStepKey[] = [
   "perfil-egreso",
   "proposito-formacion",
   "competencias-ra",
+  "mapeo-competencias",
   "medicion-ra",
 ];
+
+function isDocenteProgressStep(stepKey: PanelStepKey) {
+  return stepKey === "medicion-ra";
+}
+
+function getDocenteMeasurementProgress(user: ReturnType<typeof getCurrentMockUser>) {
+  const assignedCourses = buildCoursesFromRealAssignments(user);
+  const completedCourses = assignedCourses.filter((course) => {
+    const stateId = buildMedicionRaDemoStateId({
+      userId: user.id,
+      cicloId: course.cycleId,
+      courseId: course.id,
+    });
+    const state = mockBackend.getById<MedicionRaDemoState>("medicionesRa", stateId);
+    const measuredAssignmentIds = new Set(state?.asignacionRaIds ?? []);
+    const currentAssignmentIds = course.assignmentIds ?? [];
+    const coversCurrentAssignments =
+      currentAssignmentIds.length > 0 &&
+      currentAssignmentIds.every((assignmentId) => measuredAssignmentIds.has(assignmentId));
+
+    return Boolean((state?.completed || state?.isEvaluationLocked) && coversCurrentAssignments);
+  }).length;
+  const isCompleted = assignedCourses.length > 0 && completedCourses === assignedCourses.length;
+
+  return {
+    completed: isCompleted ? 1 : 0,
+    total: 1,
+    isCompleted,
+  };
+}
 
 function getStepStatusLabel({
   isCurrent,
@@ -101,13 +137,14 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
   const [sidebarWidth, setSidebarWidth] = useState(getInitialSidebarWidth);
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
   const currentUser = getCurrentMockUser();
+  const isDocente = currentUser.role === "docente";
   const academicMenuId = useId();
   const dashboardItem =
     panelNavigation.find((item) => item.key === "dashboard") ??
     panelNavigation[0];
 
   const academicKeys =
-    currentUser.role === "docente" ? docenteAcademicStepKeys : academicStepKeys;
+    isDocente ? docenteAcademicStepKeys : academicStepKeys;
   const academicItems = academicKeys
     .map((key) => panelNavigation.find((item) => item.key === key))
     .filter((item): item is NavigationItem => Boolean(item));
@@ -118,14 +155,22 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
 
   const workflowProgress = useAcademicWorkflowProgress();
   const { activePlan } = useAcademicPlanInfo();
+  const docenteMeasurementProgress = useMemo(
+    () => getDocenteMeasurementProgress(currentUser),
+    [currentUser, workflowProgress],
+  );
   const workflowState = getAcademicWorkflowState(workflowProgress);
-  const completedStepsCount =
-    getCompletedAcademicWorkflowStepsCount(workflowProgress);
-  const isWorkflowCompleted = workflowState === "completed";
+  const completedStepsCount = isDocente
+    ? docenteMeasurementProgress.completed
+    : getCompletedAcademicWorkflowStepsCount(workflowProgress);
+  const totalStepsCount = isDocente
+    ? docenteMeasurementProgress.total
+    : academicItems.length;
+  const isWorkflowCompleted = !isDocente && workflowState === "completed";
   const renewalAvailability =
     getNewAcademicPlanRenewalAvailability(workflowProgress);
   const canStartNewAcademicPlan = renewalAvailability.isAvailable;
-  const canManageNewAcademicPlan = currentUser.role !== "docente";
+  const canManageNewAcademicPlan = !isDocente;
   const newAcademicPlanLockedMessage =
     renewalAvailability.lockedMessage ??
     "Solo puedes crear un nuevo plan académico cuando el ciclo actual haya cumplido 1.5 años.";
@@ -211,7 +256,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
 
   const goTo = (href: string) => {
     // Mantiene el rol demo en la navegación. Cuando exista Auth real, el rol saldrá del usuario autenticado.
-    window.location.assign(`${href}${window.location.search}`);
+    navigateToRoute(href, { preserveSearch: true });
   };
 
   const handleStartNewAcademicPlan = () => {
@@ -237,13 +282,17 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     return academicItems.map((item, index) => {
       const isWorkflowStep = isAcademicWorkflowStep(item.key);
       const isCurrent = item.key === currentStep;
-      const isCompleted = isWorkflowStep
-        ? isAcademicWorkflowStepCompleted(item.key, workflowProgress)
-        : false;
-      const isLocked = isWorkflowStep
+      const isDocenteTrackedStep = isDocente && isDocenteProgressStep(item.key);
+      const isAccessOnlyForDocente = isDocente && !isDocenteTrackedStep;
+      const isCompleted = isDocente
+        ? isDocenteTrackedStep && docenteMeasurementProgress.isCompleted
+        : isWorkflowStep
+          ? isAcademicWorkflowStepCompleted(item.key, workflowProgress)
+          : false;
+      const isLocked = !isDocente && isWorkflowStep
         ? isAcademicWorkflowStepLocked(item.key, workflowProgress)
         : false;
-      const isInherited = isWorkflowStep
+      const isInherited = !isDocente && isWorkflowStep
         ? isAcademicWorkflowBaseStepInherited(item.key, activePlan)
         : false;
 
@@ -254,15 +303,25 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
         isCompleted,
         isLocked,
         isInherited,
-        statusLabel: getStepStatusLabel({
-          isCurrent,
-          isCompleted,
-          isInherited,
-          isLocked,
-        }),
+        isAccessOnlyForDocente,
+        statusLabel: isAccessOnlyForDocente
+          ? "Acceso de consulta"
+          : getStepStatusLabel({
+              isCurrent,
+              isCompleted,
+              isInherited,
+              isLocked,
+            }),
       };
     });
-  }, [academicItems, activePlan, currentStep, workflowProgress]);
+  }, [
+    academicItems,
+    activePlan,
+    currentStep,
+    docenteMeasurementProgress.isCompleted,
+    isDocente,
+    workflowProgress,
+  ]);
 
   const DashboardIcon = BarChart3;
 
@@ -407,8 +466,9 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
     >
       <div className="relative flex h-screen w-full flex-col overflow-hidden border-r border-[color:rgba(217,221,231,0.10)] bg-[var(--color-footer-dark)] text-[var(--color-white)]">
         <div className="shrink-0 border-b border-[color:rgba(217,221,231,0.10)] px-4 pb-4 pt-5">
-          <a
-            href={dashboardItem.href}
+          <button
+            type="button"
+            onClick={() => goTo(dashboardItem.href)}
             className="inline-flex rounded-[12px] p-1.5 transition-colors hover:bg-[color:rgba(255,255,255,0.055)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
             aria-label="Ir al dashboard de SECUB"
           >
@@ -417,7 +477,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
               alt="SECUB"
               className="h-9 w-auto object-contain"
             />
-          </a>
+          </button>
         </div>
 
         <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-4">
@@ -472,7 +532,7 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                     Gestión Académica
                   </span>
                   <span className="rounded-[var(--radius-pill)] bg-[color:rgba(118,202,102,0.12)] px-2 py-0.5 text-[0.72rem] font-bold leading-4 text-[var(--color-success)]">
-                    {completedStepsCount}/{academicItems.length}
+                    {completedStepsCount}/{totalStepsCount}
                   </span>
                   <ChevronDown
                     className={[
@@ -492,7 +552,18 @@ export default function PanelSidebar({ currentStep }: PanelSidebarProps) {
                         : "ml-4 mt-2 border-l border-[color:rgba(217,221,231,0.12)] pl-2.5"
                     }
                   >
-                    {isWorkflowCompleted ? (
+                    {isDocente ? (
+                      <nav aria-label="Accesos y progreso de Docencia">
+                        <ol className="space-y-1">
+                          {academicProgress.map((item) =>
+                            renderAcademicItem(
+                              item,
+                              item.isAccessOnlyForDocente,
+                            ),
+                          )}
+                        </ol>
+                      </nav>
+                    ) : isWorkflowCompleted ? (
                       <nav aria-label="Secciones completadas de Gestión Académica">
                         <ol className="space-y-1">
                           {academicProgress.map((item) =>

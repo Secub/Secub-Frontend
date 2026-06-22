@@ -1,31 +1,19 @@
 import { GoBook, GoChevronRight } from "react-icons/go";
 import { FaUniversalAccess } from "react-icons/fa";
 import PanelLayout from "../../../components/panel/PanelLayout";
-import { ROUTES } from "../../../app/appRoutes";
+import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
 import { getCurrentMockUser, getNeutralUserCargo } from "../../../services/auth/mockUser";
 import { clearSelectedProgramId, getSelectedProgram } from "../../../services/programSelection";
-
-function buildPanelHref(pathname: string) {
-  if (typeof window === "undefined") return pathname;
-  return `${pathname}${window.location.search}`;
-}
-
-function getVisibleRoleLabel(label: string) {
-  return label
-    .replace(/Jefatura del Programa/g, "Dirección del Programa")
-    .replace(/Jefatura de programa/g, "Dirección de programa")
-    .replace(/Jefatura SECUB/g, "Dirección SECUB");
-}
 
 export default function UserSettingsPage() {
   const currentUser = getCurrentMockUser();
   const selectedProgram = getSelectedProgram();
-  const roleLabel = getVisibleRoleLabel(getNeutralUserCargo(currentUser));
-  const activeCargoLabel = getVisibleRoleLabel(currentUser.cargo);
+  const roleLabel = getNeutralUserCargo(currentUser);
+  const activeCargoLabel = currentUser.cargo;
 
   const handleChangeProgram = () => {
     clearSelectedProgramId();
-    window.location.assign(`${ROUTES.programSelector}?role=${currentUser.role}`);
+    navigateToRoute(`${ROUTES.programSelector}?role=${currentUser.role}`);
   };
 
   return (
@@ -34,7 +22,7 @@ export default function UserSettingsPage() {
       title="Ajustes de usuario"
       description="Consulta tu perfil activo y gestiona las opciones generales de la experiencia SECUB."
       breadcrumbItems={[
-        { label: "Panel", href: "/panel/dashboard" },
+        { label: "Panel", href: ROUTES.panelDashboard },
         { label: "Ajustes de usuario" },
       ]}
     >
@@ -116,8 +104,9 @@ export default function UserSettingsPage() {
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <a
-              href={buildPanelHref(ROUTES.panelAccessibility)}
+            <button
+              type="button"
+              onClick={() => navigateToRoute(ROUTES.panelAccessibility, { preserveSearch: true })}
               className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(14,101,217,0.10)] text-xl text-[var(--color-secondary-1)]" aria-hidden="true">
@@ -132,7 +121,7 @@ export default function UserSettingsPage() {
                 </span>
               </span>
               <GoChevronRight className="mt-1 shrink-0 text-lg text-[var(--secub-muted-text)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--color-secondary-1)]" aria-hidden="true" />
-            </a>
+            </button>
 
             <button
               type="button"

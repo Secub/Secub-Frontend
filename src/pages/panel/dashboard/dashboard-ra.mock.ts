@@ -21,7 +21,7 @@ export const dashboardRoleLabels: Record<DashboardRole, string> = {
   admin: "Admin / Empresa",
   vice: "Vice / Seccional",
   decano: "Decanatura",
-  director: "Jefatura de programa",
+  direccionPrograma: "Jefatura de programa",
   docente: "Docencia",
 };
 
@@ -29,7 +29,7 @@ export const dashboardUsers: Record<DashboardRole, DashboardUser> = {
   admin: { id: "user-admin", nombre: "Admin Empresa", cargo: dashboardRoleLabels.admin, role: "admin", scope: { seccionalId: "cali" } },
   vice: { id: "user-vice-cali", nombre: "Vicerrectoría Académica Cali", cargo: dashboardRoleLabels.vice, role: "vice", scope: { seccionalId: "cali" } },
   decano: { id: "user-decano-cali", nombre: "Decanatura Cali", cargo: dashboardRoleLabels.decano, role: "decano", scope: { seccionalId: "cali" } },
-  director: { id: "user-director-programa", nombre: "Jefatura de programa", cargo: dashboardRoleLabels.director, role: "director", scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] } },
+  direccionPrograma: { id: "user-director-programa", nombre: "Jefatura de programa", cargo: dashboardRoleLabels.direccionPrograma, role: "direccionPrograma", scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] } },
   docente: { id: "usr-docente-psicologia", nombre: "Docente Psicología", cargo: dashboardRoleLabels.docente, role: "docente", scope: { seccionalId: "cali", programaIds: ["psicologia"], teacherId: "usr-docente-psicologia" } },
 };
 
@@ -121,9 +121,9 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
     vicerrectoria: "vice",
     vicerrectoría: "vice",
     decano: "decano",
-    director: "director",
-    directorprograma: "director",
-    director_de_programa: "director",
+    director: "direccionPrograma",
+    directorprograma: "direccionPrograma",
+    director_de_programa: "direccionPrograma",
     docente: "docente",
     docencia: "docente",
     teacher: "docente",
@@ -138,7 +138,7 @@ export function getCurrentDashboardUser(): DashboardUser {
   const user = dashboardUsers[role];
   const selectedProgramId = window.localStorage.getItem("secub:selected-program-id:v1") ?? "";
 
-  if (role === "director" && selectedProgramId) {
+  if (role === "direccionPrograma" && selectedProgramId) {
     return {
       ...user,
       scope: { ...user.scope, programaIds: [selectedProgramId] },

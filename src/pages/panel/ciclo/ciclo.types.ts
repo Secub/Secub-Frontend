@@ -1,4 +1,4 @@
-export type CicloRole = "admin" | "vice" | "decano" | "director" | "docente";
+export type CicloRole = "admin" | "vice" | "decano" | "direccionPrograma" | "docente";
 
 export type ProgramaEstado = "activo" | "inactivo";
 export type CicloEstado = "borrador" | "activo" | "finalizado" | "pendiente";
@@ -129,6 +129,7 @@ export interface CicloRolePermissions {
   canCreateCycle: boolean;
   canEditCycle: boolean;
   canDeleteCycle: boolean;
+  canDuplicateCycle: boolean;
   canConfirmSelection: boolean;
   canFilterBySeccional: boolean;
   canFilterByFacultad: boolean;

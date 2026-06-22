@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
-import { mockBackend } from "../../../../services/mockBackend";
+import { mockBackend, subscribeToMockBackendChanges } from "../../../../services/mockBackend";
 import { getCicloCatalogs, getCurrentCicloUser } from "../ciclo.mock";
 import { cicloRolePermissions } from "../ciclo.permissions";
 import type { CicloEnriched, CicloFilters as CicloFiltersState, CicloFormState, CicloMedicion } from "../ciclo.types";
@@ -15,9 +15,9 @@ import {
 } from "../ciclo.utils";
 
 const user = getCurrentCicloUser();
-const catalogs = getCicloCatalogs();
 
 export function useCicloPage() {
+  const [catalogs, setCatalogs] = useState(() => getCicloCatalogs(user));
   const [cycles, setCycles] = useState<CicloMedicion[]>(() =>
     mockBackend.list<CicloMedicion>("ciclosMedicion", user),
   );
@@ -33,10 +33,38 @@ export function useCicloPage() {
   const isStepLocked = isAcademicWorkflowStepLocked("ciclo");
   const hasCycles = cycles.length > 0;
 
-  const enrichedCycles = useMemo(() => enrichCiclos(cycles, catalogs), [cycles]);
+  const enrichedCycles = useMemo(() => enrichCiclos(cycles, catalogs), [cycles, catalogs]);
   const roleScopedCycles = useMemo(() => applyRoleScope(enrichedCycles, user), [enrichedCycles]);
   const filteredCycles = useMemo(() => applyCycleFilters(roleScopedCycles, filters), [filters, roleScopedCycles]);
-  const defaultForm = useMemo(() => getDefaultFormState(user, catalogs), []);
+  const defaultForm = useMemo(() => getDefaultFormState(user, catalogs), [catalogs]);
+
+  const activeCycle = useMemo(
+    () => roleScopedCycles.find((ciclo) => ciclo.estado === "activo") ?? null,
+    [roleScopedCycles],
+  );
+
+  const canCreateCycle = useMemo(() => {
+    if (!permissions.canCreateCycle) return false;
+    if (activeCycle) return false;
+    return true;
+  }, [permissions.canCreateCycle, activeCycle]);
+
+  const activeCycleLockMessage = useMemo(() => {
+    if (permissions.canCreateCycle && activeCycle) {
+      return `Ya existe un ciclo en curso: "${activeCycle.nombre}". No se podrá crear otro ciclo ni duplicar un ciclo existente hasta que su estado sea diferente a "En curso".`;
+    }
+    return null;
+  }, [permissions.canCreateCycle, activeCycle]);
+
+  useEffect(() => {
+    const refreshData = () => {
+      setCatalogs(getCicloCatalogs(user));
+      setCycles(mockBackend.list<CicloMedicion>("ciclosMedicion", user));
+    };
+
+    refreshData();
+    return subscribeToMockBackendChanges(refreshData);
+  }, []);
 
   const handleFilterChange = <K extends keyof CicloFiltersState>(key: K, value: CicloFiltersState[K]) => {
     setFilters((current) => {
@@ -51,6 +79,8 @@ export function useCicloPage() {
   };
 
   const openCreateModal = () => {
+    if (!canCreateCycle) return;
+
     setModalMode("create");
     setSelectedCycle(null);
     setFormValues(defaultForm);
@@ -68,6 +98,19 @@ export function useCicloPage() {
     setModalMode("view");
     setSelectedCycle(cycle);
     setFormValues(mapCycleToForm(cycle));
+    setFormOpen(true);
+  };
+
+  const openDuplicateModal = (cycle: CicloEnriched) => {
+    if (activeCycle) return;
+
+    setModalMode("create");
+    setSelectedCycle(cycle);
+    const formValues = mapCycleToForm(cycle);
+    setFormValues({
+      ...formValues,
+      nombre: `${cycle.nombre} - Copia`,
+    });
     setFormOpen(true);
   };
 
@@ -115,9 +158,13 @@ export function useCicloPage() {
     savedMessage,
     roleScopedCycles,
     filteredCycles,
+    activeCycle,
+    canCreateCycle,
+    activeCycleLockMessage,
     handleFilterChange,
     openCreateModal,
     openEditModal,
+    openDuplicateModal,
     handleViewDetail,
     handleSubmit,
     confirmDelete,

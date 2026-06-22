@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ROUTES, buildRouteWithSearch } from "../../../../app/appRoutes";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
 
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
@@ -59,6 +59,7 @@ export function useMapeoCompetenciasPage() {
     [catalogs, competenciasRa, cursos, records],
   );
   const scopedRecords = useMemo(() => applyRoleScope(enrichedRecords, currentUser), [currentUser, enrichedRecords]);
+  const hasRecords = scopedRecords.length > 0;
   const filteredRecords = useMemo(() => applyFilters(scopedRecords, filters), [filters, scopedRecords]);
   const selectedPrograma = useMemo(
     () => catalogs.programas.find((programa) => programa.id === filters.programaId),
@@ -72,14 +73,14 @@ export function useMapeoCompetenciasPage() {
 
   const canOpenCreate =
     permissions.canCreate &&
-    currentUser.role === "director" &&
+    currentUser.role === "direccionPrograma" &&
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
     Boolean(filters.programaId && filters.planId) &&
     !selectedRecord;
   const canOpenEdit =
     permissions.canUpdate &&
-    currentUser.role === "director" &&
+    currentUser.role === "direccionPrograma" &&
     selectedRecord?.programaEstado === "activo" &&
     selectedRecord?.planEstado === "activo";
 
@@ -106,11 +107,11 @@ export function useMapeoCompetenciasPage() {
   }, [filteredRecords, selectedRecord]);
 
   const handleCreate = () => {
-    window.location.assign(buildCreatePath(currentUser.role, filters.programaId, filters.planId));
+    navigateToRoute(buildCreatePath(currentUser.role, filters.programaId, filters.planId));
   };
 
   const handleEdit = (record: MapeoCompetenciasEnriched) => {
-    window.location.assign(buildEditPath(currentUser.role, record));
+    navigateToRoute(buildEditPath(currentUser.role, record));
   };
 
   const handleExportExcel = () => {
@@ -131,6 +132,7 @@ export function useMapeoCompetenciasPage() {
     currentUser,
     catalogs,
     permissions,
+    hasRecords,
     filters,
     filteredRecords,
     selectedPrograma,
