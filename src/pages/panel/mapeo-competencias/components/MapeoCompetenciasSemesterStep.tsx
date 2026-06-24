@@ -232,7 +232,7 @@ export default function MapeoCompetenciasSemesterStep({
 
                     {competencias.map((competencia) => {
                       const key = getMappingKey(curso.id, competencia.id);
-                      const nivel = nivelesDraft[key] ?? "Selecciona una opción";
+                      const nivel = nivelesDraft[key] ?? "";
 
                       return (
                         <td
@@ -254,7 +254,7 @@ export default function MapeoCompetenciasSemesterStep({
                           />
 
                           <div className="mt-2 flex justify-center">
-                            <Badge variant={getNivelVariant(nivel)}>{getNivelShort(nivel) || "NA"}</Badge>
+                            <Badge variant={getNivelVariant(nivel || null)}>{getNivelShort(nivel || null)}</Badge>
                           </div>
                         </td>
                       );
