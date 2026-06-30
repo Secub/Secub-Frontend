@@ -45,7 +45,6 @@ export default function MapeoCompetenciasCreatePage() {
       title={existingRecord ? "Editar mapeo" : "Crear mapeo"}
       description="Clasifica los núcleos de formación por semestre y define el nivel I-R-A-NA por curso y competencia."
       breadcrumbItems={[
-        { label: "Gestión Académica" },
         { label: "Mapeo de Competencias", href: buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role: currentUser.role }) },
         { label: existingRecord ? "Editar mapeo" : "Crear mapeo" },
       ]}

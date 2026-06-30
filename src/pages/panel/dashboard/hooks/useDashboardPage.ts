@@ -15,6 +15,7 @@ export function useDashboardPage() {
   const navigation = useDashboardNavigation({
     scopedCourses: data.scopedCourses,
     scopedCycles: data.scopedCycles,
+    userRole: data.user.role,
   });
   const filtersState = useDashboardFilters({
     catalogs: data.dashboardData.catalogs,

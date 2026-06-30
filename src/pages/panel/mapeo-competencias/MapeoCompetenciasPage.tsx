@@ -49,10 +49,6 @@ export default function MapeoCompetenciasPage() {
       currentStep="mapeo-competencias"
       title="Mapeo de Competencias"
       description="Asignación I-R-A-NA y visualización de la malla curricular por semestres y cursos."
-      breadcrumbItems={[
-        { label: "Gestión Académica" },
-        { label: "Mapeo de Competencias" },
-      ]}
     >
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState

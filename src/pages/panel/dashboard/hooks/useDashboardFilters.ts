@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { APP_NAVIGATION_EVENT } from "../../../../app/appRoutes";
 import type { DashboardCatalogs, DashboardFiltersState, EnrichedCycle } from "../dashboard.types";
 import {
   INITIAL_DASHBOARD_FILTERS,
@@ -27,6 +28,36 @@ export function useDashboardFilters({
   onResetNavigation: () => void;
 }) {
   const [filters, setFilters] = useState<DashboardFiltersState>(getInitialFilters);
+
+  const syncFiltersWithUrl = useCallback(() => {
+    const cycleId = getSearchParam("cycleId");
+    const status = getSearchParam("status");
+
+    setFilters((current) => {
+      let next: DashboardFiltersState = {
+        ...current,
+        cycleId,
+        status,
+      };
+
+      if (!cycleId) return next;
+
+      const cycle = scopedCycles.find((item) => item.id === cycleId);
+      if (cycle) next = syncDashboardFiltersByCycle(next, cycle);
+
+      return next;
+    });
+  }, [scopedCycles]);
+
+  useEffect(() => {
+    window.addEventListener("popstate", syncFiltersWithUrl);
+    window.addEventListener(APP_NAVIGATION_EVENT, syncFiltersWithUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncFiltersWithUrl);
+      window.removeEventListener(APP_NAVIGATION_EVENT, syncFiltersWithUrl);
+    };
+  }, [syncFiltersWithUrl]);
 
   const handleFilterChange = <K extends keyof DashboardFiltersState>(key: K, value: DashboardFiltersState[K]) => {
     setFilters((current) => {

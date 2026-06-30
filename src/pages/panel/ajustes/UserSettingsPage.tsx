@@ -26,10 +26,6 @@ export default function UserSettingsPage() {
       currentStep="ajustes"
       title="Ajustes de usuario"
       description="Consulta tu perfil activo y gestiona las opciones generales de la experiencia SECUB."
-      breadcrumbItems={[
-        { label: "Panel", href: ROUTES.panelDashboard },
-        { label: "Ajustes de usuario" },
-      ]}
     >
       <div className="w-full space-y-6">
         <section className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]">

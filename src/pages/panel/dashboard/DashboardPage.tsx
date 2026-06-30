@@ -43,9 +43,8 @@ export default function DashboardPage() {
     return (
       <PanelLayout
         currentStep="dashboard"
-        title="Panel de Control"
+        title="Estado del ciclo"
         description={`${dashboard.user.label} - Usuario`}
-        breadcrumbItems={[{ label: "Panel de control" }]}
       >
         <DashboardEmptyState
           title="No tienes cursos asignados a ciclos de medición"
@@ -60,9 +59,8 @@ export default function DashboardPage() {
     return (
       <PanelLayout
         currentStep="dashboard"
-        title="Panel de Control"
+        title="Estado del ciclo"
         description={`${dashboard.user.label} - Usuario`}
-        breadcrumbItems={[{ label: "Panel de control" }]}
       >
         <DashboardEmptyState
           title="Aún no se han creado ciclos de medición"
@@ -169,10 +167,7 @@ export default function DashboardPage() {
             courses={dashboard.detailCoursesForSelect}
             selectedCourseId={dashboard.detailCourseId}
             selectedCompetenceId={dashboard.detailCompetenceId}
-            onCourseChange={(courseId) => {
-              dashboard.setDetailCourseId(courseId);
-              dashboard.setDetailCompetenceId("");
-            }}
+            onCourseChange={dashboard.selectDetailCourse}
             onCompetenceChange={dashboard.setDetailCompetenceId}
             onDownloadFile={simulateEvidenceDownload}
             onOpenRaDetail={dashboard.setSelectedRa}

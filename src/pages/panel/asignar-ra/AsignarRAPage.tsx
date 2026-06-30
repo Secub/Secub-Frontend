@@ -54,12 +54,19 @@ export default function AsignarRAPage() {
   } = asignarRA;
 
   const isCourseDetailView = Boolean(selectedCourse);
+  const courseDetailBreadcrumbItems = isCourseDetailView
+    ? [
+        { label: "Asignar RA", onClick: handleBackToCourses },
+        { label: selectedCourse?.nombre ?? "Detalle del curso" },
+      ]
+    : undefined;
 
   return (
     <PanelLayout
       currentStep="asignar-ra"
       title="Asignar Resultados de Aprendizaje"
       description="Seleccione un curso de Síntesis y asigne los RA que serán medidos."
+      breadcrumbItems={courseDetailBreadcrumbItems}
     >
       {access.isStepLocked ? (
         <AsignarRAAccessState variant="locked-step" />

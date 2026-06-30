@@ -63,13 +63,13 @@ export function useDashboardBreadcrumbs({
   const layoutTitle =
     view === "courses"
       ? isTeacher
-        ? "Mis Cursos"
-        : "Ciclos"
+        ? "Mis cursos"
+        : "Pendientes"
       : view === "detail"
-        ? "Ver Detalle"
+        ? "Detalle"
         : view === "results"
-          ? "Resultados de Medición"
-          : "Panel de Control";
+          ? "Resultados de medición"
+          : "Estado del ciclo";
 
   const layoutDescription =
     view === "control"
@@ -84,24 +84,24 @@ export function useDashboardBreadcrumbs({
     cycleId: selectedCycleId || filters.cycleId,
     status: "pendiente",
   });
-  const coursesBreadcrumbLabel = isTeacher ? "Mis cursos" : "Cursos pendientes";
+  const coursesBreadcrumbLabel = isTeacher ? "Mis cursos" : "Pendientes";
 
   const breadcrumbItems =
     view === "control"
-      ? [{ label: "Panel de control" }]
+      ? undefined
       : view === "courses"
         ? [
-            { label: "Panel de control", href: controlBreadcrumbHref },
+            { label: "Estado del ciclo", href: controlBreadcrumbHref },
             { label: coursesBreadcrumbLabel },
           ]
         : view === "detail"
           ? [
-              { label: "Panel de control", href: controlBreadcrumbHref },
+              { label: "Estado del ciclo", href: controlBreadcrumbHref },
               { label: coursesBreadcrumbLabel, href: coursesBreadcrumbHref },
-              { label: "Ver detalle" },
+              { label: "Detalle" },
             ]
           : [
-              { label: "Panel de control", href: controlBreadcrumbHref },
+              { label: "Estado del ciclo", href: controlBreadcrumbHref },
               { label: "Resultados de medición" },
             ];
 

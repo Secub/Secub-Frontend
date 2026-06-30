@@ -9,8 +9,7 @@ export default function AccessibilitySettingsPage() {
       title="Accesibilidad"
       description="Configura opciones de lectura y contraste para adaptar la experiencia del panel SECUB."
       breadcrumbItems={[
-        { label: "Panel", href: ROUTES.panelDashboard },
-        { label: "Ajustes", href: ROUTES.panelSettings },
+        { label: "Ajustes de usuario", href: ROUTES.panelSettings },
         { label: "Accesibilidad" },
       ]}
     >

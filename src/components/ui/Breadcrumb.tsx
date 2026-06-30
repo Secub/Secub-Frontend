@@ -4,6 +4,7 @@ import { isInternalRouteHref, navigateToRoute } from "../../app/appRoutes";
 export interface BreadcrumbItem {
   label: string;
   href?: string;
+  onClick?: () => void;
 }
 
 interface BreadcrumbProps {
@@ -20,13 +21,20 @@ export default function Breadcrumb({ items = [] }: BreadcrumbProps) {
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
+        const isInteractive = Boolean((item.href || item.onClick) && !isLast);
 
         return (
           <span key={`${item.label}-${index}`} className="flex items-center gap-2">
-            {item.href && !isLast ? (
+            {isInteractive ? (
               <a
-                href={item.href}
+                href={item.href ?? "#"}
                 onClick={(event) => {
+                  if (item.onClick) {
+                    event.preventDefault();
+                    item.onClick();
+                    return;
+                  }
+
                   if (!isInternalRouteHref(item.href)) return;
                   event.preventDefault();
                   navigateToRoute(item.href ?? "");

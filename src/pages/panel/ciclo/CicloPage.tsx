@@ -3,7 +3,6 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { ROUTES } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import CicloAccessState from "./components/CicloAccessState";
 import CicloFilters from "./components/CicloFilters";
@@ -61,11 +60,6 @@ export default function CicloPage() {
       title="Creación del ciclo"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles ? pageActions : undefined}
-      breadcrumbItems={[
-        { label: "Dashboard", href: ROUTES.panelDashboard },
-        { label: "Gestión Académica" },
-        { label: "Creación del ciclo" },
-      ]}
     >
       {isStepLocked ? (
         <WorkflowStateCard
