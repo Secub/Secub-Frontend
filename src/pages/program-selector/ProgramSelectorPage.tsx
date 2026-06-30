@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { GoArrowRight, GoBook, GoChevronLeft } from "react-icons/go";
-import LogoSECUB from "../../assets/logos/logo-secub.png";
-import LogoUSB from "../../assets/logos/logo-usb.png";
+import LogoSECUB from "../../assets/logos/logotipo_ConUSB.png";
 import { secubAcademicPrograms, type SecubProgramId } from "../../data/secubAcademicPrograms";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
@@ -81,8 +80,7 @@ export default function ProgramSelectorPage() {
           </button>
 
           <div className="flex items-center gap-4">
-            <img src={LogoUSB} alt="Universidad de San Buenaventura" className="h-10 w-auto object-contain sm:h-11" />
-            <img src={LogoSECUB} alt="SECUB" className="h-9 w-auto object-contain sm:h-10" />
+            <img src={LogoSECUB} alt="SECUB" className="h-9 w-auto object-contain sm:h-20" />
           </div>
         </header>
 
