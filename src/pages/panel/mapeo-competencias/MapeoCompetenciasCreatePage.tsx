@@ -50,8 +50,13 @@ export default function MapeoCompetenciasCreatePage() {
       ]}
     >
       <div className="mb-6">
-        <Button variant="outline" leftIcon={<GoArrowLeft />} onClick={handleGoBack}>
-          Volver
+        <Button
+          variant="ghost"
+          size="sm"
+          leftIcon={<GoArrowLeft className="text-lg" />}
+          onClick={handleGoBack}
+        >
+          Volver a Mapeo de Competencias
         </Button>
       </div>
 

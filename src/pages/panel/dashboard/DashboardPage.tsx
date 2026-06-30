@@ -158,7 +158,7 @@ export default function DashboardPage() {
       {dashboard.view === "detail" ? (
         <div className="space-y-6">
           <DashboardBackButton
-            label="Volver a cursos"
+            label={`Volver a ${dashboard.coursesBreadcrumbLabel.toLowerCase()}`}
             onClick={dashboard.goBackToCourses}
           />
 
