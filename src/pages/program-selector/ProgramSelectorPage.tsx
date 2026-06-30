@@ -12,32 +12,26 @@ import { normalizeMockRole, type MockUserRole } from "../../services/auth/mockUs
 const selectableRoles: Array<{
   role: MockUserRole;
   label: string;
-  description: string;
 }> = [
   {
     role: "direccionPrograma",
     label: "Dirección de programa",
-    description: "Gestiona el flujo académico del programa.",
   },
   {
     role: "docente",
     label: "Docente",
-    description: "Consulta y registra mediciones RA asignadas.",
   },
   {
     role: "vice",
     label: "Vicerrector",
-    description: "Consulta el avance académico institucional.",
   },
   {
     role: "decano",
     label: "Decano",
-    description: "Revisa información de facultad y programas.",
   },
   {
     role: "admin",
     label: "Admin",
-    description: "Administra la experiencia demo de SECUB.",
   },
 ];
 
@@ -55,6 +49,7 @@ function buildDashboardUrl(role: MockUserRole) {
 
 export default function ProgramSelectorPage() {
   const [selectedRole, setSelectedRole] = useState<MockUserRole>(() => getInitialRole());
+  const selectedRoleLabel = selectableRoles.find((item) => item.role === selectedRole)?.label;
 
   const handleSelectProgram = (programId: SecubProgramId) => {
     persistSelectedProgramId(programId);
@@ -73,9 +68,9 @@ export default function ProgramSelectorPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--color-surface-soft)] px-5 py-8 sm:px-8 lg:px-12">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl flex-col">
-        <header className="flex flex-wrap items-center justify-between gap-4">
+    <main className="min-h-screen bg-[var(--color-surface-soft)] px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] w-full max-w-5xl flex-col gap-5">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-4">
           <button
             type="button"
             onClick={() => navigateToRoute(ROUTES.access)}
@@ -86,64 +81,46 @@ export default function ProgramSelectorPage() {
           </button>
 
           <div className="flex items-center gap-4">
-            <img src={LogoUSB} alt="Universidad de San Buenaventura" className="h-12 w-auto object-contain" />
-            <img src={LogoSECUB} alt="SECUB" className="h-10 w-auto object-contain" />
+            <img src={LogoUSB} alt="Universidad de San Buenaventura" className="h-10 w-auto object-contain sm:h-11" />
+            <img src={LogoSECUB} alt="SECUB" className="h-9 w-auto object-contain sm:h-10" />
           </div>
         </header>
 
-        <section className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[0.92fr_1.08fr]">
-          <div>
-            <p className="mb-4 inline-flex rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-white)]">
+        <section className="flex flex-1 flex-col justify-center gap-5">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="inline-flex rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-white)]">
               SECUB · Seccional Cali
             </p>
 
-            <h1 className="font-heading text-4xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-5xl">
+            <h1 className="mt-4 font-heading text-3xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-4xl">
               Selecciona programa y rol
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-8 text-[var(--color-gray-3)]">
-              Elige el rol con el que vas a ingresar y luego selecciona el programa académico desde el cual continuarás en SECUB.
+            <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)] sm:text-base">
+              Elige cómo vas a ingresar y selecciona el programa académico para continuar.
             </p>
-
-            <div className="mt-8 rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-5 shadow-[0_18px_45px_rgba(24,34,51,0.08)]">
-              <p className="text-sm font-semibold text-[var(--color-secondary-4)]">Información de prueba</p>
-              <p className="mt-2 text-sm leading-7 text-[var(--color-gray-3)]">
-                La plataforma mostrará únicamente datos de Psicología y Derecho de la Universidad de San Buenaventura, Seccional Cali.
-              </p>
-
-              {SHOW_DEMO_TOOLS ? (
-                <button
-                  type="button"
-                  onClick={handleResetDemo}
-                  className="mt-4 rounded-[var(--radius-pill)] border border-[color:rgba(235,87,87,0.30)] px-4 py-2 text-sm font-bold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.08)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(235,87,87,0.18)]"
-                  title="Reiniciar datos demo persistidos solo en este navegador"
-                >
-                  Reset demo
-                </button>
-              ) : null}
-            </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
             <section
-              className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-5 shadow-[0_18px_45px_rgba(24,34,51,0.08)]"
+              className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5"
               aria-labelledby="role-selector-title"
             >
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">
-                    Paso 1
+                    1. Rol
                   </p>
                   <h2 id="role-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">
                     Selecciona tu rol
                   </h2>
                 </div>
-                <p className="text-sm font-medium text-[var(--color-gray-3)]">
-                  Rol activo: {selectableRoles.find((item) => item.role === selectedRole)?.label}
+                <p className="text-sm font-semibold text-[var(--color-gray-3)]">
+                  Activo: {selectedRoleLabel}
                 </p>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 {selectableRoles.map((item) => {
                   const isSelected = selectedRole === item.role;
 
@@ -160,10 +137,10 @@ export default function ProgramSelectorPage() {
                           : "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-white)]",
                       ].join(" ")}
                     >
-                      <span className="flex items-start gap-3">
+                      <span className="flex items-center gap-3">
                         <span
                           className={[
-                            "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-pill)] font-heading text-sm font-bold",
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-pill)] font-heading text-sm font-bold",
                             isSelected
                               ? "bg-[var(--color-success)] text-[var(--color-white)]"
                               : "bg-[var(--color-white)] text-[var(--color-secondary-4)] ring-1 ring-[var(--color-gray-6)] group-hover:ring-[var(--color-secondary-2)]",
@@ -173,13 +150,8 @@ export default function ProgramSelectorPage() {
                           {item.label.slice(0, 2).toUpperCase()}
                         </span>
 
-                        <span className="min-w-0">
-                          <span className="block font-heading text-sm font-bold text-[var(--color-secondary-4)]">
-                            {item.label}
-                          </span>
-                          <span className="mt-1 block text-sm leading-5 text-[var(--color-gray-3)]">
-                            {item.description}
-                          </span>
+                        <span className="min-w-0 font-heading text-sm font-bold text-[var(--color-secondary-4)]">
+                          {item.label}
                         </span>
                       </span>
                     </button>
@@ -188,53 +160,43 @@ export default function ProgramSelectorPage() {
               </div>
             </section>
 
-            <section aria-labelledby="program-selector-title">
-              <div className="mb-4 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">
-                    Paso 2
-                  </p>
-                  <h2 id="program-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">
-                    Selecciona el programa académico
-                  </h2>
-                </div>
+            <section
+              className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5"
+              aria-labelledby="program-selector-title"
+            >
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">
+                  2. Programa
+                </p>
+                <h2 id="program-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">
+                  Selecciona el programa académico
+                </h2>
               </div>
 
-              <div className="grid gap-5">
+              <div className="mt-4 grid gap-3">
                 {secubAcademicPrograms.map((program) => (
                   <button
                     key={program.id}
                     type="button"
-                    className="group rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-6 text-left shadow-[0_18px_45px_rgba(24,34,51,0.08)] transition-all hover:-translate-y-1 hover:border-[var(--color-secondary-2)] hover:shadow-[0_24px_60px_rgba(24,34,51,0.12)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.24)]"
+                    className="group rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-white)] hover:shadow-[0_18px_45px_rgba(24,34,51,0.10)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.24)]"
                     onClick={() => handleSelectProgram(program.id)}
                   >
-                    <span className="flex items-start justify-between gap-4">
-                      <span className="flex min-w-0 gap-4">
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-secondary-1)] text-2xl text-[var(--color-white)]">
+                    <span className="flex items-center justify-between gap-4">
+                      <span className="flex min-w-0 items-center gap-3">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-secondary-1)] text-xl text-[var(--color-white)]">
                           <GoBook aria-hidden="true" />
                         </span>
                         <span className="min-w-0">
-                          <span className="block font-heading text-xl font-bold text-[var(--color-secondary-4)]">
+                          <span className="block font-heading text-lg font-bold text-[var(--color-secondary-4)]">
                             {program.name}
                           </span>
-                          <span className="mt-2 block text-sm leading-6 text-[var(--color-gray-3)]">
-                            {program.faculty} · {program.seccional}
-                          </span>
-                          <span className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[var(--color-gray-3)]">
-                            <span className="rounded-[var(--radius-pill)] bg-[var(--color-surface-soft)] px-3 py-1">
-                              SNIES {program.snies}
-                            </span>
-                            <span className="rounded-[var(--radius-pill)] bg-[var(--color-surface-soft)] px-3 py-1">
-                              Plan {program.planVersion}
-                            </span>
-                            <span className="rounded-[var(--radius-pill)] bg-[var(--color-surface-soft)] px-3 py-1">
-                              {program.durationSemesters} semestres
-                            </span>
+                          <span className="mt-1 block text-sm leading-5 text-[var(--color-gray-3)]">
+                            {program.faculty} · Plan {program.planVersion}
                           </span>
                         </span>
                       </span>
 
-                      <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-pill)] border border-[var(--color-gray-6)] text-[var(--color-secondary-4)] transition-all group-hover:border-[var(--color-secondary-2)] group-hover:bg-[var(--color-secondary-1)] group-hover:text-[var(--color-white)]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-pill)] border border-[var(--color-gray-6)] text-[var(--color-secondary-4)] transition-all group-hover:border-[var(--color-secondary-2)] group-hover:bg-[var(--color-secondary-1)] group-hover:text-[var(--color-white)]">
                         <GoArrowRight aria-hidden="true" />
                       </span>
                     </span>
@@ -243,6 +205,19 @@ export default function ProgramSelectorPage() {
               </div>
             </section>
           </div>
+
+          {SHOW_DEMO_TOOLS ? (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={handleResetDemo}
+                className="rounded-[var(--radius-pill)] border border-[color:rgba(235,87,87,0.30)] px-4 py-2 text-xs font-bold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.08)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(235,87,87,0.18)]"
+                title="Reiniciar datos demo persistidos solo en este navegador"
+              >
+                Reset demo
+              </button>
+            </div>
+          ) : null}
         </section>
       </div>
     </main>
