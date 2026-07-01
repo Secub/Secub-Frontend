@@ -1,9 +1,10 @@
+import { useEffect, useMemo, useState } from "react";
 import { GoArrowLeft, GoCheckCircle, GoClock, GoGoal } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import MapeoCompetenciasCardInfoCompromiso from "./MapeoCompetenciasCardInfoCompromiso";
 import MapeoCompetenciasSemesterStep from "./MapeoCompetenciasSemesterStep";
 import type { CompetenciaRaDemoRecord, CursoAsis, NivelCompromiso, NivelesDraft, NucleoFormacion } from "../MapeoCompetencias.types";
-import { buildSemesterNumbers, getMappingKey, getNucleoLabel } from "../MapeoCompetencias.utils";
+import { buildSemesterNumbers, getNucleoLabel, hasSemesterAssignments, isSemesterFlowComplete, shouldRequireSemesterConfirmation } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasIraStepProps {
   activeSemester: number;
@@ -19,6 +20,7 @@ interface MapeoCompetenciasIraStepProps {
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
   onSave: () => void;
   onFinish: () => void;
+  isEditingExistingRecord?: boolean;
 }
 
 interface SemesterFlowProps {
@@ -27,20 +29,6 @@ interface SemesterFlowProps {
   completedSemesterIds: string[];
   nucleosDraft: Record<number, NucleoFormacion | null>;
   onActiveSemesterChange: (semester: number) => void;
-}
-
-function isSemesterComplete(
-  semester: number,
-  coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
-  nivelesDraft: NivelesDraft,
-) {
-  const cursos = coursesBySemester[semester] ?? [];
-  if (!cursos.length || !competencias.length) return false;
-
-  return cursos.every((curso) =>
-    competencias.every((competencia) => Boolean(nivelesDraft[getMappingKey(curso.id, competencia.id)])),
-  );
 }
 
 function SemesterFlow({
@@ -141,11 +129,47 @@ export default function MapeoCompetenciasIraStep({
   onNivelChange,
   onSave,
   onFinish,
+  isEditingExistingRecord = false,
 }: MapeoCompetenciasIraStepProps) {
   const semesters = buildSemesterNumbers(totalSemestres);
+  const [confirmedSemesterIds, setConfirmedSemesterIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (isEditingExistingRecord) {
+      setConfirmedSemesterIds(buildSemesterNumbers(totalSemestres));
+      return;
+    }
+
+    setConfirmedSemesterIds((current) =>
+      current.filter((semester) => hasSemesterAssignments(semester, coursesBySemester, competencias, nivelesDraft)),
+    );
+  }, [competencias, coursesBySemester, isEditingExistingRecord, nivelesDraft, totalSemestres]);
+
+  const currentSemesterReady = useMemo(
+    () => hasSemesterAssignments(activeSemester, coursesBySemester, competencias, nivelesDraft),
+    [activeSemester, competencias, coursesBySemester, nivelesDraft],
+  );
+  const isCurrentSemesterConfirmed = isEditingExistingRecord || confirmedSemesterIds.includes(activeSemester);
+  const confirmRequired = shouldRequireSemesterConfirmation(
+    activeSemester,
+    coursesBySemester,
+    competencias,
+    nivelesDraft,
+    isCurrentSemesterConfirmed,
+    isEditingExistingRecord,
+  );
+
   const completedSemesterIds = semesters
-    .filter((semester) => isSemesterComplete(semester, coursesBySemester, competencias, nivelesDraft))
+    .filter((semester) => isSemesterFlowComplete(semester, coursesBySemester, competencias, nivelesDraft, isEditingExistingRecord || confirmedSemesterIds.includes(semester)))
     .map((semester) => `semestre-${semester}`);
+
+  const handleConfirmCurrentSemester = () => {
+    if (isEditingExistingRecord) return;
+
+    setConfirmedSemesterIds((current) =>
+      current.includes(activeSemester) ? current : [...current, activeSemester].sort((a, b) => a - b),
+    );
+  };
 
   return (
     <div className="space-y-6 pb-24">
@@ -184,6 +208,9 @@ export default function MapeoCompetenciasIraStep({
         competencias={competencias}
         nivelesDraft={nivelesDraft}
         disabled={!canManage}
+        isConfirmed={isCurrentSemesterConfirmed}
+        isConfirmReady={isEditingExistingRecord || (Boolean(nucleosDraft[activeSemester]) && currentSemesterReady)}
+        onConfirm={handleConfirmCurrentSemester}
         onNivelChange={onNivelChange}
       />
 
@@ -217,6 +244,7 @@ export default function MapeoCompetenciasIraStep({
                 variant="primary"
                 leftIcon={<GoCheckCircle className="text-lg" />}
                 onClick={() => onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1))}
+                disabled={confirmRequired || !canManage}
               >
                 Siguiente semestre
               </Button>
@@ -225,7 +253,7 @@ export default function MapeoCompetenciasIraStep({
                 variant="primary"
                 leftIcon={<GoCheckCircle className="text-lg" />}
                 onClick={onFinish}
-                disabled={!canManage}
+                disabled={!canManage || confirmRequired}
               >
                 Finalizar mapeo
               </Button>

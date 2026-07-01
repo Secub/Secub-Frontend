@@ -117,13 +117,13 @@ export function useMapeoCompetenciasManager({
     });
   }
 
-  function fillDefaultNoAplicaLevelsForFoundationalSemesters() {
+  function fillMissingLevelsWithNoAplica() {
     setNivelesDraft((current) => {
       const next = { ...current };
 
       cursos.forEach((curso) => {
-        const nucleo = nucleosDraft[curso.semestre];
-        if (nucleo !== "fundamentacion" && nucleo !== "profesionalizacion") return;
+        // const nucleo = nucleosDraft[curso.semestre];
+        // if (nucleo !== "fundamentacion" && nucleo !== "profesionalizacion") return;
 
         competencias.forEach((competencia) => {
           const key = getMappingKey(curso.id, competencia.id);
@@ -189,7 +189,7 @@ export function useMapeoCompetenciasManager({
     }
 
     saveProgress();
-    fillDefaultNoAplicaLevelsForFoundationalSemesters();
+    fillMissingLevelsWithNoAplica();
     setActiveStep("mapeo");
     setActiveSemester(1);
     return true;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GoInfo, GoX } from "react-icons/go";
-import { Badge, Select } from "../../../../components/ui";
+import { Badge, Button, Select } from "../../../../components/ui";
 import type {
   CompetenciaRaDemoRecord,
   CursoAsis,
@@ -26,6 +26,9 @@ interface MapeoCompetenciasSemesterStepProps {
   competencias: CompetenciaRaDemoRecord[];
   nivelesDraft: NivelesDraft;
   disabled?: boolean;
+  isConfirmed: boolean;
+  isConfirmReady: boolean;
+  onConfirm: () => void;
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
 }
 
@@ -109,6 +112,9 @@ export default function MapeoCompetenciasSemesterStep({
   competencias,
   nivelesDraft,
   disabled = false,
+  isConfirmed,
+  isConfirmReady,
+  onConfirm,
   onNivelChange,
 }: MapeoCompetenciasSemesterStepProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -161,6 +167,14 @@ export default function MapeoCompetenciasSemesterStep({
           <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
             {semestreNumero} de {totalSemestres}
           </span>
+          <Button
+            variant={isConfirmed ? "outline" : "primary"}
+            size="sm"
+            onClick={onConfirm}
+            disabled={disabled || !isConfirmReady}
+          >
+            {isConfirmed ? "Semestre confirmado" : "Confirmar semestre"}
+          </Button>
         </div>
       </div>
 
@@ -240,9 +254,9 @@ export default function MapeoCompetenciasSemesterStep({
                           className="border-b border-[var(--color-gray-6)] px-3 py-4 align-top text-center"
                         >
                           <Select
-                            value={nivel}
+                            value={nivel || "no-aplica"}
                             options={nivelOptions}
-                            placeholder="Selecciona una opción"
+                            placeholder="No aplica"
                             disabled={disabled || !nucleo}
                             onChange={(event) =>
                               onNivelChange(

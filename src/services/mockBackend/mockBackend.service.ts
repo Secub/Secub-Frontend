@@ -311,6 +311,46 @@ export const mockBackend = {
   },
 
   upsert<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T[] {
+    if (entityKey === "mapeosCompetencias") {
+      const database = readDatabase();
+      const matchingRecords = (database[entityKey] ?? []).filter((item) => {
+        if (item.deletedAt) return false;
+        if (item.id === record.id) return true;
+
+        const itemProgramId = item.programaId ?? item.academicProgramId;
+        const itemPlanId = item.planId;
+        const recordProgramId = (record as T & { programaId?: string; academicProgramId?: string }).programaId ?? (record as T & { programaId?: string; academicProgramId?: string }).academicProgramId;
+        const recordPlanId = (record as T & { planId?: string }).planId;
+
+        return Boolean(itemProgramId && itemPlanId && itemProgramId === recordProgramId && itemPlanId === recordPlanId);
+      });
+
+      if (matchingRecords.length > 0) {
+        const canonical = matchingRecords[0];
+        const nextRecord = decorateRecord(entityKey, { ...record, id: canonical.id }, user);
+        const recordProgramId = (record as T & { programaId?: string; academicProgramId?: string }).programaId ?? (record as T & { programaId?: string; academicProgramId?: string }).academicProgramId;
+        const recordPlanId = (record as T & { planId?: string }).planId;
+
+        const nextRecords = (database[entityKey] ?? []).flatMap((item) => {
+          if (item.deletedAt) return [item];
+
+          const itemProgramId = item.programaId ?? item.academicProgramId;
+          const sameIdentity = Boolean(
+            itemProgramId &&
+            item.planId &&
+            itemProgramId === recordProgramId &&
+            item.planId === recordPlanId,
+          );
+
+          if (sameIdentity && item.id !== canonical.id) return [];
+          return item.id === canonical.id ? nextRecord : item;
+        });
+
+        writeDatabase({ ...database, [entityKey]: nextRecords });
+        return mockBackend.list<T>(entityKey, user);
+      }
+    }
+
     return mockBackend.getById<T>(entityKey, record.id)
       ? mockBackend.update<T>(entityKey, record, user)
       : mockBackend.create<T>(entityKey, record, user);

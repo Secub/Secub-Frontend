@@ -127,6 +127,45 @@ export function readNivelesFromRecord(record?: MapeoCompetenciasRecord | null) {
   return draft;
 }
 
+export function hasSemesterAssignments(
+  semester: number,
+  coursesBySemester: Record<number, CursoAsis[]>,
+  competencias: CompetenciaRaDemoRecord[],
+  nivelesDraft: NivelesDraft,
+) {
+  const cursos = coursesBySemester[semester] ?? [];
+  if (!cursos.length || !competencias.length) return true;
+
+  return cursos.every((curso) =>
+    competencias.every((competencia) => Boolean(nivelesDraft[getMappingKey(curso.id, competencia.id)])),
+  );
+}
+
+export function isSemesterFlowComplete(
+  semester: number,
+  coursesBySemester: Record<number, CursoAsis[]>,
+  competencias: CompetenciaRaDemoRecord[],
+  nivelesDraft: NivelesDraft,
+  isConfirmed = false,
+) {
+  return isConfirmed && hasSemesterAssignments(semester, coursesBySemester, competencias, nivelesDraft);
+}
+
+export function shouldRequireSemesterConfirmation(
+  semester: number,
+  coursesBySemester: Record<number, CursoAsis[]>,
+  competencias: CompetenciaRaDemoRecord[],
+  nivelesDraft: NivelesDraft,
+  isConfirmed = false,
+  isEditingExistingRecord = false,
+) {
+  if (isEditingExistingRecord) {
+    return !isSemesterFlowComplete(semester, coursesBySemester, competencias, nivelesDraft, true);
+  }
+
+  return !isConfirmed;
+}
+
 export function areAllSemestersClassified(draft: NucleosDraft, total = SAFE_FALLBACK_TOTAL_SEMESTERS) {
   return buildSemesterNumbers(total).every((semester) => Boolean(draft[semester]));
 }
