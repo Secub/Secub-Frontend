@@ -302,7 +302,6 @@ export function CompetenciasRaFormModal({
           onChange={(event) => updateField("descripcion", event.target.value)}
           rows={7}
           placeholder="Escribe la competencia"
-          helperText="Los Resultados de Aprendizaje se agregan después desde la acción + Agregar RA."
           id="descripcion"
           data-validation-field="descripcion"
           error={errors.descripcion}

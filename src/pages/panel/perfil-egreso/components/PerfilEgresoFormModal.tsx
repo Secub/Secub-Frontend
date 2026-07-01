@@ -315,7 +315,6 @@ export function PerfilEgresoFormModal({
           onChange={(event) => updateField("descripcion", event.target.value)}
           rows={7}
           placeholder="Escribe el perfil de egreso del programa..."
-          helperText="Este texto será visible en la consulta y podrá actualizarse según las reglas del rol."
           id="descripcion"
           data-validation-field="descripcion"
           error={errors.descripcion}
