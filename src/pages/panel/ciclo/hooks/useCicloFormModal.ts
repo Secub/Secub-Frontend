@@ -139,8 +139,8 @@ export function useCicloFormModal({
     onSubmit(values);
   };
 
-  const title = { create: "Crear ciclo", edit: "Editar ciclo", view: "Detalle del ciclo" }[mode];
-  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo";
+  const title = { create: "Crear ciclo de medición", edit: "Editar ciclo", view: "Detalle del ciclo" }[mode];
+  const primaryLabel = mode === "edit" ? "Guardar cambios" : "Crear ciclo de medición";
 
   return {
     values,

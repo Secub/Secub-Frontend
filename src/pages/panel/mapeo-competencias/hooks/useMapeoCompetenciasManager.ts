@@ -122,6 +122,9 @@ export function useMapeoCompetenciasManager({
       const next = { ...current };
 
       cursos.forEach((curso) => {
+        // const nucleo = nucleosDraft[curso.semestre];
+        // if (nucleo !== "fundamentacion" && nucleo !== "profesionalizacion") return;
+
         competencias.forEach((competencia) => {
           const key = getMappingKey(curso.id, competencia.id);
           if (!next[key]) next[key] = "no-aplica";

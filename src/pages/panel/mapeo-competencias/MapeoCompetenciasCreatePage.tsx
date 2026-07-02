@@ -135,6 +135,7 @@ export default function MapeoCompetenciasCreatePage() {
                   onNivelChange={manager.updateNivel}
                   onSave={manager.saveProgress}
                   onFinish={handleFinish}
+                  isEditingExistingRecord={Boolean(existingRecord)}
                 />
               )}
             </>

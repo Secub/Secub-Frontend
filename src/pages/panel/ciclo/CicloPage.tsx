@@ -74,7 +74,7 @@ export default function CicloPage() {
         <WorkflowStateCard
           title="Aún no hay ciclos de medición creados"
           description="Cuando se cree el primer ciclo, se habilitará el resumen con filtros, cursos seleccionados, periodo, estado y responsable."
-          actionLabel={canCreateCycle ? "Crear ciclo" : undefined}
+          actionLabel={canCreateCycle ? "Crear ciclo de medición" : undefined}
           onAction={canCreateCycle ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
