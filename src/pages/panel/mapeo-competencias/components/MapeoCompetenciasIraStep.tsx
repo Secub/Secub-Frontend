@@ -20,7 +20,6 @@ interface MapeoCompetenciasIraStepProps {
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
   onSave: () => void;
   onFinish: () => void;
-  isEditingExistingRecord?: boolean;
 }
 
 interface SemesterFlowProps {
@@ -129,43 +128,28 @@ export default function MapeoCompetenciasIraStep({
   onNivelChange,
   onSave,
   onFinish,
-  isEditingExistingRecord = false,
 }: MapeoCompetenciasIraStepProps) {
   const semesters = buildSemesterNumbers(totalSemestres);
   const [confirmedSemesterIds, setConfirmedSemesterIds] = useState<number[]>([]);
 
   useEffect(() => {
-    if (isEditingExistingRecord) {
-      setConfirmedSemesterIds(buildSemesterNumbers(totalSemestres));
-      return;
-    }
-
     setConfirmedSemesterIds((current) =>
       current.filter((semester) => hasSemesterAssignments(semester, coursesBySemester, competencias, nivelesDraft)),
     );
-  }, [competencias, coursesBySemester, isEditingExistingRecord, nivelesDraft, totalSemestres]);
+  }, [competencias, coursesBySemester, nivelesDraft, totalSemestres]);
 
   const currentSemesterReady = useMemo(
     () => hasSemesterAssignments(activeSemester, coursesBySemester, competencias, nivelesDraft),
     [activeSemester, competencias, coursesBySemester, nivelesDraft],
   );
-  const isCurrentSemesterConfirmed = isEditingExistingRecord || confirmedSemesterIds.includes(activeSemester);
-  const confirmRequired = shouldRequireSemesterConfirmation(
-    activeSemester,
-    coursesBySemester,
-    competencias,
-    nivelesDraft,
-    isCurrentSemesterConfirmed,
-    isEditingExistingRecord,
-  );
+  const isCurrentSemesterConfirmed = confirmedSemesterIds.includes(activeSemester);
+  const confirmRequired = shouldRequireSemesterConfirmation(isCurrentSemesterConfirmed);
 
   const completedSemesterIds = semesters
-    .filter((semester) => isSemesterFlowComplete(semester, coursesBySemester, competencias, nivelesDraft, isEditingExistingRecord || confirmedSemesterIds.includes(semester)))
+    .filter((semester) => isSemesterFlowComplete(semester, coursesBySemester, competencias, nivelesDraft, confirmedSemesterIds.includes(semester)))
     .map((semester) => `semestre-${semester}`);
 
   const handleConfirmCurrentSemester = () => {
-    if (isEditingExistingRecord) return;
-
     setConfirmedSemesterIds((current) =>
       current.includes(activeSemester) ? current : [...current, activeSemester].sort((a, b) => a - b),
     );
@@ -209,9 +193,14 @@ export default function MapeoCompetenciasIraStep({
         nivelesDraft={nivelesDraft}
         disabled={!canManage}
         isConfirmed={isCurrentSemesterConfirmed}
-        isConfirmReady={isEditingExistingRecord || (Boolean(nucleosDraft[activeSemester]) && currentSemesterReady)}
+        isConfirmReady={Boolean(nucleosDraft[activeSemester]) && currentSemesterReady}
         onConfirm={handleConfirmCurrentSemester}
-        onNivelChange={onNivelChange}
+        onNivelChange={(cursoId, competenciaId, nivel) => {
+          if (confirmedSemesterIds.includes(activeSemester)) {
+            setConfirmedSemesterIds((current) => current.filter((semester) => semester !== activeSemester));
+          }
+          onNivelChange(cursoId, competenciaId, nivel);
+        }}
       />
 
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-6 py-4 shadow-[var(--shadow-lg)] xl:left-[320px]">

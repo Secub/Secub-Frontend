@@ -151,18 +151,7 @@ export function isSemesterFlowComplete(
   return isConfirmed && hasSemesterAssignments(semester, coursesBySemester, competencias, nivelesDraft);
 }
 
-export function shouldRequireSemesterConfirmation(
-  semester: number,
-  coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
-  nivelesDraft: NivelesDraft,
-  isConfirmed = false,
-  isEditingExistingRecord = false,
-) {
-  if (isEditingExistingRecord) {
-    return !isSemesterFlowComplete(semester, coursesBySemester, competencias, nivelesDraft, true);
-  }
-
+export function shouldRequireSemesterConfirmation(isConfirmed = false) {
   return !isConfirmed;
 }
 
