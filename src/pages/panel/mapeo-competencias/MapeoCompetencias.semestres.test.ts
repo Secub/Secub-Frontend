@@ -22,13 +22,11 @@ describe("isSemesterFlowComplete", () => {
     expect(isSemesterFlowComplete(1, coursesBySemester, competencias, nivelesDraft, true)).toBe(true);
   });
 
-  it("no exige confirmación en modo edición cuando el semestre ya estaba completo", () => {
-    const coursesBySemester = {
-      1: [{ id: "curso-1", nombre: "Curso 1", codigo: "C1", creditos: 1, semestre: 1, programaId: "prog-1", planId: "plan-1" }],
-    };
-    const competencias = [{ id: "comp-1", nombre: "Competencia", descripcion: "" }];
-    const nivelesDraft = { "curso-1__comp-1": "no-aplica" as const };
+  it("requiere confirmación cuando el semestre tiene todos los niveles pero no está confirmado", () => {
+    expect(shouldRequireSemesterConfirmation(false)).toBe(true);
+  });
 
-    expect(shouldRequireSemesterConfirmation(1, coursesBySemester, competencias, nivelesDraft, false, true)).toBe(false);
+  it("no requiere confirmación cuando el semestre está confirmado", () => {
+    expect(shouldRequireSemesterConfirmation(true)).toBe(false);
   });
 });
