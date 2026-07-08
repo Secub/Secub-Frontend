@@ -46,7 +46,7 @@ function getCompetenciaDescription(competencia: CompetenciaRaDemoRecord) {
 
   if (description) return description;
   if (name) return name;
-  return "Esta competencia no tiene una descripción registrada todavía.";
+  return "Esta competencia específica no tiene una descripción registrada todavía.";
 }
 
 function CompetenciaHeaderTooltip({
@@ -86,7 +86,7 @@ function CompetenciaHeaderTooltip({
         >
           <div className="mb-2 flex items-start justify-between gap-2">
             <p className="font-semibold text-[var(--color-secondary-4)]">
-              Descripción de la competencia
+              Descripción de la competencia específica.
             </p>
             <button
               type="button"
@@ -158,7 +158,7 @@ export default function MapeoCompetenciasSemesterStep({
             Semestre {semestreNumero}
           </h3>
           <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-            Selecciona cómo aplica cada competencia al curso: Introduce, Refuerza, Afianza o No aplica.
+            Selecciona cómo aplica cada competencia específica al curso: Introduce, Refuerza, Afianza o No aplica.
           </p>
         </div>
 
@@ -180,7 +180,7 @@ export default function MapeoCompetenciasSemesterStep({
 
       {!nucleo ? (
         <div className="rounded-lg border border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-5 text-sm leading-6 text-[var(--color-gray-3)]">
-          Este semestre está pendiente por clasificar. Vuelve al paso de núcleos y selecciona una clasificación antes de mapear competencias.
+          Este semestre está pendiente por clasificar. Vuelve al paso de núcleos y selecciona una clasificación antes de mapear competencias específicas.
         </div>
       ) : cursos.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-8 text-center">
@@ -191,7 +191,7 @@ export default function MapeoCompetenciasSemesterStep({
       ) : competencias.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-8 text-center">
           <p className="text-sm text-[var(--color-gray-3)]">
-            No hay competencias activas para este programa y plan de estudios. Revisa el módulo Competencias y RA.
+            No hay competencias específicas activas para este programa y plan de estudios. Revisa el módulo Competencias y RA.
           </p>
         </div>
       ) : (

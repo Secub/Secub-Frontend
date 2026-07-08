@@ -165,7 +165,7 @@ export default function MapeoCompetenciasIraStep({
               Flujo por semestres
             </h2>
             <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-              Selecciona cada semestre para definir el nivel de compromiso de sus cursos frente a las competencias.
+              Selecciona cada semestre para definir el nivel de compromiso de sus cursos frente a las competencias específicas.
             </p>
           </div>
 
@@ -205,7 +205,7 @@ export default function MapeoCompetenciasIraStep({
       />
 
       <FlowActionBar
-        description="Guarda avances parciales o finaliza cuando la matriz I-R-A-NA esté completa para todos los semestres con cursos y competencias."
+        description="Guarda avances parciales o finaliza cuando la matriz I-R-A-NA esté completa para todos los semestres con cursos y competencias específicas."
         actionsBefore={[
           {
             label: "Anterior",

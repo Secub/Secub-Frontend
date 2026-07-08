@@ -57,8 +57,8 @@ export default function MapeoCompetenciasPage() {
         />
       ) : !hasRecords ? (
         <WorkflowStateCard
-          title="Aún no hay mapeos de competencias creados"
-          description="Cuando se cargue el primer mapeo de competencias, se habilitará la vista completa con filtros, consolidado, acciones y exportación."
+          title="Aún no hay mapeos de competencias específicas creados"
+          description="Cuando se cargue el primer mapeo de competencias específicas, se habilitará la vista completa con filtros, consolidado, acciones y exportación."
           actionLabel={canOpenCreate ? "Crear mapeo" : undefined}
           onAction={canOpenCreate ? handleCreate : undefined}
           helperText="No se muestran datos de prueba ni información precargada."

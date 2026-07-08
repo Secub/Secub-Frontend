@@ -57,7 +57,7 @@ export function buildPrintablePdfHtml(records: MapeoCompetenciasEnriched[]) {
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Mapeo de Competencias</title>
+  <title>Mapeo de Competencias específicas</title>
   <style>
     body { font-family: Arial, sans-serif; color: #1f2933; margin: 32px; }
     h1 { margin-bottom: 8px; }
@@ -68,7 +68,7 @@ export function buildPrintablePdfHtml(records: MapeoCompetenciasEnriched[]) {
   </style>
 </head>
 <body>
-  <h1>RF05 — Mapeo de Competencias</h1>
+  <h1>RF05 — Mapeo de Competencias específicas</h1>
   <p>Reporte consolidado de núcleos y niveles de compromiso I-R-A-NA por programa, plan y semestre.</p>
   <table>
     <thead>

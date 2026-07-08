@@ -201,7 +201,7 @@ export function buildMapeoRecord(params: {
     estado: "activo" as const,
     descripcion:
       params.descripcion ??
-      "Clasificación de núcleos y mapeo de niveles de compromiso I-R-A-NA por curso y competencia.",
+      "Clasificación de núcleos y mapeo de niveles de compromiso I-R-A-NA por curso y competencia específica.",
     competenciaRaIds: params.competencias.map((competencia) => competencia.id),
     semestresClasificados: serializeSemestresClasificados(params.nucleosDraft, params.planId, params.totalSemestres),
     nivelesCompromiso,
