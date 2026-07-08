@@ -74,6 +74,8 @@ export function useMapeoCompetenciasCreatePage() {
     [cursosPlan, existingRecord, selectedPlan],
   );
 
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+
   const manager = useMapeoCompetenciasManager({
     currentUser,
     existingRecord,
@@ -121,7 +123,12 @@ export function useMapeoCompetenciasCreatePage() {
   };
 
   const handleFinish = () => {
+    setShowFinishConfirm(true);
+  };
+
+  const handleConfirmFinish = () => {
     const record = manager.tryFinish();
+    setShowFinishConfirm(false);
     if (record) navigateToMapeoList(currentUser.role);
   };
 
@@ -146,5 +153,8 @@ export function useMapeoCompetenciasCreatePage() {
     activeSemesterTotalCount,
     handleGoBack,
     handleFinish,
+    handleConfirmFinish,
+    showFinishConfirm,
+    setShowFinishConfirm,
   };
 }

@@ -1,4 +1,4 @@
-import { PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { ConfirmDialog } from "../../../components/ui";
 import { useAsignarRA } from "./hooks/useAsignarRA";
 import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
@@ -29,6 +29,8 @@ export default function AsignarRAPage() {
     showMeasuredConfirm,
     showDeleteConfirm,
     showLeaveCourseConfirm,
+    showFinishAcademicFlowConfirm,
+    isCurrentCycleAssignmentComplete,
     handleSeccionalChange,
     handleFacultadChange,
     handleProgramChange,
@@ -40,11 +42,14 @@ export default function AsignarRAPage() {
     handleSaveAssignment,
     handleResetDraft,
     handleDeleteCourseAssignments,
+    handleRequestFinishAcademicFlow,
+    handleConfirmFinishAcademicFlow,
     discardDraftAndReturnToCourses,
     persistCourseAssignments,
     setShowMeasuredConfirm,
     setShowDeleteConfirm,
     setShowLeaveCourseConfirm,
+    setShowFinishAcademicFlowConfirm,
     toggleCompetenciaAccordion,
     toggleRaSelection,
     getRaAssignment,
@@ -54,6 +59,15 @@ export default function AsignarRAPage() {
   } = asignarRA;
 
   const isCourseDetailView = Boolean(selectedCourse);
+  const hasPendingAssignmentDraft = hasUnsavedChanges();
+  const finishDisabledReason = !selectedCycle
+    ? "Selecciona un ciclo antes de finalizar."
+    : hasPendingAssignmentDraft
+      ? "Guarda o descarta los cambios del curso actual antes de finalizar."
+      : !isCurrentCycleAssignmentComplete
+        ? "Completa la asignación de RA para todos los cursos de Síntesis antes de finalizar."
+        : undefined;
+  const isFinishDisabled = Boolean(finishDisabledReason);
   const courseDetailBreadcrumbItems = isCourseDetailView
     ? [
         { label: "Asignar RA", onClick: handleBackToCourses },
@@ -73,7 +87,7 @@ export default function AsignarRAPage() {
       ) : !access.canRead ? (
         <AsignarRAAccessState variant="docente" />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-24">
           {feedback ? (
             <div className="rounded-[var(--radius-lg)] border border-[color:rgba(118,202,102,0.55)] bg-[color:rgba(118,202,102,0.12)] px-5 py-4 text-sm font-medium text-[var(--color-secondary-4)]">
               {feedback}
@@ -152,6 +166,21 @@ export default function AsignarRAPage() {
             </>
           )}
 
+          {access.canManage ? (
+            <FlowActionBar
+              description={
+                isCurrentCycleAssignmentComplete
+                  ? "Todas las asignaciones del ciclo están listas. Finaliza el flujo solo cuando hayas revisado la información."
+                  : "Completa las asignaciones RA de los cursos de Síntesis. El flujo no se finaliza automáticamente."
+              }
+              showFinish
+              finishLabel="Finalizar"
+              finishDisabled={isFinishDisabled}
+              finishTitle={finishDisabledReason}
+              onFinish={handleRequestFinishAcademicFlow}
+            />
+          ) : null}
+
           <ConfirmDialog
             open={showMeasuredConfirm}
             title="Confirmar cambio sobre RA medido"
@@ -171,6 +200,16 @@ export default function AsignarRAPage() {
             variant="warning"
             onCancel={() => setShowLeaveCourseConfirm(false)}
             onConfirm={discardDraftAndReturnToCourses}
+          />
+
+          <ConfirmDialog
+            open={showFinishAcademicFlowConfirm}
+            title="¿Deseas finalizar este flujo?"
+            description="Una vez finalizado el flujo de Gestión Académica, los pasos quedarán disponibles para consulta y seguimiento. Esta acción no se ejecuta automáticamente al asignar RA."
+            confirmLabel="Finalizar"
+            variant="warning"
+            onCancel={() => setShowFinishAcademicFlowConfirm(false)}
+            onConfirm={handleConfirmFinishAcademicFlow}
           />
 
           <ConfirmDialog

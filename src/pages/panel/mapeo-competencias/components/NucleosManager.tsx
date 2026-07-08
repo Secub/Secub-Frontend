@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { GoCheckCircle, GoClock } from "react-icons/go";
-import { Badge, Button } from "../../../../components/ui";
+import { Badge } from "../../../../components/ui";
+import { FlowActionBar } from "../../../../components/panel";
 import type { CursoAsis, NucleoFormacion, NucleosDraft } from "../MapeoCompetencias.types";
 import { buildSemesterNumbers } from "../MapeoCompetencias.utils";
 import NucleoSemestreCard from "./NucleoSemestreCard";
@@ -112,35 +112,16 @@ export default function NucleosManager({
         ))}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-6 py-4 shadow-[var(--shadow-lg)] xl:left-[320px]">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <p className="max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Guardar permite conservar avances parciales. Para continuar, cada semestre debe tener un núcleo asignado.
-          </p>
-
-          <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
-            <Button
-              variant="outline"
-              leftIcon={<GoClock className="text-lg" />}
-              onClick={onSave}
-              disabled={disabled}
-              className="min-w-[210px]"
-            >
-              Guardar progreso
-            </Button>
-
-            <Button
-              variant="primary"
-              leftIcon={<GoCheckCircle className="text-lg" />}
-              onClick={onContinue}
-              disabled={disabled || !classificationComplete}
-              className="min-w-[230px]"
-            >
-              {classificationComplete ? "Siguiente paso" : "Completar semestres"}
-            </Button>
-          </div>
-        </div>
-      </div>
+      <FlowActionBar
+        description="Guardar permite conservar avances parciales. Para continuar, cada semestre debe tener un núcleo asignado."
+        showSaveProgress
+        onSaveProgress={onSave}
+        saveDisabled={disabled}
+        showNext
+        nextLabel={classificationComplete ? "Siguiente paso" : "Completar semestres"}
+        onNext={onContinue}
+        nextDisabled={disabled || !classificationComplete}
+      />
     </div>
   );
 }

@@ -1,8 +1,12 @@
 import {
+  FlowActionBar,
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import { useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
+import { ConfirmDialog } from "../../../components/ui";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
 import CompetenciasRaExportModal from "./components/CompetenciasRaExportModal";
 import CompetenciasRaFiltersPanel from "./components/CompetenciasRaFilters";
@@ -32,6 +36,7 @@ export default function CompetenciasRaFormacionPage() {
     exportFormat,
     raModalMode,
     selectedRaRecord,
+    recordToDelete,
     raDraft,
     raError,
     roleScopedRecords,
@@ -45,6 +50,7 @@ export default function CompetenciasRaFormacionPage() {
     handleSaveRa,
     handleSaveCompetenciaDescription,
     handleDelete,
+    confirmDelete,
     handleFilterChange,
     handleFormSubmit,
     closeRaModal,
@@ -53,9 +59,19 @@ export default function CompetenciasRaFormacionPage() {
     setDetailOpen,
     setFormOpen,
     setExportFormat,
+    setRecordToDelete,
     setRaDraft,
     setRaError,
   } = page;
+
+  const workflowProgress = useAcademicWorkflowProgress();
+  const isCompetenciasStepComplete = Boolean(workflowProgress["competencias-ra"]) && invalidCompetencias.length === 0;
+  const showFlowActionBar = !isStepLocked && permissions.canRead && hasRecords;
+  const handleNextStep = () => {
+    if (!isCompetenciasStepComplete) return;
+
+    navigateToRoute(buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role: currentUser.role }));
+  };
 
   const isCreateRaLimitReached =
     raModalMode === "create" &&
@@ -93,7 +109,7 @@ export default function CompetenciasRaFormacionPage() {
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-24">
           <CompetenciasRaFiltersPanel
             user={currentUser}
             permissions={permissions}
@@ -119,6 +135,25 @@ export default function CompetenciasRaFormacionPage() {
           />
         </div>
       )}
+
+      {showFlowActionBar ? (
+        <FlowActionBar
+          description={
+            isCompetenciasStepComplete
+              ? "Las competencias y RA ya están guardados. Continúa al siguiente paso cuando las relaciones estén completas."
+              : "Completa las competencias y agrega los RA requeridos para habilitar el avance al siguiente paso."
+          }
+          showNext
+          nextLabel="Siguiente paso"
+          nextDisabled={!isCompetenciasStepComplete}
+          nextTitle={
+            isCompetenciasStepComplete
+              ? "Avanzar a Mapeo de Competencias"
+              : "Completa y guarda las competencias con sus RA antes de avanzar."
+          }
+          onNext={handleNextStep}
+        />
+      ) : null}
 
       <CompetenciasRaDetailModal
         open={detailOpen}
@@ -152,6 +187,16 @@ export default function CompetenciasRaFormacionPage() {
         onClose={closeRaModal}
         onSave={handleSaveRa}
         isCreateLimitReached={isCreateRaLimitReached}
+      />
+
+      <ConfirmDialog
+        open={Boolean(recordToDelete)}
+        title="¿Estás seguro de que deseas eliminar este registro?"
+        description={`Se eliminará la competencia de ${recordToDelete?.programaNombre ?? "este programa"}, sus RA asociados y las relaciones demo vinculadas. Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onCancel={() => setRecordToDelete(null)}
+        onConfirm={confirmDelete}
       />
 
       <CompetenciasRaExportModal

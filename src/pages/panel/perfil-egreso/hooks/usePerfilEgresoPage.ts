@@ -46,6 +46,7 @@ export function usePerfilEgresoPage() {
   );
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] = useState<PerfilEgresoEnriched | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<PerfilEgresoEnriched | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -108,18 +109,21 @@ export function usePerfilEgresoPage() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar el perfil de egreso de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
-    );
-    if (!confirmed) return;
+    setRecordToDelete(record);
+  };
 
-    setRecords(mockBackend.remove<PerfilEgresoRecord>("perfilEgreso", record.id, currentUser));
+  const confirmDelete = () => {
+    if (!recordToDelete) return;
 
-    if (selectedRecord?.id === record.id) {
+    setRecords(mockBackend.remove<PerfilEgresoRecord>("perfilEgreso", recordToDelete.id, currentUser));
+
+    if (selectedRecord?.id === recordToDelete.id) {
       setSelectedRecord(null);
       setDetailOpen(false);
       setFormOpen(false);
     }
+
+    setRecordToDelete(null);
   };
 
   const handleFilterChange = <K extends keyof FiltersState>(key: K, value: FiltersState[K]) => {
@@ -179,6 +183,7 @@ export function usePerfilEgresoPage() {
     hasRecords,
     filters,
     selectedRecord,
+    recordToDelete,
     detailOpen,
     formOpen,
     formMode,
@@ -191,9 +196,11 @@ export function usePerfilEgresoPage() {
     openEditModal,
     openDetailModal,
     handleDelete,
+    confirmDelete,
     handleFilterChange,
     handleFormSubmit,
     setFilters,
+    setRecordToDelete,
     setDetailOpen,
     setFormOpen,
     setExportFormat,

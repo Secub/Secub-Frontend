@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { GoArrowLeft, GoCheckCircle, GoClock, GoGoal } from "react-icons/go";
-import { Badge, Button } from "../../../../components/ui";
+import { GoArrowLeft, GoCheckCircle, GoGoal } from "react-icons/go";
+import { Badge } from "../../../../components/ui";
+import { FlowActionBar } from "../../../../components/panel";
 import MapeoCompetenciasCardInfoCompromiso from "./MapeoCompetenciasCardInfoCompromiso";
 import MapeoCompetenciasSemesterStep from "./MapeoCompetenciasSemesterStep";
 import type { CompetenciaRaDemoRecord, CursoAsis, NivelCompromiso, NivelesDraft, NucleoFormacion } from "../MapeoCompetencias.types";
@@ -203,53 +204,29 @@ export default function MapeoCompetenciasIraStep({
         }}
       />
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-6 py-4 shadow-[var(--shadow-lg)] xl:left-[320px]">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <p className="max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Guarda avances parciales o finaliza cuando la matriz I-R-A-NA esté completa para todos los semestres con cursos y competencias.
-          </p>
-
-          <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
-            <Button
-              variant="outline"
-              leftIcon={<GoArrowLeft className="text-lg" />}
-              onClick={() => onActiveSemesterChange(Math.max(1, activeSemester - 1))}
-              disabled={activeSemester <= 1}
-            >
-              Anterior
-            </Button>
-
-            <Button
-              variant="outline"
-              leftIcon={<GoClock className="text-lg" />}
-              onClick={onSave}
-              disabled={!canManage}
-            >
-              Guardar progreso
-            </Button>
-
-            {activeSemester < totalSemestres ? (
-              <Button
-                variant="primary"
-                leftIcon={<GoCheckCircle className="text-lg" />}
-                onClick={() => onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1))}
-                disabled={confirmRequired || !canManage}
-              >
-                Siguiente semestre
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                leftIcon={<GoCheckCircle className="text-lg" />}
-                onClick={onFinish}
-                disabled={!canManage || confirmRequired}
-              >
-                Finalizar mapeo
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+      <FlowActionBar
+        description="Guarda avances parciales o finaliza cuando la matriz I-R-A-NA esté completa para todos los semestres con cursos y competencias."
+        actionsBefore={[
+          {
+            label: "Anterior",
+            onClick: () => onActiveSemesterChange(Math.max(1, activeSemester - 1)),
+            disabled: activeSemester <= 1,
+            variant: "outline",
+            leftIcon: <GoArrowLeft className="text-lg" />,
+          },
+        ]}
+        showSaveProgress
+        onSaveProgress={onSave}
+        saveDisabled={!canManage}
+        showNext={activeSemester < totalSemestres}
+        nextLabel="Siguiente semestre"
+        onNext={() => onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1))}
+        nextDisabled={confirmRequired || !canManage}
+        showFinish={activeSemester >= totalSemestres}
+        finishLabel="Finalizar mapeo"
+        onFinish={onFinish}
+        finishDisabled={!canManage || confirmRequired}
+      />
     </div>
   );
 }

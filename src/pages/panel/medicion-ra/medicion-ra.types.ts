@@ -60,6 +60,18 @@ export interface CourseRecord {
   students: Student[];
 }
 
+export type CourseMeasurementStatus = "pending" | "in-progress" | "completed";
+
+export interface CourseMeasurementSummary {
+  courseId: string;
+  status: CourseMeasurementStatus;
+  statusLabel: string;
+  progressPercentage: number;
+  completedCompetences: number;
+  totalCompetences: number;
+  isLocked: boolean;
+}
+
 export type EvaluationMatrix = Record<
   string,
   Record<string, PerformanceLevel>

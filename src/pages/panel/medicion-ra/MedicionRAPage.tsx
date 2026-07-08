@@ -1,5 +1,5 @@
 import { GoLock } from "react-icons/go";
-import { PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { Badge, ConfirmDialog } from "../../../components/ui";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import CompetenceStepper from "./components/CompetenceStepper";
@@ -7,7 +7,6 @@ import CourseSelector from "./components/CourseSelector";
 import EvaluationInstructions from "./components/EvaluationInstructions";
 import EvidenceImprovementSection from "./components/EvidenceImprovementSection";
 import InstrumentSection from "./components/InstrumentSection";
-import MedicionRAFooter from "./components/MedicionRAFooter";
 import RaResultsCharts from "./components/RaResultsCharts";
 import StudentsEvaluationTable from "./components/StudentsEvaluationTable";
 import ValidationBanner from "./components/ValidationBanner";
@@ -72,7 +71,9 @@ function MedicionRAContent() {
     feedback,
     showFinishModal,
     isSelectedCourseLocked,
-    isLastCompetence,
+    courseSummaries,
+    isSelectedCourseComplete,
+    hasNextPendingCourse,
     showValidationErrors,
     competenceContentRef,
     handleCourseChange,
@@ -82,7 +83,8 @@ function MedicionRAContent() {
     handleEvidenceChange,
     handleImprovementPlanChange,
     handleSaveProgress,
-    handlePrimaryAction,
+    handleNextCourse,
+    handleRequestFinishEvaluation,
     handleConfirmFinishEvaluation,
     handleCancelFinishEvaluation,
     handleCloseFeedback,
@@ -116,6 +118,7 @@ function MedicionRAContent() {
         <CourseSelector
           courses={availableCourses}
           selectedCourseId={selectedCourse.id}
+          courseSummaries={courseSummaries}
           onCourseChange={handleCourseChange}
         />
 
@@ -179,19 +182,29 @@ function MedicionRAContent() {
 
       <ConfirmDialog
         open={showFinishModal}
-        title="¿Estás seguro de que deseas finalizar la evaluación?"
-        description="Después de finalizarla, la información registrada quedará bloqueada y no podrás editar ni modificar las competencias evaluadas."
-        confirmLabel="Sí, finalizar evaluación"
+        title="¿Deseas finalizar la medición?"
+        description="Una vez finalizada, se guardará el estado de la medición del curso correspondiente."
+        confirmLabel="Finalizar"
         variant="warning"
         onCancel={handleCancelFinishEvaluation}
         onConfirm={handleConfirmFinishEvaluation}
       />
 
-      <MedicionRAFooter
-        isEvaluationLocked={isSelectedCourseLocked}
-        isLastCompetence={isLastCompetence}
+      <FlowActionBar
+        description="Guardar conserva avances parciales del curso actual. Siguiente curso aparece cuando la medición del curso está completa y queda otro curso pendiente. Finalizar cierra la medición del último curso pendiente."
+        showSaveProgress={!isSelectedCourseLocked}
         onSaveProgress={handleSaveProgress}
-        onPrimaryAction={handlePrimaryAction}
+        saveDisabled={isSelectedCourseLocked}
+        saveTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
+        showNext={hasNextPendingCourse && isSelectedCourseComplete}
+        nextLabel="Siguiente curso"
+        onNext={handleNextCourse}
+        nextTitle="Guardar y continuar con el siguiente curso pendiente"
+        showFinish={!hasNextPendingCourse}
+        finishLabel={isSelectedCourseLocked ? "Medición finalizada" : "Finalizar"}
+        finishDisabled={isSelectedCourseLocked}
+        finishTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
+        onFinish={handleRequestFinishEvaluation}
       />
     </PanelLayout>
   );

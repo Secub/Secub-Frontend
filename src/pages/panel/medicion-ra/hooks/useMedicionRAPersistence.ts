@@ -17,6 +17,27 @@ import {
   pickCourseInstrumentState,
 } from "../utils/medicionRA.persistence";
 
+
+function hasEvaluationProgress(evaluations: EvaluationMatrix) {
+  return Object.values(evaluations).some((raValues) =>
+    Object.values(raValues).some((level) => Boolean(level)),
+  );
+}
+
+function hasInstrumentProgress(instruments: InstrumentByRa) {
+  return Object.values(instruments).some((instrument) =>
+    Boolean(instrument.description?.trim() || instrument.fileName?.trim()),
+  );
+}
+
+function hasTextStateProgress<T extends object>(records: Record<string, T>) {
+  return Object.values(records).some((record) =>
+    Object.values(record as Record<string, unknown>).some(
+      (value) => typeof value === "string" && Boolean(value.trim()),
+    ),
+  );
+}
+
 export function useMedicionRAPersistence({
   activeCompetenceId,
   completedCompetenceIds,
@@ -49,12 +70,16 @@ export function useMedicionRAPersistence({
   selectedCourseId: string;
 }) {
   useEffect(() => {
+    const courseEvaluations = pickCourseEvaluationState(evaluationsByCourse, selectedCourse.id);
+    const courseInstruments = pickCourseInstrumentState(instrumentsByCourse, selectedCourse.id);
     const courseEvidence = pickCourseCompetenceState(evidenceByCompetence, selectedCourse.id);
     const courseImprovementPlans = pickCourseCompetenceState(improvementByCompetence, selectedCourse.id);
     const hasProgress =
       completedCompetenceIds.length > 0 ||
-      Object.keys(courseEvidence).length > 0 ||
-      Object.keys(courseImprovementPlans).length > 0 ||
+      hasEvaluationProgress(courseEvaluations) ||
+      hasInstrumentProgress(courseInstruments) ||
+      hasTextStateProgress(courseEvidence) ||
+      hasTextStateProgress(courseImprovementPlans) ||
       isSelectedCourseLocked;
 
     if (!hasProgress || hydratedStateId !== medicionRaDemoStateId) return;
@@ -71,8 +96,8 @@ export function useMedicionRAPersistence({
         asignacionRaIds,
         selectedCourseId,
         activeCompetenceId,
-        evaluationsByCourse: pickCourseEvaluationState(evaluationsByCourse, selectedCourse.id),
-        instrumentsByCourse: pickCourseInstrumentState(instrumentsByCourse, selectedCourse.id),
+        evaluationsByCourse: courseEvaluations,
+        instrumentsByCourse: courseInstruments,
         evidenceByCompetence: courseEvidence,
         improvementByCompetence: courseImprovementPlans,
         completedCompetenceIds,

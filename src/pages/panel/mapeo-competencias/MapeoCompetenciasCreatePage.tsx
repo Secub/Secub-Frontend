@@ -37,6 +37,9 @@ export default function MapeoCompetenciasCreatePage() {
     activeSemesterTotalCount,
     handleGoBack,
     handleFinish,
+    handleConfirmFinish,
+    showFinishConfirm,
+    setShowFinishConfirm,
   } = page;
 
   return (
@@ -139,6 +142,16 @@ export default function MapeoCompetenciasCreatePage() {
               )}
             </>
           )}
+
+          <ConfirmDialog
+            open={showFinishConfirm}
+            title="¿Deseas finalizar este mapeo?"
+            description="Una vez finalizado, se guardará la matriz I-R-A-NA completa para continuar con el flujo académico."
+            confirmLabel="Finalizar mapeo"
+            variant="warning"
+            onCancel={() => setShowFinishConfirm(false)}
+            onConfirm={handleConfirmFinish}
+          />
 
           <ConfirmDialog
             open={manager.showExitConfirm}

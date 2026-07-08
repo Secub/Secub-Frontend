@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
+import { completeAcademicWorkflowFromCurrentProgress } from "../../../../components/panel";
 import type { CursoSintesis } from "../../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
@@ -22,6 +23,7 @@ interface UseAsignarRAActionsParams {
   selectedProgramId: string;
   selectedPlanId: string;
   coursesLength: number;
+  isCurrentCycleAssignmentComplete: boolean;
   selectedCycle?: CicloDemoRecord;
   selectedCourse?: CursoSintesis;
   selectedCourseAssignments: AsignacionRaRecord[];
@@ -41,6 +43,7 @@ export function useAsignarRAActions({
   selectedProgramId,
   selectedPlanId,
   coursesLength,
+  isCurrentCycleAssignmentComplete,
   selectedCycle,
   selectedCourse,
   selectedCourseAssignments,
@@ -59,6 +62,7 @@ export function useAsignarRAActions({
   const [showMeasuredConfirm, setShowMeasuredConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLeaveCourseConfirm, setShowLeaveCourseConfirm] = useState(false);
+  const [showFinishAcademicFlowConfirm, setShowFinishAcademicFlowConfirm] = useState(false);
 
   useEffect(() => {
     const nextDraft = buildDraftSelections(courseCompetencias, selectedCourseAssignments);
@@ -225,6 +229,44 @@ export function useAsignarRAActions({
     setFeedback("Asignación del curso eliminada correctamente. El workflow se recalculó con los datos actuales.");
   };
 
+  const handleRequestFinishAcademicFlow = () => {
+    resetFeedback();
+
+    if (hasUnsavedChanges()) {
+      setErrorMessage("Guarda o descarta los cambios del curso actual antes de finalizar el flujo.");
+      assignmentPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    if (!selectedCycle) {
+      setErrorMessage("Selecciona el ciclo de medición antes de finalizar el flujo.");
+      coursesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    if (!isCurrentCycleAssignmentComplete) {
+      setErrorMessage("Antes de finalizar, todos los cursos de Síntesis del ciclo deben tener RA asignados según sus competencias.");
+      coursesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    setShowFinishAcademicFlowConfirm(true);
+  };
+
+  const handleConfirmFinishAcademicFlow = () => {
+    const completedPlan = completeAcademicWorkflowFromCurrentProgress();
+
+    if (!completedPlan) {
+      setShowFinishAcademicFlowConfirm(false);
+      setErrorMessage("El flujo todavía no cumple todas las condiciones para finalizar. Revisa los pasos anteriores y las asignaciones RA.");
+      return;
+    }
+
+    setShowFinishAcademicFlowConfirm(false);
+    refreshBackendState();
+    setFeedback("Flujo académico finalizado correctamente.");
+  };
+
   const toggleCompetenciaAccordion = (competenciaId: string) => {
     setExpandedCompetenciaIds((current) =>
       current.includes(competenciaId) ? current.filter((id) => id !== competenciaId) : [...current, competenciaId],
@@ -240,11 +282,15 @@ export function useAsignarRAActions({
     setShowMeasuredConfirm,
     setShowDeleteConfirm,
     setShowLeaveCourseConfirm,
+    showFinishAcademicFlowConfirm,
+    setShowFinishAcademicFlowConfirm,
     handleSelectCourse,
     handleBackToCourses,
     handleSaveAssignment,
     handleResetDraft,
     handleDeleteCourseAssignments,
+    handleRequestFinishAcademicFlow,
+    handleConfirmFinishAcademicFlow,
     discardDraftAndReturnToCourses,
     persistCourseAssignments,
     toggleCompetenciaAccordion,

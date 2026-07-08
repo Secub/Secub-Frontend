@@ -129,6 +129,7 @@ export function useCompetenciasRAPage() {
     exportFormat,
     raModalMode: raActions.raModalMode,
     selectedRaRecord: raActions.selectedRaRecord,
+    recordToDelete: raActions.recordToDelete,
     raDraft: raActions.raDraft,
     raError: raActions.raError,
     roleScopedRecords,
@@ -142,6 +143,7 @@ export function useCompetenciasRAPage() {
     handleSaveRa: raActions.handleSaveRa,
     handleSaveCompetenciaDescription: raActions.handleSaveCompetenciaDescription,
     handleDelete: raActions.handleDelete,
+    confirmDelete: raActions.confirmDelete,
     handleFilterChange,
     handleFormSubmit,
     closeRaModal: raActions.closeRaModal,
@@ -150,6 +152,7 @@ export function useCompetenciasRAPage() {
     setDetailOpen,
     setFormOpen,
     setExportFormat,
+    setRecordToDelete: raActions.setRecordToDelete,
     setRaDraft: raActions.setRaDraft,
     setRaError: raActions.setRaError,
   };

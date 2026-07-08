@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import { LOCKED_TOOLTIP } from "../constants/medicionRA.constants";
-import type { ValidationFeedback } from "../medicion-ra.types";
+import type { CourseMeasurementSummary, ValidationFeedback } from "../medicion-ra.types";
+import { getCourseMeasurementSummary } from "../medicion-ra.utils";
 import type { MedicionRaDemoState } from "../types/medicionRA.persistence.types";
+import { resolveMedicionRaContextForCourse } from "../utils/medicionRA.assignments";
+import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
 import { useMedicionRAActions } from "./useMedicionRAActions";
 import { useMedicionRAAutoScroll } from "./useMedicionRAAutoScroll";
 import { useMedicionRAComputedState } from "./useMedicionRAComputedState";
@@ -125,6 +128,67 @@ export function useMedicionRA() {
     setShowValidationErrors,
   });
 
+  const courseSummaries = useMemo<CourseMeasurementSummary[]>(() => {
+    return availableCourses.map((course) => {
+      if (course.id === computed.selectedCourse.id) {
+        return getCourseMeasurementSummary({
+          course,
+          evaluations: hydrated.evaluationsByCourse[course.id],
+          instruments: hydrated.instrumentsByCourse[course.id],
+          evidenceByCompetence: hydrated.evidenceByCompetence,
+          isLocked: hydrated.isSelectedCourseLocked,
+        });
+      }
+
+      const courseContext = resolveMedicionRaContextForCourse(course);
+      const courseStateId = buildMedicionRaDemoStateId({
+        userId: currentUser.id,
+        cicloId: courseContext.cicloId,
+        courseId: course.id,
+      });
+      const courseState = mockBackend.getById<MedicionRaDemoState>("medicionesRa", courseStateId);
+
+      return getCourseMeasurementSummary({
+        course,
+        evaluations: courseState?.evaluationsByCourse?.[course.id],
+        instruments: courseState?.instrumentsByCourse?.[course.id],
+        evidenceByCompetence: courseState?.evidenceByCompetence ?? {},
+        isLocked: courseState?.isEvaluationLocked ?? false,
+      });
+    });
+  }, [
+    availableCourses,
+    backendVersion,
+    computed.selectedCourse.id,
+    currentUser.id,
+    hydrated.evaluationsByCourse,
+    hydrated.evidenceByCompetence,
+    hydrated.instrumentsByCourse,
+    hydrated.isSelectedCourseLocked,
+  ]);
+
+  const selectedCourseSummary = courseSummaries.find(
+    (summary) => summary.courseId === computed.selectedCourse.id,
+  );
+  const isSelectedCourseComplete = selectedCourseSummary?.status === "completed";
+  const nextPendingCourse = useMemo(() => {
+    if (!availableCourses.length) return undefined;
+
+    const selectedCourseIndex = Math.max(
+      0,
+      availableCourses.findIndex((course) => course.id === computed.selectedCourse.id),
+    );
+    const orderedCourses = [
+      ...availableCourses.slice(selectedCourseIndex + 1),
+      ...availableCourses.slice(0, selectedCourseIndex),
+    ];
+
+    return orderedCourses.find((course) => {
+      const summary = courseSummaries.find((item) => item.courseId === course.id);
+      return summary?.status !== "completed";
+    });
+  }, [availableCourses, computed.selectedCourse.id, courseSummaries]);
+
   const actions = useMedicionRAActions({
     activeCompetenceId: computed.activeCompetence.id,
     activeCompetenceIndex: computed.activeCompetenceIndex,
@@ -132,8 +196,10 @@ export function useMedicionRA() {
     course: computed.selectedCourse,
     isLastCompetence: computed.isLastCompetence,
     isSelectedCourseLocked: hydrated.isSelectedCourseLocked,
+    nextPendingCourse,
     pendingAutoScrollCompetenceIdRef,
     setActiveCompetenceId: selection.setActiveCompetenceId,
+    setSelectedCourseId: selection.setSelectedCourseId,
     setCompletedCompetenceIds: hydrated.setCompletedCompetenceIds,
     setEvaluationsByCourse: hydrated.setEvaluationsByCourse,
     setEvidenceByCompetence: hydrated.setEvidenceByCompetence,
@@ -154,6 +220,10 @@ export function useMedicionRA() {
     activeCompetence: computed.activeCompetence,
     activeRaResults: computed.activeRaResults,
     completionPercentage: computed.completionPercentage,
+    courseSummaries,
+    isSelectedCourseComplete,
+    nextPendingCourseId: nextPendingCourse?.id ?? "",
+    hasNextPendingCourse: Boolean(nextPendingCourse),
     subProgressSteps,
     completedCompetenceIds: hydrated.completedCompetenceIds,
     evidence: computed.evidence,
