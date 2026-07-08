@@ -18,15 +18,19 @@ import {
 } from "../utils/medicionRA.persistence";
 
 
-function hasEvaluationProgress(evaluations: EvaluationMatrix) {
-  return Object.values(evaluations).some((raValues) =>
-    Object.values(raValues).some((level) => Boolean(level)),
+function hasEvaluationProgress(evaluationsByCourse: Record<string, EvaluationMatrix>) {
+  return Object.values(evaluationsByCourse).some((evaluations) =>
+    Object.values(evaluations).some((raValues) =>
+      Object.values(raValues).some((level) => Boolean(level)),
+    ),
   );
 }
 
-function hasInstrumentProgress(instruments: InstrumentByRa) {
-  return Object.values(instruments).some((instrument) =>
-    Boolean(instrument.description?.trim() || instrument.fileName?.trim()),
+function hasInstrumentProgress(instrumentsByCourse: Record<string, InstrumentByRa>) {
+  return Object.values(instrumentsByCourse).some((instruments) =>
+    Object.values(instruments).some((instrument) =>
+      Boolean(instrument.description?.trim() || instrument.fileName?.trim()),
+    ),
   );
 }
 
