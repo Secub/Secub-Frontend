@@ -1,4 +1,13 @@
-import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { GoArrowLeft } from "react-icons/go";
+import {
+  FlowActionBar,
+  PanelLayout,
+  WorkflowStateCard,
+} from "../../../components/panel";
+import {
+  getAcademicWorkflowState,
+  useAcademicWorkflowProgress,
+} from "../../../components/panel/academicWorkflow";
 import { ConfirmDialog } from "../../../components/ui";
 import { useAsignarRA } from "./hooks/useAsignarRA";
 import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
@@ -8,6 +17,8 @@ import { AsignarRAFilters } from "./components/AsignarRAFilters";
 
 export default function AsignarRAPage() {
   const asignarRA = useAsignarRA();
+  const workflowProgress = useAcademicWorkflowProgress();
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
   const {
     access,
     filters,
@@ -30,7 +41,7 @@ export default function AsignarRAPage() {
     showDeleteConfirm,
     showLeaveCourseConfirm,
     showFinishAcademicFlowConfirm,
-    isCurrentCycleAssignmentComplete,
+    hasNextPendingCourse,
     handleSeccionalChange,
     handleFacultadChange,
     handleProgramChange,
@@ -39,14 +50,13 @@ export default function AsignarRAPage() {
     handleCourseFilterChange,
     handleSelectCourse,
     handleBackToCourses,
-    handleSaveAssignment,
-    handleResetDraft,
+    handleNextCourse,
     handleDeleteCourseAssignments,
     handleRequestFinishAcademicFlow,
     handleConfirmFinishAcademicFlow,
+    handleConfirmMeasuredAssignment,
+    handleCancelMeasuredAssignment,
     discardDraftAndReturnToCourses,
-    persistCourseAssignments,
-    setShowMeasuredConfirm,
     setShowDeleteConfirm,
     setShowLeaveCourseConfirm,
     setShowFinishAcademicFlowConfirm,
@@ -59,15 +69,6 @@ export default function AsignarRAPage() {
   } = asignarRA;
 
   const isCourseDetailView = Boolean(selectedCourse);
-  const hasPendingAssignmentDraft = hasUnsavedChanges();
-  const finishDisabledReason = !selectedCycle
-    ? "Selecciona un ciclo antes de finalizar."
-    : hasPendingAssignmentDraft
-      ? "Guarda o descarta los cambios del curso actual antes de finalizar."
-      : !isCurrentCycleAssignmentComplete
-        ? "Completa la asignación de RA para todos los cursos de Síntesis antes de finalizar."
-        : undefined;
-  const isFinishDisabled = Boolean(finishDisabledReason);
   const courseDetailBreadcrumbItems = isCourseDetailView
     ? [
         { label: "Asignar RA", onClick: handleBackToCourses },
@@ -114,9 +115,6 @@ export default function AsignarRAPage() {
                 canDelete={access.canDelete}
                 hasUnsavedChanges={hasUnsavedChanges()}
                 status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
-                onBackToCourses={handleBackToCourses}
-                onSave={handleSaveAssignment}
-                onReset={handleResetDraft}
                 onDelete={() => setShowDeleteConfirm(true)}
                 onToggleAccordion={toggleCompetenciaAccordion}
                 onToggleRa={toggleRaSelection}
@@ -166,17 +164,26 @@ export default function AsignarRAPage() {
             </>
           )}
 
-          {access.canManage ? (
+          {isWorkflowActive && access.canManage && isCourseDetailView ? (
             <FlowActionBar
               description={
-                isCurrentCycleAssignmentComplete
-                  ? "Todas las asignaciones del ciclo están listas. Finaliza el flujo solo cuando hayas revisado la información."
-                  : "Completa las asignaciones RA de los cursos de Síntesis. El flujo no se finaliza automáticamente."
+                hasNextPendingCourse
+                  ? "La acción principal valida y guarda el curso actual antes de abrir el siguiente curso pendiente."
+                  : "Este es el último curso pendiente. Finaliza para guardar su asignación y validar todos los cursos del ciclo."
               }
-              showFinish
+              actionsBefore={[
+                {
+                  label: "Volver a cursos",
+                  onClick: handleBackToCourses,
+                  variant: "outline",
+                  leftIcon: <GoArrowLeft className="text-lg" />,
+                },
+              ]}
+              showNext={hasNextPendingCourse}
+              nextLabel="Siguiente curso"
+              onNext={handleNextCourse}
+              showFinish={!hasNextPendingCourse}
               finishLabel="Finalizar"
-              finishDisabled={isFinishDisabled}
-              finishTitle={finishDisabledReason}
               onFinish={handleRequestFinishAcademicFlow}
             />
           ) : null}
@@ -187,8 +194,8 @@ export default function AsignarRAPage() {
             description="Este curso tiene RA con medición registrada. Cambiar la asignación puede afectar los resultados visibles en Dashboard y Medición RA."
             confirmLabel="Guardar cambios"
             variant="warning"
-            onCancel={() => setShowMeasuredConfirm(false)}
-            onConfirm={persistCourseAssignments}
+            onCancel={handleCancelMeasuredAssignment}
+            onConfirm={handleConfirmMeasuredAssignment}
           />
 
           <ConfirmDialog
@@ -204,8 +211,8 @@ export default function AsignarRAPage() {
 
           <ConfirmDialog
             open={showFinishAcademicFlowConfirm}
-            title="¿Deseas finalizar este flujo?"
-            description="Una vez finalizado el flujo de Gestión Académica, los pasos quedarán disponibles para consulta y seguimiento. Esta acción no se ejecuta automáticamente al asignar RA."
+            title="¿Estás seguro de finalizar todo el flujo?"
+            description="Al confirmar, se guardará la asignación del último curso y se finalizará el flujo de Gestión Académica. Después de completarlo, los pasos quedarán disponibles únicamente para consulta y seguimiento."
             confirmLabel="Finalizar"
             variant="warning"
             onCancel={() => setShowFinishAcademicFlowConfirm(false)}

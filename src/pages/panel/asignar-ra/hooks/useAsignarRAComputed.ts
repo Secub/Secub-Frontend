@@ -15,6 +15,7 @@ import {
   getAssignmentRaId,
   getCompetenciasForCycle,
   getCourseCompetencias,
+  getLearningResults,
   getMappedCompetenceIdsForCourse,
   getUniqueAssignmentCount,
   hasMeasurementForAssignment,
@@ -98,27 +99,39 @@ export function useAsignarRAComputed({
     [records, selectedCycleId],
   );
 
-  const isCurrentCycleAssignmentComplete = useMemo(() => {
-    if (!selectedCycle || !courses.length) return false;
+  const isCourseAssignmentComplete = useCallback(
+    (courseId: string) => {
+      if (!selectedCycle) return false;
 
-    return courses.every((course) => {
-      const mappedCompetenceIds = getMappedCompetenceIdsForCourse(course.id, selectedCycle, mapeosSource);
+      const mappedCompetenceIds = getMappedCompetenceIdsForCourse(courseId, selectedCycle, mapeosSource);
       if (mappedCompetenceIds.size === 0) return false;
 
       const requiredCompetencias = allCompetencias.filter((competencia) => mappedCompetenceIds.has(competencia.id));
       if (!requiredCompetencias.length) return false;
 
-      return requiredCompetencias.every((competencia) =>
-        records.some(
-          (record) =>
-            record.cicloId === selectedCycle.id &&
-            getAssignmentCourseId(record) === course.id &&
-            getAssignmentCompetenciaId(record) === competencia.id &&
-            Boolean(getAssignmentRaId(record)),
-        ),
+      const courseAssignments = records.filter(
+        (record) => record.cicloId === selectedCycle.id && getAssignmentCourseId(record) === courseId,
       );
-    });
-  }, [allCompetencias, courses, mapeosSource, records, selectedCycle]);
+
+      return requiredCompetencias.every((competencia) => {
+        const validRaIds = new Set(getLearningResults(competencia).map((ra) => ra.id).filter(Boolean));
+        const assignedRaIds = new Set(
+          courseAssignments
+            .filter((record) => getAssignmentCompetenciaId(record) === competencia.id)
+            .map(getAssignmentRaId)
+            .filter((raId) => Boolean(raId) && validRaIds.has(raId)),
+        );
+
+        return assignedRaIds.size >= 1 && assignedRaIds.size <= 4;
+      });
+    },
+    [allCompetencias, mapeosSource, records, selectedCycle],
+  );
+
+  const isCurrentCycleAssignmentComplete = useMemo(() => {
+    if (!selectedCycle || !courses.length) return false;
+    return courses.every((course) => isCourseAssignmentComplete(course.id));
+  }, [courses, isCourseAssignmentComplete, selectedCycle]);
 
   const getCourseAssignments = useCallback(
     (courseId: string) => {
@@ -178,5 +191,6 @@ export function useAsignarRAComputed({
     courseRows,
     getCourseAssignments,
     getCourseStatus,
+    isCourseAssignmentComplete,
   };
 }

@@ -4,7 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
@@ -66,7 +66,8 @@ export default function CompetenciasRaFormacionPage() {
 
   const workflowProgress = useAcademicWorkflowProgress();
   const isCompetenciasStepComplete = Boolean(workflowProgress["competencias-ra"]) && invalidCompetencias.length === 0;
-  const showFlowActionBar = !isStepLocked && permissions.canRead && hasRecords;
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
   const handleNextStep = () => {
     if (!isCompetenciasStepComplete) return;
 
