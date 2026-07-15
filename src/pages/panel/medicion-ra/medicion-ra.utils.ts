@@ -1,6 +1,7 @@
 import { ACCEPTED_FILE_FORMATS, performanceLevels, TARGET_PERCENTAGE } from "./medicion-ra.mock";
 import type {
   Competence,
+  CourseMeasurementSummary,
   CourseRecord,
   EvaluationMatrix,
   InstrumentByRa,
@@ -188,6 +189,90 @@ export function getCompletionPercentage(
   }, 0);
 
   return Math.round((completedCells / totalCells) * 100);
+}
+
+export function getCourseMeasurementSummary({
+  course,
+  evaluations,
+  instruments,
+  evidenceByCompetence,
+  isLocked = false,
+}: {
+  course: CourseRecord;
+  evaluations?: EvaluationMatrix;
+  instruments?: InstrumentByRa;
+  evidenceByCompetence?: Record<string, { fileName?: string }>;
+  isLocked?: boolean;
+}): CourseMeasurementSummary {
+  const normalizedEvaluations = normalizeEvaluationMatrix(course, evaluations);
+  const normalizedInstruments = normalizeInstrumentState(course, instruments);
+  const allRas = getAllLearningResults(course);
+
+  const totalEvaluationItems = course.students.length * allRas.length;
+  const completedEvaluationItems = course.students.reduce((count, student) => {
+    return (
+      count +
+      allRas.filter((ra) => Boolean(normalizedEvaluations[student.id]?.[ra.id])).length
+    );
+  }, 0);
+
+  const totalInstrumentItems = allRas.length;
+  const completedInstrumentItems = allRas.filter((ra) =>
+    Boolean(normalizedInstruments[ra.id]?.description?.trim()),
+  ).length;
+
+  const totalEvidenceItems = course.competences.length;
+  const completedEvidenceItems = course.competences.filter((competence) => {
+    const evidenceKey = getCompetenceStorageKey(course.id, competence.id);
+    return Boolean(evidenceByCompetence?.[evidenceKey]?.fileName?.trim());
+  }).length;
+
+  const totalRequiredItems = totalEvaluationItems + totalInstrumentItems + totalEvidenceItems;
+  const completedRequiredItems =
+    completedEvaluationItems + completedInstrumentItems + completedEvidenceItems;
+
+  const completedCompetences = course.competences.filter((competence) => {
+    const evidenceKey = getCompetenceStorageKey(course.id, competence.id);
+
+    return (
+      validateBeforeClosing({
+        course,
+        activeCompetence: competence,
+        evaluations: normalizedEvaluations,
+        instruments: normalizedInstruments,
+        evidenceFileName: evidenceByCompetence?.[evidenceKey]?.fileName ?? "",
+      }).type === "success"
+    );
+  }).length;
+
+  const totalCompetences = course.competences.length;
+  const progressPercentage = isLocked
+    ? 100
+    : totalRequiredItems
+      ? Math.round((completedRequiredItems / totalRequiredItems) * 100)
+      : 0;
+  const isCompleteByData = totalCompetences > 0 && completedCompetences === totalCompetences;
+  const status = isLocked || isCompleteByData
+    ? "completed"
+    : progressPercentage > 0
+      ? "in-progress"
+      : "pending";
+
+  return {
+    courseId: course.id,
+    status,
+    statusLabel: isLocked
+      ? "Finalizado"
+      : isCompleteByData
+        ? "Medición completa"
+        : status === "in-progress"
+          ? "En progreso"
+          : "Pendiente",
+    progressPercentage,
+    completedCompetences,
+    totalCompetences,
+    isLocked,
+  };
 }
 
 function getAllowedEvidenceExtensions() {

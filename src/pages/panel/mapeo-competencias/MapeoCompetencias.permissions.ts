@@ -123,10 +123,10 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
 
 export function getAccessRestrictedDescription(_role: MapeoCompetenciasRole) {
   if (RF05_ACCESS_POLICY === "director-only") {
-    return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias.";
+    return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias específicas.";
   }
 
-  return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias.";
+  return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias específicas.";
 }
 
 export function canManageMapeo(

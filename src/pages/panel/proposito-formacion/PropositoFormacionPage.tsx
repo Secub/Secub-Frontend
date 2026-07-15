@@ -1,8 +1,12 @@
 import {
+  FlowActionBar,
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
+import { ConfirmDialog } from "../../../components/ui";
 import PropositoDetailModal from "./components/PropositoDetailModal";
 import PropositoExportModal from "./components/PropositoExportModal";
 import PropositoFiltersPanel from "./components/PropositoFilters";
@@ -23,6 +27,7 @@ export default function PropositoFormacionPage() {
     hasRecords,
     filters,
     selectedRecord,
+    recordToDelete,
     detailOpen,
     formOpen,
     formMode,
@@ -35,13 +40,25 @@ export default function PropositoFormacionPage() {
     openEditModal,
     openDetailModal,
     handleDelete,
+    confirmDelete,
     handleFilterChange,
     handleFormSubmit,
     setFilters,
+    setRecordToDelete,
     setDetailOpen,
     setFormOpen,
     setExportFormat,
   } = page;
+
+  const workflowProgress = useAcademicWorkflowProgress();
+  const isPropositoStepComplete = Boolean(workflowProgress["proposito-formacion"]);
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
+  const handleNextStep = () => {
+    if (!isPropositoStepComplete) return;
+
+    navigateToRoute(buildRouteWithSearch(ROUTES.panelCompetenciasRa, { role: currentUser.role }));
+  };
 
   const pageActions = (
     <PropositoPageActions
@@ -75,7 +92,7 @@ export default function PropositoFormacionPage() {
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-24">
           <PropositoFiltersPanel
             user={currentUser}
             permissions={permissions}
@@ -99,6 +116,25 @@ export default function PropositoFormacionPage() {
         </div>
       )}
 
+      {showFlowActionBar ? (
+        <FlowActionBar
+          description={
+            isPropositoStepComplete
+              ? "El propósito de formación ya está guardado. Continúa al siguiente paso cuando hayas revisado la información."
+              : "Crea y guarda el propósito de formación requerido para habilitar el avance al siguiente paso."
+          }
+          showNext
+          nextLabel="Siguiente paso"
+          nextDisabled={!isPropositoStepComplete}
+          nextTitle={
+            isPropositoStepComplete
+              ? "Avanzar a Competencias y RA"
+              : "Completa y guarda el propósito de formación antes de avanzar."
+          }
+          onNext={handleNextStep}
+        />
+      ) : null}
+
       <PropositoDetailModal
         open={detailOpen}
         record={selectedRecord}
@@ -114,6 +150,16 @@ export default function PropositoFormacionPage() {
         record={selectedRecord}
         onClose={() => setFormOpen(false)}
         onSubmit={handleFormSubmit}
+      />
+
+      <ConfirmDialog
+        open={Boolean(recordToDelete)}
+        title="¿Estás seguro de que deseas eliminar este registro?"
+        description={`Se eliminará el propósito de formación de ${recordToDelete?.programaNombre ?? "este programa"}. Esta acción no se puede deshacer en los datos temporales actuales.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onCancel={() => setRecordToDelete(null)}
+        onConfirm={confirmDelete}
       />
 
       <PropositoExportModal

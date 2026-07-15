@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import WorkflowCompletionAlert from "../WorkflowCompletionAlert";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../app/appRoutes";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
@@ -39,6 +40,21 @@ export default function PanelLayout({
   const wasCompletedRef = useRef(isWorkflowCompleted);
   const hasMountedRef = useRef(false);
   const [showCompletionAlert, setShowCompletionAlert] = useState(false);
+
+  const handleCompletionAlertClose = () => {
+    const dashboardParams = new URLSearchParams(window.location.search);
+    dashboardParams.set("role", currentUser.role);
+    dashboardParams.delete("view");
+    dashboardParams.delete("cycleId");
+    dashboardParams.delete("courseId");
+    dashboardParams.delete("status");
+
+    setShowCompletionAlert(false);
+    navigateToRoute(
+      buildRouteWithSearch(ROUTES.panelDashboard, dashboardParams),
+      { replace: true },
+    );
+  };
 
   useEffect(() => {
     if (!hasMountedRef.current) {
@@ -91,7 +107,7 @@ export default function PanelLayout({
 
       <WorkflowCompletionAlert
         open={showCompletionAlert}
-        onClose={() => setShowCompletionAlert(false)}
+        onClose={handleCompletionAlertClose}
       />
     </div>
   );

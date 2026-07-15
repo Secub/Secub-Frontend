@@ -1,9 +1,14 @@
 import {
+  FlowActionBar,
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { ROUTES } from "../../../app/appRoutes";
+import {
+  getAcademicWorkflowState,
+  useAcademicWorkflowProgress,
+} from "../../../components/panel/academicWorkflow";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import CicloAccessState from "./components/CicloAccessState";
 import CicloFilters from "./components/CicloFilters";
@@ -47,6 +52,18 @@ export default function CicloPage() {
     setSavedMessage,
   } = page;
 
+  const workflowProgress = useAcademicWorkflowProgress();
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar =
+    isWorkflowActive &&
+    !isStepLocked &&
+    permissions.canReadSummary &&
+    hasCycles &&
+    Boolean(workflowProgress.ciclo);
+  const handleNextStep = () => {
+    navigateToRoute(buildRouteWithSearch(ROUTES.panelAsignarRa, { role: user.role }));
+  };
+
   const pageActions = (
     <CicloPageActions
       canCreate={canCreateCycle}
@@ -61,11 +78,6 @@ export default function CicloPage() {
       title="Creación del ciclo"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles ? pageActions : undefined}
-      breadcrumbItems={[
-        { label: "Dashboard", href: ROUTES.panelDashboard },
-        { label: "Gestión Académica" },
-        { label: "Creación del ciclo" },
-      ]}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -80,12 +92,12 @@ export default function CicloPage() {
         <WorkflowStateCard
           title="Aún no hay ciclos de medición creados"
           description="Cuando se cree el primer ciclo, se habilitará el resumen con filtros, cursos seleccionados, periodo, estado y responsable."
-          actionLabel={canCreateCycle ? "Crear ciclo" : undefined}
+          actionLabel={canCreateCycle ? "Crear ciclo de medición" : undefined}
           onAction={canCreateCycle ? openCreateModal : undefined}
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-24">
           <CicloSavedMessage message={savedMessage} onClose={() => setSavedMessage("")} />
           {activeCycleLockMessage ? (
             <CicloSavedMessage message={activeCycleLockMessage} variant="warning" />
@@ -115,6 +127,15 @@ export default function CicloPage() {
         </div>
       )}
 
+      {showFlowActionBar ? (
+        <FlowActionBar
+          description="El ciclo de medición ya está guardado. Continúa a Asignar RA cuando hayas revisado la selección de cursos."
+          showNext
+          nextLabel="Siguiente paso"
+          onNext={handleNextStep}
+        />
+      ) : null}
+
       <CicloFormModal
         open={formOpen}
         mode={modalMode}
@@ -128,10 +149,10 @@ export default function CicloPage() {
 
       <ConfirmDialog
         open={Boolean(cycleToDelete)}
-        title="Eliminar ciclo"
-        description={`¿Estás segura de que deseas eliminar ${cycleToDelete?.nombre ?? "este ciclo"}? Esta acción solo afectará los datos temporales actuales.`}
-        confirmLabel="Aceptar"
-        cancelLabel="Declinar"
+        title="¿Estás seguro de que deseas eliminar este registro?"
+        description={`Se eliminará ${cycleToDelete?.nombre ?? "este ciclo"}. Esta acción no se puede deshacer en los datos temporales actuales.`}
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
         variant="danger"
         onCancel={() => setCycleToDelete(null)}
         onConfirm={confirmDelete}

@@ -18,8 +18,10 @@ export function useMedicionRAActions({
   course,
   isLastCompetence,
   isSelectedCourseLocked,
+  nextPendingCourse,
   pendingAutoScrollCompetenceIdRef,
   setActiveCompetenceId,
+  setSelectedCourseId,
   setCompletedCompetenceIds,
   setEvaluationsByCourse,
   setEvidenceByCompetence,
@@ -39,8 +41,10 @@ export function useMedicionRAActions({
   course: CourseRecord;
   isLastCompetence: boolean;
   isSelectedCourseLocked: boolean;
+  nextPendingCourse?: CourseRecord;
   pendingAutoScrollCompetenceIdRef: MutableRefObject<string | null>;
   setActiveCompetenceId: (competenceId: string) => void;
+  setSelectedCourseId: (courseId: string) => void;
   setCompletedCompetenceIds: Dispatch<SetStateAction<string[]>>;
   setEvaluationsByCourse: Dispatch<SetStateAction<Record<string, EvaluationMatrix>>>;
   setEvidenceByCompetence: Dispatch<SetStateAction<Record<string, EvidenceState>>>;
@@ -134,22 +138,27 @@ export function useMedicionRAActions({
   const handleSaveProgress = () => {
     if (isSelectedCourseLocked) return;
 
-    const result = validateCurrentCompetence();
-
-    if (result.type === "error") {
-      handleValidationError(result);
-      return;
-    }
-
     setShowValidationErrors(false);
-    markActiveCompetenceAsCompleted();
 
     setFeedback({
       type: "info",
       title: "Progreso guardado",
       message:
-        "La información de la competencia seleccionada quedó conservada correctamente en mockBackend. Cuando exista backend, esta acción enviará el avance parcial al servicio correspondiente.",
+        "El avance parcial del curso actual quedó conservado en mockBackend sin exigir completar toda la competencia, sin avanzar y sin finalizar la medición.",
     });
+  };
+
+  const validateCourseBeforeCourseFlowAction = () => {
+    const courseValidation = validateSelectedCourseBeforeFinalizing();
+
+    if (courseValidation.type === "error") {
+      handleValidationError(courseValidation);
+      return false;
+    }
+
+    setShowValidationErrors(false);
+    setCompletedCompetenceIds(course.competences.map((competence) => competence.id));
+    return true;
   };
 
   const handlePrimaryAction = () => {
@@ -180,15 +189,32 @@ export function useMedicionRAActions({
       return;
     }
 
-    const courseValidation = validateSelectedCourseBeforeFinalizing();
+    if (!validateCourseBeforeCourseFlowAction()) return;
 
-    if (courseValidation.type === "error") {
-      handleValidationError(courseValidation);
-      return;
-    }
-
-    setShowValidationErrors(false);
     setShowFinishModal(true);
+  };
+
+  const handleRequestFinishEvaluation = () => {
+    if (isSelectedCourseLocked) return;
+    if (!validateCourseBeforeCourseFlowAction()) return;
+
+    setShowFinishModal(true);
+  };
+
+  const handleNextCourse = () => {
+    if (!nextPendingCourse) return;
+
+    if (!isSelectedCourseLocked && !validateCourseBeforeCourseFlowAction()) return;
+
+    pendingAutoScrollCompetenceIdRef.current = nextPendingCourse.competences[0]?.id ?? null;
+    setSelectedCourseId(nextPendingCourse.id);
+    setActiveCompetenceId(nextPendingCourse.competences[0]?.id ?? "");
+
+    setFeedback({
+      type: "success",
+      title: "Curso guardado",
+      message: `La medición de ${course.name} quedó guardada. Continúa con ${nextPendingCourse.name}.`,
+    });
   };
 
   const handleConfirmFinishEvaluation = () => {
@@ -219,6 +245,8 @@ export function useMedicionRAActions({
     handleImprovementPlanChange,
     handleSaveProgress,
     handlePrimaryAction,
+    handleRequestFinishEvaluation,
+    handleNextCourse,
     handleConfirmFinishEvaluation,
     handleCancelFinishEvaluation,
     handleCloseFeedback,

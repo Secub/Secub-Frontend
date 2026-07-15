@@ -5,11 +5,16 @@ import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
 import { getCurrentMockUser, getNeutralUserCargo } from "../../../services/auth/mockUser";
 import { clearSelectedProgramId, getSelectedProgram } from "../../../services/programSelection";
 
+const normalizeSettingsLabel = (label: string) =>
+  label.replace(/Jefatura/gi, "Dirección");
+
 export default function UserSettingsPage() {
   const currentUser = getCurrentMockUser();
   const selectedProgram = getSelectedProgram();
-  const roleLabel = getNeutralUserCargo(currentUser);
-  const activeCargoLabel = currentUser.cargo;
+  const displayUserName = normalizeSettingsLabel(currentUser.nombre);
+  const displayEmail = currentUser.email.replace(/jefatura/gi, "direccion");
+  const roleLabel = normalizeSettingsLabel(getNeutralUserCargo(currentUser));
+  const activeCargoLabel = normalizeSettingsLabel(currentUser.cargo);
 
   const handleChangeProgram = () => {
     clearSelectedProgramId();
@@ -21,19 +26,15 @@ export default function UserSettingsPage() {
       currentStep="ajustes"
       title="Ajustes de usuario"
       description="Consulta tu perfil activo y gestiona las opciones generales de la experiencia SECUB."
-      breadcrumbItems={[
-        { label: "Panel", href: ROUTES.panelDashboard },
-        { label: "Ajustes de usuario" },
-      ]}
     >
-      <div className="max-w-4xl space-y-6">
+      <div className="w-full space-y-6">
         <section className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             <div
               className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] font-heading text-xl font-bold text-[var(--color-white)]"
               aria-hidden="true"
             >
-              {currentUser.nombre
+              {displayUserName
                 .trim()
                 .split(/\s+/)
                 .slice(0, 2)
@@ -47,7 +48,7 @@ export default function UserSettingsPage() {
                 Perfil activo
               </p>
               <h2 className="mt-1 font-heading text-2xl font-semibold text-[var(--secub-text)]">
-                {currentUser.nombre}
+                {displayUserName}
               </h2>
               <p className="mt-1 text-sm font-medium text-[var(--secub-muted-text)]">
                 {activeCargoLabel}
@@ -55,13 +56,13 @@ export default function UserSettingsPage() {
             </div>
           </div>
 
-          <dl className="mt-8 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4">
               <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--secub-muted-text)]">
                 Correo institucional
               </dt>
               <dd className="mt-2 break-words text-sm font-semibold text-[var(--secub-text)]">
-                {currentUser.email}
+                {displayEmail}
               </dd>
             </div>
 
@@ -75,7 +76,7 @@ export default function UserSettingsPage() {
             </div>
 
             {selectedProgram ? (
-              <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4 sm:col-span-2">
+              <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4 md:col-span-2 xl:col-span-1">
                 <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--secub-muted-text)]">
                   Programa seleccionado
                 </dt>
@@ -91,7 +92,7 @@ export default function UserSettingsPage() {
           className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]"
           aria-labelledby="settings-options-title"
         >
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--secub-muted-text)]">
               Opciones
             </p>
@@ -103,7 +104,7 @@ export default function UserSettingsPage() {
             </p>
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <button
               type="button"
               onClick={() => navigateToRoute(ROUTES.panelAccessibility, { preserveSearch: true })}

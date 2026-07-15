@@ -410,19 +410,36 @@ export function getCompletedAcademicWorkflowStepsCount(progress: AcademicWorkflo
   return academicWorkflowSteps.filter((stepKey) => Boolean(progress[stepKey])).length;
 }
 
-export function isAcademicWorkflowCompleted(progress: AcademicWorkflowProgress = readAcademicWorkflowProgress()) {
+export function isAcademicWorkflowDataComplete(progress: AcademicWorkflowProgress = readAcademicWorkflowProgress()) {
   return academicWorkflowSteps.every((stepKey) => Boolean(progress[stepKey]));
+}
+
+export function isAcademicWorkflowCompleted(progress: AcademicWorkflowProgress = readAcademicWorkflowProgress()) {
+  const activePlan = getActiveAcademicPlanInstance();
+  return activePlan.status === "completed" && isAcademicWorkflowDataComplete(progress);
 }
 
 export function getAcademicWorkflowState(
   progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ): AcademicWorkflowState {
-  if (isAcademicWorkflowCompleted(progress)) {
+  const activePlan = getActiveAcademicPlanInstance();
+
+  if (activePlan.status === "completed" && isAcademicWorkflowDataComplete(progress)) {
     return "completed";
   }
 
-  const activePlan = getActiveAcademicPlanInstance();
   return activePlan.status === "newAcademicPlan" ? "newAcademicPlan" : "inProgress";
+}
+
+export function completeAcademicWorkflowFromCurrentProgress(
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
+) {
+  if (!isAcademicWorkflowDataComplete(progress)) return null;
+
+  return markActiveAcademicPlanCompleted({
+    completedStepCount: academicWorkflowSteps.length,
+    totalStepCount: academicWorkflowSteps.length,
+  });
 }
 
 function buildInheritedRecordId(entityKey: string, newPlanId: string, sourceRecordId: string) {
@@ -492,7 +509,11 @@ export function getNewAcademicPlanRenewalAvailability(
   const activePlan = getActiveAcademicPlanInstance();
   const planForValidation: AcademicPlanInstance = {
     ...activePlan,
-    status: isAcademicWorkflowCompleted(progress) ? "completed" : activePlan.status,
+    status: isAcademicWorkflowCompleted(progress)
+      ? "completed"
+      : activePlan.status === "completed"
+        ? "inProgress"
+        : activePlan.status,
   };
 
   return getAcademicPlanRenewalAvailability(planForValidation);
@@ -558,12 +579,6 @@ export function useAcademicWorkflowProgress() {
       const nextProgress = readAcademicWorkflowProgress();
       setProgress(nextProgress);
 
-      if (isAcademicWorkflowCompleted(nextProgress)) {
-        markActiveAcademicPlanCompleted({
-          completedStepCount: academicWorkflowSteps.length,
-          totalStepCount: academicWorkflowSteps.length,
-        });
-      }
     };
 
     refreshProgress();

@@ -51,7 +51,7 @@ export default function MapeoCompetenciasSemestreResumenCard({
           </p>
         </div>
         <div className="rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gray-4)]">Competencias</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gray-4)]">Competencias específicas</p>
           <p className="mt-1 text-lg font-semibold text-[var(--color-secondary-4)]">
             {new Set(semestre.niveles.map((nivel) => nivel.competenciaId)).size}
           </p>

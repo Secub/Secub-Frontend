@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { GoInfo, GoX } from "react-icons/go";
-import { Badge, Select } from "../../../../components/ui";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { GoInfo } from "react-icons/go";
+import { Badge, Button, Select } from "../../../../components/ui";
 import type {
   CompetenciaRaDemoRecord,
   CursoAsis,
@@ -26,6 +27,9 @@ interface MapeoCompetenciasSemesterStepProps {
   competencias: CompetenciaRaDemoRecord[];
   nivelesDraft: NivelesDraft;
   disabled?: boolean;
+  isConfirmed: boolean;
+  isConfirmReady: boolean;
+  onConfirm: () => void;
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
 }
 
@@ -33,6 +37,7 @@ interface CompetenciaHeaderTooltipProps {
   competencia: CompetenciaRaDemoRecord;
   displayName: string;
   isOpen: boolean;
+  onOpen: () => void;
   onToggle: () => void;
   onClose: () => void;
 }
@@ -43,60 +48,142 @@ function getCompetenciaDescription(competencia: CompetenciaRaDemoRecord) {
 
   if (description) return description;
   if (name) return name;
-  return "Esta competencia no tiene una descripción registrada todavía.";
+  return "Esta competencia específica no tiene una descripción registrada todavía.";
 }
 
 function CompetenciaHeaderTooltip({
   competencia,
   displayName,
   isOpen,
+  onOpen,
   onToggle,
   onClose,
 }: CompetenciaHeaderTooltipProps) {
   const tooltipId = `competencia-tooltip-${competencia.id}`;
   const description = getCompetenciaDescription(competencia);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 320 });
 
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center justify-center gap-1.5">
-        <span className="line-clamp-2 text-center leading-4">
-          {displayName}
-        </span>
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
 
-        <button
-          type="button"
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--color-secondary-1)] bg-white text-[var(--color-secondary-1)] transition hover:bg-[var(--color-secondary-1)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.28)] focus-visible:ring-offset-2"
-          aria-label={`Ver descripción de ${displayName}`}
-          aria-describedby={isOpen ? tooltipId : undefined}
-          aria-expanded={isOpen}
-          onClick={onToggle}
-        >
-          <GoInfo aria-hidden="true" className="text-sm" />
-        </button>
-      </div>
+  const scheduleClose = () => {
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(onClose, 120);
+  };
 
-      {isOpen ? (
+  const updatePosition = () => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportPadding = 12;
+    const gap = 10;
+    const width = Math.min(360, Math.max(240, window.innerWidth - viewportPadding * 2));
+    const tooltipHeight = tooltipRef.current?.offsetHeight ?? 140;
+    const preferredLeft = triggerRect.left + triggerRect.width / 2 - width / 2;
+    const left = Math.min(
+      Math.max(preferredLeft, viewportPadding),
+      Math.max(viewportPadding, window.innerWidth - width - viewportPadding),
+    );
+    const canRenderBelow = triggerRect.bottom + gap + tooltipHeight <= window.innerHeight - viewportPadding;
+    const top = canRenderBelow
+      ? triggerRect.bottom + gap
+      : Math.max(viewportPadding, triggerRect.top - tooltipHeight - gap);
+
+    setPosition({ top, left, width });
+  };
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+  }, [isOpen, competencia.id, description]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleViewportChange = () => updatePosition();
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target) || tooltipRef.current?.contains(target)) return;
+      onClose();
+    };
+
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => () => clearCloseTimer(), []);
+
+  const tooltip = isOpen && typeof document !== "undefined"
+    ? createPortal(
         <div
+          ref={tooltipRef}
           id={tooltipId}
           role="tooltip"
-          className="w-full rounded-lg border border-[var(--color-secondary-5)] bg-[var(--color-surface-soft)] p-3 text-left text-xs font-normal leading-5 text-[var(--color-gray-2)] shadow-[var(--shadow-sm)]"
+          className="fixed z-50 rounded-lg border border-[var(--color-secondary-5)] bg-white p-4 text-left text-xs font-normal leading-5 text-[var(--color-gray-2)] shadow-[var(--shadow-lg)]"
+          style={{ top: position.top, left: position.left, width: position.width }}
+          onMouseEnter={clearCloseTimer}
+          onMouseLeave={scheduleClose}
         >
-          <div className="mb-2 flex items-start justify-between gap-2">
-            <p className="font-semibold text-[var(--color-secondary-4)]">
-              Descripción de la competencia
-            </p>
-            <button
-              type="button"
-              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[var(--color-gray-4)] transition hover:bg-white hover:text-[var(--color-secondary-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
-              aria-label={`Cerrar descripción de ${displayName}`}
-              onClick={onClose}
-            >
-              <GoX aria-hidden="true" className="text-sm" />
-            </button>
-          </div>
+          <p className="mb-2 font-semibold text-[var(--color-secondary-4)]">
+            Descripción de la competencia específica
+          </p>
           <p>{description}</p>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <div className="flex items-center justify-center gap-1.5">
+      <span className="line-clamp-2 text-center leading-4">
+        {displayName}
+      </span>
+
+      <button
+        ref={triggerRef}
+        type="button"
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--color-secondary-1)] bg-white text-[var(--color-secondary-1)] transition hover:bg-[var(--color-secondary-1)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.28)] focus-visible:ring-offset-2"
+        aria-label={`Ver descripción de ${displayName}`}
+        aria-describedby={isOpen ? tooltipId : undefined}
+        aria-expanded={isOpen}
+        onMouseEnter={() => {
+          clearCloseTimer();
+          if (!isOpen) onOpen();
+        }}
+        onMouseLeave={scheduleClose}
+        onFocus={() => {
+          clearCloseTimer();
+          if (!isOpen) onOpen();
+        }}
+        onBlur={scheduleClose}
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse") return;
+          event.preventDefault();
+          onToggle();
+        }}
+        onClick={(event) => {
+          if (event.detail === 0) onToggle();
+        }}
+      >
+        <GoInfo aria-hidden="true" className="text-sm" />
+      </button>
+
+      {tooltip}
     </div>
   );
 }
@@ -109,6 +196,9 @@ export default function MapeoCompetenciasSemesterStep({
   competencias,
   nivelesDraft,
   disabled = false,
+  isConfirmed,
+  isConfirmReady,
+  onConfirm,
   onNivelChange,
 }: MapeoCompetenciasSemesterStepProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -152,7 +242,7 @@ export default function MapeoCompetenciasSemesterStep({
             Semestre {semestreNumero}
           </h3>
           <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-            Selecciona cómo aplica cada competencia al curso: Introduce, Refuerza, Afianza o No aplica.
+            Selecciona cómo aplica cada competencia específica al curso: Introduce, Refuerza, Afianza o No aplica.
           </p>
         </div>
 
@@ -161,12 +251,20 @@ export default function MapeoCompetenciasSemesterStep({
           <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
             {semestreNumero} de {totalSemestres}
           </span>
+          <Button
+            variant={isConfirmed ? "outline" : "primary"}
+            size="sm"
+            onClick={onConfirm}
+            disabled={disabled || !isConfirmReady}
+          >
+            {isConfirmed ? "Semestre confirmado" : "Confirmar semestre"}
+          </Button>
         </div>
       </div>
 
       {!nucleo ? (
         <div className="rounded-lg border border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-5 text-sm leading-6 text-[var(--color-gray-3)]">
-          Este semestre está pendiente por clasificar. Vuelve al paso de núcleos y selecciona una clasificación antes de mapear competencias.
+          Este semestre está pendiente por clasificar. Vuelve al paso de núcleos y selecciona una clasificación antes de mapear competencias específicas.
         </div>
       ) : cursos.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-8 text-center">
@@ -177,7 +275,7 @@ export default function MapeoCompetenciasSemesterStep({
       ) : competencias.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-8 text-center">
           <p className="text-sm text-[var(--color-gray-3)]">
-            No hay competencias activas para este programa y plan de estudios. Revisa el módulo Competencias y RA.
+            No hay competencias específicas activas para este programa y plan de estudios. Revisa el módulo Competencias y RA.
           </p>
         </div>
       ) : (
@@ -203,6 +301,7 @@ export default function MapeoCompetenciasSemesterStep({
                           competencia={competencia}
                           displayName={displayName}
                           isOpen={isOpen}
+                          onOpen={() => setOpenCompetenciaTooltipId(competencia.id)}
                           onToggle={() =>
                             setOpenCompetenciaTooltipId((currentId) =>
                               currentId === competencia.id ? null : competencia.id,
@@ -232,7 +331,7 @@ export default function MapeoCompetenciasSemesterStep({
 
                     {competencias.map((competencia) => {
                       const key = getMappingKey(curso.id, competencia.id);
-                      const nivel = nivelesDraft[key] ?? "Selecciona una opción";
+                      const nivel = nivelesDraft[key] ?? "";
 
                       return (
                         <td
@@ -240,9 +339,9 @@ export default function MapeoCompetenciasSemesterStep({
                           className="border-b border-[var(--color-gray-6)] px-3 py-4 align-top text-center"
                         >
                           <Select
-                            value={nivel}
+                            value={nivel || "no-aplica"}
                             options={nivelOptions}
-                            placeholder="Selecciona una opción"
+                            placeholder="No aplica"
                             disabled={disabled || !nucleo}
                             onChange={(event) =>
                               onNivelChange(
@@ -254,7 +353,7 @@ export default function MapeoCompetenciasSemesterStep({
                           />
 
                           <div className="mt-2 flex justify-center">
-                            <Badge variant={getNivelVariant(nivel)}>{getNivelShort(nivel) || "NA"}</Badge>
+                            <Badge variant={getNivelVariant(nivel || null)}>{getNivelShort(nivel || null)}</Badge>
                           </div>
                         </td>
                       );

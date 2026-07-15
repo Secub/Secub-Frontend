@@ -1,8 +1,12 @@
 import {
+  FlowActionBar,
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
+import { ConfirmDialog } from "../../../components/ui";
 import PerfilEgresoDetailModal from "./components/PerfilEgresoDetailModal";
 import PerfilEgresoExportModal from "./components/PerfilEgresoExportModal";
 import PerfilEgresoFilters from "./components/PerfilEgresoFilters";
@@ -23,6 +27,7 @@ export default function PerfilEgresoPage() {
     hasRecords,
     filters,
     selectedRecord,
+    recordToDelete,
     detailOpen,
     formOpen,
     formMode,
@@ -35,13 +40,25 @@ export default function PerfilEgresoPage() {
     openEditModal,
     openDetailModal,
     handleDelete,
+    confirmDelete,
     handleFilterChange,
     handleFormSubmit,
     setFilters,
+    setRecordToDelete,
     setDetailOpen,
     setFormOpen,
     setExportFormat,
   } = page;
+
+  const workflowProgress = useAcademicWorkflowProgress();
+  const isPerfilStepComplete = Boolean(workflowProgress["perfil-egreso"]);
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
+  const handleNextStep = () => {
+    if (!isPerfilStepComplete) return;
+
+    navigateToRoute(buildRouteWithSearch(ROUTES.panelPropositoFormacion, { role: currentUser.role }));
+  };
 
   const pageActions = (
     <PerfilEgresoPageActions
@@ -75,7 +92,7 @@ export default function PerfilEgresoPage() {
           helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-24">
           <PerfilEgresoFilters
             user={currentUser}
             permissions={permissions}
@@ -96,6 +113,25 @@ export default function PerfilEgresoPage() {
         </div>
       )}
 
+      {showFlowActionBar ? (
+        <FlowActionBar
+          description={
+            isPerfilStepComplete
+              ? "El perfil de egreso ya está guardado. Continúa al siguiente paso cuando hayas revisado la información."
+              : "Crea y guarda el perfil de egreso requerido para habilitar el avance al siguiente paso."
+          }
+          showNext
+          nextLabel="Siguiente paso"
+          nextDisabled={!isPerfilStepComplete}
+          nextTitle={
+            isPerfilStepComplete
+              ? "Avanzar a Propósito de Formación"
+              : "Completa y guarda el perfil de egreso antes de avanzar."
+          }
+          onNext={handleNextStep}
+        />
+      ) : null}
+
       <PerfilEgresoDetailModal
         open={detailOpen}
         record={selectedRecord}
@@ -111,6 +147,16 @@ export default function PerfilEgresoPage() {
         record={selectedRecord}
         onClose={() => setFormOpen(false)}
         onSubmit={handleFormSubmit}
+      />
+
+      <ConfirmDialog
+        open={Boolean(recordToDelete)}
+        title="¿Estás seguro de que deseas eliminar este registro?"
+        description={`Se eliminará el perfil de egreso de ${recordToDelete?.programaNombre ?? "este programa"}. Esta acción no se puede deshacer en los datos temporales actuales.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onCancel={() => setRecordToDelete(null)}
+        onConfirm={confirmDelete}
       />
 
       <PerfilEgresoExportModal

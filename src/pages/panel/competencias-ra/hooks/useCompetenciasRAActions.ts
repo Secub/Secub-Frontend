@@ -35,6 +35,7 @@ export function useCompetenciasRAActions({
   const [raModalMode, setRaModalMode] = useState<"create" | "edit" | null>(null);
   const [selectedRaRecord, setSelectedRaRecord] = useState<CompetenciasRaEnriched | null>(null);
   const [selectedRa, setSelectedRa] = useState<ResultadoAprendizaje | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<CompetenciasRaEnriched | null>(null);
   const [raDraft, setRaDraft] = useState("");
   const [raError, setRaError] = useState("");
 
@@ -134,25 +135,29 @@ export function useCompetenciasRAActions({
   };
 
   const handleDelete = (record: CompetenciasRaEnriched) => {
-    const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar la competencia de ${record.programaNombre}? También se eliminarán sus RA asociados y se limpiarán relaciones demo vinculadas.`,
-    );
-    if (!confirmed) return;
+    setRecordToDelete(record);
+  };
 
-    const nextRecords = mockBackend.remove<CompetenciasRaFormacionRecord>("competenciasRa", record.id, currentUser);
+  const confirmDelete = () => {
+    if (!recordToDelete) return;
+
+    const nextRecords = mockBackend.remove<CompetenciasRaFormacionRecord>("competenciasRa", recordToDelete.id, currentUser);
     setRecords(nextRecords);
 
-    if (selectedRecord?.id === record.id) {
+    if (selectedRecord?.id === recordToDelete.id) {
       setSelectedRecord(null);
       setDetailOpen(false);
       setFormOpen(false);
       closeRaModal();
     }
+
+    setRecordToDelete(null);
   };
 
   return {
     raModalMode,
     selectedRaRecord,
+    recordToDelete,
     raDraft,
     raError,
     openCreateRaModal,
@@ -161,6 +166,8 @@ export function useCompetenciasRAActions({
     handleSaveRa,
     handleSaveCompetenciaDescription,
     handleDelete,
+    confirmDelete,
+    setRecordToDelete,
     setRaDraft,
     setRaError,
   };

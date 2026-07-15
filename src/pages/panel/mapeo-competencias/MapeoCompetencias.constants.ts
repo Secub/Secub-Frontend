@@ -38,7 +38,7 @@ export const NUCLEOS: Array<{
   {
     value: "sintesis",
     label: "Síntesis",
-    description: "Etapa final donde el estudiante integra competencias en contextos académicos o profesionales.",
+    description: "Etapa final donde el estudiante integra competencias específicas en contextos académicos o profesionales.",
     variant: "success",
   },
 ];
@@ -54,7 +54,7 @@ export const NIVELES_COMPROMISO: Array<{
     value: "no-aplica",
     short: "NA",
     label: "No Aplica (NA)",
-    description: "El curso no aborda ni contribuye al desarrollo de esta competencia.",
+    description: "El curso no aborda ni contribuye al desarrollo de esta competencia específica.",
     variant: "neutral",
   },
   {
@@ -62,7 +62,7 @@ export const NIVELES_COMPROMISO: Array<{
     short: "A",
     label: "Afianza (A)",
     description:
-      "El curso afianza la competencia. El estudiante demuestra mayor dominio, integración y aplicación de la competencia en contextos académicos o profesionales.",
+      "El curso afianza la competencia específica. El estudiante demuestra mayor dominio, integración y aplicación de la competencia específica en contextos académicos o profesionales.",
     variant: "success",
   },
   {
@@ -70,7 +70,7 @@ export const NIVELES_COMPROMISO: Array<{
     short: "R",
     label: "Refuerza (R)",
     description:
-      "El curso refuerza la competencia previamente introducida. Se profundizan los conceptos y se consolidan habilidades mediante aplicaciones más complejas.",
+      "El curso refuerza la competencia específica previamente introducida. Se profundizan los conceptos y se consolidan habilidades mediante aplicaciones más complejas.",
     variant: "warning",
   },
   {
@@ -78,7 +78,7 @@ export const NIVELES_COMPROMISO: Array<{
     short: "I",
     label: "Introduce (I)",
     description:
-      "El curso introduce la competencia al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con la competencia.",
+      "El curso introduce la competencia específica al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con la competencia específica.",
     variant: "info",
   },
   

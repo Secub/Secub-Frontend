@@ -1,9 +1,11 @@
-import { GoArrowLeft, GoCheckCircle, GoClock, GoGoal } from "react-icons/go";
-import { Badge, Button } from "../../../../components/ui";
+import { useEffect, useMemo, useState } from "react";
+import { GoArrowLeft, GoCheckCircle, GoGoal } from "react-icons/go";
+import { Badge } from "../../../../components/ui";
+import { FlowActionBar } from "../../../../components/panel";
 import MapeoCompetenciasCardInfoCompromiso from "./MapeoCompetenciasCardInfoCompromiso";
 import MapeoCompetenciasSemesterStep from "./MapeoCompetenciasSemesterStep";
 import type { CompetenciaRaDemoRecord, CursoAsis, NivelCompromiso, NivelesDraft, NucleoFormacion } from "../MapeoCompetencias.types";
-import { buildSemesterNumbers, getMappingKey, getNucleoLabel } from "../MapeoCompetencias.utils";
+import { buildSemesterNumbers, getNucleoLabel, hasSemesterAssignments, isSemesterFlowComplete, shouldRequireSemesterConfirmation } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasIraStepProps {
   activeSemester: number;
@@ -27,20 +29,6 @@ interface SemesterFlowProps {
   completedSemesterIds: string[];
   nucleosDraft: Record<number, NucleoFormacion | null>;
   onActiveSemesterChange: (semester: number) => void;
-}
-
-function isSemesterComplete(
-  semester: number,
-  coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
-  nivelesDraft: NivelesDraft,
-) {
-  const cursos = coursesBySemester[semester] ?? [];
-  if (!cursos.length || !competencias.length) return false;
-
-  return cursos.every((curso) =>
-    competencias.every((competencia) => Boolean(nivelesDraft[getMappingKey(curso.id, competencia.id)])),
-  );
 }
 
 function SemesterFlow({
@@ -143,9 +131,30 @@ export default function MapeoCompetenciasIraStep({
   onFinish,
 }: MapeoCompetenciasIraStepProps) {
   const semesters = buildSemesterNumbers(totalSemestres);
+  const [confirmedSemesterIds, setConfirmedSemesterIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    setConfirmedSemesterIds((current) =>
+      current.filter((semester) => hasSemesterAssignments(semester, coursesBySemester, competencias, nivelesDraft)),
+    );
+  }, [competencias, coursesBySemester, nivelesDraft, totalSemestres]);
+
+  const currentSemesterReady = useMemo(
+    () => hasSemesterAssignments(activeSemester, coursesBySemester, competencias, nivelesDraft),
+    [activeSemester, competencias, coursesBySemester, nivelesDraft],
+  );
+  const isCurrentSemesterConfirmed = confirmedSemesterIds.includes(activeSemester);
+  const confirmRequired = shouldRequireSemesterConfirmation(isCurrentSemesterConfirmed);
+
   const completedSemesterIds = semesters
-    .filter((semester) => isSemesterComplete(semester, coursesBySemester, competencias, nivelesDraft))
+    .filter((semester) => isSemesterFlowComplete(semester, coursesBySemester, competencias, nivelesDraft, confirmedSemesterIds.includes(semester)))
     .map((semester) => `semestre-${semester}`);
+
+  const handleConfirmCurrentSemester = () => {
+    setConfirmedSemesterIds((current) =>
+      current.includes(activeSemester) ? current : [...current, activeSemester].sort((a, b) => a - b),
+    );
+  };
 
   return (
     <div className="space-y-6 pb-24">
@@ -156,7 +165,7 @@ export default function MapeoCompetenciasIraStep({
               Flujo por semestres
             </h2>
             <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-              Selecciona cada semestre para definir el nivel de compromiso de sus cursos frente a las competencias.
+              Selecciona cada semestre para definir el nivel de compromiso de sus cursos frente a las competencias específicas.
             </p>
           </div>
 
@@ -184,55 +193,40 @@ export default function MapeoCompetenciasIraStep({
         competencias={competencias}
         nivelesDraft={nivelesDraft}
         disabled={!canManage}
-        onNivelChange={onNivelChange}
+        isConfirmed={isCurrentSemesterConfirmed}
+        isConfirmReady={Boolean(nucleosDraft[activeSemester]) && currentSemesterReady}
+        onConfirm={handleConfirmCurrentSemester}
+        onNivelChange={(cursoId, competenciaId, nivel) => {
+          if (confirmedSemesterIds.includes(activeSemester)) {
+            setConfirmedSemesterIds((current) => current.filter((semester) => semester !== activeSemester));
+          }
+          onNivelChange(cursoId, competenciaId, nivel);
+        }}
       />
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-6 py-4 shadow-[var(--shadow-lg)] xl:left-[320px]">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <p className="max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Guarda avances parciales o finaliza cuando la matriz I-R-A-NA esté completa para todos los semestres con cursos y competencias.
-          </p>
-
-          <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
-            <Button
-              variant="outline"
-              leftIcon={<GoArrowLeft className="text-lg" />}
-              onClick={() => onActiveSemesterChange(Math.max(1, activeSemester - 1))}
-              disabled={activeSemester <= 1}
-            >
-              Anterior
-            </Button>
-
-            <Button
-              variant="outline"
-              leftIcon={<GoClock className="text-lg" />}
-              onClick={onSave}
-              disabled={!canManage}
-            >
-              Guardar progreso
-            </Button>
-
-            {activeSemester < totalSemestres ? (
-              <Button
-                variant="primary"
-                leftIcon={<GoCheckCircle className="text-lg" />}
-                onClick={() => onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1))}
-              >
-                Siguiente semestre
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                leftIcon={<GoCheckCircle className="text-lg" />}
-                onClick={onFinish}
-                disabled={!canManage}
-              >
-                Finalizar mapeo
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+      <FlowActionBar
+        description="Guarda avances parciales o finaliza cuando la matriz I-R-A-NA esté completa para todos los semestres con cursos y competencias específicas."
+        actionsBefore={[
+          {
+            label: "Anterior",
+            onClick: () => onActiveSemesterChange(Math.max(1, activeSemester - 1)),
+            disabled: activeSemester <= 1,
+            variant: "outline",
+            leftIcon: <GoArrowLeft className="text-lg" />,
+          },
+        ]}
+        showSaveProgress
+        onSaveProgress={onSave}
+        saveDisabled={!canManage}
+        showNext={activeSemester < totalSemestres}
+        nextLabel="Siguiente semestre"
+        onNext={() => onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1))}
+        nextDisabled={confirmRequired || !canManage}
+        showFinish={activeSemester >= totalSemestres}
+        finishLabel="Finalizar mapeo"
+        onFinish={onFinish}
+        finishDisabled={!canManage || confirmRequired}
+      />
     </div>
   );
 }

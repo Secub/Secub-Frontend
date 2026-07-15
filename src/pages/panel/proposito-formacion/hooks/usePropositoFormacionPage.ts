@@ -46,6 +46,7 @@ export function usePropositoFormacionPage() {
   );
   const [filters, setFilters] = useState<FiltersState>(INITIAL_FILTERS);
   const [selectedRecord, setSelectedRecord] = useState<PropositoEnriched | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<PropositoEnriched | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -108,18 +109,21 @@ export function usePropositoFormacionPage() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `¿Seguro que deseas eliminar el propósito de formación de ${record.programaNombre}? Esta acción solo afecta los datos temporales actuales.`,
-    );
-    if (!confirmed) return;
+    setRecordToDelete(record);
+  };
 
-    setRecords(mockBackend.remove<PropositoFormacionRecord>("propositosFormacion", record.id, currentUser));
+  const confirmDelete = () => {
+    if (!recordToDelete) return;
 
-    if (selectedRecord?.id === record.id) {
+    setRecords(mockBackend.remove<PropositoFormacionRecord>("propositosFormacion", recordToDelete.id, currentUser));
+
+    if (selectedRecord?.id === recordToDelete.id) {
       setSelectedRecord(null);
       setDetailOpen(false);
       setFormOpen(false);
     }
+
+    setRecordToDelete(null);
   };
 
   const handleFilterChange = <K extends keyof FiltersState>(key: K, value: FiltersState[K]) => {
@@ -179,6 +183,7 @@ export function usePropositoFormacionPage() {
     hasRecords,
     filters,
     selectedRecord,
+    recordToDelete,
     detailOpen,
     formOpen,
     formMode,
@@ -191,9 +196,11 @@ export function usePropositoFormacionPage() {
     openEditModal,
     openDetailModal,
     handleDelete,
+    confirmDelete,
     handleFilterChange,
     handleFormSubmit,
     setFilters,
+    setRecordToDelete,
     setDetailOpen,
     setFormOpen,
     setExportFormat,

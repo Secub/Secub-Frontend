@@ -37,6 +37,9 @@ export default function MapeoCompetenciasCreatePage() {
     activeSemesterTotalCount,
     handleGoBack,
     handleFinish,
+    handleConfirmFinish,
+    showFinishConfirm,
+    setShowFinishConfirm,
   } = page;
 
   return (
@@ -45,14 +48,18 @@ export default function MapeoCompetenciasCreatePage() {
       title={existingRecord ? "Editar mapeo" : "Crear mapeo"}
       description="Clasifica los núcleos de formación por semestre y define el nivel I-R-A-NA por curso y competencia."
       breadcrumbItems={[
-        { label: "Gestión Académica" },
         { label: "Mapeo de Competencias", href: buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role: currentUser.role }) },
         { label: existingRecord ? "Editar mapeo" : "Crear mapeo" },
       ]}
     >
       <div className="mb-6">
-        <Button variant="outline" leftIcon={<GoArrowLeft />} onClick={handleGoBack}>
-          Volver
+        <Button
+          variant="ghost"
+          size="sm"
+          leftIcon={<GoArrowLeft className="text-lg" />}
+          onClick={handleGoBack}
+        >
+          Volver a Mapeo de Competencias
         </Button>
       </div>
 
@@ -135,6 +142,16 @@ export default function MapeoCompetenciasCreatePage() {
               )}
             </>
           )}
+
+          <ConfirmDialog
+            open={showFinishConfirm}
+            title="¿Deseas finalizar este mapeo?"
+            description="Una vez finalizado, se guardará la matriz I-R-A-NA completa para continuar con el flujo académico."
+            confirmLabel="Finalizar mapeo"
+            variant="warning"
+            onCancel={() => setShowFinishConfirm(false)}
+            onConfirm={handleConfirmFinish}
+          />
 
           <ConfirmDialog
             open={manager.showExitConfirm}

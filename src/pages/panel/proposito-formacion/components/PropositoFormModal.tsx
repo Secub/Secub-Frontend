@@ -308,7 +308,6 @@ export function PropositoFormModal({
           onChange={(event) => updateField("descripcion", event.target.value)}
           rows={7}
           placeholder="Escribe el propósito de formación del programa..."
-          helperText="Este texto será visible en la consulta y podrá actualizarse según las reglas del rol."
           id="descripcion"
           data-validation-field="descripcion"
           error={errors.descripcion}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
+import { completeAcademicWorkflowFromCurrentProgress } from "../../../../components/panel";
 import type { CursoSintesis } from "../../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
@@ -21,7 +22,8 @@ interface UseAsignarRAActionsParams {
   canManage: boolean;
   selectedProgramId: string;
   selectedPlanId: string;
-  coursesLength: number;
+  courses: CursoSintesis[];
+  isCourseAssignmentComplete: (courseId: string) => boolean;
   selectedCycle?: CicloDemoRecord;
   selectedCourse?: CursoSintesis;
   selectedCourseAssignments: AsignacionRaRecord[];
@@ -40,7 +42,8 @@ export function useAsignarRAActions({
   canManage,
   selectedProgramId,
   selectedPlanId,
-  coursesLength,
+  courses,
+  isCourseAssignmentComplete,
   selectedCycle,
   selectedCourse,
   selectedCourseAssignments,
@@ -59,6 +62,8 @@ export function useAsignarRAActions({
   const [showMeasuredConfirm, setShowMeasuredConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLeaveCourseConfirm, setShowLeaveCourseConfirm] = useState(false);
+  const [showFinishAcademicFlowConfirm, setShowFinishAcademicFlowConfirm] = useState(false);
+  const [pendingMeasuredAction, setPendingMeasuredAction] = useState<"next" | "finish" | null>(null);
 
   useEffect(() => {
     const nextDraft = buildDraftSelections(courseCompetencias, selectedCourseAssignments);
@@ -119,7 +124,7 @@ export function useAsignarRAActions({
     if (!selectedProgramId) return "Selecciona un programa académico para continuar.";
     if (!selectedPlanId) return "Selecciona un plan de estudios para continuar.";
     if (!selectedCycle) return "Selecciona el ciclo de medición o periodo académico que vas a trabajar.";
-    if (!coursesLength) return "El ciclo seleccionado no tiene cursos de Síntesis disponibles.";
+    if (!courses.length) return "El ciclo seleccionado no tiene cursos de Síntesis disponibles.";
     if (!selectedCourse) return "Selecciona un curso de Síntesis para asignar RA.";
     if (selectedCourse.nucleo !== "Síntesis") return "Solo se pueden asignar RA a cursos de Síntesis.";
     if (!courseCompetencias.length) return "El curso seleccionado no tiene competencias asociadas. Revisa el Mapeo de Competencias.";
@@ -153,6 +158,17 @@ export function useAsignarRAActions({
     });
   };
 
+  const getNextPendingCourse = useCallback(() => {
+    if (!selectedCourse || !courses.length) return undefined;
+
+    const currentIndex = courses.findIndex((course) => course.id === selectedCourse.id);
+    const orderedCourses = currentIndex >= 0
+      ? [...courses.slice(currentIndex + 1), ...courses.slice(0, currentIndex)]
+      : courses;
+
+    return orderedCourses.find((course) => !isCourseAssignmentComplete(course.id));
+  }, [courses, isCourseAssignmentComplete, selectedCourse]);
+
   const toggleRaSelection = (competencia: CompetenciaRaDemoRecord, raId?: string) => {
     if (!canManage || !raId) return;
     resetFeedback();
@@ -170,23 +186,42 @@ export function useAsignarRAActions({
     });
   };
 
-  const persistCourseAssignments = () => {
-    if (!selectedCycle || !selectedCourse) return;
+  const persistCurrentCourseAssignments = () => {
+    if (!selectedCycle || !selectedCourse) return false;
 
-    persistCourseAssignmentsForCourse({
-      selectedCycle,
-      selectedCourse,
-      courseCompetencias,
-      draftSelections,
-      measurements,
-    });
-
-    refreshBackendState();
-    setShowMeasuredConfirm(false);
-    setFeedback("Asignación guardada correctamente.");
+    try {
+      persistCourseAssignmentsForCourse({
+        selectedCycle,
+        selectedCourse,
+        courseCompetencias,
+        draftSelections,
+        measurements,
+      });
+      refreshBackendState();
+      setShowMeasuredConfirm(false);
+      return true;
+    } catch {
+      setShowMeasuredConfirm(false);
+      setErrorMessage("No fue posible guardar la asignación del curso. Intenta nuevamente.");
+      return false;
+    }
   };
 
-  const handleSaveAssignment = () => {
+  const continueToNextCourseAfterSave = () => {
+    const nextPendingCourse = getNextPendingCourse();
+    if (!persistCurrentCourseAssignments()) return;
+
+    if (!nextPendingCourse) {
+      setErrorMessage("No se encontró otro curso pendiente. Revisa las asignaciones antes de finalizar.");
+      return;
+    }
+
+    setSelectedCourseId(nextPendingCourse.id);
+    setFeedback(`Asignación guardada. Continúa con ${nextPendingCourse.nombre}.`);
+    window.requestAnimationFrame(() => assignmentPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
+  const requestPrimaryAction = (action: "next" | "finish") => {
     resetFeedback();
     const validationMessage = validateDraftSelections();
 
@@ -197,18 +232,58 @@ export function useAsignarRAActions({
       return;
     }
 
+    const nextPendingCourse = getNextPendingCourse();
+
+    if (action === "next" && !nextPendingCourse) {
+      setErrorMessage("Este es el último curso pendiente. Utiliza Finalizar para completar el módulo.");
+      return;
+    }
+
+    if (action === "finish" && nextPendingCourse) {
+      setErrorMessage("Aún existen cursos pendientes. Continúa con Siguiente curso antes de finalizar.");
+      return;
+    }
+
     if (getMeasuredAssignmentsThatWouldBeRemoved().length) {
+      setPendingMeasuredAction(action);
       setShowMeasuredConfirm(true);
       return;
     }
 
-    persistCourseAssignments();
+    if (action === "finish") {
+      setShowFinishAcademicFlowConfirm(true);
+      return;
+    }
+
+    continueToNextCourseAfterSave();
   };
 
-  const handleResetDraft = () => {
-    resetFeedback();
-    setDraftSelections(buildDraftSelections(courseCompetencias, selectedCourseAssignments));
-    setFeedback("Cambios sin guardar descartados.");
+  const handleNextCourse = () => requestPrimaryAction("next");
+
+  const handleRequestFinishAcademicFlow = () => requestPrimaryAction("finish");
+
+  const handleConfirmMeasuredAssignment = () => {
+    const action = pendingMeasuredAction;
+    setPendingMeasuredAction(null);
+
+    if (!action) {
+      setShowMeasuredConfirm(false);
+      return;
+    }
+
+    setShowMeasuredConfirm(false);
+
+    if (action === "finish") {
+      setShowFinishAcademicFlowConfirm(true);
+      return;
+    }
+
+    continueToNextCourseAfterSave();
+  };
+
+  const handleCancelMeasuredAssignment = () => {
+    setPendingMeasuredAction(null);
+    setShowMeasuredConfirm(false);
   };
 
   const handleSelectCourse = (courseId: string) => {
@@ -223,6 +298,28 @@ export function useAsignarRAActions({
     refreshBackendState();
     setShowDeleteConfirm(false);
     setFeedback("Asignación del curso eliminada correctamente. El workflow se recalculó con los datos actuales.");
+  };
+
+  const handleConfirmFinishAcademicFlow = () => {
+    // Cerrar primero la confirmación para que el aviso de flujo completado
+    // aparezca después y nunca se superponga con este diálogo.
+    setShowFinishAcademicFlowConfirm(false);
+
+    window.requestAnimationFrame(() => {
+      if (!persistCurrentCourseAssignments()) return;
+
+      const completedPlan = completeAcademicWorkflowFromCurrentProgress();
+
+      if (!completedPlan) {
+        setErrorMessage("El flujo todavía no cumple todas las condiciones para finalizar. Revisa los pasos anteriores y las asignaciones RA.");
+        return;
+      }
+
+      refreshBackendState();
+      setSelectedCourseId("");
+      setFeedback("Flujo académico finalizado correctamente.");
+      scrollToCourses();
+    });
   };
 
   const toggleCompetenciaAccordion = (competenciaId: string) => {
@@ -240,13 +337,18 @@ export function useAsignarRAActions({
     setShowMeasuredConfirm,
     setShowDeleteConfirm,
     setShowLeaveCourseConfirm,
+    showFinishAcademicFlowConfirm,
+    setShowFinishAcademicFlowConfirm,
+    hasNextPendingCourse: Boolean(getNextPendingCourse()),
     handleSelectCourse,
     handleBackToCourses,
-    handleSaveAssignment,
-    handleResetDraft,
+    handleNextCourse,
     handleDeleteCourseAssignments,
+    handleRequestFinishAcademicFlow,
+    handleConfirmFinishAcademicFlow,
+    handleConfirmMeasuredAssignment,
+    handleCancelMeasuredAssignment,
     discardDraftAndReturnToCourses,
-    persistCourseAssignments,
     toggleCompetenciaAccordion,
     toggleRaSelection,
     getRaAssignment,
