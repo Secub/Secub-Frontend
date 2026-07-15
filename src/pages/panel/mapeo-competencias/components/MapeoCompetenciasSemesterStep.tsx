@@ -167,14 +167,7 @@ export default function MapeoCompetenciasSemesterStep({
           <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
             {semestreNumero} de {totalSemestres}
           </span>
-          <Button
-            variant={isConfirmed ? "outline" : "primary"}
-            size="sm"
-            onClick={onConfirm}
-            disabled={disabled || !isConfirmReady}
-          >
-            {isConfirmed ? "Semestre confirmado" : "Confirmar semestre"}
-          </Button>
+          
         </div>
       </div>
 
@@ -256,7 +249,6 @@ export default function MapeoCompetenciasSemesterStep({
                           <Select
                             value={nivel || "no-aplica"}
                             options={nivelOptions}
-                            placeholder="No aplica"
                             disabled={disabled || !nucleo}
                             onChange={(event) =>
                               onNivelChange(
@@ -280,6 +272,16 @@ export default function MapeoCompetenciasSemesterStep({
           </div>
         </div>
       )}
+      <div className="mt-4 flex flex-1 justify-end gap-2">
+        <Button
+            variant={isConfirmed ? "outline" : "primary"}
+            size="sm"
+            onClick={onConfirm}
+            disabled={disabled || !isConfirmReady}
+          >
+            {isConfirmed ? "Semestre confirmado" : "Confirmar semestre"}
+          </Button>
+      </div>
     </section>
   );
 }

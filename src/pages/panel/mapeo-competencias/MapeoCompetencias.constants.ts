@@ -58,12 +58,12 @@ export const NIVELES_COMPROMISO: Array<{
     variant: "neutral",
   },
   {
-    value: "afianza",
-    short: "A",
-    label: "Afianza (A)",
+    value: "introduce",
+    short: "I",
+    label: "Introduce (I)",
     description:
-      "El curso afianza la competencia específica. El estudiante demuestra mayor dominio, integración y aplicación de la competencia específica en contextos académicos o profesionales.",
-    variant: "success",
+      "El curso introduce la competencia específica al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con la competencia específica.",
+    variant: "info",
   },
   {
     value: "refuerza",
@@ -74,12 +74,14 @@ export const NIVELES_COMPROMISO: Array<{
     variant: "warning",
   },
   {
-    value: "introduce",
-    short: "I",
-    label: "Introduce (I)",
+    value: "afianza",
+    short: "A",
+    label: "Afianza (A)",
     description:
-      "El curso introduce la competencia específica al estudiante. Se presentan los conceptos fundamentales y se inicia la familiarización con la competencia específica.",
-    variant: "info",
+      "El curso afianza la competencia específica. El estudiante demuestra mayor dominio, integración y aplicación de la competencia específica en contextos académicos o profesionales.",
+    variant: "success",
   },
+  
+  
   
 ];

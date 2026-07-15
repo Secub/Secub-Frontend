@@ -1,4 +1,5 @@
-import { GoEye } from "react-icons/go";
+import { GoEye, GoPlus } from "react-icons/go";
+import { Button } from "../../../../components/ui";
 import CompetenciasRaCardGrid from "./CompetenciasRaCardGrid";
 import type {
   CompetenciasRaEnriched,
@@ -17,6 +18,7 @@ interface CompetenciasRaListSectionProps {
   onView: (record: CompetenciasRaEnriched) => void;
   onAddRa: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
+  onCreate: () => void;
 }
 
 export default function CompetenciasRaListSection({
@@ -29,7 +31,9 @@ export default function CompetenciasRaListSection({
   onView,
   onAddRa,
   onEditRa,
+  onCreate,
 }: CompetenciasRaListSectionProps) {
+  console.log("permissions", permissions.canDelete);
   return (
     <div className="surface-card p-6">
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -77,6 +81,18 @@ export default function CompetenciasRaListSection({
         onAddRa={onAddRa}
         onEditRa={onEditRa}
       />
+      <div className="mt-4 flex flex-1 justify-center">
+        {permissions.canCreate && role === "direccionPrograma" ? (
+          <Button
+            variant="primary"
+            leftIcon={<GoPlus className="text-lg" />}
+            onClick={onCreate}
+            title="Crear una nueva competencia"
+          >
+            Nueva competencia
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -132,6 +132,7 @@ export default function CompetenciasRaFormacionPage() {
             onView={openViewModal}
             onAddRa={openCreateRaModal}
             onEditRa={openEditRaModal}
+            onCreate={openCreateModal}
           />
         </div>
       )}
