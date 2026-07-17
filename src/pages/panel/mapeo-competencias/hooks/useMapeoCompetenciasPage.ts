@@ -74,7 +74,7 @@ export function useMapeoCompetenciasPage() {
     () => scopedRecords.find((record) => record.programaId === filters.programaId && record.planId === filters.planId) ?? null,
     [filters.planId, filters.programaId, scopedRecords],
   );
-const filtersState = buildAvailableFilters({ catalogs, filters, currentUser });
+// const filtersState = buildAvailableFilters({ catalogs, filters, currentUser });
 
   const canOpenCreate =
     permissions.canCreate &&
@@ -149,7 +149,7 @@ const filtersState = buildAvailableFilters({ catalogs, filters, currentUser });
     recordToDelete,
     exportFormat,
     isStepLocked,
-    roleScopedRecords,
+    // roleScopedRecords,
     setFilters,
     setRecordToDelete,
     handleCreate,
