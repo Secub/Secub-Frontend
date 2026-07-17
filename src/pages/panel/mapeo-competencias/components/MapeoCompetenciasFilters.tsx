@@ -80,10 +80,10 @@ export default function MapeoCompetenciasFilters({
 
     if (key === "seccionalId") {
       const seccionalId = value as string;
-      // const lugaresPermitidos = getLugaresBySeccional(catalogs.lugares, seccionalId);
+      const lugaresPermitidos = getLugaresBySeccional(catalogs.lugares, seccionalId);
 
       next.facultadId = "";
-      next.lugarId = getDefaultLugarBySeccional(seccionalId);
+      next.lugarId = getDefaultLugarBySeccional(seccionalId, lugaresPermitidos);
       next.programaId = "";
       next.planId = "";
     }

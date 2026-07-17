@@ -1,4 +1,4 @@
-import { GoPlus } from "react-icons/go";
+import { GoDownload, GoPlus } from "react-icons/go";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import {
   FlowActionBar,
@@ -61,7 +61,8 @@ export default function MapeoCompetenciasPage() {
     setRecordToDelete,
     handleCreate,
     handleEdit,
-    // handleExportExcel,
+    handleExportExcel,
+    handleDownloadpdf,
     // handleExportPdf,
     confirmDelete,
   } = page;
@@ -73,21 +74,21 @@ export default function MapeoCompetenciasPage() {
   const fundamentacionCount = getNucleoCount(filteredRecords, "fundamentacion");
   const profesionalizacionCount = getNucleoCount(filteredRecords, "profesionalizacion");
   const sintesisCount = getNucleoCount(filteredRecords, "sintesis");
-  // const exportActions = hasRecords ? (
-  //   <>
-  //     {permissions.canExportPdf ? (
-  //       <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportPdf}>
-  //         Exportar PDF
-  //       </Button>
-  //     ) : null}
+  const exportActions = hasRecords ? (
+    <>
+      {permissions.canExportPdf ? (
+        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleDownloadpdf}>
+          Exportar PDF
+        </Button>
+      ) : null}
 
-  //     {permissions.canExportExcel ? (
-  //       <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
-  //         Exportar Excel
-  //       </Button>
-  //     ) : null}
-  //   </>
-  // ) : undefined;
+      {permissions.canExportExcel ? (
+        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
+          Exportar Excel
+        </Button>
+      ) : null}
+    </>
+  ) : undefined;
 
   const handleNextStep = () => {
     if (!isMapeoComplete) return;
@@ -99,7 +100,7 @@ export default function MapeoCompetenciasPage() {
       currentStep="mapeo-competencias"
       title="Mapeo de Competencias"
       description="Asignación I-R-A-NA y visualización de la malla curricular por semestres y cursos."
-      // actions={exportActions}
+      actions={exportActions}
     >
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState

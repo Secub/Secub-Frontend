@@ -101,11 +101,16 @@ const buildStyles = (theme: PdfTheme) =>
       marginRight: 12,
       objectFit: "contain",
       },
-    logoFooter: { 
-      width: 160,
-      height: 160,
+    logoFooter1: { 
+      width: 150,
+      height: 150,
       objectFit: "contain",
       },
+    logoFooter2: { 
+      width: 130,
+      height: 130,
+      objectFit: "contain",
+      },      
     headerTexts: { 
       flex: 1, 
       },
@@ -178,7 +183,9 @@ const buildStyles = (theme: PdfTheme) =>
       left: 40,
       right: 40,
       flexDirection: "row",
-      justifyContent: "space-between",
+      borderTopWidth: 0.5,
+      borderTopColor: "#CBD5E1",
+      paddingTop: 6,
     },
   });
 
@@ -267,9 +274,9 @@ function PdfDocument<T>({
 
         {/* ── Pie de página (fijo en todas las páginas) ── */}
         <View style={styles.footer} fixed>
-          {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter}
+          {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1}
           /> : null}
-          {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter}
+          {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2}
           /> : null}
           {/* <View>
             <Text style={styles.footerText}>

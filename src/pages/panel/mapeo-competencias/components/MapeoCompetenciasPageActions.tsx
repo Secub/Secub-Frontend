@@ -1,19 +1,25 @@
+// import { useMemo, useState, useEffect } from "react";
 import { GoDownload, GoPencil, GoPlus, GoFile } from "react-icons/go";
 import { Button } from "../../../../components/ui";
-import type { MapeoCompetenciasEnriched, RolePermissions } from "../MapeoCompetencias.types";
+import type { MapeoCompetenciasEnriched, RolePermissions, MapeoCompetenciasFilters, Catalogs, CurrentUser } from "../MapeoCompetencias.types";
 
-interface MapeoCompetenciasPageActionsProps {
+export interface MapeoCompetenciasPageActionsProps {
   permissions: RolePermissions;
   recordsLength: number;
   selectedRecord: MapeoCompetenciasEnriched | null;
   canOpenCreate: boolean;
   canOpenEdit: boolean;
   filteredRecords: MapeoCompetenciasEnriched[];
+  baseUser: CurrentUser;
+  baseRecords: MapeoCompetenciasEnriched[];
+  initialFilters: MapeoCompetenciasFilters;
+  catalogs: Catalogs;
   onCreate: () => void;
   onEdit: (record: MapeoCompetenciasEnriched) => void;
   // onExportPdf: () => void;
-  // onExportExcel: () => void;
-  onExport: (format: "pdf" | "excel") => void;
+  onExportExcel: () => void;
+  onExport: (format: "excel" | "pdf") => void;
+  // format: "pdf";
 }
 
 export default function MapeoCompetenciasPageActions({
@@ -26,10 +32,9 @@ export default function MapeoCompetenciasPageActions({
   onCreate,
   onEdit,
   onExport,
-  // onExportExcel,
 }: MapeoCompetenciasPageActionsProps) {
   if (!permissions.canRead) return null;
-
+ 
   return (
     <>
       {permissions.canExportPdf ? (
