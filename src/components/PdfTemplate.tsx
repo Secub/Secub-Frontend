@@ -41,6 +41,10 @@ export interface PdfTemplateProps<T> {
   logoUrl?: string;
   /** URLs o base64 de logos a mostrar en la cabecera */
   logoUrl2?: string;
+  /** URLs o base64 de logos a mostrar en la cabecera */
+  logoUrlfoot1?: string;
+  /** URLs o base64 de logos a mostrar en la cabecera */
+  logoUrlfoot2?: string;
   /** Texto de pie de página. Si se omite no se muestra. */
   footerText?: string;
   /** Definición de columnas de la tabla */
@@ -72,9 +76,8 @@ const DEFAULT_THEME: PdfTheme = {
 const buildStyles = (theme: PdfTheme) =>
   StyleSheet.create({
     page: {
-      paddingTop: 5,
-      paddingBottom: 30,
-      paddingHorizontal: 20,
+      
+      paddingHorizontal: 25,
       fontFamily: "Helvetica",
       fontSize: 9,
       color: theme.text,
@@ -84,7 +87,7 @@ const buildStyles = (theme: PdfTheme) =>
     header: { 
       flexDirection: "row",
       alignItems: "center",
-      borderBottomWidth: 2,
+      // borderBottomWidth: 2,
       },
     logo: { 
       width: 130,
@@ -96,6 +99,11 @@ const buildStyles = (theme: PdfTheme) =>
       width: 150,
       height: 150,
       marginRight: 12,
+      objectFit: "contain",
+      },
+    logoFooter: { 
+      width: 160,
+      height: 160,
       objectFit: "contain",
       },
     headerTexts: { 
@@ -151,6 +159,7 @@ const buildStyles = (theme: PdfTheme) =>
     // Summary badge
     summary: {
       marginTop: 10,
+      marginBottom: 10,
       flexDirection: "row",
       justifyContent: "flex-end",
     },
@@ -170,13 +179,6 @@ const buildStyles = (theme: PdfTheme) =>
       right: 40,
       flexDirection: "row",
       justifyContent: "space-between",
-      borderTopWidth: 0.5,
-      borderTopColor: "#CBD5E1",
-      paddingTop: 6,
-    },
-    footerText: {
-      fontSize: 7,
-      color: theme.muted,
     },
   });
 
@@ -187,7 +189,9 @@ function PdfDocument<T>({
   subtitle,
   logoUrl,
   logoUrl2,
-  footerText,
+  logoUrlfoot1,
+  logoUrlfoot2,
+  // footerText,
   columns,
   records,
   theme,
@@ -263,7 +267,12 @@ function PdfDocument<T>({
 
         {/* ── Pie de página (fijo en todas las páginas) ── */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
+          {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter}
+          /> : null}
+          {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter}
+          /> : null}
+          {/* <View>
+            <Text style={styles.footerText}>
             {footerText ?? title}
           </Text>
           <Text
@@ -272,6 +281,7 @@ function PdfDocument<T>({
               `Página ${pageNumber} de ${totalPages}`
             }
           />
+          </View> */}
         </View>
       </Page>
     </Document>
