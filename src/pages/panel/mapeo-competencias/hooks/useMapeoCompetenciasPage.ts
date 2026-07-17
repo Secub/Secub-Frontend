@@ -13,10 +13,10 @@ import {
   INITIAL_FILTERS,
   applyFilters,
   applyRoleScope,
-  buildCsvLikeExcel,
-  downloadTextFile,
+  // buildCsvLikeExcel,
+  // downloadTextFile,
   enrichMapeoRecords,
-  printMapeoCompetenciasPdf,
+  // printMapeoCompetenciasPdf,
 } from "../MapeoCompetencias.utils";
 import { useMapeoCompetenciasData } from "./useMapeoCompetenciasData";
 
@@ -114,13 +114,13 @@ export function useMapeoCompetenciasPage() {
     navigateToRoute(buildEditPath(currentUser.role, record));
   };
 
-  const handleExportExcel = () => {
-    downloadTextFile("mapeo-competencias.csv", buildCsvLikeExcel(filteredRecords), "text/csv;charset=utf-8");
-  };
+  // const handleExportExcel = () => {
+  //   downloadTextFile("mapeo-competencias.csv", buildCsvLikeExcel(filteredRecords), "text/csv;charset=utf-8");
+  // };
 
-  const handleExportPdf = () => {
-    printMapeoCompetenciasPdf(filteredRecords);
-  };
+  // const handleExportPdf = () => {
+  //   printMapeoCompetenciasPdf(filteredRecords);
+  // };
 
   const confirmDelete = () => {
     if (!recordToDelete) return;
@@ -146,8 +146,8 @@ export function useMapeoCompetenciasPage() {
     setRecordToDelete,
     handleCreate,
     handleEdit,
-    handleExportExcel,
-    handleExportPdf,
+    // handleExportExcel,
+    // handleExportPdf,
     confirmDelete,
   };
 }
