@@ -62,7 +62,8 @@ export default function MapeoCompetenciasPage() {
     handleCreate,
     handleEdit,
     handleExportExcel,
-    handleExportPdf,
+    handleDownloadpdf,
+    // handleExportPdf,
     confirmDelete,
   } = page;
 
@@ -76,7 +77,7 @@ export default function MapeoCompetenciasPage() {
   const exportActions = hasRecords ? (
     <>
       {permissions.canExportPdf ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportPdf}>
+        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleDownloadpdf}>
           Exportar PDF
         </Button>
       ) : null}

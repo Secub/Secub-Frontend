@@ -185,6 +185,7 @@ export default function CompetenciasRaCard({
           </div>
         ) : null}
       </div>
+      
     </div>
   );
 }
