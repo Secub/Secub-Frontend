@@ -18,6 +18,8 @@ import MapeoCompetenciasConsolidatedSection from "./components/MapeoCompetencias
 import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
 import { useMapeoCompetenciasPage } from "./hooks/useMapeoCompetenciasPage";
+import MapeoCompetenciasExport from "./MapeoCompetenciasExport";
+import MapeoCompetenciasPageActions from "./components/MapeoCompetenciasPageActions";
 
 function getNucleoCount(records: ReturnType<typeof useMapeoCompetenciasPage>["filteredRecords"], nucleo: string) {
   return records.reduce((total, record) => {
@@ -57,12 +59,15 @@ export default function MapeoCompetenciasPage() {
     canOpenCreate,
     canOpenEdit,
     recordToDelete,
+    roleScopedRecords,
+    exportFormat,
+    setExportFormat,
     setFilters,
     setRecordToDelete,
     handleCreate,
     handleEdit,
-    handleExportExcel,
-    handleExportPdf,
+    // handleExportExcel,
+    // handleExportPdf,
     confirmDelete,
   } = page;
 
@@ -73,21 +78,30 @@ export default function MapeoCompetenciasPage() {
   const fundamentacionCount = getNucleoCount(filteredRecords, "fundamentacion");
   const profesionalizacionCount = getNucleoCount(filteredRecords, "profesionalizacion");
   const sintesisCount = getNucleoCount(filteredRecords, "sintesis");
-  const exportActions = hasRecords ? (
-    <>
-      {permissions.canExportPdf ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportPdf}>
-          Exportar PDF
-        </Button>
-      ) : null}
+  // const exportActions = hasRecords ? (
+  //   <>
+  //     {permissions.canExportPdf ? (
+  //       <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportPdf}>
+  //         Exportar PDF
+  //       </Button>
+  //     ) : null}
 
-      {permissions.canExportExcel ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
-          Exportar Excel
-        </Button>
-      ) : null}
-    </>
-  ) : undefined;
+  //     {permissions.canExportExcel ? (
+  //       <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
+  //         Exportar Excel
+  //       </Button>
+  //     ) : null}
+  //   </>
+  // ) : undefined;
+
+  const pageActions = (
+      <MapeoCompetenciasPageActions
+        permissions={permissions}
+        filteredRecords={filteredRecords}
+        onCreate={openCreateModal}
+        onExport={setExportFormat}
+      />
+    );
 
   const handleNextStep = () => {
     if (!isMapeoComplete) return;
@@ -208,6 +222,17 @@ export default function MapeoCompetenciasPage() {
           ) : null}
         </div>
       )}
+      <MapeoCompetenciasExport
+        open={exportFormat === "pdf"}
+        title="Exportación de mapeo competencias en PDF"
+        format="pdf"
+        permissions={permissions}
+        catalogs={catalogs}
+        baseRecords={roleScopedRecords}
+        initialFilters={filters}
+        onClose={() => setExportFormat(null)}
+      />
     </PanelLayout>
+
   );
 }

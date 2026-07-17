@@ -3,6 +3,7 @@ import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/a
 
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
+import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import type {
   MapeoCompetenciasEnriched,
   MapeoCompetenciasFilters as FiltersState,
@@ -13,10 +14,10 @@ import {
   INITIAL_FILTERS,
   applyFilters,
   applyRoleScope,
-  buildCsvLikeExcel,
-  downloadTextFile,
+  // buildCsvLikeExcel,
+  // downloadTextFile,
   enrichMapeoRecords,
-  printMapeoCompetenciasPdf,
+  // printMapeoCompetenciasPdf,
 } from "../MapeoCompetencias.utils";
 import { useMapeoCompetenciasData } from "./useMapeoCompetenciasData";
 
@@ -35,6 +36,7 @@ function buildEditPath(role: string, record: MapeoCompetenciasEnriched) {
 export function useMapeoCompetenciasPage() {
   const data = useMapeoCompetenciasData();
   const { currentUser, catalogs, cursos, competenciasRa, records } = data;
+  const isStepLocked = isAcademicWorkflowStepLocked("mapeo-competencias");
   const permissions = rolePermissions[currentUser.role];
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...INITIAL_FILTERS,
@@ -44,6 +46,7 @@ export function useMapeoCompetenciasPage() {
     planId: currentUser.scope.planId ?? "",
   }));
   const [recordToDelete, setRecordToDelete] = useState<MapeoCompetenciasEnriched | null>(null);
+  const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
   useEffect(() => {
     if (filters.programaId && !filters.planId) {
@@ -70,6 +73,16 @@ export function useMapeoCompetenciasPage() {
     () => scopedRecords.find((record) => record.programaId === filters.programaId && record.planId === filters.planId) ?? null,
     [filters.planId, filters.programaId, scopedRecords],
   );
+
+  const {
+    filters,
+    sortOrder,
+    setSortOrder,
+    roleScopedRecords,
+    availableFilterOptions,
+    invalidCompetencias,
+    handleFilterChange,
+  } = filtersState
 
   const canOpenCreate =
     permissions.canCreate &&
@@ -114,13 +127,13 @@ export function useMapeoCompetenciasPage() {
     navigateToRoute(buildEditPath(currentUser.role, record));
   };
 
-  const handleExportExcel = () => {
-    downloadTextFile("mapeo-competencias.csv", buildCsvLikeExcel(filteredRecords), "text/csv;charset=utf-8");
-  };
+  // const handleExportExcel = () => {
+  //   downloadTextFile("mapeo-competencias.csv", buildCsvLikeExcel(filteredRecords), "text/csv;charset=utf-8");
+  // };
 
-  const handleExportPdf = () => {
-    printMapeoCompetenciasPdf(filteredRecords);
-  };
+  // const handleExportPdf = () => {
+  //   printMapeoCompetenciasPdf(filteredRecords);
+  // };
 
   const confirmDelete = () => {
     if (!recordToDelete) return;
@@ -142,12 +155,15 @@ export function useMapeoCompetenciasPage() {
     canOpenEdit,
     summaryMetrics,
     recordToDelete,
+    exportFormat,
+    isStepLocked,
     setFilters,
     setRecordToDelete,
     handleCreate,
     handleEdit,
-    handleExportExcel,
-    handleExportPdf,
+    setExportFormat,
+    // handleExportExcel,
+    // handleExportPdf,
     confirmDelete,
   };
 }

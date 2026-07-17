@@ -186,6 +186,18 @@ export interface MapeoCompetenciasFilters {
   estado: "" | MapeoCompetenciasEstado;
 }
 
+export interface FormState {
+  seccionalId: string;
+  facultadId: string;
+  lugarId: string;
+  programaId: string;
+  planId: string;
+  estado: MapeoCompetenciasEstado;
+  numeroRA: number;
+  descripcion: string;
+  raDescripciones: string[];
+}
+
 export interface RolePermissions {
   canRead: boolean;
   canCreate: boolean;
