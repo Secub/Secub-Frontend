@@ -4,6 +4,7 @@ import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/a
 import { mockBackend } from "../../../../services/mockBackend";
 import { rolePermissions } from "../MapeoCompetencias.permissions";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
+import { buildAvailableFilters } from "../MapeoCompetencias.filters";
 import type {
   MapeoCompetenciasEnriched,
   MapeoCompetenciasFilters as FiltersState,
@@ -73,16 +74,7 @@ export function useMapeoCompetenciasPage() {
     () => scopedRecords.find((record) => record.programaId === filters.programaId && record.planId === filters.planId) ?? null,
     [filters.planId, filters.programaId, scopedRecords],
   );
-
-  const {
-    filters,
-    sortOrder,
-    setSortOrder,
-    roleScopedRecords,
-    availableFilterOptions,
-    invalidCompetencias,
-    handleFilterChange,
-  } = filtersState
+const filtersState = buildAvailableFilters({ catalogs, filters, currentUser });
 
   const canOpenCreate =
     permissions.canCreate &&
@@ -157,6 +149,7 @@ export function useMapeoCompetenciasPage() {
     recordToDelete,
     exportFormat,
     isStepLocked,
+    roleScopedRecords,
     setFilters,
     setRecordToDelete,
     handleCreate,
