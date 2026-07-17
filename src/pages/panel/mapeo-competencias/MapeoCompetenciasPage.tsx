@@ -49,6 +49,7 @@ export default function MapeoCompetenciasPage() {
   const profesionalizacionCount = getNucleoCount(filteredRecords, "profesionalizacion");
   const sintesisCount = getNucleoCount(filteredRecords, "sintesis");
 <<<<<<< HEAD
+<<<<<<< HEAD
   // const exportActions = hasRecords ? (
   //   <>
   //     {permissions.canExportPdf ? (
@@ -78,6 +79,8 @@ export default function MapeoCompetenciasPage() {
     if (!isMapeoComplete) return;
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCiclo, { role: currentUser.role }));
   };
+=======
+>>>>>>> parent of a14dead2 (Merge branch 'test' into dev/fonseca)
 =======
 >>>>>>> parent of a14dead2 (Merge branch 'test' into dev/fonseca)
 
