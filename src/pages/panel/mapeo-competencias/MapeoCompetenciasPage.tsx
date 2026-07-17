@@ -52,6 +52,7 @@ export default function MapeoCompetenciasPage() {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   // const exportActions = hasRecords ? (
   //   <>
   //     {permissions.canExportPdf ? (
@@ -81,6 +82,8 @@ export default function MapeoCompetenciasPage() {
     if (!isMapeoComplete) return;
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCiclo, { role: currentUser.role }));
   };
+=======
+>>>>>>> parent of a14dead2 (Merge branch 'test' into dev/fonseca)
 =======
 >>>>>>> parent of a14dead2 (Merge branch 'test' into dev/fonseca)
 =======
