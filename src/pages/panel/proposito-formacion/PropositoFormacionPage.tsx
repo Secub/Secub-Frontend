@@ -4,7 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import PropositoDetailModal from "./components/PropositoDetailModal";
@@ -52,8 +52,7 @@ export default function PropositoFormacionPage() {
 
   const workflowProgress = useAcademicWorkflowProgress();
   const isPropositoStepComplete = Boolean(workflowProgress["proposito-formacion"]);
-  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
-  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
+  const showFlowActionBar = !isStepLocked && permissions.canRead && hasRecords;
   const handleNextStep = () => {
     if (!isPropositoStepComplete) return;
 

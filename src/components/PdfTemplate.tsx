@@ -37,8 +37,14 @@ export interface PdfTemplateProps<T> {
   title: string;
   /** Subtítulo opcional (ej: nombre de seccional o filtro activo) */
   subtitle?: string;
-  /** URL o base64 de un logo (png / jpg). Omitir si no aplica. */
+  /** URLs o base64 de logos a mostrar en la cabecera */
   logoUrl?: string;
+  /** URLs o base64 de logos a mostrar en la cabecera */
+  logoUrl2?: string;
+  /** URLs o base64 de logos a mostrar en la cabecera */
+  logoUrlfoot1?: string;
+  /** URLs o base64 de logos a mostrar en la cabecera */
+  logoUrlfoot2?: string;
   /** Texto de pie de página. Si se omite no se muestra. */
   footerText?: string;
   /** Definición de columnas de la tabla */
@@ -70,59 +76,69 @@ const DEFAULT_THEME: PdfTheme = {
 const buildStyles = (theme: PdfTheme) =>
   StyleSheet.create({
     page: {
-      paddingTop: 40,
-      paddingBottom: 50,
-      paddingHorizontal: 40,
+      
+      paddingHorizontal: 25,
       fontFamily: "Helvetica",
       fontSize: 9,
       color: theme.text,
     },
 
-    // Encabezado del documento
-    header: {
+    // Encabezado del documento 
+    header: { 
       flexDirection: "row",
       alignItems: "center",
-      marginBottom: 20,
-      borderBottomWidth: 2,
-      borderBottomColor: theme.primary,
-      paddingBottom: 10,
-    },
-    logo: {
-      width: 48,
-      height: 48,
+      // borderBottomWidth: 2,
+      },
+    logo: { 
+      width: 130,
+      height: 130,
       marginRight: 12,
       objectFit: "contain",
-    },
-    headerTexts: {
-      flex: 1,
-    },
+      },
+    logoUsb: { 
+      width: 150,
+      height: 150,
+      marginRight: 12,
+      objectFit: "contain",
+      },
+    logoFooter1: { 
+      width: 150,
+      height: 150,
+      objectFit: "contain",
+      },
+    logoFooter2: { 
+      width: 130,
+      height: 130,
+      objectFit: "contain",
+      },      
+    headerTexts: { 
+      flex: 1, 
+      },
     title: {
       fontSize: 16,
       fontFamily: "Helvetica-Bold",
       color: theme.primary,
-      marginBottom: 2,
-    },
+      marginBottom: 2, 
+      },
     subtitle: {
       fontSize: 9,
       color: theme.muted,
-    },
+      },
     dateText: {
       fontSize: 8,
       color: theme.muted,
       marginTop: 2,
-    },
-
-    // Tabla
-    table: {
-      marginTop: 8,
-    },
-    tableRow: {
+      },
+// Tabla 
+    table: { 
+      marginTop: 8, 
+      },
+    tableRow: { 
       flexDirection: "row",
       borderBottomWidth: 0.5,
       borderBottomColor: "#CBD5E1",
-      minHeight: 22,
-      alignItems: "center",
-    },
+      minHeight: 22, alignItems: "center",
+      },
     tableHeaderRow: {
       flexDirection: "row",
       backgroundColor: theme.headerBg,
@@ -145,10 +161,10 @@ const buildStyles = (theme: PdfTheme) =>
       paddingHorizontal: 6,
       paddingVertical: 5,
     },
-
     // Summary badge
     summary: {
       marginTop: 10,
+      marginBottom: 10,
       flexDirection: "row",
       justifyContent: "flex-end",
     },
@@ -160,7 +176,6 @@ const buildStyles = (theme: PdfTheme) =>
       fontSize: 8,
       color: theme.primary,
     },
-
     // Pie de página
     footer: {
       position: "absolute",
@@ -168,14 +183,9 @@ const buildStyles = (theme: PdfTheme) =>
       left: 40,
       right: 40,
       flexDirection: "row",
-      justifyContent: "space-between",
       borderTopWidth: 0.5,
       borderTopColor: "#CBD5E1",
       paddingTop: 6,
-    },
-    footerText: {
-      fontSize: 7,
-      color: theme.muted,
     },
   });
 
@@ -185,7 +195,10 @@ function PdfDocument<T>({
   title,
   subtitle,
   logoUrl,
-  footerText,
+  logoUrl2,
+  logoUrlfoot1,
+  logoUrlfoot2,
+  // footerText,
   columns,
   records,
   theme,
@@ -204,12 +217,15 @@ function PdfDocument<T>({
 
         {/* ── Encabezado ── */}
         <View style={styles.header} fixed>
-          {logoUrl ? <Image src={logoUrl} style={styles.logo} /> : null}
+          {logoUrl ? <Image src={logoUrl} style={styles.logoUsb}
+          /> : null}
           <View style={styles.headerTexts}>
             <Text style={styles.title}>{title}</Text>
-            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-            <Text style={styles.dateText}>Generado el {dateStr}</Text>
+            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text>
+              : null} <Text style={styles.dateText}>Generado el {dateStr}</Text>
           </View>
+          {logoUrl2 ? <Image src={logoUrl2} style={styles.logo}
+          /> : null} 
         </View>
 
         {/* ── Tabla ── */}
@@ -258,7 +274,12 @@ function PdfDocument<T>({
 
         {/* ── Pie de página (fijo en todas las páginas) ── */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
+          {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1}
+          /> : null}
+          {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2}
+          /> : null}
+          {/* <View>
+            <Text style={styles.footerText}>
             {footerText ?? title}
           </Text>
           <Text
@@ -267,6 +288,7 @@ function PdfDocument<T>({
               `Página ${pageNumber} de ${totalPages}`
             }
           />
+          </View> */}
         </View>
       </Page>
     </Document>
@@ -282,7 +304,7 @@ function PdfDocument<T>({
  * await downloadPdf({
  *   title: "Competencias RAs",
  *   subtitle: "Facultad de Ingeniería",
- *   logoUrl: "/logo.png",
+ *   logoUrls: ["/logo.png"],
  *   columns: [
  *     { header: "Facultad",  widthPct: 20, accessor: (r) => r.facultadNombre },
  *     { header: "Programa",  widthPct: 30, accessor: (r) => r.programaNombre },

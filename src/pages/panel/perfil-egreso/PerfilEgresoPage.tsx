@@ -4,7 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import PerfilEgresoDetailModal from "./components/PerfilEgresoDetailModal";
@@ -52,8 +52,7 @@ export default function PerfilEgresoPage() {
 
   const workflowProgress = useAcademicWorkflowProgress();
   const isPerfilStepComplete = Boolean(workflowProgress["perfil-egreso"]);
-  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
-  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
+  const showFlowActionBar = !isStepLocked && permissions.canRead && hasRecords;
   const handleNextStep = () => {
     if (!isPerfilStepComplete) return;
 
