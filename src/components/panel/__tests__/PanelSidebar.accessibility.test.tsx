@@ -130,7 +130,7 @@ describe("PanelSidebar accesible", () => {
     expect(blockedStep.getAttribute("aria-label")).toMatch(/bloqueado/i);
   });
 
-  it("mantiene Plan académico nuevo bloqueado sin mostrar el mensaje informativo del ciclo", async () => {
+  it("mantiene Ciclo nuevo bloqueado sin mostrar el mensaje informativo del ciclo", async () => {
     workflowState = "completed";
 
     render(<PanelSidebar currentStep="perfil-egreso" />);
@@ -146,7 +146,7 @@ describe("PanelSidebar accesible", () => {
     ).toBeInTheDocument();
 
     const newPlan = screen.getByRole("button", {
-      name: /plan académico nuevo/i,
+      name: /ciclo nuevo/i,
     });
 
     expect(newPlan).toHaveAttribute("aria-disabled", "true");
