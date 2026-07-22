@@ -22,15 +22,25 @@ const progress: Partial<Record<PanelStepKey, boolean>> = {
   "proposito-formacion": false,
 };
 
-vi.mock("../../../services/auth/mockUser", () => ({
-  getCurrentMockUser: () => ({
-    nombre: "Juliana Mejía",
-    cargo: "Dirección de programa",
-    role: "direccionPrograma",
-  }),
-  getNeutralUserCargo: () => "Dirección de programa",
-  getNeutralRoleLabel: () => "Dirección de programa",
-}));
+vi.mock("../../../services/auth/mockUser", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../services/auth/mockUser")
+  >();
+
+  return {
+    ...actual,
+    getCurrentMockUser: () => ({
+      id: "usr-direccion-programa",
+      nombre: "Juliana Mejía",
+      email: "",
+      cargo: "Dirección de programa",
+      role: "direccionPrograma" as const,
+      scope: {},
+    }),
+    getNeutralUserCargo: () => "Dirección de programa",
+    getNeutralRoleLabel: () => "Dirección de programa",
+  };
+});
 
 vi.mock("../../../config/demo.config", () => ({
   SHOW_DEMO_TOOLS: false,
