@@ -22,8 +22,8 @@ interface UseAsignarRAActionsParams {
   canManage: boolean;
   selectedProgramId: string;
   selectedPlanId: string;
-  coursesLength: number;
-  isCurrentCycleAssignmentComplete: boolean;
+  courses: CursoSintesis[];
+  pendingCourseIds: string[];
   selectedCycle?: CicloDemoRecord;
   selectedCourse?: CursoSintesis;
   selectedCourseAssignments: AsignacionRaRecord[];
@@ -42,8 +42,8 @@ export function useAsignarRAActions({
   canManage,
   selectedProgramId,
   selectedPlanId,
-  coursesLength,
-  isCurrentCycleAssignmentComplete,
+  courses,
+  pendingCourseIds,
   selectedCycle,
   selectedCourse,
   selectedCourseAssignments,
@@ -63,6 +63,7 @@ export function useAsignarRAActions({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLeaveCourseConfirm, setShowLeaveCourseConfirm] = useState(false);
   const [showFinishAcademicFlowConfirm, setShowFinishAcademicFlowConfirm] = useState(false);
+  const [pendingPrimaryAction, setPendingPrimaryAction] = useState<"next" | "finish" | null>(null);
 
   useEffect(() => {
     const nextDraft = buildDraftSelections(courseCompetencias, selectedCourseAssignments);
@@ -123,7 +124,7 @@ export function useAsignarRAActions({
     if (!selectedProgramId) return "Selecciona un programa académico para continuar.";
     if (!selectedPlanId) return "Selecciona un plan de estudios para continuar.";
     if (!selectedCycle) return "Selecciona el ciclo de medición o periodo académico que vas a trabajar.";
-    if (!coursesLength) return "El ciclo seleccionado no tiene cursos de Síntesis disponibles.";
+    if (!courses.length) return "El ciclo seleccionado no tiene cursos de Síntesis disponibles.";
     if (!selectedCourse) return "Selecciona un curso de Síntesis para asignar RA.";
     if (selectedCourse.nucleo !== "Síntesis") return "Solo se pueden asignar RA a cursos de Síntesis.";
     if (!courseCompetencias.length) return "El curso seleccionado no tiene competencias asociadas. Revisa el Mapeo de Competencias.";
@@ -175,7 +176,7 @@ export function useAsignarRAActions({
   };
 
   const persistCourseAssignments = () => {
-    if (!selectedCycle || !selectedCourse) return;
+    if (!selectedCycle || !selectedCourse) return false;
 
     persistCourseAssignmentsForCourse({
       selectedCycle,
@@ -187,10 +188,45 @@ export function useAsignarRAActions({
 
     refreshBackendState();
     setShowMeasuredConfirm(false);
-    setFeedback("Asignación guardada correctamente.");
+    return true;
   };
 
-  const handleSaveAssignment = () => {
+  const getNextPendingCourseId = () => {
+    if (!selectedCourse) return undefined;
+
+    const otherPendingIds = new Set(pendingCourseIds.filter((courseId) => courseId !== selectedCourse.id));
+    const currentIndex = courses.findIndex((course) => course.id === selectedCourse.id);
+    const orderedCandidates = [
+      ...courses.slice(currentIndex + 1),
+      ...courses.slice(0, Math.max(0, currentIndex)),
+    ];
+
+    return orderedCandidates.find((course) => otherPendingIds.has(course.id))?.id;
+  };
+
+  const continueAfterValidatedSave = (action: "next" | "finish") => {
+    if (!persistCourseAssignments()) return;
+
+    if (action === "next") {
+      const nextCourseId = getNextPendingCourseId();
+      if (!nextCourseId) {
+        setErrorMessage("No se encontró otro curso pendiente. Revisa el estado de las asignaciones antes de continuar.");
+        return;
+      }
+
+      setSelectedCourseId(nextCourseId);
+      setFeedback("Asignación guardada. Se abrió el siguiente curso pendiente.");
+      window.requestAnimationFrame(() =>
+        assignmentPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+      return;
+    }
+
+    setFeedback("Asignación del último curso guardada correctamente.");
+    setShowFinishAcademicFlowConfirm(true);
+  };
+
+  const requestPrimaryAction = (action: "next" | "finish") => {
     resetFeedback();
     const validationMessage = validateDraftSelections();
 
@@ -201,18 +237,39 @@ export function useAsignarRAActions({
       return;
     }
 
+    const nextPendingCourseId = getNextPendingCourseId();
+    if (action === "next" && !nextPendingCourseId) {
+      setErrorMessage("Este es el último curso pendiente. Utiliza Finalizar para completar el flujo.");
+      return;
+    }
+
+    if (action === "finish" && nextPendingCourseId) {
+      setErrorMessage("Todavía existen cursos pendientes. Guarda el curso actual y continúa con Siguiente curso.");
+      return;
+    }
+
     if (getMeasuredAssignmentsThatWouldBeRemoved().length) {
+      setPendingPrimaryAction(action);
       setShowMeasuredConfirm(true);
       return;
     }
 
-    persistCourseAssignments();
+    continueAfterValidatedSave(action);
   };
 
-  const handleResetDraft = () => {
-    resetFeedback();
-    setDraftSelections(buildDraftSelections(courseCompetencias, selectedCourseAssignments));
-    setFeedback("Cambios sin guardar descartados.");
+  const handleSaveAndOpenNextCourse = () => requestPrimaryAction("next");
+  const handleSaveAndRequestFinish = () => requestPrimaryAction("finish");
+
+  const handleConfirmMeasuredPrimaryAction = () => {
+    const action = pendingPrimaryAction;
+    setPendingPrimaryAction(null);
+    setShowMeasuredConfirm(false);
+    if (action) continueAfterValidatedSave(action);
+  };
+
+  const handleCancelMeasuredPrimaryAction = () => {
+    setPendingPrimaryAction(null);
+    setShowMeasuredConfirm(false);
   };
 
   const handleSelectCourse = (courseId: string) => {
@@ -229,30 +286,6 @@ export function useAsignarRAActions({
     setFeedback("Asignación del curso eliminada correctamente. El workflow se recalculó con los datos actuales.");
   };
 
-  const handleRequestFinishAcademicFlow = () => {
-    resetFeedback();
-
-    if (hasUnsavedChanges()) {
-      setErrorMessage("Guarda o descarta los cambios del curso actual antes de finalizar el flujo.");
-      assignmentPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-
-    if (!selectedCycle) {
-      setErrorMessage("Selecciona el ciclo de medición antes de finalizar el flujo.");
-      coursesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-
-    if (!isCurrentCycleAssignmentComplete) {
-      setErrorMessage("Antes de finalizar, todos los cursos de Síntesis del ciclo deben tener RA asignados según sus competencias.");
-      coursesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-
-    setShowFinishAcademicFlowConfirm(true);
-  };
-
   const handleConfirmFinishAcademicFlow = () => {
     const completedPlan = completeAcademicWorkflowFromCurrentProgress();
 
@@ -264,7 +297,9 @@ export function useAsignarRAActions({
 
     setShowFinishAcademicFlowConfirm(false);
     refreshBackendState();
+    setSelectedCourseId("");
     setFeedback("Flujo académico finalizado correctamente.");
+    scrollToCourses();
   };
 
   const toggleCompetenciaAccordion = (competenciaId: string) => {
@@ -279,20 +314,19 @@ export function useAsignarRAActions({
     showMeasuredConfirm,
     showDeleteConfirm,
     showLeaveCourseConfirm,
-    setShowMeasuredConfirm,
     setShowDeleteConfirm,
     setShowLeaveCourseConfirm,
     showFinishAcademicFlowConfirm,
     setShowFinishAcademicFlowConfirm,
     handleSelectCourse,
     handleBackToCourses,
-    handleSaveAssignment,
-    handleResetDraft,
+    handleSaveAndOpenNextCourse,
+    handleSaveAndRequestFinish,
+    handleConfirmMeasuredPrimaryAction,
+    handleCancelMeasuredPrimaryAction,
     handleDeleteCourseAssignments,
-    handleRequestFinishAcademicFlow,
     handleConfirmFinishAcademicFlow,
     discardDraftAndReturnToCourses,
-    persistCourseAssignments,
     toggleCompetenciaAccordion,
     toggleRaSelection,
     getRaAssignment,

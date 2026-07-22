@@ -1,4 +1,4 @@
-import { GoPencil, GoPlus, GoTrash } from "react-icons/go";
+import { GoPlus } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
@@ -14,12 +14,7 @@ interface MapeoCompetenciasConsolidatedSectionProps {
   competenciasRa?: CompetenciaRaDemoRecord[];
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
-  canOpenEdit: boolean;
-  selectedRecord: MapeoCompetenciasEnriched | null;
-  canDelete: boolean;
   onCreate: () => void;
-  onEdit: (record: MapeoCompetenciasEnriched) => void;
-  onDelete: (record: MapeoCompetenciasEnriched) => void;
   onNivelChange?: (
     recordId: string,
     cursoId: string,
@@ -32,12 +27,7 @@ export default function MapeoCompetenciasConsolidatedSection({
   records,
   hasRequiredFilters,
   canOpenCreate,
-  canOpenEdit,
-  selectedRecord,
-  canDelete,
   onCreate,
-  onEdit,
-  onDelete,
 }: MapeoCompetenciasConsolidatedSectionProps) {
   if (!hasRequiredFilters) {
     return (
@@ -99,27 +89,6 @@ export default function MapeoCompetenciasConsolidatedSection({
                 {record.estado}
               </Badge>
 
-              {canOpenEdit && record.id === selectedRecord?.id ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  leftIcon={<GoPencil />}
-                  onClick={() => onEdit(record)}
-                >
-                  Editar mapeo
-                </Button>
-              ) : null}
-
-              {canDelete ? (
-                <Button
-                  size="sm"
-                  variant="danger"
-                  leftIcon={<GoTrash />}
-                  onClick={() => onDelete(record)}
-                >
-                  Eliminar
-                </Button>
-              ) : null}
             </div>
           </div>
 

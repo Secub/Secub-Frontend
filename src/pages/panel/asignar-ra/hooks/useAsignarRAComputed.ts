@@ -18,6 +18,7 @@ import {
   getMappedCompetenceIdsForCourse,
   getUniqueAssignmentCount,
   hasMeasurementForAssignment,
+  isCourseAssignmentComplete,
 } from "../AsignarRA.utils";
 
 interface UseAsignarRAComputedParams {
@@ -101,23 +102,20 @@ export function useAsignarRAComputed({
   const isCurrentCycleAssignmentComplete = useMemo(() => {
     if (!selectedCycle || !courses.length) return false;
 
-    return courses.every((course) => {
-      const mappedCompetenceIds = getMappedCompetenceIdsForCourse(course.id, selectedCycle, mapeosSource);
-      if (mappedCompetenceIds.size === 0) return false;
+    return courses.every((course) =>
+      isCourseAssignmentComplete(course, selectedCycle, allCompetencias, mapeosSource, records),
+    );
+  }, [allCompetencias, courses, mapeosSource, records, selectedCycle]);
 
-      const requiredCompetencias = allCompetencias.filter((competencia) => mappedCompetenceIds.has(competencia.id));
-      if (!requiredCompetencias.length) return false;
+  const pendingCourseIds = useMemo(() => {
+    if (!selectedCycle) return courses.map((course) => course.id);
 
-      return requiredCompetencias.every((competencia) =>
-        records.some(
-          (record) =>
-            record.cicloId === selectedCycle.id &&
-            getAssignmentCourseId(record) === course.id &&
-            getAssignmentCompetenciaId(record) === competencia.id &&
-            Boolean(getAssignmentRaId(record)),
-        ),
-      );
-    });
+    return courses
+      .filter(
+        (course) =>
+          !isCourseAssignmentComplete(course, selectedCycle, allCompetencias, mapeosSource, records),
+      )
+      .map((course) => course.id);
   }, [allCompetencias, courses, mapeosSource, records, selectedCycle]);
 
   const getCourseAssignments = useCallback(
@@ -174,6 +172,7 @@ export function useAsignarRAComputed({
     courseCompetencias,
     hasAnyAssignmentInCycle,
     isCurrentCycleAssignmentComplete,
+    pendingCourseIds,
     summaryMetrics,
     courseRows,
     getCourseAssignments,

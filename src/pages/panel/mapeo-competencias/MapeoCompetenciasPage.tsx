@@ -9,7 +9,7 @@ import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
 } from "../../../components/panel/academicWorkflow";
-import { Button, ConfirmDialog } from "../../../components/ui";
+import { Button } from "../../../components/ui";
 import {
   MapeoCompetenciasAccessState,
   MapeoCompetenciasFilters,
@@ -55,16 +55,11 @@ export default function MapeoCompetenciasPage() {
     selectedPlan,
     selectedRecord,
     canOpenCreate,
-    canOpenEdit,
-    recordToDelete,
     setFilters,
-    setRecordToDelete,
     handleCreate,
-    handleEdit,
     handleExportExcel,
     handleDownloadpdf,
     // handleExportPdf,
-    confirmDelete,
   } = page;
 
   const workflowProgress = useAcademicWorkflowProgress();
@@ -171,22 +166,7 @@ export default function MapeoCompetenciasPage() {
             records={filteredRecords}
             hasRequiredFilters={Boolean(filters.programaId && filters.planId)}
             canOpenCreate={canOpenCreate}
-            canOpenEdit={canOpenEdit}
-            selectedRecord={selectedRecord}
-            canDelete={permissions.canDelete}
             onCreate={handleCreate}
-            onEdit={handleEdit}
-            onDelete={setRecordToDelete}
-          />
-
-          <ConfirmDialog
-            open={Boolean(recordToDelete)}
-            title="Eliminar mapeo"
-            description="Esta acción marcará el registro como eliminado en mockBackend."
-            confirmLabel="Eliminar"
-            variant="danger"
-            onCancel={() => setRecordToDelete(null)}
-            onConfirm={confirmDelete}
           />
 
           {isWorkflowActive && filteredRecords.length > 0 ? (

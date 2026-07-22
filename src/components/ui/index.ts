@@ -6,6 +6,7 @@ export { Badge } from "./Badge";
 export { Table } from "./Table";
 export { Textarea } from "./Textarea";
 export { Modal } from "./Modal";
+export { InfoModalTrigger } from "./InfoModalTrigger";
 export { default as ConfirmDialog } from "./ConfirmDialog";
 export { default as Breadcrumb } from "./Breadcrumb";
 export * from "./progress";

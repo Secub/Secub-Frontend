@@ -3,8 +3,11 @@ import {
   PanelLayout,
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
-  isAcademicWorkflowStepCompleted,
 } from "../../../components/panel";
+import {
+  getAcademicWorkflowState,
+  useAcademicWorkflowProgress,
+} from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import CicloAccessState from "./components/CicloAccessState";
@@ -49,7 +52,14 @@ export default function CicloPage() {
     setSavedMessage,
   } = page;
 
-  const showFlowActionBar = !isStepLocked && isAcademicWorkflowStepCompleted("ciclo");
+  const workflowProgress = useAcademicWorkflowProgress();
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar =
+    isWorkflowActive &&
+    !isStepLocked &&
+    permissions.canReadSummary &&
+    hasCycles &&
+    Boolean(workflowProgress.ciclo);
   const handleNextStep = () => {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelAsignarRa, { role: user.role }));
   };
