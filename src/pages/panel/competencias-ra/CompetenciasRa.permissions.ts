@@ -72,18 +72,18 @@ export const rolePermissions: Record<CompetenciasRaFormacionRole, RolePermission
     canFilterByEstado: true,
   },
   docente: {
-    canRead: true,
+    canRead: false,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: true,
-    canFilterByPlan: true,
-    canFilterByEstado: true,
+    canFilterByPrograma: false,
+    canFilterByPlan: false,
+    canFilterByEstado: false,
   },
 };
 
@@ -99,7 +99,7 @@ export function getEditDisabledReason(
   CompetenciasRa: CompetenciasRaEnriched,
 ) {
   if (!rolePermissions[role].canUpdate) {
-    return "Tu rol no tiene permiso para editar esta competencia Ra.";
+    return "La edición no está disponible.";
   }
 
   if (CompetenciasRa.estado !== "activo") {

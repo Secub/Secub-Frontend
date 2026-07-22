@@ -8,9 +8,9 @@ const benefits = [
       "Permite seguir el estado de los procesos, visualizar avances y mantener una lectura clara de cada etapa del flujo académico.",
   },
   {
-    title: "Organización por roles",
+    title: "Organización del trabajo",
     description:
-      "La plataforma habilita acciones según el tipo de usuario, facilitando una experiencia más ordenada y alineada con cada responsabilidad.",
+      "La plataforma organiza los módulos y etapas del proceso para facilitar una experiencia clara y ordenada.",
   },
   {
     title: "Apoyo a la calidad",

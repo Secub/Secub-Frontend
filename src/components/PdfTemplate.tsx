@@ -20,6 +20,7 @@ import {
   StyleSheet,
   // Font,
 } from "@react-pdf/renderer";
+import { downloadFile } from "../shared/browser";
 
 // ─── Tipado de datos ────────────────────────────────────────────────────────
 
@@ -320,13 +321,8 @@ export async function downloadPdf<T>(
   filename?: string,
 ): Promise<void> {
   const blob = await pdf(<PdfDocument {...props} />).toBlob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
   const timestamp = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = filename ?? `export-${timestamp}.pdf`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadFile(blob, filename ?? `export-${timestamp}.pdf`, "application/pdf");
 }
 
 /**

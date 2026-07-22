@@ -1,12 +1,12 @@
 import type { CentralMockUser } from "../../../services/auth/mockUser";
 
-export function canReadAsignarRA(_user: CentralMockUser) {
-  return true;
+export function canReadAsignarRA(user: CentralMockUser) {
+  return user.role !== "docente";
 }
 
 export function canManageAsignarRA(user: CentralMockUser) {
   // RF07: la asignación operativa de RA queda a cargo de Dirección de programa.
-  // Admin, Vice y Decano consultan y hacen seguimiento según alcance; no editan en esta versión demo.
+  // Admin, Vicerrectoría y Decanatura consultan y hacen seguimiento según alcance.
   return user.role === "direccionPrograma";
 }
 
@@ -15,9 +15,9 @@ export function canDeleteAsignarRA(user: CentralMockUser) {
 }
 
 export function canFilterBySeccional(user: CentralMockUser) {
-  return user.role === "admin" || user.role === "vice" || user.role === "decano";
+  return user.role === "admin";
 }
 
 export function canFilterByFacultad(user: CentralMockUser) {
-  return user.role === "admin" || user.role === "vice" || user.role === "decano";
+  return user.role === "admin" || user.role === "vice";
 }

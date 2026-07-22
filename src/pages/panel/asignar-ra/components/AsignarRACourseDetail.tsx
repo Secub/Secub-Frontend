@@ -87,12 +87,6 @@ export function AsignarRACourseDetail({
 
         </div>
 
-        {!canManage ? (
-          <div className="mt-5 rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-sm leading-6 text-[var(--color-gray-3)]">
-            Este rol puede consultar asignaciones, pero no puede editar RA. La asignación corresponde a Dirección de programa según el flujo RF07.
-          </div>
-        ) : null}
-
         <div className="mt-8">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>

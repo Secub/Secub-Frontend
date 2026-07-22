@@ -1,6 +1,7 @@
 import { ROUTES } from "../../../../app/appRoutes";
 import type { DashboardFiltersState, EnrichedCycle } from "../dashboard.types";
 import type { DashboardView } from "../types/dashboard-page.types";
+import { getBrowserSearchParams } from "../../../../shared/browser";
 
 function getCycleLabel(cycle: EnrichedCycle | null) {
   return cycle?.name ?? "el ciclo seleccionado";
@@ -8,7 +9,7 @@ function getCycleLabel(cycle: EnrichedCycle | null) {
 
 export function getSearchParam(name: string) {
   if (typeof window === "undefined") return "";
-  return new URLSearchParams(window.location.search).get(name) ?? "";
+  return getBrowserSearchParams().get(name) ?? "";
 }
 
 export function getInitialView(): DashboardView {
@@ -27,7 +28,7 @@ export function buildDashboardHref(userRole: string, params?: {
   courseId?: string;
   status?: string;
 }) {
-  const currentParams = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const currentParams = typeof window === "undefined" ? new URLSearchParams() : getBrowserSearchParams();
   const nextParams = new URLSearchParams();
 
   nextParams.set("role", currentParams.get("role") ?? userRole);
@@ -48,7 +49,6 @@ export function useDashboardBreadcrumbs({
   isTeacher,
   selectedCycle,
   selectedCycleId,
-  userLabel,
   userRole,
   view,
 }: {
@@ -56,7 +56,6 @@ export function useDashboardBreadcrumbs({
   isTeacher: boolean;
   selectedCycle: EnrichedCycle | null;
   selectedCycleId: string;
-  userLabel: string;
   userRole: string;
   view: DashboardView;
 }) {
@@ -73,7 +72,7 @@ export function useDashboardBreadcrumbs({
 
   const layoutDescription =
     view === "control"
-      ? `${userLabel} - Usuario`
+      ? "Seguimiento de ciclos, cursos y resultados de aprendizaje."
       : view === "courses"
         ? "Panel de Medición"
         : `Panel de Medición · ${getCycleLabel(selectedCycle)}`;

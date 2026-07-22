@@ -86,7 +86,7 @@ export default function CicloFilters({
             Filtros
           </h2>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Consulta ciclos por programa, periodo, estado y alcance del rol actual.
+            Consulta ciclos por programa, periodo y estado.
           </p>
         </div>
 

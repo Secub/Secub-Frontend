@@ -27,7 +27,7 @@ export default function PropositoListSection({
             Lista de propósitos de formación
           </h3>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Cada fila respeta el alcance del usuario logueado y habilita acciones según su permiso actual.
+            Consulta el detalle de los propósitos registrados.
           </p>
         </div>
 

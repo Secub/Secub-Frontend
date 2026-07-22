@@ -1,4 +1,3 @@
-import { GoShieldCheck } from "react-icons/go";
 import CicloSummaryCard from "./CicloSummaryCard";
 import type { CicloEnriched, CurrentUser } from "../ciclo.types";
 
@@ -25,10 +24,6 @@ export default function CicloListSection({ cycles, user, activeCycle, onView, on
           </p>
         </div>
 
-        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm text-[var(--color-gray-3)] shadow-sm">
-          <GoShieldCheck className="text-base text-[var(--color-secondary-1)]" />
-          Acciones según rol: {user.cargo}
-        </span>
       </div>
 
       {cycles.length > 0 ? (
@@ -50,7 +45,7 @@ export default function CicloListSection({ cycles, user, activeCycle, onView, on
             No hay ciclos para los filtros seleccionados
           </h3>
           <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Ajusta los filtros o crea un ciclo nuevo desde un plan de estudios activo si tu rol tiene permiso.
+            Ajusta los filtros o crea un ciclo nuevo desde un plan de estudios activo.
           </p>
         </div>
       )}

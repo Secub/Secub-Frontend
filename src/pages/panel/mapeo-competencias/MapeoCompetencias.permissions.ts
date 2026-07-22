@@ -14,17 +14,17 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
 
 /**
  * Regla visual RF05.
- * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Jefatura de programa edita.
- * - "director-only": solo Jefatura de programa visualiza RF05; los demás roles ven acceso restringido.
+ * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Dirección de programa edita.
+ * - "director-only": solo Dirección de programa visualiza RF05; los demás roles ven acceso restringido.
  */
 export const RF05_ACCESS_POLICY = "matrix-readonly" as "matrix-readonly" | "director-only";
 
 const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   admin: {
     canRead: true,
-    canCreate: true,
-    canUpdate: true,
-    canDelete: true,
+    canCreate: false,
+    canUpdate: false,
+    canDelete: false,
     canExportPdf: true,
     canExportExcel: true,
     canFilterBySeccional: true,
@@ -41,7 +41,7 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canDelete: false,
     canExportPdf: true,
     canExportExcel: true,
-    canFilterBySeccional: true,
+    canFilterBySeccional: false,
     canFilterByLugar: true,
     canFilterByFacultad: true,
     canFilterByPrograma: true,
@@ -77,18 +77,18 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canFilterByEstado: true,
   },
   docente: {
-    canRead: true,
+    canRead: false,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: true,
-    canFilterByPlan: true,
-    canFilterByEstado: true,
+    canFilterByPrograma: false,
+    canFilterByPlan: false,
+    canFilterByEstado: false,
   },
 };
 
@@ -115,18 +115,22 @@ const directorOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> = 
     canExportExcel: false,
   },
   direccionPrograma: matrixReadOnlyPermissions.direccionPrograma,
-  docente: matrixReadOnlyPermissions.docente,
+  docente: {
+    ...matrixReadOnlyPermissions.docente,
+    canRead: false,
+    canCreate: false,
+    canUpdate: false,
+    canDelete: false,
+    canExportPdf: false,
+    canExportExcel: false,
+  },
 };
 
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> =
   RF05_ACCESS_POLICY === "director-only" ? directorOnlyPermissions : matrixReadOnlyPermissions;
 
 export function getAccessRestrictedDescription(_role: MapeoCompetenciasRole) {
-  if (RF05_ACCESS_POLICY === "director-only") {
-    return "La regla visual activa permite que solo Jefatura de programa visualice RF05 — Mapeo de Competencias específicas.";
-  }
-
-  return "Tu rol no tiene permisos de lectura para RF05 — Mapeo de Competencias específicas.";
+  return "Regresa al Estado del ciclo para continuar.";
 }
 
 export function canManageMapeo(
@@ -150,8 +154,11 @@ export function canUpdateAcademicMapeo(
   return rolePermissions[role].canUpdate && canManageMapeo(role, programaEstado);
 }
 
-export function canDeleteMapeo(role: MapeoCompetenciasRole) {
-  return rolePermissions[role].canDelete;
+export function canDeleteMapeo(
+  role: MapeoCompetenciasRole,
+  programaEstado?: ProgramaEstado,
+) {
+  return rolePermissions[role].canDelete && canManageMapeo(role, programaEstado);
 }
 
 export function getManageDisabledReason(
@@ -159,7 +166,7 @@ export function getManageDisabledReason(
   programaEstado?: ProgramaEstado,
 ) {
   if (role !== "direccionPrograma") {
-    return "La clasificación de núcleos y el mapeo I-R-A-NA son responsabilidad de Jefatura de programa.";
+    return "";
   }
 
   if (programaEstado !== "activo") {

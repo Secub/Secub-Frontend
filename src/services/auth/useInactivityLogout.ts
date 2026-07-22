@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
+import { getBrowserLocation, sessionStorageClient, storageClient } from "../../shared/browser";
 
 export const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
 
@@ -25,21 +26,11 @@ const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
   "touchstart",
 ];
 
-function clearStorageKeys(storage: Storage | undefined) {
-  if (!storage) return;
-
-  try {
-    AUTH_STORAGE_KEYS.forEach((key) => storage.removeItem(key));
-  } catch {
-    // Evita bloquear el cierre de sesión si el navegador restringe el acceso al storage.
-  }
-}
-
 export function clearSecubAuthSession() {
-  if (typeof window === "undefined") return;
-
-  clearStorageKeys(window.localStorage);
-  clearStorageKeys(window.sessionStorage);
+  AUTH_STORAGE_KEYS.forEach((key) => {
+    storageClient.remove(key);
+    sessionStorageClient.remove(key);
+  });
 }
 
 export function useInactivityLogout(enabled: boolean) {
@@ -52,7 +43,8 @@ export function useInactivityLogout(enabled: boolean) {
     const logoutByInactivity = () => {
       clearSecubAuthSession();
 
-      const currentRoute = `${window.location.pathname}${window.location.search}`;
+      const location = getBrowserLocation();
+      const currentRoute = `${location.pathname}${location.search}`;
       const params = new URLSearchParams({
         reason: "inactive",
         redirect: currentRoute,

@@ -8,12 +8,12 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
   admin: "Admin (Empresa)",
   vice: "Vicerrectoría (Seccional)",
   decano: "Decanatura",
-  direccionPrograma: "Jefatura de programa",
+  direccionPrograma: "Dirección de programa",
   docente: "Docencia",
 };
 
-// Regla funcional RF05: la Jefatura de programa define la Gestión Académica.
-// Admin, Vicerrector y Decano consultan/exportan según alcance; Docente visualiza el módulo en modo consulta.
+// Regla funcional RF05: Dirección de programa define la Gestión Académica.
+// Admin, Vicerrectoría y Decanatura consultan/exportan según alcance; Docencia no accede a este módulo.
 export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
   admin: {
     canRead: true,
@@ -72,18 +72,18 @@ export const rolePermissions: Record<MapeoCompetenciasRole, RolePermissions> = {
     canFilterByEstado: true,
   },
   docente: {
-    canRead: true,
+    canRead: false,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: true,
-    canFilterByPlan: true,
-    canFilterByEstado: true,
+    canFilterByPrograma: false,
+    canFilterByPlan: false,
+    canFilterByEstado: false,
   },
 };
 
@@ -99,7 +99,7 @@ export function getEditDisabledReason(
   CompetenciasRa: MapeoCompetenciasEnriched,
 ) {
   if (!rolePermissions[role].canUpdate) {
-    return "Tu rol no tiene permiso para editar esta competencia Ra.";
+    return "La edición no está disponible.";
   }
 
   if (CompetenciasRa.estado !== "activo") {

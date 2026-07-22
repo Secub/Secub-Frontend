@@ -67,7 +67,7 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canFilterByEstado: true,
   },
   docente: {
-    canReadSummary: true,
+    canReadSummary: false,
     canCreateCycle: false,
     canEditCycle: false,
     canDeleteCycle: false,
@@ -75,9 +75,9 @@ export const cicloRolePermissions: Record<CicloRole, CicloRolePermissions> = {
     canConfirmSelection: false,
     canFilterBySeccional: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: true,
-    canFilterByPeriodo: true,
-    canFilterByEstado: true,
+    canFilterByPrograma: false,
+    canFilterByPeriodo: false,
+    canFilterByEstado: false,
   },
 };
 
@@ -96,7 +96,7 @@ export function canManageCycle(user: CurrentUser, ciclo: CicloEnriched) {
 
 export function getCycleActionDisabledReason(user: CurrentUser, ciclo: CicloEnriched) {
   if (!cicloRolePermissions[user.role].canEditCycle) {
-    return "Tu rol actual solo permite consultar el resumen del ciclo.";
+    return "La edición no está disponible.";
   }
 
   if (ciclo.estado === "finalizado") {
@@ -104,7 +104,7 @@ export function getCycleActionDisabledReason(user: CurrentUser, ciclo: CicloEnri
   }
 
   if (user.role === "direccionPrograma" && user.scope.programaId !== ciclo.programaId) {
-    return "Solo puedes editar ciclos asociados a tu programa académico.";
+    return "Este ciclo pertenece a otro programa académico.";
   }
 
   if (ciclo.planEstado !== "activo") {
@@ -129,7 +129,7 @@ export function canDuplicateCycle(user: CurrentUser, ciclo: CicloEnriched) {
 
 export function getDuplicateCycleDisabledReason(user: CurrentUser, ciclo: CicloEnriched) {
   if (!cicloRolePermissions[user.role].canDuplicateCycle) {
-    return "Tu rol actual no tiene permiso para duplicar ciclos.";
+    return "La duplicación no está disponible.";
   }
 
   if (ciclo.estado !== "finalizado") {
@@ -137,7 +137,7 @@ export function getDuplicateCycleDisabledReason(user: CurrentUser, ciclo: CicloE
   }
 
   if (user.role === "direccionPrograma" && user.scope.programaId !== ciclo.programaId) {
-    return "Solo puedes duplicar ciclos asociados a tu programa académico.";
+    return "Este ciclo pertenece a otro programa académico.";
   }
 
   return "";

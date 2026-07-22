@@ -90,31 +90,40 @@ export function useMedicionRAPersistence({
 
     const { relatedCiclo, cicloId, asignacionRaIds } = medicionRaContext;
 
-    ignoreNextBackendChangeRef.current = true;
-    mockBackend.upsert<MedicionRaDemoState>(
-      "medicionesRa",
-      {
-        id: medicionRaDemoStateId,
-        cicloId,
-        asignacionRaId: asignacionRaIds[0],
-        asignacionRaIds,
-        selectedCourseId,
-        activeCompetenceId,
-        evaluationsByCourse: courseEvaluations,
-        instrumentsByCourse: courseInstruments,
-        evidenceByCompetence: courseEvidence,
-        improvementByCompetence: courseImprovementPlans,
-        completedCompetenceIds,
-        isEvaluationLocked: isSelectedCourseLocked,
-        completed: isSelectedCourseLocked,
-        userId: currentUser.id,
-        seccionalId: selectedCourse.seccionalId ?? relatedCiclo?.seccionalId,
-        facultadId: selectedCourse.facultadId ?? relatedCiclo?.facultadId,
-        programaId: selectedCourse.programaId ?? relatedCiclo?.programaId,
-        planId: selectedCourse.planId ?? relatedCiclo?.planId,
-      },
-      currentUser,
+    const persistState = () => {
+      ignoreNextBackendChangeRef.current = true;
+      mockBackend.upsert<MedicionRaDemoState>(
+        "medicionesRa",
+        {
+          id: medicionRaDemoStateId,
+          cicloId,
+          asignacionRaId: asignacionRaIds[0],
+          asignacionRaIds,
+          selectedCourseId,
+          activeCompetenceId,
+          evaluationsByCourse: courseEvaluations,
+          instrumentsByCourse: courseInstruments,
+          evidenceByCompetence: courseEvidence,
+          improvementByCompetence: courseImprovementPlans,
+          completedCompetenceIds,
+          isEvaluationLocked: isSelectedCourseLocked,
+          completed: isSelectedCourseLocked,
+          userId: currentUser.id,
+          seccionalId: selectedCourse.seccionalId ?? relatedCiclo?.seccionalId,
+          facultadId: selectedCourse.facultadId ?? relatedCiclo?.facultadId,
+          programaId: selectedCourse.programaId ?? relatedCiclo?.programaId,
+          planId: selectedCourse.planId ?? relatedCiclo?.planId,
+        },
+        currentUser,
+      );
+    };
+
+    const timeoutId = window.setTimeout(
+      persistState,
+      isSelectedCourseLocked ? 0 : 500,
     );
+
+    return () => window.clearTimeout(timeoutId);
   }, [
     activeCompetenceId,
     completedCompetenceIds,

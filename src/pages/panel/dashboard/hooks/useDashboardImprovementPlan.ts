@@ -32,6 +32,7 @@ export function useDashboardImprovementPlan({
     const existingPlan = mockBackend.getById<DashboardImprovementPlanRecord>(
       "planesMejora",
       `plan-mejora-${cycle.id}`,
+      user,
     );
 
     setImprovementCycle(cycle);
@@ -64,6 +65,7 @@ export function useDashboardImprovementPlan({
     const existingPlan = mockBackend.getById<DashboardImprovementPlanRecord>(
       "planesMejora",
       `plan-mejora-${improvementCycle.id}`,
+      user,
     );
 
     // TODO backend: reemplazar este registro demo por el CRUD real de planes de mejora

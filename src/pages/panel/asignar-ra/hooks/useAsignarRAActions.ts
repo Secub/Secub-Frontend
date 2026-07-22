@@ -128,7 +128,7 @@ export function useAsignarRAActions({
     if (!selectedCourse) return "Selecciona un curso de Síntesis para asignar RA.";
     if (selectedCourse.nucleo !== "Síntesis") return "Solo se pueden asignar RA a cursos de Síntesis.";
     if (!courseCompetencias.length) return "El curso seleccionado no tiene competencias asociadas. Revisa el Mapeo de Competencias.";
-    if (!canManage) return "Solo Dirección de programa puede guardar asignaciones RA.";
+    if (!canManage) return "";
     return "";
   };
 
@@ -176,6 +176,8 @@ export function useAsignarRAActions({
   };
 
   const persistCourseAssignments = () => {
+    if (!canManage) return false;
+
     if (!selectedCycle || !selectedCourse) return false;
 
     persistCourseAssignmentsForCourse({
@@ -279,6 +281,11 @@ export function useAsignarRAActions({
   };
 
   const handleDeleteCourseAssignments = () => {
+    if (!canManage) {
+      setShowDeleteConfirm(false);
+      return;
+    }
+
     if (!selectedCourse || !selectedCycle) return;
     selectedCourseAssignments.forEach((record) => removeAssignmentAndMeasurements(record.id));
     refreshBackendState();
@@ -287,6 +294,11 @@ export function useAsignarRAActions({
   };
 
   const handleConfirmFinishAcademicFlow = () => {
+    if (!canManage) {
+      setShowFinishAcademicFlowConfirm(false);
+      return;
+    }
+
     const completedPlan = completeAcademicWorkflowFromCurrentProgress();
 
     if (!completedPlan) {

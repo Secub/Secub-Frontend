@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { GoInfo, GoPeople } from "react-icons/go";
 import { Modal } from "../../../../components/ui";
 import { performanceLevels } from "../medicion-ra.mock";
@@ -155,7 +155,7 @@ export default function StudentsEvaluationTable({
                       <select
                         value={selectedLevel}
                         disabled={disabled}
-                        onChange={(event) =>
+                        onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                           onLevelChange(
                             student.id,
                             ra.id,

@@ -91,7 +91,7 @@ export default function CompetenciasRaFormacionPage() {
     <PanelLayout
       currentStep="competencias-ra"
       title="Competencias y Resultados de Aprendizaje"
-      description="Gestión, consulta y exportación de las competencias y resultados de aprendizaje según el alcance institucional del rol autenticado."
+      description="Consulta y gestión de competencias y Resultados de Aprendizaje."
       actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
       {isStepLocked ? (

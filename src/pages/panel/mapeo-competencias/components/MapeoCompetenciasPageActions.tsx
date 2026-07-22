@@ -46,11 +46,7 @@ export default function MapeoCompetenciasPageActions({
           leftIcon={<GoFile className="text-lg" />}
           onClick={() => onExport("pdf")}
           disabled={!permissions.canExportPdf || filteredRecords.length === 0}
-          title={
-            permissions.canExportPdf
-              ? "Exportar resultados filtrados en PDF"
-              : "Tu rol no tiene permiso para exportar en PDF."
-          }
+          title={filteredRecords.length > 0 ? "Exportar resultados filtrados en PDF" : "No hay registros para exportar."}
         >
           PDF
         </Button>
@@ -64,11 +60,7 @@ export default function MapeoCompetenciasPageActions({
           leftIcon={<GoDownload className="text-lg" />}
           onClick={() => onExport("excel")}
           disabled={!permissions.canExportExcel || filteredRecords.length === 0}
-          title={
-            permissions.canExportExcel
-              ? "Exportar resultados filtrados en Excel"
-              : "Tu rol no tiene permiso para exportar en Excel."
-          }
+          title={filteredRecords.length > 0 ? "Exportar resultados filtrados en Excel" : "No hay registros para exportar."}
         >
           Excel
         </Button>

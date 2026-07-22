@@ -5,7 +5,13 @@ import {
   resetAcademicPlanState,
 } from "./academicPlanState";
 import { DEMO_DOCENTE_SECUB, LEGACY_DEMO_DOCENTE_IDS } from "../auth/mockUser";
+import {
+  canWriteSecubEntity,
+  getWriteAccessDeniedMessage,
+  type SecubWriteAction,
+} from "../auth/roleAccess";
 import { MAX_RA_PER_COMPETENCIA } from "../../utils/learningResultsRules";
+import { storageClient } from "../../shared/browser";
 
 export type MockBackendEntityKey =
   | "perfilEgreso"
@@ -50,8 +56,8 @@ export interface MockBackendUser {
   scope?: MockUserScope;
 }
 
-const MOCK_BACKEND_ROOT_KEY = "secub:mock-backend:v1";
-const DEMO_INTRO_ROOT_KEY = "secub:demo-intro-flags:v1";
+const MOCK_BACKEND_ROOT_KEY = "secub:mock-backend:v2";
+const DEMO_INTRO_ROOT_KEY = "secub:demo-intro-flags:v2";
 
 const DEFAULT_COLLECTIONS: Record<MockBackendEntityKey, MockBackendRecord[]> = {
   perfilEgreso: [],
@@ -71,11 +77,7 @@ type MockBackendDatabase = typeof DEFAULT_COLLECTIONS;
 type IntroFlags = Record<string, boolean>;
 
 function canUseLocalStorage() {
-  try {
-    return typeof window !== "undefined" && "localStorage" in window;
-  } catch {
-    return false;
-  }
+  return storageClient.isAvailable();
 }
 
 function readDatabase(): MockBackendDatabase {
@@ -84,7 +86,7 @@ function readDatabase(): MockBackendDatabase {
   }
 
   try {
-    const rawDatabase = window.localStorage.getItem(MOCK_BACKEND_ROOT_KEY);
+    const rawDatabase = storageClient.get(MOCK_BACKEND_ROOT_KEY);
     if (!rawDatabase) return { ...DEFAULT_COLLECTIONS };
 
     const parsed = JSON.parse(rawDatabase) as Partial<MockBackendDatabase>;
@@ -101,7 +103,7 @@ function readDatabase(): MockBackendDatabase {
 function writeDatabase(database: MockBackendDatabase) {
   if (!canUseLocalStorage()) return;
 
-  window.localStorage.setItem(MOCK_BACKEND_ROOT_KEY, JSON.stringify(database));
+  storageClient.set(MOCK_BACKEND_ROOT_KEY, JSON.stringify(database));
   window.dispatchEvent(new CustomEvent("secub:mock-backend-updated"));
 }
 
@@ -120,7 +122,6 @@ function isAcademicWorkflowEntity(entityKey: MockBackendEntityKey) {
   );
 }
 
-
 function isVisibleForUser<T extends MockBackendRecord>(
   entityKey: MockBackendEntityKey,
   record: T,
@@ -136,7 +137,12 @@ function isVisibleForUser<T extends MockBackendRecord>(
 
   // En modo demo, la Medición RA conserva progreso por usuario/ciclo/asignación.
   // TODO: cuando exista backend, reemplazar esta regla por permisos reales del servicio.
-  if (entityKey === "medicionesRa" && record.userId && record.userId !== user.id) {
+  if (
+    entityKey === "medicionesRa" &&
+    user.role === "docente" &&
+    record.userId &&
+    record.userId !== user.id
+  ) {
     const isCurrentDocenteSecubDemo = user.role === "docente" && user.id === DEMO_DOCENTE_SECUB.id;
     const isLegacyDocenteMeasurement = legacyDemoDocenteIds.has(record.userId);
 
@@ -165,6 +171,67 @@ function isVisibleForUser<T extends MockBackendRecord>(
   return true;
 }
 
+
+function assertAuthorizedWrite(
+  entityKey: MockBackendEntityKey,
+  action: SecubWriteAction,
+  user?: MockBackendUser | null,
+) {
+  if (!user || !canWriteSecubEntity(user.role, entityKey, action)) {
+    throw new Error(getWriteAccessDeniedMessage(entityKey));
+  }
+}
+
+function assertRecordWithinUserScope(
+  record: MockBackendRecord,
+  user?: MockBackendUser | null,
+) {
+  if (!user) throw new Error("No fue posible validar el usuario actual.");
+
+  const scope = user.scope ?? {};
+  const recordProgramId = record.programaId ?? record.academicProgramId;
+  const userProgramId = scope.programaId ?? scope.academicProgramId;
+
+  if (scope.seccionalId && record.seccionalId && record.seccionalId !== scope.seccionalId) {
+    throw new Error("La operación solicitada no está disponible para este registro.");
+  }
+
+  if (scope.facultadId && record.facultadId && record.facultadId !== scope.facultadId) {
+    throw new Error("La operación solicitada no está disponible para este registro.");
+  }
+
+  if (userProgramId && recordProgramId && recordProgramId !== userProgramId) {
+    throw new Error("La operación solicitada no está disponible para este registro.");
+  }
+
+  if (scope.planId && record.planId && record.planId !== scope.planId) {
+    throw new Error("La operación solicitada no está disponible para este registro.");
+  }
+
+  if (user.role === "docente" && record.userId && record.userId !== user.id) {
+    throw new Error("La operación solicitada no está disponible para este registro.");
+  }
+}
+
+function assertExistingRecordCanBeModified(
+  entityKey: MockBackendEntityKey,
+  record: MockBackendRecord | undefined,
+  user?: MockBackendUser | null,
+) {
+  if (!record || record.deletedAt) {
+    throw new Error("El registro que intentas modificar no existe.");
+  }
+
+  if (!isVisibleForUser(entityKey, record, user)) {
+    throw new Error("No tienes acceso al registro solicitado.");
+  }
+
+  if (record.readonlyInherited || record.isInheritedAcademicBase) {
+    throw new Error("La información heredada es de solo lectura.");
+  }
+
+  assertRecordWithinUserScope(record, user);
+}
 
 function assertValidRecordForWrite<T extends MockBackendRecord>(
   entityKey: MockBackendEntityKey,
@@ -253,7 +320,7 @@ function readIntroFlags(): IntroFlags {
   if (!canUseLocalStorage()) return {};
 
   try {
-    return JSON.parse(window.localStorage.getItem(DEMO_INTRO_ROOT_KEY) ?? "{}") as IntroFlags;
+    return JSON.parse(storageClient.get(DEMO_INTRO_ROOT_KEY) ?? "{}") as IntroFlags;
   } catch {
     return {};
   }
@@ -261,7 +328,7 @@ function readIntroFlags(): IntroFlags {
 
 function writeIntroFlags(flags: IntroFlags) {
   if (!canUseLocalStorage()) return;
-  window.localStorage.setItem(DEMO_INTRO_ROOT_KEY, JSON.stringify(flags));
+  storageClient.set(DEMO_INTRO_ROOT_KEY, JSON.stringify(flags));
 }
 
 function getIntroKey(userId: string, moduleKey: string) {
@@ -275,12 +342,21 @@ export const mockBackend = {
     return records.filter((record) => !record.deletedAt && isVisibleForUser(entityKey, record, user));
   },
 
-  getById<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, id: string): T | null {
+  getById<T extends MockBackendRecord>(
+    entityKey: MockBackendEntityKey,
+    id: string,
+    user?: MockBackendUser | null,
+  ): T | null {
     const database = readDatabase();
-    return ((database[entityKey] ?? []).find((record) => record.id === id && !record.deletedAt) as T) ?? null;
+    const record = (database[entityKey] ?? []).find((item) => item.id === id && !item.deletedAt) as T | undefined;
+
+    if (!record || (user && !isVisibleForUser(entityKey, record, user))) return null;
+    return record;
   },
 
   create<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T[] {
+    assertAuthorizedWrite(entityKey, "create", user);
+    assertRecordWithinUserScope(record, user);
     assertValidRecordForWrite(entityKey, record);
     const database = readDatabase();
     const nextRecord = decorateRecord(entityKey, record, user);
@@ -295,8 +371,12 @@ export const mockBackend = {
   },
 
   update<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T[] {
+    assertAuthorizedWrite(entityKey, "update", user);
     assertValidRecordForWrite(entityKey, record);
     const database = readDatabase();
+    const existingRecord = (database[entityKey] ?? []).find((item) => item.id === record.id);
+    assertExistingRecordCanBeModified(entityKey, existingRecord, user);
+    assertRecordWithinUserScope(record, user);
     const nextRecord = decorateRecord(entityKey, record, user);
     const nextRecords = (database[entityKey] ?? []).map((item) =>
       item.id === record.id ? nextRecord : item,
@@ -311,6 +391,9 @@ export const mockBackend = {
   },
 
   upsert<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, record: T, user?: MockBackendUser | null): T[] {
+    assertAuthorizedWrite(entityKey, "upsert", user);
+    assertRecordWithinUserScope(record, user);
+
     if (entityKey === "mapeosCompetencias") {
       const database = readDatabase();
       const matchingRecords = (database[entityKey] ?? []).filter((item) => {
@@ -327,6 +410,7 @@ export const mockBackend = {
 
       if (matchingRecords.length > 0) {
         const canonical = matchingRecords[0];
+        assertExistingRecordCanBeModified(entityKey, canonical, user);
         const nextRecord = decorateRecord(entityKey, { ...record, id: canonical.id }, user);
         const recordProgramId = (record as T & { programaId?: string; academicProgramId?: string }).programaId ?? (record as T & { programaId?: string; academicProgramId?: string }).academicProgramId;
         const recordPlanId = (record as T & { planId?: string }).planId;
@@ -351,13 +435,16 @@ export const mockBackend = {
       }
     }
 
-    return mockBackend.getById<T>(entityKey, record.id)
+    return mockBackend.getById<T>(entityKey, record.id, user)
       ? mockBackend.update<T>(entityKey, record, user)
       : mockBackend.create<T>(entityKey, record, user);
   },
 
   remove<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, id: string, user?: MockBackendUser | null): T[] {
+    assertAuthorizedWrite(entityKey, "delete", user);
     const database = readDatabase();
+    const existingRecord = (database[entityKey] ?? []).find((item) => item.id === id);
+    assertExistingRecordCanBeModified(entityKey, existingRecord, user);
     const now = new Date().toISOString();
     const nextRecords = (database[entityKey] ?? []).map((item) =>
       item.id === id ? { ...item, deletedAt: now, updatedAt: now } : item,
@@ -377,14 +464,6 @@ export const mockBackend = {
     return mockBackend.list<T>(entityKey, user);
   },
 
-  replaceCollection<T extends MockBackendRecord>(entityKey: MockBackendEntityKey, records: T[]) {
-    const database = readDatabase();
-    writeDatabase({
-      ...database,
-      [entityKey]: records,
-    });
-  },
-
   count(entityKey: MockBackendEntityKey, user?: MockBackendUser | null) {
     return this.list(entityKey, user).length;
   },
@@ -394,6 +473,15 @@ export const mockBackend = {
     writeDatabase({ ...DEFAULT_COLLECTIONS });
     writeIntroFlags({});
     resetAcademicPlanState();
+
+    if (canUseLocalStorage()) {
+      storageClient.remove("secub:mock-backend:v1");
+      storageClient.remove("secub:demo-intro-flags:v1");
+      storageClient.remove("secub:active-academic-plan:v1");
+      storageClient.remove("secub:archived-academic-plans:v1");
+      storageClient.remove("secub:selected-program-id:v1");
+      storageClient.remove("secub:selected-program-id:v2");
+    }
   },
 
   seedDemoData(seed: Partial<MockBackendDatabase>) {

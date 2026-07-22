@@ -44,12 +44,11 @@ export default function DashboardPage() {
       <PanelLayout
         currentStep="dashboard"
         title="Estado del ciclo"
-        description={`${dashboard.user.label} - Usuario`}
+        description="Seguimiento de ciclos, cursos y resultados de aprendizaje."
       >
         <DashboardEmptyState
           title="No tienes cursos asignados a ciclos de medición"
           description="Cuando tengas cursos de Síntesis vinculados a un ciclo de medición, aquí verás el avance, los pendientes y los reportes individuales disponibles."
-          helperText="Este estado cubre el escenario en el que el docente no tiene cursos de Síntesis asignados a ningún ciclo activo o finalizado."
         />
       </PanelLayout>
     );
@@ -60,12 +59,11 @@ export default function DashboardPage() {
       <PanelLayout
         currentStep="dashboard"
         title="Estado del ciclo"
-        description={`${dashboard.user.label} - Usuario`}
+        description="Seguimiento de ciclos, cursos y resultados de aprendizaje."
       >
         <DashboardEmptyState
           title="Aún no se han creado ciclos de medición"
           description="Para visualizar avances, pendientes y reportes consolidados primero se debe crear un ciclo de medición desde el módulo Creación del ciclo."
-          helperText="La creación del ciclo es exclusiva de Dirección de programa. Los demás roles solo consultan la información disponible."
         />
       </PanelLayout>
     );

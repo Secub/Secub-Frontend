@@ -1,4 +1,4 @@
-import { ITIS_API_BASE_URL } from "../../config/api.config";
+import { httpClient } from "../../infrastructure/api";
 
 export type ItisServiceName =
   | "catalogo-organizacional"
@@ -20,57 +20,15 @@ interface ItisRequestOptions {
   signal?: AbortSignal;
 }
 
-function createUrl(service: ItisServiceName, query?: ItisQuery): string {
-  const queryString = new URLSearchParams();
-
-  for (const [key, rawValue] of Object.entries(query ?? {})) {
-    if (rawValue === undefined || rawValue === null || rawValue === "") {
-      continue;
-    }
-
-    const values = Array.isArray(rawValue) ? rawValue : [rawValue];
-    for (const value of values) queryString.append(key, String(value));
-  }
-
-  const suffix = queryString.size > 0 ? `?${queryString.toString()}` : "";
-  return `${ITIS_API_BASE_URL}/${service}${suffix}`;
-}
-
-export async function requestItis<T = unknown>(
+export function requestItis<T = unknown>(
   service: ItisServiceName,
   options: ItisRequestOptions = {},
 ): Promise<T> {
-  const method = options.method ?? "GET";
-  const response = await fetch(createUrl(service, options.query), {
-    method,
-    headers: method === "POST" ? { "Content-Type": "application/json" } : {},
-    body: method === "POST" ? JSON.stringify(options.body ?? {}) : undefined,
-    signal: options.signal,
-  });
-
-  const text = await response.text();
-  let payload: unknown = null;
-  if (text) {
-    try {
-      payload = JSON.parse(text) as unknown;
-    } catch {
-      payload = text;
-    }
+  const path = `/itis/${service}`;
+  if (options.method === "POST") {
+    return httpClient.post<T>(path, options.body ?? {}, { signal: options.signal });
   }
-
-  if (!response.ok) {
-    const message =
-      typeof payload === "object" && payload !== null
-        ? "message" in payload && typeof payload.message === "string"
-          ? payload.message
-          : "error" in payload && typeof payload.error === "string"
-            ? payload.error
-            : `La solicitud a ITIS falló con estado ${response.status}.`
-        : `La solicitud a ITIS falló con estado ${response.status}.`;
-    throw new Error(message);
-  }
-
-  return payload as T;
+  return httpClient.get<T>(path, { query: options.query, signal: options.signal });
 }
 
 function get<T>(service: ItisServiceName, query?: ItisQuery): Promise<T> {

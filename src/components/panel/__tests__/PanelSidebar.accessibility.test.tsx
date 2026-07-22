@@ -10,6 +10,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PanelSidebar from "../PanelSidebar";
 import type { PanelStepKey } from "../panelNavigation";
+import { showNotification } from "../../../shared/feedback";
 
 let workflowState: "inProgress" | "completed" | "newAcademicPlan" =
   "inProgress";
@@ -33,6 +34,10 @@ vi.mock("../../../services/auth/mockUser", () => ({
 
 vi.mock("../../../config/demo.config", () => ({
   SHOW_DEMO_TOOLS: false,
+}));
+
+vi.mock("../../../shared/feedback", () => ({
+  showNotification: vi.fn(),
 }));
 
 vi.mock("../academicWorkflow", () => ({
@@ -90,10 +95,6 @@ describe("PanelSidebar accesible", () => {
     workflowState = "inProgress";
     renewalAvailable = false;
 
-    Object.defineProperty(window, "alert", {
-      writable: true,
-      value: vi.fn(),
-    });
   });
 
   afterEach(() => {
@@ -144,7 +145,7 @@ describe("PanelSidebar accesible", () => {
 
     await userEvent.click(newPlan);
 
-    expect(window.alert).toHaveBeenCalledWith(
+    expect(showNotification).toHaveBeenCalledWith(
       expect.stringMatching(/1.5 años/i),
     );
 

@@ -5,13 +5,14 @@ import {
 } from "../../../../services/auth/mockUser";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCicloCatalogs } from "../../ciclo/ciclo.mock";
-import { mockCourses } from "../medicion-ra.mock";
+import { getStudentsByCourse } from "../../../../data/secubAcademicPrograms";
 import type { Competence, CourseRecord } from "../medicion-ra.types";
 import type {
   AsignacionRaDemoRecord,
   CicloDemoRecord,
   CompetenciaDemoRecord,
 } from "../types/medicionRA.persistence.types";
+import { getBrowserSearchParams } from "../../../../shared/browser";
 
 export function getCourseIdFromAssignment(asignacion: AsignacionRaDemoRecord) {
   return asignacion.cursoId ?? asignacion.cursoIds?.[0] ?? "";
@@ -39,13 +40,11 @@ const docenteSecubCompatibleIds = new Set<string>([
 ]);
 
 const docenteSecubCompatibleNames = new Set(
-  [DEMO_DOCENTE_SECUB.nombre, "Docente Psicología", "Docente Derecho"].map(normalizeComparableText),
+  [DEMO_DOCENTE_SECUB.nombre].map(normalizeComparableText),
 );
 
 const docenteSecubCompatibleEmails = new Set(
-  [DEMO_DOCENTE_SECUB.email, "docente.psicologia@usb.edu.co", "docente.derecho@usb.edu.co"].map(
-    normalizeComparableText,
-  ),
+  [DEMO_DOCENTE_SECUB.email].filter(Boolean).map(normalizeComparableText),
 );
 
 function isDocenteSecubDemoUser(user: ReturnType<typeof getCurrentMockUser>) {
@@ -102,12 +101,15 @@ function isAssignmentVisibleForDocente(
 
 export function getSearchCourseId() {
   if (typeof window === "undefined") return "";
-  return new URLSearchParams(window.location.search).get("courseId") ?? "";
+  return getBrowserSearchParams().get("courseId") ?? "";
 }
 
 export function resolveMedicionRaContextForCourse(course?: CourseRecord) {
   const cicloId = course?.cycleId;
-  const relatedCiclo = cicloId ? mockBackend.getById<CicloDemoRecord>("ciclosMedicion", cicloId) : undefined;
+  const currentUser = getCurrentMockUser();
+  const relatedCiclo = cicloId
+    ? mockBackend.getById<CicloDemoRecord>("ciclosMedicion", cicloId, currentUser)
+    : undefined;
 
   return {
     relatedCiclo,
@@ -136,8 +138,6 @@ export function buildCoursesFromRealAssignments(user: ReturnType<typeof getCurre
     acc[groupKey] = [...(acc[groupKey] ?? []), assignment];
     return acc;
   }, {});
-
-  const demoStudents = mockCourses[0]?.students ?? [];
 
   return Object.entries(assignmentsByCourse)
     .map(([, courseAssignments]): CourseRecord | null => {
@@ -202,7 +202,7 @@ export function buildCoursesFromRealAssignments(user: ReturnType<typeof getCurre
         programaId: courseAssignments[0]?.programaId ?? course.programaId,
         planId: courseAssignments[0]?.planId ?? course.planId,
         competences,
-        students: demoStudents,
+        students: getStudentsByCourse(course.id).map(({ courseId: _courseId, ...student }) => student),
       } satisfies CourseRecord;
     })
     .filter((item): item is CourseRecord => Boolean(item));

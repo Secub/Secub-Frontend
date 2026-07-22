@@ -107,7 +107,7 @@ export default function MapeoCompetenciasFilters({
           Filtros del mapeo
         </h2>
         <p className="text-sm leading-6 text-[var(--color-gray-3)]">
-          Selecciona el alcance académico para consultar o administrar la matriz curricular.
+          Selecciona los filtros académicos para visualizar la matriz curricular.
         </p>
       </div>
 

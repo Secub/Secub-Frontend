@@ -99,7 +99,7 @@ export default function MapeoCompetenciasPage() {
     >
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
-          title="Acceso restringido"
+          title="Módulo no disponible"
           description={getAccessRestrictedDescription(currentUser.role)}
         />
       ) : !hasRecords ? (
@@ -153,12 +153,6 @@ export default function MapeoCompetenciasPage() {
           {selectedPrograma?.estado === "inactivo" || selectedPlan?.estado === "inactivo" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
               Este programa académico está inactivo. Solo puedes visualizar la información.
-            </div>
-          ) : null}
-
-          {currentUser.role !== "direccionPrograma" ? (
-            <div className="rounded-[var(--radius-lg)] border border-[var(--color-info)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
-              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Dirección de programa.
             </div>
           ) : null}
 

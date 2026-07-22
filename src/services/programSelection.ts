@@ -4,16 +4,9 @@ import {
   secubAcademicPrograms,
   type SecubProgramId,
 } from "../data/secubAcademicPrograms";
+import { getBrowserSearchParams, storageClient } from "../shared/browser";
 
-export const SELECTED_PROGRAM_STORAGE_KEY = "secub:selected-program-id:v1";
-
-function canUseStorage() {
-  try {
-    return typeof window !== "undefined" && "localStorage" in window;
-  } catch {
-    return false;
-  }
-}
+export const SELECTED_PROGRAM_STORAGE_KEY = "secub:selected-program-id:v2";
 
 function normalizeProgramId(value?: string | null): SecubProgramId | "" {
   const normalized = String(value ?? "").trim().toLowerCase();
@@ -23,13 +16,11 @@ function normalizeProgramId(value?: string | null): SecubProgramId | "" {
 }
 
 export function readSelectedProgramId(): SecubProgramId | "" {
-  if (!canUseStorage()) return "";
-
-  const params = new URLSearchParams(window.location.search);
+  const params = getBrowserSearchParams();
   const fromQuery = normalizeProgramId(params.get("programaId") ?? params.get("programId"));
   if (fromQuery) return fromQuery;
 
-  return normalizeProgramId(window.localStorage.getItem(SELECTED_PROGRAM_STORAGE_KEY));
+  return normalizeProgramId(storageClient.get(SELECTED_PROGRAM_STORAGE_KEY));
 }
 
 export function hasSelectedProgram() {
@@ -45,13 +36,11 @@ export function getSelectedProgramScope() {
 }
 
 export function persistSelectedProgramId(programId: SecubProgramId) {
-  if (!canUseStorage()) return;
-  window.localStorage.setItem(SELECTED_PROGRAM_STORAGE_KEY, programId);
+  storageClient.set(SELECTED_PROGRAM_STORAGE_KEY, programId);
   window.dispatchEvent(new CustomEvent("secub:selected-program-updated", { detail: { programId } }));
 }
 
 export function clearSelectedProgramId() {
-  if (!canUseStorage()) return;
-  window.localStorage.removeItem(SELECTED_PROGRAM_STORAGE_KEY);
+  storageClient.remove(SELECTED_PROGRAM_STORAGE_KEY);
   window.dispatchEvent(new CustomEvent("secub:selected-program-updated", { detail: { programId: "" } }));
 }

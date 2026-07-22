@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { getCurrentMockUser } from "../../../../services/auth/mockUser";
 import { mockBackend } from "../../../../services/mockBackend";
-import { mockCourses } from "../medicion-ra.mock";
 import type { AsignacionRaDemoRecord, MedicionRaDemoState } from "../types/medicionRA.persistence.types";
 import { buildCoursesFromRealAssignments, getSearchCourseId } from "../utils/medicionRA.assignments";
 import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
@@ -21,9 +20,7 @@ export function useMedicionRAData() {
   const availableCourses = useMemo(() => {
     const realCourses = buildCoursesFromRealAssignments(currentUser);
 
-    // Fallback demo: solo se conserva cuando todavía no existen asignaciones reales desde RF07.
-    // Si ya existen asignaciones reales de otros docentes, este docente ve estado vacío y no mockCourses.
-    return realCourses.length > 0 ? realCourses : hasRealAssignments ? [] : mockCourses;
+    return realCourses;
   }, [backendVersion, currentUser, hasRealAssignments]);
 
   const initialCourseId = useMemo(() => {
@@ -32,7 +29,7 @@ export function useMedicionRAData() {
       return requestedCourseId;
     }
 
-    return availableCourses[0]?.id ?? mockCourses[0].id;
+    return availableCourses[0]?.id ?? "";
   }, [availableCourses]);
 
   const initialPersistedDemoState = useMemo(() => {
@@ -43,7 +40,7 @@ export function useMedicionRAData() {
       courseId: initialCourseId,
     });
 
-    return mockBackend.getById<MedicionRaDemoState>("medicionesRa", stateId);
+    return mockBackend.getById<MedicionRaDemoState>("medicionesRa", stateId, currentUser);
   }, [availableCourses, backendVersion, currentUser.id, initialCourseId]);
 
   return {

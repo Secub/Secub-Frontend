@@ -1,10 +1,13 @@
 import AppRouter from "./app/AppRouter";
 import { AccessibilityProvider } from "./accessibility";
+import { FeedbackProvider } from "./shared/feedback";
 
 function App() {
   return (
     <AccessibilityProvider>
-      <AppRouter />
+      <FeedbackProvider>
+        <AppRouter />
+      </FeedbackProvider>
     </AccessibilityProvider>
   );
 }

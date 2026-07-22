@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import { GoChevronRight } from "react-icons/go";
 import { isInternalRouteHref, navigateToRoute } from "../../app/appRoutes";
 
@@ -28,7 +29,7 @@ export default function Breadcrumb({ items = [] }: BreadcrumbProps) {
             {isInteractive ? (
               <a
                 href={item.href ?? "#"}
-                onClick={(event) => {
+                onClick={(event: MouseEvent<HTMLAnchorElement>) => {
                   if (item.onClick) {
                     event.preventDefault();
                     item.onClick();

@@ -1,10 +1,10 @@
 import { motion } from "motion/react";
 import SectionIntro from "./SectionIntro";
 
-import PerfilEgresoImg from "../../../assets/modulos/perfil-egreso.png";
-import PropositoFormacionImg from "../../../assets/modulos/proposito-formacion.png";
-import CompetenciasResultadosImg from "../../../assets/modulos/competencias-resultados.png";
-import MapeoCurricularImg from "../../../assets/modulos/mapeo-curricular.png";
+import PerfilEgresoImg from "../../../assets/modulos/perfil-egreso.webp";
+import PropositoFormacionImg from "../../../assets/modulos/proposito-formacion.webp";
+import CompetenciasResultadosImg from "../../../assets/modulos/competencias-resultados.webp";
+import MapeoCurricularImg from "../../../assets/modulos/mapeo-curricular.webp";
 
 const services = [
   {
@@ -69,7 +69,9 @@ function ServiceCard({
           src={image}
           alt={alt}
           className="mx-auto block h-auto w-40 lg:w-36 xl:w-40"
-        />
+        
+                  loading="lazy"
+                  decoding="async"/>
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-3">

@@ -28,7 +28,6 @@ export default function MapeoCompetenciasCreatePage() {
     cursosPlan,
     competenciasPlan,
     canManage,
-    disabledReason,
     totalSemestres,
     manager,
     coursesBySemester,
@@ -92,8 +91,6 @@ export default function MapeoCompetenciasCreatePage() {
                 totalSemestres={totalSemestres}
                 cursos={cursosPlan}
                 competencias={competenciasPlan}
-                canManage={canManage}
-                disabledReason={disabledReason}
               />
 
               <MapeoCompetenciasStepProgress

@@ -53,7 +53,7 @@ export function useMedicionRA() {
   });
 
   const persistedDemoState = useMemo(
-    () => mockBackend.getById<MedicionRaDemoState>("medicionesRa", computedDraft.medicionRaDemoStateId),
+    () => mockBackend.getById<MedicionRaDemoState>("medicionesRa", computedDraft.medicionRaDemoStateId, currentUser),
     [backendVersion, computedDraft.medicionRaDemoStateId],
   );
 
@@ -146,7 +146,7 @@ export function useMedicionRA() {
         cicloId: courseContext.cicloId,
         courseId: course.id,
       });
-      const courseState = mockBackend.getById<MedicionRaDemoState>("medicionesRa", courseStateId);
+      const courseState = mockBackend.getById<MedicionRaDemoState>("medicionesRa", courseStateId, currentUser);
 
       return getCourseMeasurementSummary({
         course,

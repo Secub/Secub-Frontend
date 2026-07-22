@@ -27,7 +27,7 @@ export default function PerfilEgresoListSection({
             Lista de perfiles de egreso
           </h3>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Cada fila respeta el alcance del usuario logueado y habilita acciones según su permiso actual.
+            Consulta el detalle de los perfiles registrados.
           </p>
         </div>
 

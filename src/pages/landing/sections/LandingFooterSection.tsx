@@ -16,7 +16,9 @@ export default function LandingFooterSection() {
                   src={LogoAltaCalidad}
                   alt="Acreditación Institucional de Alta Calidad Multicampus"
                   className="h-auto w-[240px] max-w-full object-contain"
-                />
+                
+                  loading="lazy"
+                  decoding="async"/>
               </div>
 
               <div className="flex items-center">
@@ -24,7 +26,9 @@ export default function LandingFooterSection() {
                   src={LogoUsbFooter}
                   alt="Universidad de San Buenaventura"
                   className="h-auto w-[300px] max-w-full object-contain"
-                />
+                
+                  loading="lazy"
+                  decoding="async"/>
               </div>
 
               

@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { storageClient } from "../shared/browser";
 
 export type ContrastMode = "default" | "high";
 export type FontSizeMode = "default" | "large" | "xlarge";
@@ -41,12 +42,8 @@ function isFontSizeMode(value: unknown): value is FontSizeMode {
 }
 
 function readStoredSettings(): AccessibilitySettings {
-  if (typeof window === "undefined") {
-    return defaultSettings;
-  }
-
   try {
-    const rawSettings = window.localStorage.getItem(ACCESSIBILITY_STORAGE_KEY);
+    const rawSettings = storageClient.get(ACCESSIBILITY_STORAGE_KEY);
 
     if (!rawSettings) {
       return defaultSettings;
@@ -88,11 +85,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
   useEffect(() => {
     applySettingsToDocument(settings);
 
-    try {
-      window.localStorage.setItem(ACCESSIBILITY_STORAGE_KEY, JSON.stringify(settings));
-    } catch {
-      // La plataforma debe seguir funcionando aunque localStorage no esté disponible.
-    }
+    storageClient.setJson(ACCESSIBILITY_STORAGE_KEY, settings);
   }, [settings]);
 
   const setContrast = useCallback((contrast: ContrastMode) => {

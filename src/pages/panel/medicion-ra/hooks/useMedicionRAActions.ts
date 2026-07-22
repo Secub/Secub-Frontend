@@ -144,7 +144,7 @@ export function useMedicionRAActions({
       type: "info",
       title: "Progreso guardado",
       message:
-        "El avance parcial del curso actual quedó conservado en mockBackend sin exigir completar toda la competencia, sin avanzar y sin finalizar la medición.",
+        "El avance parcial del curso actual quedó guardado localmente sin exigir completar toda la competencia, avanzar ni finalizar la medición.",
     });
   };
 

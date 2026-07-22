@@ -7,6 +7,8 @@ import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import { mockBackend } from "../../services/mockBackend";
 import { persistSelectedProgramId } from "../../services/programSelection";
 import { normalizeMockRole, type MockUserRole } from "../../services/auth/mockUser";
+import { requestConfirmation } from "../../shared/feedback";
+import { getBrowserSearchParams } from "../../shared/browser";
 
 const selectableRoles: Array<{
   role: MockUserRole;
@@ -36,12 +38,12 @@ const selectableRoles: Array<{
 
 function getInitialRole() {
   if (typeof window === "undefined") return "direccionPrograma" as MockUserRole;
-  const params = new URLSearchParams(window.location.search);
+  const params = getBrowserSearchParams();
   return normalizeMockRole(params.get("role") ?? "direccionPrograma");
 }
 
 function buildDashboardUrl(role: MockUserRole) {
-  const params = new URLSearchParams(window.location.search);
+  const params = getBrowserSearchParams();
   params.set("role", role);
   return `${ROUTES.panelDashboard}?${params.toString()}`;
 }
@@ -55,10 +57,13 @@ export default function ProgramSelectorPage() {
     navigateToRoute(buildDashboardUrl(selectedRole));
   };
 
-  const handleResetDemo = () => {
-    const confirmed = window.confirm(
-      "¿Deseas reiniciar los datos demo locales? Esta acción solo borra la información persistida en este navegador.",
-    );
+  const handleResetDemo = async () => {
+    const confirmed = await requestConfirmation({
+      title: "Reiniciar datos demo",
+      message: "Esta acción borrará la información persistida en este navegador.",
+      confirmLabel: "Reiniciar datos",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 
@@ -87,7 +92,7 @@ export default function ProgramSelectorPage() {
         <section className="flex flex-1 flex-col justify-center gap-5">
           <div className="mx-auto max-w-3xl text-center">
             <p className="inline-flex rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-white)]">
-              SECUB · Seccional Cali
+              SECUB · Datos académicos
             </p>
 
             <h1 className="mt-4 font-heading text-3xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-4xl">
@@ -172,7 +177,19 @@ export default function ProgramSelectorPage() {
               </div>
 
               <div className="mt-4 grid gap-3">
-                {secubAcademicPrograms.map((program) => (
+                {secubAcademicPrograms.length === 0 ? (
+                  <div
+                    role="status"
+                    className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5 text-center"
+                  >
+                    <p className="font-heading text-base font-bold text-[var(--color-secondary-4)]">
+                      No hay programas simulados cargados
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
+                      El catálogo quedó vacío para incorporar después una única fuente de datos controlada.
+                    </p>
+                  </div>
+                ) : secubAcademicPrograms.map((program) => (
                   <button
                     key={program.id}
                     type="button"

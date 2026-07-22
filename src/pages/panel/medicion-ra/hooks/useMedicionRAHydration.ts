@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { mockInitialEvaluations, mockInitialInstruments, mockCourses } from "../medicion-ra.mock";
+import { mockInitialEvaluations, mockInitialInstruments } from "../medicion-ra.mock";
 import { normalizeEvaluationMatrix, normalizeInstrumentState } from "../medicion-ra.utils";
 import type {
   CourseRecord,
@@ -51,7 +51,7 @@ export function useMedicionRAHydration({
 
   useEffect(() => {
     if (!availableCourses.some((course) => course.id === selectedCourseId)) {
-      setSelectedCourseId(availableCourses[0]?.id ?? mockCourses[0].id);
+      setSelectedCourseId(availableCourses[0]?.id ?? "");
       return;
     }
 

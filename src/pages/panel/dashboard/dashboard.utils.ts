@@ -12,6 +12,8 @@ import type {
   MeasurementCycle,
   PlanCatalog,
 } from "./dashboard.types";
+import { showNotification } from "../../../shared/feedback";
+import { storageClient } from "../../../shared/browser";
 
 export const INITIAL_DASHBOARD_FILTERS: DashboardFiltersState = {
   seccionalId: "",
@@ -309,12 +311,12 @@ export function getDashboardMetrics(courses: EnrichedCourse[], cycles: EnrichedC
 
 export function simulateReportDownload(label: string) {
   // Integración futura: conectar aquí jsPDF, endpoint de reportes o servicio documental institucional.
-  window.alert(`${label}: descarga simulada. Aquí se conectará la generación real del PDF.`);
+  showNotification(`${label}: descarga simulada. Aquí se conectará la generación real del PDF.`);
 }
 
 export function simulateEvidenceDownload(fileName: string) {
   // Integración futura: reemplazar por descarga real desde repositorio de evidencias.
-  window.alert(`Descarga simulada: ${fileName}`);
+  showNotification(`Descarga simulada: ${fileName}`);
 }
 
 export interface MeasurementReminderEmailPayload {
@@ -329,7 +331,7 @@ export interface MeasurementReminderEmailPayload {
 export function requestMeasurementReminderEmail(payload: MeasurementReminderEmailPayload) {
   // TODO: reemplazar esta simulación por backend/directorio institucional cuando exista el servicio real.
   // El backend deberá resolver destinatario institucional, enviar recordatorio y registrar trazabilidad.
-  window.alert(
+  showNotification(
     `Solicitud simulada de recordatorio: curso ${payload.courseName ?? payload.courseId}, ${payload.pendingRa ?? 0} RA pendientes.`,
   );
 }
@@ -387,7 +389,7 @@ export function syncDashboardFiltersByCycle(
   };
 }
 
-const DIRECTOR_COMPLETION_NOTIFICATION_KEY = "secub-dashboard-director-cycle-completion";
+const DIRECTOR_COMPLETION_NOTIFICATION_KEY = "secub-dashboard-director-cycle-completion:v2";
 
 function getDirectorCompletionNotificationKey(cycleId: string) {
   return `${DIRECTOR_COMPLETION_NOTIFICATION_KEY}:${cycleId}`;
@@ -395,7 +397,7 @@ function getDirectorCompletionNotificationKey(cycleId: string) {
 
 function hasDirectorCompletionNotificationRequest(cycleId: string) {
   try {
-    return Boolean(window.localStorage.getItem(getDirectorCompletionNotificationKey(cycleId)));
+    return Boolean(storageClient.get(getDirectorCompletionNotificationKey(cycleId)));
   } catch {
     // Si localStorage no está disponible, no se bloquea el Dashboard.
     return false;
@@ -407,7 +409,7 @@ function markDirectorCompletionNotificationRequest(cycleId: string) {
     // Solución provisional de frontend para evitar múltiples llamadas mientras no exista backend.
     // A futuro debe reemplazarse por un estado persistido desde backend, por ejemplo:
     // completionNotificationSent, directorNotifiedAt o el campo institucional que defina la API.
-    window.localStorage.setItem(getDirectorCompletionNotificationKey(cycleId), new Date().toISOString());
+    storageClient.set(getDirectorCompletionNotificationKey(cycleId), new Date().toISOString());
   } catch {
     // Si localStorage no está disponible, se permite continuar sin interrumpir la experiencia.
   }
@@ -457,7 +459,7 @@ export function requestDirectorCycleCompletionNotification(cycle: EnrichedCycle)
 
 export function simulateImprovementPlanAction(cycle: EnrichedCycle) {
   // Integración futura: reemplazar por navegación o endpoint real del módulo Plan de mejora.
-  window.alert(
+  showNotification(
     `Plan de mejora - ${cycle.name}: integración pendiente con el módulo o endpoint institucional correspondiente.`,
   );
 }

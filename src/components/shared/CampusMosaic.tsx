@@ -1,7 +1,7 @@
-import seccionalCali from "../../assets/seccionales/seccional-cali.jpg";
+import seccionalCali from "../../assets/seccionales/seccional-cali.webp";
 import seccionalCartagena from "../../assets/seccionales/seccional-cartagena.webp";
-import seccionalMedellin from "../../assets/seccionales/seccional-medellin.jpg";
-import seccionalBogota from "../../assets/seccionales/seccional-bogota.jpg";
+import seccionalMedellin from "../../assets/seccionales/seccional-medellin.webp";
+import seccionalBogota from "../../assets/seccionales/seccional-bogota.webp";
 
 type CampusMosaicProps = {
   className?: string;
@@ -34,6 +34,9 @@ export default function CampusMosaic({
               alt={hideTitles ? "" : campus.title}
               aria-hidden={hideTitles ? "true" : undefined}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+              sizes="(min-width: 1024px) 25vw, 50vw"
             />
 
             {!hideTitles && (

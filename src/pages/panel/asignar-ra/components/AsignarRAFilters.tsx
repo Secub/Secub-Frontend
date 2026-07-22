@@ -50,7 +50,6 @@ export function AsignarRAFilters({
             placeholder="Todas las seccionales"
             onChange={(event) => onSeccionalChange(event.target.value)}
             disabled={locks.isSeccionalLocked}
-            helperText={locks.isSeccionalLocked ? "Asignado a tu rol" : undefined}
           />
         ) : null}
 
@@ -62,7 +61,6 @@ export function AsignarRAFilters({
             placeholder="Todas las facultades"
             onChange={(event) => onFacultadChange(event.target.value)}
             disabled={locks.isFacultadLocked}
-            helperText={locks.isFacultadLocked ? "Asignado a tu rol" : undefined}
           />
         ) : null}
 
@@ -73,7 +71,6 @@ export function AsignarRAFilters({
           placeholder="Seleccionar programa"
           onChange={(event) => onProgramChange(event.target.value)}
           disabled={locks.isProgramLocked}
-          helperText={locks.isProgramLocked ? "Asignado a tu rol" : undefined}
         />
 
         <Select
@@ -83,7 +80,6 @@ export function AsignarRAFilters({
           placeholder="Seleccionar plan de estudio"
           onChange={(event) => onPlanChange(event.target.value)}
           disabled={locks.isPlanLocked}
-          helperText={locks.isPlanLocked ? "Asignado a tu rol" : undefined}
         />
 
         <Select

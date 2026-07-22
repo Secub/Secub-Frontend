@@ -88,6 +88,8 @@ export function useCicloPage() {
   };
 
   const openEditModal = (cycle: CicloEnriched) => {
+    if (!permissions.canEditCycle) return;
+
     setModalMode("edit");
     setSelectedCycle(cycle);
     setFormValues(mapCycleToForm(cycle));
@@ -102,6 +104,8 @@ export function useCicloPage() {
   };
 
   const openDuplicateModal = (cycle: CicloEnriched) => {
+    if (!permissions.canDuplicateCycle) return;
+
     if (activeCycle) return;
 
     setModalMode("create");
@@ -115,6 +119,12 @@ export function useCicloPage() {
   };
 
   const handleSubmit = (values: CicloFormState) => {
+    const canSubmit = modalMode === "edit" ? permissions.canEditCycle : permissions.canCreateCycle;
+    if (!canSubmit) {
+      setFormOpen(false);
+      return;
+    }
+
     const baseCycle = buildCycleFromForm(values, catalogs, user, modalMode === "edit" ? selectedCycle : null);
     const relatedMapeo = mockBackend
       .list<{ id: string; programaId?: string; planId?: string }>("mapeosCompetencias", user)
@@ -138,6 +148,11 @@ export function useCicloPage() {
 
   const confirmDelete = () => {
     if (!cycleToDelete) return;
+
+    if (!permissions.canDeleteCycle) {
+      setCycleToDelete(null);
+      return;
+    }
     setCycles(mockBackend.remove<CicloMedicion>("ciclosMedicion", cycleToDelete.id, user));
     setSavedMessage("El ciclo fue eliminado de los datos temporales actuales.");
     setCycleToDelete(null);

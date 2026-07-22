@@ -10,6 +10,7 @@ import type {
   RaResultRecord,
   RaResultSummary,
 } from "./dashboard-ra.types";
+import { downloadFile } from "../../../shared/browser";
 
 export const INITIAL_DASHBOARD_FILTERS: DashboardFiltersState = {
   seccionalId: "",
@@ -250,12 +251,11 @@ export function createMockDownload(fileName: string) {
     ],
     { type: "text/plain;charset=utf-8" },
   );
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName.replace(/\.pdf$/i, ".txt").replace(/\.zip$/i, ".txt");
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadFile(
+    blob,
+    fileName.replace(/\.pdf$/i, ".txt").replace(/\.zip$/i, ".txt"),
+    "text/plain;charset=utf-8",
+  );
 }
 
 export function getProgramName(catalogs: DashboardCatalogs, programaId: string) {

@@ -25,6 +25,7 @@ import type {
   PerfilEgresoFilters as FiltersState,
   PerfilEgresoRecord,
 } from "../perfil-egreso.types";
+import { showNotification } from "../../../../shared/feedback";
 
 const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
@@ -75,8 +76,10 @@ export function usePerfilEgresoPage() {
   const filteredRecords = useMemo(() => applyFilters(roleScopedRecords, filters), [filters, roleScopedRecords]);
 
   const openCreateModal = () => {
+    if (!permissions.canCreate) return;
+
     if (isInheritedBaseStep) {
-      window.alert("El Perfil de egreso fue heredado del ciclo anterior y queda como información de consulta.");
+      showNotification("El Perfil de egreso fue heredado del ciclo anterior y queda como información de consulta.");
       return;
     }
 
@@ -87,8 +90,10 @@ export function usePerfilEgresoPage() {
   };
 
   const openEditModal = (record: PerfilEgresoEnriched) => {
+    if (!permissions.canUpdate) return;
+
     if (record.readonlyInherited || record.isInheritedAcademicBase) {
-      window.alert("Este perfil de egreso fue heredado del ciclo anterior y queda como información de consulta.");
+      showNotification("Este perfil de egreso fue heredado del ciclo anterior y queda como información de consulta.");
       return;
     }
 
@@ -104,8 +109,10 @@ export function usePerfilEgresoPage() {
   };
 
   const handleDelete = (record: PerfilEgresoEnriched) => {
+    if (!permissions.canDelete) return;
+
     if (record.readonlyInherited || record.isInheritedAcademicBase) {
-      window.alert("Este perfil de egreso fue heredado del ciclo anterior y no se puede eliminar desde el nuevo plan.");
+      showNotification("Este perfil de egreso fue heredado del ciclo anterior y no se puede eliminar desde el nuevo plan.");
       return;
     }
 
@@ -114,6 +121,11 @@ export function usePerfilEgresoPage() {
 
   const confirmDelete = () => {
     if (!recordToDelete) return;
+
+    if (!permissions.canDelete) {
+      setRecordToDelete(null);
+      return;
+    }
 
     setRecords(mockBackend.remove<PerfilEgresoRecord>("perfilEgreso", recordToDelete.id, currentUser));
 
@@ -156,8 +168,14 @@ export function usePerfilEgresoPage() {
   };
 
   const handleFormSubmit = (values: FormState) => {
+    const canSubmit = formMode === "create" ? permissions.canCreate : permissions.canUpdate;
+    if (!canSubmit) {
+      setFormOpen(false);
+      return;
+    }
+
     if (isInheritedBaseStep || selectedRecord?.readonlyInherited || selectedRecord?.isInheritedAcademicBase) {
-      window.alert("La información heredada del ciclo anterior queda en modo consulta.");
+      showNotification("La información heredada del ciclo anterior queda en modo consulta.");
       setFormOpen(false);
       return;
     }

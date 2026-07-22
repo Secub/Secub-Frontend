@@ -7,6 +7,19 @@ import type {
   PerfilEgresoFilters,
   PerfilEgresoRecord,
 } from "./perfil-egreso.types";
+import { createClientId } from "../../../shared/ids";
+import { downloadFile } from "../../../shared/browser";
+import {
+  getActivePlansByProgram,
+  getDefaultLugarBySeccional,
+  isLugarEditableForSeccional,
+} from "../../../features/academic-scope";
+
+export {
+  getActivePlansByProgram,
+  getDefaultLugarBySeccional,
+  isLugarEditableForSeccional,
+};
 
 export const INITIAL_FILTERS: PerfilEgresoFilters = {
   seccionalId: "",
@@ -25,31 +38,11 @@ export function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export function getDefaultLugarBySeccional(seccionalId: string) {
-  if (!seccionalId) return "";
-  return "cali";
-}
-
-export function isLugarEditableForSeccional(_seccionalId: string) {
-  return false;
-}
-
 export function formatPlanLabel(
   plan: Catalogs["planes"][number] | undefined,
 ) {
   if (!plan) return "Sin plan";
   return plan.estado === "inactivo" ? `${plan.nombre} (Inactivo)` : plan.nombre;
-}
-
-export function getActivePlansByProgram(
-  catalogs: Catalogs,
-  programaId: string,
-  selectedPlanId = "",
-) {
-  return catalogs.planes.filter((plan) => {
-    if (programaId && plan.programaId !== programaId) return false;
-    return plan.estado === "activo" || plan.id === selectedPlanId;
-  });
 }
 
 export function syncFiltersByActivePlan(
@@ -317,7 +310,7 @@ export function buildRecordFromForm(
   const now = new Date().toISOString();
 
   return {
-    id: original?.id ?? `pe-${Math.random().toString(36).slice(2, 8)}`,
+    id: original?.id ?? createClientId("pe"),
     seccionalId: form.seccionalId,
     lugarId: form.lugarId,
     facultadId: form.facultadId,
@@ -424,13 +417,5 @@ export function triggerBrowserDownload(
   fileName: string,
   type: string,
 ) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadFile(content, fileName, type);
 }

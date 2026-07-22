@@ -152,13 +152,7 @@ export function useMapeoCompetenciasManager({
   }
 
   function saveProgress() {
-    if (!canManage) {
-      setFeedback({
-        type: "warning",
-        message: "Solo Dirección de programa puede guardar cambios en el mapeo.",
-      });
-      return null;
-    }
+    if (!canManage) return null;
 
     if (!programaId || !planId) {
       setFeedback({
@@ -173,7 +167,7 @@ export function useMapeoCompetenciasManager({
 
     setFeedback({
       type: "success",
-      message: "Progreso guardado correctamente en mockBackend para este programa y plan de estudios.",
+      message: "Progreso guardado correctamente para este programa y plan de estudios.",
     });
 
     return nextRecord;

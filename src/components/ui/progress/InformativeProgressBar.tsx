@@ -10,6 +10,7 @@ export default function InformativeProgressBar({
   showPercentage = true,
 }: InformativeProgressBarProps) {
   const normalizedValue = Math.min(100, Math.max(0, Math.round(value)));
+  const accessibleLabel = label ?? "Progreso";
 
   return (
     <div className="w-full">
@@ -20,8 +21,17 @@ export default function InformativeProgressBar({
         </div>
       ) : null}
 
-      <div className="h-2 overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-gray-7)]">
+      <div
+        className="h-2 overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-gray-7)]"
+        role="progressbar"
+        aria-label={accessibleLabel}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={normalizedValue}
+        aria-valuetext={`${normalizedValue}% completado`}
+      >
         <div
+          aria-hidden="true"
           className="h-full rounded-[var(--radius-pill)] bg-[var(--color-success)] transition-all duration-300"
           style={{ width: `${normalizedValue}%` }}
         />

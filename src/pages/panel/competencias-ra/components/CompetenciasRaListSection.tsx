@@ -1,3 +1,4 @@
+import type { ChangeEvent } from "react";
 import { GoEye, GoPlus } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import CompetenciasRaCardGrid from "./CompetenciasRaCardGrid";
@@ -33,7 +34,6 @@ export default function CompetenciasRaListSection({
   onEditRa,
   onCreate,
 }: CompetenciasRaListSectionProps) {
-  console.log("permissions", permissions.canDelete);
   return (
     <div className="surface-card p-6">
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -54,7 +54,7 @@ export default function CompetenciasRaListSection({
           <label className="text-sm font-medium text-[var(--color-gray-4)]">Ordenar:</label>
           <select
             value={sortOrder}
-            onChange={(event) => onSortOrderChange(event.target.value as "asc" | "desc")}
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => onSortOrderChange(event.target.value as "asc" | "desc")}
             className="rounded border border-[var(--color-gray-6)] bg-white px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
           >
             <option value="asc">Ascendente (1-10)</option>

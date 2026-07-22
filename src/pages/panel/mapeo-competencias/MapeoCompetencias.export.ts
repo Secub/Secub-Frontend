@@ -1,5 +1,6 @@
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
 import { getNucleoLabel, getSemestreEstadoLabel } from "./MapeoCompetencias.semestres";
+import { downloadFile, printHtmlDocument } from "../../../shared/browser";
 
 export function buildCsvLikeExcel(records: MapeoCompetenciasEnriched[]) {
   const rows = [
@@ -90,26 +91,13 @@ export function buildPrintablePdfHtml(records: MapeoCompetenciasEnriched[]) {
 
 export function printMapeoCompetenciasPdf(records: MapeoCompetenciasEnriched[]) {
   const html = buildPrintablePdfHtml(records);
-  const printWindow = window.open("", "_blank");
+  const printed = printHtmlDocument(html, "Mapeo de competencias");
 
-  if (!printWindow) {
+  if (!printed) {
     downloadTextFile("mapeo-competencias.html", html, "text/html;charset=utf-8");
-    return;
   }
-
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
 }
 
 export function downloadTextFile(filename: string, content: string, type = "text/plain;charset=utf-8") {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadFile(content, filename, type);
 }

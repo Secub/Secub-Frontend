@@ -68,17 +68,17 @@ export const rolePermissions: Record<PropositoFormacionRole, RolePermissions> = 
     canFilterByEstado: true,
   },
   docente: {
-    canRead: true,
+    canRead: false,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByFacultad: false,
-    canFilterByPrograma: true,
-    canFilterByPlan: true,
-    canFilterByEstado: true,
+    canFilterByPrograma: false,
+    canFilterByPlan: false,
+    canFilterByEstado: false,
   },
 };
 
@@ -94,7 +94,7 @@ export function getEditDisabledReason(
   proposito: PropositoEnriched,
 ) {
   if (!rolePermissions[role].canUpdate) {
-    return "Tu rol no tiene permiso para editar este propósito.";
+    return "La edición no está disponible.";
   }
 
   if (proposito.estado !== "activo") {

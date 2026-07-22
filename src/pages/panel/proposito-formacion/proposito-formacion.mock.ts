@@ -30,11 +30,11 @@ export const planes: PlanEstudio[] = secubPlanes.map(({ totalSemestres: _totalSe
 export const mockPropositos: PropositoFormacionRecord[] = [];
 
 const mockUsers: Record<PropositoFormacionRole, CurrentUser> = {
-  admin: { id: "usr-admin-001", nombre: "Juliana Mejía", cargo: roleLabels.admin, role: "admin", scope: { seccionalId: "cali" } },
-  vice: { id: "usr-vice-001", nombre: "Ana María Restrepo", cargo: roleLabels.vice, role: "vice", scope: { seccionalId: "cali" } },
-  decano: { id: "usr-decano-001", nombre: "Carlos Medina", cargo: roleLabels.decano, role: "decano", scope: { seccionalId: "cali" } },
-  direccionPrograma: { id: "direccion-programa-secub", nombre: "Dirección de programa", cargo: roleLabels["direccionPrograma"], role: "direccionPrograma", scope: { seccionalId: "cali" } },
-  docente: { id: "docente-secub", nombre: "Docente SECUB", cargo: roleLabels.docente, role: "docente", scope: { seccionalId: "cali" } },
+  admin: { id: "usr-admin-001", nombre: "Usuario administrador", cargo: roleLabels.admin, role: "admin", scope: {} },
+  vice: { id: "usr-vice-001", nombre: "Usuario Vicerrectoría", cargo: roleLabels.vice, role: "vice", scope: {} },
+  decano: { id: "usr-decano-001", nombre: "Usuario Decanatura", cargo: roleLabels.decano, role: "decano", scope: {} },
+  direccionPrograma: { id: "direccion-programa-secub", nombre: "Dirección de programa", cargo: roleLabels["direccionPrograma"], role: "direccionPrograma", scope: {} },
+  docente: { id: "docente-secub", nombre: "Docente", cargo: roleLabels.docente, role: "docente", scope: {} },
 };
 
 export function normalizeRole(rawRole: string | null | undefined): PropositoFormacionRole {

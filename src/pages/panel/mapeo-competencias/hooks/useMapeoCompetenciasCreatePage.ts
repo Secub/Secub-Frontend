@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
-import { canManageMapeo, getManageDisabledReason, rolePermissions } from "../MapeoCompetencias.permissions";
+import { canManageMapeo, rolePermissions } from "../MapeoCompetencias.permissions";
 import type { MapeoCompetenciasFilters as FiltersState, MapeoCompetenciasRecord } from "../MapeoCompetencias.types";
 import {
   INITIAL_FILTERS,
@@ -14,9 +14,10 @@ import {
 } from "../MapeoCompetencias.utils";
 import { useMapeoCompetenciasData } from "./useMapeoCompetenciasData";
 import { useMapeoCompetenciasManager } from "./useMapeoCompetenciasManager";
+import { getBrowserSearchParams } from "../../../../shared/browser";
 
 function readInitialFilters() {
-  const params = new URLSearchParams(window.location.search);
+  const params = getBrowserSearchParams();
   return { id: params.get("id") ?? "", programaId: params.get("programaId") ?? "", planId: params.get("planId") ?? "" };
 }
 
@@ -50,7 +51,6 @@ export function useMapeoCompetenciasCreatePage() {
   const selectedPlan = useMemo(() => catalogs.planes.find((plan) => plan.id === filters.planId), [catalogs.planes, filters.planId]);
   const programaEstado = getProgramaEstado(selectedPrograma, selectedPlan);
   const canManage = canManageMapeo(currentUser.role, programaEstado);
-  const disabledReason = getManageDisabledReason(currentUser.role, programaEstado);
 
   const existingRecord = useMemo<MapeoCompetenciasRecord | null>(() => {
     if (initial.id) return records.find((record) => record.id === initial.id) ?? null;
@@ -144,7 +144,6 @@ export function useMapeoCompetenciasCreatePage() {
     cursosPlan,
     competenciasPlan,
     canManage,
-    disabledReason,
     totalSemestres,
     manager,
     coursesBySemester,

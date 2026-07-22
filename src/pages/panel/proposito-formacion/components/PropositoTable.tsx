@@ -120,7 +120,7 @@ export function PropositoTable({
       label: "Eliminar propósito",
       onClick: onDelete,
       icon: <GoTrash className="text-lg" />,
-      show: () => role === "admin",
+      show: () => permissions.canDelete,
       disabled: (row) => isInheritedReadonlyRecord(row),
       disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar propósito"),
       variant: "danger",

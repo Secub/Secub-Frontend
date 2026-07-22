@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { EMPTY_EVIDENCE, EMPTY_IMPROVEMENT_PLAN } from "../constants/medicionRA.constants";
-import { mockCourses } from "../medicion-ra.mock";
 import {
   calculateRaResults,
   getCompetenceStorageKey,
@@ -17,6 +16,29 @@ import type {
 } from "../medicion-ra.types";
 import { resolveMedicionRaContextForCourse } from "../utils/medicionRA.assignments";
 import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
+
+const EMPTY_COURSE: CourseRecord = {
+  id: "",
+  name: "",
+  code: "",
+  group: "",
+  credits: 0,
+  period: "",
+  program: "",
+  studyPlan: "",
+  measurementCycle: "",
+  teacher: "",
+  competences: [
+    {
+      id: "",
+      code: "",
+      title: "",
+      description: "",
+      learningResults: [],
+    },
+  ],
+  students: [],
+};
 
 export function useMedicionRAComputedState({
   userId,
@@ -41,7 +63,7 @@ export function useMedicionRAComputedState({
     return (
       availableCourses.find((course) => course.id === selectedCourseId) ??
       availableCourses[0] ??
-      mockCourses[0]
+      EMPTY_COURSE
     );
   }, [availableCourses, selectedCourseId]);
 

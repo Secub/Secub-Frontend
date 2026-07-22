@@ -7,8 +7,14 @@ export default defineConfig({
   base: process.env.GITHUB_PAGES === "true" ? "/Secub-Frontend/" : "/",
   server: {
     proxy: {
-      "/api": "http://localhost:3000",
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
     },
+  },
+  build: {
+    sourcemap: false,
   },
   plugins: [
     react(),
@@ -19,5 +25,7 @@ export default defineConfig({
     environment: "happy-dom",
     globals: true,
     setupFiles: "./src/test/setup.ts",
+    restoreMocks: true,
+    clearMocks: true,
   },
 });

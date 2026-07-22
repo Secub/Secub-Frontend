@@ -61,11 +61,10 @@ export default function ContactSection() {
 
               <div className="rounded-[24px] bg-white p-6">
                 <p className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
-                  Flujo por roles
+                  Flujo académico
                 </p>
                 <p className="mt-3 text-sm leading-7 text-[var(--color-gray-3)]">
-                  La experiencia se adapta según el rol del usuario y las
-                  acciones habilitadas en cada etapa.
+                  La experiencia organiza cada etapa del proceso académico de forma clara y progresiva.
                 </p>
               </div>
             </div>

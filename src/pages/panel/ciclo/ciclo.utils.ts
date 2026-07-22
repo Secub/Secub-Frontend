@@ -10,6 +10,7 @@ import type {
   PlanEstudio,
   ProgramaAcademico,
 } from "./ciclo.types";
+import { createClientId } from "../../../shared/ids";
 
 export const INITIAL_CICLO_FILTERS: CicloFilters = {
   seccionalId: "",
@@ -88,10 +89,10 @@ export function getDefaultFormState(user: CurrentUser, catalogs: CicloCatalogs):
   );
 
   return {
-    nombre: "Ciclo 2026-1",
+    nombre: "",
     programaId: defaultPrograma?.id ?? "",
     planId: defaultPlan?.id ?? "",
-    fechaInicio: "2026-01-15",
+    fechaInicio: "",
     cursoIds: [],
   };
 }
@@ -255,7 +256,7 @@ export function buildCycleFromForm(
   const now = new Date().toISOString();
 
   return {
-    id: previous?.id ?? `ciclo-${values.planId}-${Date.now()}`,
+    id: previous?.id ?? createClientId(`ciclo-${values.planId}`),
     nombre: values.nombre.trim() || `Ciclo ${buildPeriodFromStartDate(values.fechaInicio)}`,
     seccionalId: programa?.seccionalId ?? previous?.seccionalId ?? "",
     facultadId: programa?.facultadId ?? previous?.facultadId ?? "",

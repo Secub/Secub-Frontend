@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Modal, Select, Textarea } from "../../../../components/ui";
+import {
+  useAcademicScopeForm,
+  validateAcademicScope,
+  type AcademicScopeErrors,
+} from "../../../../features/academic-scope";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { getActivePlansByProgram, getDefaultLugarBySeccional, isLugarEditableForSeccional } from "../CompetenciasRa.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -20,12 +24,7 @@ interface CompetenciasRaFormModalProps {
   onSubmit: (values: FormState) => void;
 }
 
-interface FormErrors {
-  seccionalId?: string;
-  facultadId?: string;
-  lugarId?: string;
-  programaId?: string;
-  planId?: string;
+interface FormErrors extends AcademicScopeErrors {
   descripcion?: string;
 }
 
@@ -49,93 +48,25 @@ export function CompetenciasRaFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const lugaresDisponibles = useMemo(() => {
-    return catalogs.lugares.filter((item) => {
-      if (!form.seccionalId) return true;
-      return item.seccionalId === form.seccionalId;
-    });
-  }, [catalogs.lugares, form.seccionalId]);
-
-  const facultadesDisponibles = useMemo(() => {
-    return catalogs.facultades.filter((item) => {
-      if (form.seccionalId) {
-        return item.seccionalId === form.seccionalId;
-      }
-
-      return true;
-    });
-  }, [catalogs.facultades, form.seccionalId]);
-
-  const programasDisponibles = useMemo(() => {
-    return catalogs.programas.filter((item) => {
-      if (form.seccionalId && item.seccionalId !== form.seccionalId) {
-        return false;
-      }
-
-      if (form.facultadId && item.facultadId !== form.facultadId) {
-        return false;
-      }
-
-      if (user.scope.programaId) {
-        return item.id === user.scope.programaId;
-      }
-
-      return true;
-    });
-  }, [catalogs.programas, form.facultadId, form.seccionalId, user.scope.programaId]);
-
-  const planesDisponibles = useMemo(() => {
-    return getActivePlansByProgram(catalogs, form.programaId, form.planId);
-  }, [catalogs, form.planId, form.programaId]);
-
   const canEditStructure = mode === "create";
-  const isDirectorScoped = Boolean(user.scope.programaId);
-  const isLugarLocked = !canEditStructure || !isLugarEditableForSeccional(form.seccionalId);
-
-  const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
-    setForm((current) => {
-      const next = { ...current, [key]: value };
-
-      if (key === "seccionalId") {
-        next.facultadId = user.scope.facultadId ?? "";
-        next.lugarId = getDefaultLugarBySeccional(String(value));
-        next.programaId = user.scope.programaId ?? "";
-        next.planId = "";
-      }
-
-      if (key === "lugarId") {
-        next.facultadId = user.scope.facultadId ?? "";
-        next.programaId = user.scope.programaId ?? "";
-        next.planId = "";
-      }
-
-      if (key === "facultadId") {
-        next.programaId = user.scope.programaId ?? "";
-        next.planId = "";
-      }
-
-      if (key === "programaId") {
-        const activePlans = getActivePlansByProgram(catalogs, String(value));
-        next.planId = activePlans[0]?.id ?? "";
-      }
-
-      return next;
-    });
-  };
+  const {
+    lugaresDisponibles,
+    facultadesDisponibles,
+    programasDisponibles,
+    planesDisponibles,
+    updateScopeField,
+    isDirectorScoped,
+    isLugarLocked,
+  } = useAcademicScopeForm({
+    form,
+    setForm,
+    catalogs,
+    userScope: user.scope,
+    canEditStructure,
+  });
 
   const validate = () => {
-    const nextErrors: FormErrors = {};
-
-    if (!form.seccionalId) nextErrors.seccionalId = "Selecciona una seccional.";
-    if (!form.lugarId) nextErrors.lugarId = "Selecciona un lugar de desarrollo.";
-    if (!form.facultadId) nextErrors.facultadId = "Selecciona una facultad.";
-    if (!form.programaId) nextErrors.programaId = "Selecciona un programa.";
-    if (!form.planId) nextErrors.planId = "Selecciona un plan de estudios.";
-
-    const selectedPlan = catalogs.planes.find((item) => item.id === form.planId);
-    if (form.planId && selectedPlan?.estado !== "activo") {
-      nextErrors.planId = "Selecciona un plan de estudios activo.";
-    }
+    const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
 
     if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe tu competencia.";
@@ -207,7 +138,7 @@ export function CompetenciasRaFormModal({
         <Select
           label="Seccional"
           value={form.seccionalId}
-          onChange={(event) => updateField("seccionalId", event.target.value)}
+          onChange={(event) => updateScopeField("seccionalId", event.target.value)}
           options={catalogs.seccionales.map((item) => ({
             label: item.nombre,
             value: item.id,
@@ -222,7 +153,7 @@ export function CompetenciasRaFormModal({
         <Select
           label="Lugar de desarrollo"
           value={form.lugarId}
-          onChange={(event) => updateField("lugarId", event.target.value)}
+          onChange={(event) => updateScopeField("lugarId", event.target.value)}
           options={lugaresDisponibles.map((item) => ({
             label: item.nombre,
             value: item.id,
@@ -237,7 +168,7 @@ export function CompetenciasRaFormModal({
         <Select
           label="Facultad"
           value={form.facultadId}
-          onChange={(event) => updateField("facultadId", event.target.value)}
+          onChange={(event) => updateScopeField("facultadId", event.target.value)}
           options={facultadesDisponibles.map((item) => ({
             label: item.nombre,
             value: item.id,
@@ -252,7 +183,7 @@ export function CompetenciasRaFormModal({
         <Select
           label="Programa académico"
           value={form.programaId}
-          onChange={(event) => updateField("programaId", event.target.value)}
+          onChange={(event) => updateScopeField("programaId", event.target.value)}
           options={programasDisponibles.map((item) => ({
             label: item.nombre,
             value: item.id,
@@ -267,7 +198,7 @@ export function CompetenciasRaFormModal({
         <Select
           label="Plan de estudios"
           value={form.planId}
-          onChange={(event) => updateField("planId", event.target.value)}
+          onChange={(event) => updateScopeField("planId", event.target.value)}
           options={planesDisponibles.map((item) => ({
             label: item.estado === "inactivo" ? `${item.nombre} (Inactivo)` : item.nombre,
             value: item.id,
@@ -299,7 +230,7 @@ export function CompetenciasRaFormModal({
         <Textarea
           label="Escribe tu competencia"
           value={form.descripcion}
-          onChange={(event) => updateField("descripcion", event.target.value)}
+          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
           rows={7}
           placeholder="Escribe la competencia"
           id="descripcion"

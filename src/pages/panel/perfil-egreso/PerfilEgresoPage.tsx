@@ -73,7 +73,7 @@ export default function PerfilEgresoPage() {
     <PanelLayout
       currentStep="perfil-egreso"
       title="Perfil de Egreso"
-      description="Visualización, filtrado, creación, actualización, eliminación y exportación del perfil de egreso según el alcance institucional del rol autenticado."
+      description="Consulta y gestión de la información institucional del perfil de egreso."
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (

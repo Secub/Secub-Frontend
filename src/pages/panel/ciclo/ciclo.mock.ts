@@ -115,38 +115,38 @@ export const mockCiclos: CicloMedicion[] = [];
 const mockUsers: Record<CicloRole, CurrentUser> = {
   admin: {
     id: "usr-admin-001",
-    nombre: "Juliana Mejía",
+    nombre: "Usuario administrador",
     cargo: cicloRoleLabels.admin,
     role: "admin",
-    scope: { seccionalId: "cali" },
+    scope: {},
   },
   vice: {
     id: "usr-vice-001",
-    nombre: "Ana María Restrepo",
+    nombre: "Usuario Vicerrectoría",
     cargo: cicloRoleLabels.vice,
     role: "vice",
-    scope: { seccionalId: "cali" },
+    scope: {},
   },
   decano: {
     id: "usr-decano-001",
-    nombre: "Carlos Medina",
+    nombre: "Usuario Decanatura",
     cargo: cicloRoleLabels.decano,
     role: "decano",
-    scope: { seccionalId: "cali" },
+    scope: {},
   },
   direccionPrograma: {
     id: "direccion-programa-secub",
     nombre: "Dirección de programa",
     cargo: cicloRoleLabels["direccionPrograma"],
     role: "direccionPrograma",
-    scope: { seccionalId: "cali" },
+    scope: {},
   },
   docente: {
     id: DEMO_DOCENTE_SECUB.id,
     nombre: DEMO_DOCENTE_SECUB.nombre,
     cargo: cicloRoleLabels.docente,
     role: "docente",
-    scope: { seccionalId: "cali" },
+    scope: {},
   },
 };
 

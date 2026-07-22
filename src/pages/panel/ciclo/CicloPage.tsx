@@ -87,7 +87,7 @@ export default function CicloPage() {
           helperText="La restricción secuencial se valida solo en Gestión Académica."
         />
       ) : !permissions.canReadSummary ? (
-        <CicloAccessState user={user} />
+        <CicloAccessState />
       ) : !hasCycles ? (
         <WorkflowStateCard
           title="Aún no hay ciclos de medición creados"

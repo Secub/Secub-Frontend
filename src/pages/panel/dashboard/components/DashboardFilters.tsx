@@ -83,7 +83,7 @@ export default function DashboardFilters({
             Filtros
           </h2>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Ajusta la información visible según ciclo, estado y alcance del rol actual.
+            Ajusta la información visible por ciclo y estado.
           </p>
         </div>
 

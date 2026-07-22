@@ -73,7 +73,7 @@ export default function PropositoFormacionPage() {
     <PanelLayout
       currentStep="proposito-formacion"
       title="Propósito de Formación"
-      description="Gestión, consulta y exportación del propósito de formación según el alcance institucional del rol autenticado."
+      description="Consulta y gestión del propósito de formación institucional."
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (

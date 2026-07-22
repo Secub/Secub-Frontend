@@ -66,11 +66,7 @@ export default function AccessPanelSection() {
         </div>
 
         <div className="mt-8 text-sm leading-7 text-[var(--color-gray-3)]">
-          <p>
-            Usa tu correo corporativo para acceder a SECUB. Los permisos y la
-            visualización dentro de la plataforma dependen de la configuración
-            institucional del usuario.
-          </p>
+          <p>Usa tu correo corporativo para acceder a SECUB.</p>
         </div>
       </div>
     </section>

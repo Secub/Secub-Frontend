@@ -50,7 +50,6 @@ export function useDashboardPage() {
     isTeacher: data.isTeacher,
     selectedCycle: metricsState.selectedCycle,
     selectedCycleId: navigation.selectedCycleId,
-    userLabel: data.user.label,
     userRole: data.user.role,
     view: navigation.view,
   });
