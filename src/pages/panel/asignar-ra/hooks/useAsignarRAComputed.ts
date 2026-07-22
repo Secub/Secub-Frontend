@@ -10,9 +10,7 @@ import type {
 } from "../AsignarRA.types";
 import {
   buildSummaryMetrics,
-  getAssignmentCompetenciaId,
   getAssignmentCourseId,
-  getAssignmentRaId,
   getCompetenciasForCycle,
   getCourseCompetencias,
   getMappedCompetenceIdsForCourse,
