@@ -5,6 +5,11 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   base: process.env.GITHUB_PAGES === "true" ? "/Secub-Frontend/" : "/",
+  server: {
+    proxy: {
+      "/api": "http://localhost:3000",
+    },
+  },
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
