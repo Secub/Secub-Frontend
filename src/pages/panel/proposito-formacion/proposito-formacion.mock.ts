@@ -68,7 +68,7 @@ export function normalizeRole(rawRole: string | null | undefined): PropositoForm
 
 export function getCurrentUser(): CurrentUser {
   const demoUser = getCurrentMockUser();
-  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
+  const fallbackUser = mockUsers[demoUser.role] ?? mockUsers.admin;
 
   return {
     ...fallbackUser,
@@ -76,7 +76,7 @@ export function getCurrentUser(): CurrentUser {
     nombre: demoUser.nombre,
     email: demoUser.email,
     cargo: demoUser.cargo || fallbackUser.cargo,
-    role: demoUser.role as CurrentUser["role"],
+    role: demoUser.role,
     scope: {
       ...fallbackUser.scope,
       ...demoUser.scope,

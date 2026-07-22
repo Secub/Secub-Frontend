@@ -8,44 +8,37 @@ import { useMockBackendVersion } from "./useMockBackendVersion";
 
 export function useMedicionRAData() {
   const currentUser = useMemo(() => getCurrentMockUser(), []);
-  const { backendVersion, ignoreNextBackendChangeRef } = useMockBackendVersion();
+  const { ignoreNextBackendChangeRef } = useMockBackendVersion();
 
-  const realAssignments = useMemo(
-    () => mockBackend.list<AsignacionRaDemoRecord>("asignacionesRa", currentUser),
-    [backendVersion, currentUser],
+  const realAssignments = mockBackend.list<AsignacionRaDemoRecord>(
+    "asignacionesRa",
+    currentUser,
   );
 
-  const hasRealAssignments = realAssignments.length > 0;
+  const availableCourses = realAssignments.length
+    ? buildCoursesFromRealAssignments(currentUser)
+    : [];
 
-  const availableCourses = useMemo(() => {
-    const realCourses = buildCoursesFromRealAssignments(currentUser);
+  const requestedCourseId = getSearchCourseId();
+  const initialCourseId =
+    requestedCourseId && availableCourses.some((course) => course.id === requestedCourseId)
+      ? requestedCourseId
+      : (availableCourses[0]?.id ?? "");
 
-    return realCourses;
-  }, [backendVersion, currentUser, hasRealAssignments]);
-
-  const initialCourseId = useMemo(() => {
-    const requestedCourseId = getSearchCourseId();
-    if (requestedCourseId && availableCourses.some((course) => course.id === requestedCourseId)) {
-      return requestedCourseId;
-    }
-
-    return availableCourses[0]?.id ?? "";
-  }, [availableCourses]);
-
-  const initialPersistedDemoState = useMemo(() => {
-    const course = availableCourses.find((item) => item.id === initialCourseId);
-    const stateId = buildMedicionRaDemoStateId({
-      userId: currentUser.id,
-      cicloId: course?.cycleId,
-      courseId: initialCourseId,
-    });
-
-    return mockBackend.getById<MedicionRaDemoState>("medicionesRa", stateId, currentUser);
-  }, [availableCourses, backendVersion, currentUser.id, initialCourseId]);
+  const selectedCourse = availableCourses.find((item) => item.id === initialCourseId);
+  const initialStateId = buildMedicionRaDemoStateId({
+    userId: currentUser.id,
+    cicloId: selectedCourse?.cycleId,
+    courseId: initialCourseId,
+  });
+  const initialPersistedDemoState = mockBackend.getById<MedicionRaDemoState>(
+    "medicionesRa",
+    initialStateId,
+    currentUser,
+  );
 
   return {
     currentUser,
-    backendVersion,
     ignoreNextBackendChangeRef,
     availableCourses,
     hasAvailableCourses: availableCourses.length > 0,

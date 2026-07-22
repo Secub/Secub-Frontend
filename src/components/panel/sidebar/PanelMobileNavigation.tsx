@@ -26,6 +26,7 @@ export default function PanelMobileNavigation({ currentStep }: PanelMobileNaviga
     if (!open) return;
 
     const root = document.getElementById("root");
+    const triggerElement = triggerRef.current;
     const rootWasInert = root?.inert ?? false;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -66,7 +67,7 @@ export default function PanelMobileNavigation({ currentStep }: PanelMobileNaviga
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousOverflow;
       if (root) root.inert = rootWasInert;
-      triggerRef.current?.focus();
+      triggerElement?.focus();
     };
   }, [open]);
 

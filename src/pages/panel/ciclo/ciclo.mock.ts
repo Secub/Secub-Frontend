@@ -182,7 +182,7 @@ export function normalizeCicloRole(rawRole: string | null | undefined): CicloRol
 
 export function getCurrentCicloUser(): CurrentUser {
   const demoUser = getCurrentMockUser();
-  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
+  const fallbackUser = mockUsers[demoUser.role] ?? mockUsers.admin;
 
   return {
     ...fallbackUser,
@@ -190,7 +190,7 @@ export function getCurrentCicloUser(): CurrentUser {
     nombre: demoUser.nombre,
     email: demoUser.email,
     cargo: demoUser.cargo || fallbackUser.cargo,
-    role: demoUser.role as CurrentUser["role"],
+    role: demoUser.role,
     scope: {
       ...fallbackUser.scope,
       ...demoUser.scope,

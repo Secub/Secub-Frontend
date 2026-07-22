@@ -1,5 +1,5 @@
-function readBooleanEnv(value: unknown) {
-  return String(value ?? "").trim().toLowerCase() === "true";
+function readBooleanEnv(value: string | undefined) {
+  return value?.trim().toLowerCase() === "true";
 }
 
 // Herramientas visibles solo en desarrollo o cuando el ambiente demo lo habilite explícitamente.

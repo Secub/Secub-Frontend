@@ -31,7 +31,7 @@ export function buildCsvLikeExcel(records: MapeoCompetenciasEnriched[]) {
     .join("\n");
 }
 
-function escapeHtml(value: unknown) {
+function escapeHtml(value: string | number | boolean | null | undefined) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

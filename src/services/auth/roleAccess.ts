@@ -74,7 +74,7 @@ const direccionProgramaCrudEntities = new Set<SecubEntityKey>([
  * debe considerarse la única barrera de seguridad.
  */
 export function canWriteSecubEntity(
-  role: MockUserRole | string | null | undefined,
+  role: string | null | undefined,
   entityKey: SecubEntityKey,
   action: SecubWriteAction,
 ) {

@@ -21,7 +21,6 @@ export { LOCKED_TOOLTIP };
 export function useMedicionRA() {
   const {
     currentUser,
-    backendVersion,
     ignoreNextBackendChangeRef,
     availableCourses,
     hasAvailableCourses,
@@ -52,9 +51,10 @@ export function useMedicionRA() {
     improvementByCompetence: initialPersistedDemoState?.improvementByCompetence ?? {},
   });
 
-  const persistedDemoState = useMemo(
-    () => mockBackend.getById<MedicionRaDemoState>("medicionesRa", computedDraft.medicionRaDemoStateId, currentUser),
-    [backendVersion, computedDraft.medicionRaDemoStateId],
+  const persistedDemoState = mockBackend.getById<MedicionRaDemoState>(
+    "medicionesRa",
+    computedDraft.medicionRaDemoStateId,
+    currentUser,
   );
 
   const normalizedPersistedDemoState = persistedDemoState ?? undefined;
@@ -128,8 +128,7 @@ export function useMedicionRA() {
     setShowValidationErrors,
   });
 
-  const courseSummaries = useMemo<CourseMeasurementSummary[]>(() => {
-    return availableCourses.map((course) => {
+  const courseSummaries: CourseMeasurementSummary[] = availableCourses.map((course) => {
       if (course.id === computed.selectedCourse.id) {
         return getCourseMeasurementSummary({
           course,
@@ -156,16 +155,6 @@ export function useMedicionRA() {
         isLocked: courseState?.isEvaluationLocked ?? false,
       });
     });
-  }, [
-    availableCourses,
-    backendVersion,
-    computed.selectedCourse.id,
-    currentUser.id,
-    hydrated.evaluationsByCourse,
-    hydrated.evidenceByCompetence,
-    hydrated.instrumentsByCourse,
-    hydrated.isSelectedCourseLocked,
-  ]);
 
   const selectedCourseSummary = courseSummaries.find(
     (summary) => summary.courseId === computed.selectedCourse.id,

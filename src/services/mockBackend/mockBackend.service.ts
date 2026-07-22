@@ -291,11 +291,23 @@ function shouldDeleteRelatedToCompetencia(record: MockBackendRecord, competencia
 }
 
 function cascadeDeleteCompetenciaRelations(database: MockBackendDatabase, competenciaId: string, now: string) {
-  const competencia = (database.competenciasRa ?? []).find((record) => record.id === competenciaId) as
-    | (MockBackendRecord & { resultadosAprendizaje?: Array<{ id?: string }> })
-    | undefined;
-  const resultadoAprendizajeIds = (competencia?.resultadosAprendizaje ?? [])
-    .map((ra) => ra.id)
+  const competencia = (database.competenciasRa ?? []).find(
+    (record) => record.id === competenciaId,
+  );
+  const resultadosAprendizaje =
+    competencia &&
+    "resultadosAprendizaje" in competencia &&
+    Array.isArray(competencia.resultadosAprendizaje)
+      ? competencia.resultadosAprendizaje
+      : [];
+  const resultadoAprendizajeIds = resultadosAprendizaje
+    .map((resultado) => {
+      if (typeof resultado !== "object" || resultado === null || !("id" in resultado)) {
+        return undefined;
+      }
+
+      return typeof resultado.id === "string" ? resultado.id : undefined;
+    })
     .filter((id): id is string => Boolean(id));
 
   const markRelatedAsDeleted = (records: MockBackendRecord[]) =>

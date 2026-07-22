@@ -8,14 +8,14 @@ import { getBrowserSearchParams, storageClient } from "../shared/browser";
 
 export const SELECTED_PROGRAM_STORAGE_KEY = "secub:selected-program-id:v2";
 
-function normalizeProgramId(value?: string | null): SecubProgramId | "" {
+function normalizeProgramId(value?: string | null): SecubProgramId {
   const normalized = String(value ?? "").trim().toLowerCase();
   return secubAcademicPrograms.some((program) => program.id === normalized)
-    ? (normalized as SecubProgramId)
+    ? normalized
     : "";
 }
 
-export function readSelectedProgramId(): SecubProgramId | "" {
+export function readSelectedProgramId(): SecubProgramId {
   const params = getBrowserSearchParams();
   const fromQuery = normalizeProgramId(params.get("programaId") ?? params.get("programId"));
   if (fromQuery) return fromQuery;

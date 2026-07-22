@@ -507,14 +507,14 @@ export function normalizeDashboardRole(rawRole: string | null | undefined): Dash
 
 export function getCurrentDashboardUser(): DashboardUser {
   const demoUser = getCurrentMockUser();
-  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
+  const fallbackUser = mockUsers[demoUser.role] ?? mockUsers.admin;
 
   return {
     ...fallbackUser,
     id: demoUser.id,
     name: demoUser.nombre,
     email: demoUser.email,
-    role: demoUser.role as DashboardUser["role"],
+    role: demoUser.role,
     label: demoUser.cargo || fallbackUser.label,
     scope: {
       ...fallbackUser.scope,

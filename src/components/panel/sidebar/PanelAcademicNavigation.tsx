@@ -59,10 +59,7 @@ export default function PanelAcademicNavigation({
   const isCurrentInsideAcademicWorkflow = academicItems.some(
     (item) => item.key === currentStep,
   );
-  const docenteMeasurementProgress = useMemo(
-    () => getDocenteMeasurementProgress(currentUser),
-    [currentUser, workflowProgress],
-  );
+  const docenteMeasurementProgress = getDocenteMeasurementProgress(currentUser);
   const workflowState = getAcademicWorkflowState(workflowProgress);
   const completedStepsCount = isDocente
     ? docenteMeasurementProgress.completed
