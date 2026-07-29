@@ -48,7 +48,7 @@ export function CompetenciasRaFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const canEditStructure = mode === "create";
+  const canEditStructure = true;
   const {
     lugaresDisponibles,
     facultadesDisponibles,
@@ -68,7 +68,7 @@ export function CompetenciasRaFormModal({
   const validate = () => {
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
 
-    if (mode === "edit" && !form.descripcion.trim()) {
+    if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe tu competencia.";
     }
 
@@ -111,7 +111,7 @@ export function CompetenciasRaFormModal({
       description={
         mode === "create"
           ? "Registra una competencia seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
-          : "En edición solo se modifica el estado y el texto de la competencia, manteniendo la estructura académica bloqueada."
+          : "Actualiza el lugar de desarrollo, facultad, programa académico, plan de estudios, estado y texto de la competencia."
       }
       size="lg"
       footer={
@@ -135,22 +135,6 @@ export function CompetenciasRaFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        {mode === "edit" ? (
-          <Select
-            label="Seccional"
-            value={form.seccionalId}
-            onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-            options={catalogs.seccionales.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Selecciona una seccional"
-            disabled={!canEditStructure || !!user.scope.seccionalId}
-            id="seccionalId"
-            data-validation-field="seccionalId"
-            error={errors.seccionalId}
-        />
-        ) : null}
 
         <Select
           label="Lugar de desarrollo"
@@ -212,38 +196,54 @@ export function CompetenciasRaFormModal({
           data-validation-field="planId"
           error={errors.planId}
         />
+
+        {mode === "edit" ? (
+          <Select
+            label="Estado"
+            value={form.estado}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                estado: event.target.value as FormState["estado"],
+              }))
+            }
+            options={[
+              { label: "Activo", value: "activo" },
+              { label: "Inactivo", value: "inactivo" },
+            ]}
+            placeholder="Selecciona un estado"
+          />
+        ) : null}
       </div>
 
       {mode === "edit" ? (
-        <>
-          <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
-            <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
-              Gestión separada de RA
+        <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
+          <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
+            Gestión separada de RA
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
+            Primero guarda la competencia. Luego agrega, consulta o edita sus Resultados de Aprendizaje desde la tarjeta de la competencia.
+          </p>
+          {record ? (
+            <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
+              Registro actual: {record.programaNombre} · {record.planNombre}
             </p>
-            <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-              Primero guarda la competencia. Luego agrega, consulta o edita sus Resultados de Aprendizaje desde la tarjeta de la competencia.
-            </p>
-            {record ? (
-              <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
-                Registro actual: {record.programaNombre} · {record.planNombre}
-              </p>
-            ) : null}
-          </div>
-
-              <div className="mt-5">
-            <Textarea
-              label="Escribe tu competencia"
-              value={form.descripcion}
-              onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
-              rows={7}
-              placeholder="Escribe la competencia"
-              id="descripcion"
-              data-validation-field="descripcion"
-              error={errors.descripcion}
-            />
-          </div>
-        </>
+          ) : null}
+        </div>
       ) : null}
+
+      <div className="mt-5">
+        <Textarea
+          label="Escribe tu competencia"
+          value={form.descripcion}
+          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
+          rows={7}
+          placeholder="Escribe la competencia"
+          id="descripcion"
+          data-validation-field="descripcion"
+          error={errors.descripcion}
+        />
+      </div>
     </Modal>
   );
 }

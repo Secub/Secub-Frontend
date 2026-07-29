@@ -2,10 +2,7 @@ import { GoArrowLeft } from "react-icons/go";
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
 import { PanelLayout } from "../../../components/panel";
 import { Button, ConfirmDialog } from "../../../components/ui";
-import {
-  MapeoCompetenciasAccessState,
-  MapeoCompetenciasFilters,
-} from "./components";
+import { MapeoCompetenciasAccessState } from "./components";
 import MapeoCompetenciasCreateHeader from "./components/MapeoCompetenciasCreateHeader";
 import MapeoCompetenciasFeedback from "./components/MapeoCompetenciasFeedback";
 import MapeoCompetenciasIraStep from "./components/MapeoCompetenciasIraStep";
@@ -18,10 +15,8 @@ export default function MapeoCompetenciasCreatePage() {
   const page = useMapeoCompetenciasCreatePage();
   const {
     currentUser,
-    catalogs,
     permissions,
     filters,
-    setFilters,
     selectedPrograma,
     selectedPlan,
     existingRecord,
@@ -69,19 +64,16 @@ export default function MapeoCompetenciasCreatePage() {
         />
       ) : (
         <div className="space-y-6">
-          <MapeoCompetenciasFilters
-            filters={filters}
-            catalogs={catalogs}
-            permissions={permissions}
-            currentUser={currentUser}
-            onChange={setFilters}
-            showEstado={false}
-          />
+          {/*
+            El programa académico y el plan de estudios no se seleccionan en esta pantalla.
+            Ambos llegan desde el contexto definido previamente en Competencias y RA,
+            por lo que deben permanecer fijos durante la creación o edición del mapeo.
+          */}
 
           {!filters.programaId || !filters.planId ? (
             <MapeoCompetenciasAccessState
-              title="Selecciona un programa académico y un plan de estudios para iniciar el mapeo"
-              description="El registro se guardará asociado a programaId y planId para evitar datos sueltos o mezclados entre planes."
+              title="No se encontró el contexto académico del mapeo"
+              description="Regresa al flujo académico y verifica que el programa y el plan de estudios estén definidos previamente en Competencias y RA."
             />
           ) : (
             <>

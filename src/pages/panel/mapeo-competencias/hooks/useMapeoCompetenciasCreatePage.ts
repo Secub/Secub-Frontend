@@ -38,11 +38,36 @@ export function useMapeoCompetenciasCreatePage() {
   }));
 
   useEffect(() => {
+    if (filters.programaId && filters.planId) return;
+
+    const inheritedContexts = new Map<string, { programaId: string; planId: string }>();
+
+    competenciasRa.forEach((competencia) => {
+      if (!competencia.programaId || !competencia.planId) return;
+      if (filters.programaId && competencia.programaId !== filters.programaId) return;
+      inheritedContexts.set(`${competencia.programaId}::${competencia.planId}`, {
+        programaId: competencia.programaId,
+        planId: competencia.planId,
+      });
+    });
+
+    if (inheritedContexts.size === 1) {
+      const [context] = inheritedContexts.values();
+      setFilters((current) => ({
+        ...current,
+        programaId: current.programaId || context.programaId,
+        planId: current.planId || context.planId,
+      }));
+      return;
+    }
+
     if (filters.programaId && !filters.planId) {
-      const firstActivePlan = catalogs.planes.find((plan) => plan.programaId === filters.programaId && plan.estado === "activo");
+      const firstActivePlan = catalogs.planes.find(
+        (plan) => plan.programaId === filters.programaId && plan.estado === "activo",
+      );
       if (firstActivePlan) setFilters((current) => ({ ...current, planId: firstActivePlan.id }));
     }
-  }, [catalogs.planes, filters.planId, filters.programaId]);
+  }, [catalogs.planes, competenciasRa, filters.planId, filters.programaId]);
 
   const selectedPrograma = useMemo(
     () => catalogs.programas.find((programa) => programa.id === filters.programaId),

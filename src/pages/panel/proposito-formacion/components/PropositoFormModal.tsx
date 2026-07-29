@@ -47,7 +47,7 @@ export function PropositoFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const canEditStructure = mode === "create";
+  const canEditStructure = true;
   const {
     lugaresDisponibles,
     facultadesDisponibles,
@@ -66,7 +66,7 @@ export function PropositoFormModal({
 
   const validate = () => {
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
-    if (mode === "edit" && !form.descripcion.trim()) {
+    if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del propósito de formación.";
     }
 
@@ -114,7 +114,7 @@ export function PropositoFormModal({
       description={
         mode === "create"
           ? "Registra un nuevo propósito seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
-          : "En edición solo se modifica el estado y el texto descriptivo, manteniendo la estructura académica bloqueada."
+          : "Actualiza el lugar de desarrollo, facultad, programa académico, plan de estudios, estado y descripción del propósito de formación."
       }
       size="lg"
       footer={
@@ -138,22 +138,6 @@ export function PropositoFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        {mode === "edit" ? (
-          <Select
-            label="Seccional"
-            value={form.seccionalId}
-            onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-            options={catalogs.seccionales.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Selecciona una seccional"
-            disabled={!canEditStructure || !!user.scope.seccionalId}
-            id="seccionalId"
-            data-validation-field="seccionalId"
-            error={errors.seccionalId}
-        />
-        ) : null}
 
         <Select
           label="Lugar de desarrollo"
@@ -237,20 +221,18 @@ export function PropositoFormModal({
 
       
 
-      {mode === "edit" ? (
-        <div className="mt-5">
-          <Textarea
-            label="Descripción"
-            value={form.descripcion}
-            onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
-            rows={7}
-            placeholder="Escribe el propósito de formación del programa..."
-            id="descripcion"
-            data-validation-field="descripcion"
-            error={errors.descripcion}
-          />
-        </div>
-      ) : null}
+      <div className="mt-5">
+        <Textarea
+          label="Descripción"
+          value={form.descripcion}
+          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
+          rows={7}
+          placeholder="Escribe el propósito de formación del programa..."
+          id="descripcion"
+          data-validation-field="descripcion"
+          error={errors.descripcion}
+        />
+      </div>
     </Modal>
   );
 }

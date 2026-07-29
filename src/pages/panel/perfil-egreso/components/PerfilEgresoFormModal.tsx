@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Button, Modal, Select, Textarea, Input } from "../../../../components/ui";
+import { Button, Modal, Select, Textarea } from "../../../../components/ui";
 import {
   useAcademicScopeForm,
   validateAcademicScope,
   type AcademicScopeErrors,
 } from "../../../../features/academic-scope";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { formatDate } from "../perfil-egreso.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -35,7 +34,6 @@ export function PerfilEgresoFormModal({
   user,
   catalogs,
   initialValues,
-  record,
   onClose,
   onSubmit,
 }: PerfilEgresoFormModalProps) {
@@ -49,7 +47,7 @@ export function PerfilEgresoFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const canEditStructure = mode === "create";
+  const canEditStructure = true;
   const {
     lugaresDisponibles,
     facultadesDisponibles,
@@ -68,7 +66,7 @@ export function PerfilEgresoFormModal({
 
   const validate = () => {
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
-    if (mode === "edit" && !form.descripcion.trim()) {
+    if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del perfil de egreso.";
     }
 
@@ -112,7 +110,7 @@ export function PerfilEgresoFormModal({
       description={
         mode === "create"
           ? "Registra un nuevo perfil de egreso seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
-          : "En edición solo se modifica el estado y el texto descriptivo, manteniendo el programa y el plan de estudios bloqueados."
+          : "Actualiza el lugar de desarrollo, facultad, programa académico, plan de estudios, estado y descripción del perfil de egreso."
       }
       size="lg"
       footer={
@@ -136,22 +134,6 @@ export function PerfilEgresoFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        {mode === "edit" ? (
-          <Select
-            label="Seccional"
-            value={form.seccionalId}
-            onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-            options={catalogs.seccionales.map((item) => ({
-              label: item.nombre,
-              value: item.id,
-            }))}
-            placeholder="Selecciona una seccional"
-            disabled={!canEditStructure || !!user.scope.seccionalId}
-            id="seccionalId"
-            data-validation-field="seccionalId"
-            error={errors.seccionalId}
-        />
-        ) : null}
 
         <Select
           label="Lugar de desarrollo"
@@ -232,31 +214,21 @@ export function PerfilEgresoFormModal({
           />
         ) : null}
 
-        {mode === "edit" ? (
-          <Input
-            label="Fecha de creación"
-            value={formatDate(record?.createdAt ?? new Date().toISOString())}
-            disabled
-            helperText="Se almacenó automáticamente al crear el perfil de egreso."
-          />
-        ) : null}
       </div>
 
 
-      {mode === "edit" ? (
-        <div className="mt-5">
-          <Textarea
-            label="Descripción"
-            value={form.descripcion}
-            onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
-            rows={7}
-            placeholder="Escribe el perfil de egreso del programa..."
-            id="descripcion"
-            data-validation-field="descripcion"
-            error={errors.descripcion}
-          />
-        </div>
-      ) : null}
+      <div className="mt-5">
+        <Textarea
+          label="Descripción"
+          value={form.descripcion}
+          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
+          rows={7}
+          placeholder="Escribe el perfil de egreso del programa..."
+          id="descripcion"
+          data-validation-field="descripcion"
+          error={errors.descripcion}
+        />
+      </div>
     </Modal>
   );
 }
