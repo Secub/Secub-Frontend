@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent } from "react";
 import { showNotification } from "../../../../shared/feedback";
 import { GoAlert, GoFile, GoLink, GoTrash, GoUpload } from "react-icons/go";
-import { Button, ConfirmDialog, IconButton, Input, Textarea } from "../../../../components/ui";
+import { ConfirmDialog, IconButton, Input, Textarea } from "../../../../components/ui";
 import { ACCEPTED_FILE_FORMATS } from "../medicion-ra.mock";
 import type {
   Competence,
