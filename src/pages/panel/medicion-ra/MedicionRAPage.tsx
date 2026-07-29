@@ -1,8 +1,9 @@
+import { useEffect } from "react";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { ConfirmDialog } from "../../../components/ui";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import CompetenceStepper from "./components/CompetenceStepper";
-import CourseSelector from "./components/CourseSelector";
 import EvaluationInstructions from "./components/EvaluationInstructions";
 import EvidenceImprovementSection from "./components/EvidenceImprovementSection";
 import InstrumentSection from "./components/InstrumentSection";
@@ -10,6 +11,7 @@ import RaResultsCharts from "./components/RaResultsCharts";
 import StudentsEvaluationTable from "./components/StudentsEvaluationTable";
 import ValidationBanner from "./components/ValidationBanner";
 import { LOCKED_TOOLTIP, useMedicionRA } from "./hooks/useMedicionRA";
+import { buildCoursesFromRealAssignments, getSearchCourseId, getSearchCycleId } from "./utils/medicionRA.assignments";
 
 function MedicionRAAccessRestricted() {
   return (
@@ -34,12 +36,52 @@ export default function MedicionRAPage() {
     return <MedicionRAAccessRestricted />;
   }
 
+  return <MedicionRAContextGate />;
+}
+
+function MedicionRAContextGate() {
+  const currentUser = getCurrentMockUser();
+  const availableCourses = buildCoursesFromRealAssignments(currentUser);
+  const requestedCourseId = getSearchCourseId();
+  const requestedCycleId = getSearchCycleId();
+  const hasValidCourseContext = Boolean(
+    requestedCourseId &&
+      requestedCycleId &&
+      availableCourses.some(
+        (course) => course.id === requestedCourseId && course.cycleId === requestedCycleId,
+      ),
+  );
+
+  useEffect(() => {
+    if (hasValidCourseContext) return;
+
+    navigateToRoute(
+      buildRouteWithSearch(ROUTES.panelDashboard, {
+        role: "docente",
+      }),
+    );
+  }, [hasValidCourseContext]);
+
+  if (!hasValidCourseContext) {
+    return (
+      <PanelLayout
+        currentStep="medicion-ra"
+        title="Medición RA"
+        description="Registro y seguimiento de Resultados de Aprendizaje asignados."
+      >
+        <WorkflowStateCard
+          title="Selecciona un curso desde Estado del ciclo"
+          description="La medición se abre con el contexto del curso seleccionado en Estado del ciclo."
+        />
+      </PanelLayout>
+    );
+  }
+
   return <MedicionRAContent />;
 }
 
 function MedicionRAContent() {
   const {
-    availableCourses,
     selectedCourse,
     activeCompetence,
     activeRaResults,
@@ -52,12 +94,10 @@ function MedicionRAContent() {
     feedback,
     showFinishModal,
     isSelectedCourseLocked,
-    courseSummaries,
     isSelectedCourseComplete,
     hasNextPendingCourse,
     showValidationErrors,
     competenceContentRef,
-    handleCourseChange,
     handleCompetenceChange,
     handleLevelChange,
     handleInstrumentDescriptionChange,
@@ -95,13 +135,6 @@ function MedicionRAContent() {
       description="Calificación de Resultados de Aprendizaje, instrumentos, evidencias y planes de mejora por competencia."
     >
       <div className="space-y-6 pb-24">
-        <CourseSelector
-          courses={availableCourses}
-          selectedCourseId={selectedCourse.id}
-          courseSummaries={courseSummaries}
-          onCourseChange={handleCourseChange}
-        />
-
         <CompetenceStepper
           competences={selectedCourse.competences}
           activeCompetenceId={activeCompetence.id}

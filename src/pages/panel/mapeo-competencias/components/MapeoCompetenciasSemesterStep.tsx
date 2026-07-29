@@ -84,7 +84,7 @@ export default function MapeoCompetenciasSemesterStep({
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={getNucleoVariant(nucleo)}>{getNucleoLabel(nucleo)}</Badge>
-          <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
+          <span className="rounded-full border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
             {semestreNumero} de {totalSemestres}
           </span>
           
@@ -108,7 +108,7 @@ export default function MapeoCompetenciasSemesterStep({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-white">
+        <div className="overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-[var(--secub-surface)]">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] table-fixed border-separate border-spacing-0 text-sm">
               <thead>
@@ -141,7 +141,7 @@ export default function MapeoCompetenciasSemesterStep({
               <tbody>
                 {cursos.map((curso) => (
                   <tr key={curso.id}>
-                    <td className="sticky left-0 z-10 border-b border-[var(--color-gray-6)] bg-white px-5 py-4 align-top">
+                    <td className="sticky left-0 z-10 border-b border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-5 py-4 align-top">
                       <div className="min-w-0">
                         <p className="truncate font-medium text-[var(--color-gray-1)]">
                           {curso.nombre}

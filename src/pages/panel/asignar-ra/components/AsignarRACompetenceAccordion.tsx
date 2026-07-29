@@ -73,7 +73,7 @@ export function AsignarRACompetenceAccordion({
       </button>
 
       {isExpanded ? (
-        <div className="space-y-3 border-t border-[var(--color-gray-6)] bg-white p-5">
+        <div className="space-y-3 border-t border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5">
           <p className="text-sm leading-6 text-[var(--color-gray-3)]">Máximo 4 Resultados de Aprendizaje por competencia.</p>
           {ras.map((ra, raIndex) => {
             if (!ra.id) return null;
@@ -90,7 +90,7 @@ export function AsignarRACompetenceAccordion({
                   "flex cursor-pointer items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-all",
                   selected
                     ? "border-[var(--color-secondary-1)] bg-[color:rgba(14,101,217,0.07)]"
-                    : "border-[var(--color-gray-6)] bg-white hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-surface-soft)]",
+                    : "border-[var(--color-gray-6)] bg-[var(--secub-surface)] hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-surface-soft)]",
                   isDisabled ? "cursor-default opacity-90" : "",
                 ].join(" ")}
               >

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
+import { showNotification } from "../../../../shared/feedback";
 import type {
   CompetenciaRaDemoRecord,
   CurrentUser,
@@ -151,7 +152,7 @@ export function useMapeoCompetenciasManager({
     });
   }
 
-  function saveProgress() {
+  function saveProgress(notifySuccess = true) {
     if (!canManage) return null;
 
     if (!programaId || !planId) {
@@ -162,15 +163,27 @@ export function useMapeoCompetenciasManager({
       return null;
     }
 
-    const nextRecord = buildRecord();
-    mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", nextRecord, currentUser);
+    try {
+      const nextRecord = buildRecord();
+      mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", nextRecord, currentUser);
+      setFeedback(null);
 
-    setFeedback({
-      type: "success",
-      message: "Progreso guardado correctamente para este programa y plan de estudios.",
-    });
+      if (notifySuccess) {
+        showNotification({
+          title: "Progreso guardado",
+          message: "Se ha guardado tu progreso correctamente.",
+          variant: "success",
+        });
+      }
 
-    return nextRecord;
+      return nextRecord;
+    } catch {
+      setFeedback({
+        type: "danger",
+        message: "No fue posible guardar el progreso. Revisa la información e inténtalo nuevamente.",
+      });
+      return null;
+    }
   }
 
   function tryContinueToMapeo() {
@@ -182,7 +195,9 @@ export function useMapeoCompetenciasManager({
       return false;
     }
 
-    saveProgress();
+    const savedRecord = saveProgress(false);
+    if (!savedRecord) return false;
+
     fillMissingLevelsWithNoAplica();
     setActiveStep("mapeo");
     setActiveSemester(1);
@@ -223,7 +238,7 @@ export function useMapeoCompetenciasManager({
       return null;
     }
 
-    return saveProgress();
+    return saveProgress(false);
   }
 
   return {

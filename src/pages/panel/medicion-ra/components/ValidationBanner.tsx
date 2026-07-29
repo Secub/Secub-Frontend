@@ -9,10 +9,10 @@ interface ValidationBannerProps {
 
 const toastStyles = {
   success:
-    "border-[var(--color-success)] bg-[var(--color-white)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
+    "border-[var(--color-success)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
   error:
-    "border-[var(--color-error)] bg-[var(--color-white)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
-  info: "border-[var(--color-info)] bg-[var(--color-white)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
+    "border-[var(--color-error)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
+  info: "border-[var(--color-info)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
 } as const;
 
 const iconBoxStyles = {

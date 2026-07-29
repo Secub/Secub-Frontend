@@ -6,7 +6,7 @@ import {
   GoTrash,
   GoVerified,
 } from "react-icons/go";
-import { Badge, Button } from "../../../../components/ui";
+import { Badge, Button, IconButton } from "../../../../components/ui";
 import type { CicloEnriched, CurrentUser } from "../ciclo.types";
 import {
   canDuplicateCycle,
@@ -81,27 +81,22 @@ export default function CicloSummaryCard({
 
         <div className="flex shrink-0 flex-nowrap items-center gap-3">
           {permissions.canEditCycle ? (
-            <Button
+            <IconButton
               variant="outline"
-              size="sm"
-              leftIcon={<GoPencil className="text-lg" />}
+              icon={<GoPencil />}
+              label={`Editar ciclo ${formatCicloTitle(ciclo)}`}
               onClick={() => onEdit(ciclo)}
               disabled={!canEdit}
-              title={!canEdit ? disabledReason : "Editar ciclo"}
-            >
-              Editar
-            </Button>
+              title={!canEdit ? disabledReason : `Editar ciclo ${formatCicloTitle(ciclo)}`}
+            />
           ) : null}
 
-          <Button
+          <IconButton
             variant="outline"
-            size="sm"
-            leftIcon={<GoEye className="text-lg" />}
+            icon={<GoEye />}
+            label={`Ver detalle del ciclo ${formatCicloTitle(ciclo)}`}
             onClick={() => onView(ciclo)}
-            title="Se enrutará con el dashboard."
-          >
-            Ver detalle
-          </Button>
+          />
 
           {permissions.canDuplicateCycle ? (
             <Button
@@ -126,22 +121,20 @@ export default function CicloSummaryCard({
           ) : null}
 
           {permissions.canDeleteCycle ? (
-            <Button
+            <IconButton
               variant="danger"
-              size="sm"
-              leftIcon={<GoTrash className="text-lg" />}
+              icon={<GoTrash />}
+              label={`Eliminar ciclo ${formatCicloTitle(ciclo)}`}
               onClick={() => onDelete(ciclo)}
               disabled={!canEdit}
-              title={!canEdit ? disabledReason : "Eliminar ciclo"}
-            >
-              Eliminar
-            </Button>
+              title={!canEdit ? disabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
+            />
           ) : null}
         </div>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-5 text-center shadow-sm">
+        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
           <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
             {ciclo.cursosSeleccionados.length}
           </p>
@@ -150,14 +143,14 @@ export default function CicloSummaryCard({
           </p>
         </div>
 
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-5 text-center shadow-sm">
+        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
           <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
             {ciclo.duracionAnios}
           </p>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">Años de duración</p>
         </div>
 
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-5 text-center shadow-sm">
+        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
           <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
             {ciclo.progreso}%
           </p>
@@ -181,7 +174,7 @@ export default function CicloSummaryCard({
             ciclo.cursosSeleccionados.map((curso) => (
               <div
                 key={curso.id}
-                className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-4 shadow-sm"
+                className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-4 shadow-sm"
               >
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <div>

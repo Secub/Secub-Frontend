@@ -68,7 +68,7 @@ export function CompetenciasRaFormModal({
   const validate = () => {
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
 
-    if (!form.descripcion.trim()) {
+    if (mode === "edit" && !form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe tu competencia.";
     }
 
@@ -110,7 +110,7 @@ export function CompetenciasRaFormModal({
       title={mode === "create" ? "Crear competencia" : "Editar competencia"}
       description={
         mode === "create"
-          ? "Registra una competencia asociada a una seccional, lugar de desarrollo, facultad, programa y plan de estudios."
+          ? "Registra una competencia seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
           : "En edición solo se modifica el estado y el texto de la competencia, manteniendo la estructura académica bloqueada."
       }
       size="lg"
@@ -135,20 +135,22 @@ export function CompetenciasRaFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Select
-          label="Seccional"
-          value={form.seccionalId}
-          onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-          options={catalogs.seccionales.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Selecciona una seccional"
-          disabled={!canEditStructure || !!user.scope.seccionalId}
-          id="seccionalId"
-          data-validation-field="seccionalId"
-          error={errors.seccionalId}
+        {mode === "edit" ? (
+          <Select
+            label="Seccional"
+            value={form.seccionalId}
+            onChange={(event) => updateScopeField("seccionalId", event.target.value)}
+            options={catalogs.seccionales.map((item) => ({
+              label: item.nombre,
+              value: item.id,
+            }))}
+            placeholder="Selecciona una seccional"
+            disabled={!canEditStructure || !!user.scope.seccionalId}
+            id="seccionalId"
+            data-validation-field="seccionalId"
+            error={errors.seccionalId}
         />
+        ) : null}
 
         <Select
           label="Lugar de desarrollo"
@@ -212,32 +214,36 @@ export function CompetenciasRaFormModal({
         />
       </div>
 
-      <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
-        <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
-          Gestión separada de RA
-        </p>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-          Primero guarda la competencia. Luego agrega, consulta o edita sus Resultados de Aprendizaje desde la tarjeta de la competencia.
-        </p>
-        {record ? (
-          <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
-            Registro actual: {record.programaNombre} · {record.planNombre}
-          </p>
-        ) : null}
-      </div>
+      {mode === "edit" ? (
+        <>
+          <div className="mt-5 rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
+            <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
+              Gestión separada de RA
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
+              Primero guarda la competencia. Luego agrega, consulta o edita sus Resultados de Aprendizaje desde la tarjeta de la competencia.
+            </p>
+            {record ? (
+              <p className="mt-3 text-xs leading-5 text-[var(--color-gray-4)]">
+                Registro actual: {record.programaNombre} · {record.planNombre}
+              </p>
+            ) : null}
+          </div>
 
-      <div className="mt-5">
-        <Textarea
-          label="Escribe tu competencia"
-          value={form.descripcion}
-          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
-          rows={7}
-          placeholder="Escribe la competencia"
-          id="descripcion"
-          data-validation-field="descripcion"
-          error={errors.descripcion}
-        />
-      </div>
+              <div className="mt-5">
+            <Textarea
+              label="Escribe tu competencia"
+              value={form.descripcion}
+              onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
+              rows={7}
+              placeholder="Escribe la competencia"
+              id="descripcion"
+              data-validation-field="descripcion"
+              error={errors.descripcion}
+            />
+          </div>
+        </>
+      ) : null}
     </Modal>
   );
 }

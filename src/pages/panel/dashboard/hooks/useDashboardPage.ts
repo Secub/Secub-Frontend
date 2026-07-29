@@ -74,6 +74,7 @@ export function useDashboardPage() {
     navigateToRoute(
       buildRouteWithSearch(ROUTES.panelMedicionRa, {
         role: "docente",
+        cycleId: course.cycleId,
         courseId: course.id,
       }),
     );

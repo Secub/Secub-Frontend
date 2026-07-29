@@ -66,7 +66,7 @@ export function PropositoFormModal({
 
   const validate = () => {
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
-    if (!form.descripcion.trim()) {
+    if (mode === "edit" && !form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del propósito de formación.";
     }
 
@@ -113,7 +113,7 @@ export function PropositoFormModal({
       }
       description={
         mode === "create"
-          ? "Registra un nuevo propósito asociado a una seccional, lugar de desarrollo, facultad, programa y plan específico."
+          ? "Registra un nuevo propósito seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
           : "En edición solo se modifica el estado y el texto descriptivo, manteniendo la estructura académica bloqueada."
       }
       size="lg"
@@ -138,20 +138,22 @@ export function PropositoFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Select
-          label="Seccional"
-          value={form.seccionalId}
-          onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-          options={catalogs.seccionales.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Selecciona una seccional"
-          disabled={!canEditStructure || !!user.scope.seccionalId}
-          id="seccionalId"
-          data-validation-field="seccionalId"
-          error={errors.seccionalId}
+        {mode === "edit" ? (
+          <Select
+            label="Seccional"
+            value={form.seccionalId}
+            onChange={(event) => updateScopeField("seccionalId", event.target.value)}
+            options={catalogs.seccionales.map((item) => ({
+              label: item.nombre,
+              value: item.id,
+            }))}
+            placeholder="Selecciona una seccional"
+            disabled={!canEditStructure || !!user.scope.seccionalId}
+            id="seccionalId"
+            data-validation-field="seccionalId"
+            error={errors.seccionalId}
         />
+        ) : null}
 
         <Select
           label="Lugar de desarrollo"
@@ -235,18 +237,20 @@ export function PropositoFormModal({
 
       
 
-      <div className="mt-5">
-        <Textarea
-          label="Descripción"
-          value={form.descripcion}
-          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
-          rows={7}
-          placeholder="Escribe el propósito de formación del programa..."
-          id="descripcion"
-          data-validation-field="descripcion"
-          error={errors.descripcion}
-        />
-      </div>
+      {mode === "edit" ? (
+        <div className="mt-5">
+          <Textarea
+            label="Descripción"
+            value={form.descripcion}
+            onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
+            rows={7}
+            placeholder="Escribe el propósito de formación del programa..."
+            id="descripcion"
+            data-validation-field="descripcion"
+            error={errors.descripcion}
+          />
+        </div>
+      ) : null}
     </Modal>
   );
 }

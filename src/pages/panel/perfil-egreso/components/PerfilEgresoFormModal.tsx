@@ -68,7 +68,7 @@ export function PerfilEgresoFormModal({
 
   const validate = () => {
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
-    if (!form.descripcion.trim()) {
+    if (mode === "edit" && !form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del perfil de egreso.";
     }
 
@@ -111,7 +111,7 @@ export function PerfilEgresoFormModal({
       title={mode === "create" ? "Crear perfil de egreso" : "Editar perfil de egreso"}
       description={
         mode === "create"
-          ? "Registra un nuevo perfil de egreso asociado a una seccional, lugar de desarrollo, facultad, programa y plan específico."
+          ? "Registra un nuevo perfil de egreso seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
           : "En edición solo se modifica el estado y el texto descriptivo, manteniendo el programa y el plan de estudios bloqueados."
       }
       size="lg"
@@ -136,20 +136,22 @@ export function PerfilEgresoFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Select
-          label="Seccional"
-          value={form.seccionalId}
-          onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-          options={catalogs.seccionales.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Selecciona una seccional"
-          disabled={!canEditStructure || !!user.scope.seccionalId}
-          id="seccionalId"
-          data-validation-field="seccionalId"
-          error={errors.seccionalId}
+        {mode === "edit" ? (
+          <Select
+            label="Seccional"
+            value={form.seccionalId}
+            onChange={(event) => updateScopeField("seccionalId", event.target.value)}
+            options={catalogs.seccionales.map((item) => ({
+              label: item.nombre,
+              value: item.id,
+            }))}
+            placeholder="Selecciona una seccional"
+            disabled={!canEditStructure || !!user.scope.seccionalId}
+            id="seccionalId"
+            data-validation-field="seccionalId"
+            error={errors.seccionalId}
         />
+        ) : null}
 
         <Select
           label="Lugar de desarrollo"
@@ -230,31 +232,31 @@ export function PerfilEgresoFormModal({
           />
         ) : null}
 
-        <Input
-          label="Fecha de creación"
-          value={
-            mode === "create"
-              ? formatDate(new Date().toISOString())
-              : formatDate(record?.createdAt ?? new Date().toISOString())
-          }
-          disabled
-          helperText="Se almacena automáticamente al crear el perfil de egreso."
-        />
+        {mode === "edit" ? (
+          <Input
+            label="Fecha de creación"
+            value={formatDate(record?.createdAt ?? new Date().toISOString())}
+            disabled
+            helperText="Se almacenó automáticamente al crear el perfil de egreso."
+          />
+        ) : null}
       </div>
 
 
-      <div className="mt-5">
-        <Textarea
-          label="Descripción"
-          value={form.descripcion}
-          onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
-          rows={7}
-          placeholder="Escribe el perfil de egreso del programa..."
-          id="descripcion"
-          data-validation-field="descripcion"
-          error={errors.descripcion}
-        />
-      </div>
+      {mode === "edit" ? (
+        <div className="mt-5">
+          <Textarea
+            label="Descripción"
+            value={form.descripcion}
+            onChange={(event) => setForm((current) => ({ ...current, descripcion: event.target.value }))}
+            rows={7}
+            placeholder="Escribe el perfil de egreso del programa..."
+            id="descripcion"
+            data-validation-field="descripcion"
+            error={errors.descripcion}
+          />
+        </div>
+      ) : null}
     </Modal>
   );
 }

@@ -30,7 +30,7 @@ export function AsignarRACoursesTable({
         <Badge variant="info">{rows.length} de {totalCourses}</Badge>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white">
+      <div className="mt-5 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] border-separate border-spacing-0">
             <thead className="bg-[var(--color-surface-soft)]">
@@ -57,7 +57,7 @@ export function AsignarRACoursesTable({
                   <tr
                     key={row.course.id}
                     className={[
-                      "bg-white transition-colors hover:bg-[var(--color-surface-soft)]",
+                      "bg-[var(--secub-surface)] transition-colors hover:bg-[var(--color-surface-soft)]",
                       row.isSelected ? "bg-[color:rgba(14,101,217,0.05)]" : "",
                     ].join(" ")}
                   >

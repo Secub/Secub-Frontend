@@ -108,7 +108,6 @@ export default function MapeoCompetenciasPage() {
           description="Cuando se cargue el primer mapeo de competencias específicas, se habilitará la vista completa con filtros, consolidado, acciones y exportación."
           actionLabel={canOpenCreate ? "Crear mapeo" : undefined}
           onAction={canOpenCreate ? handleCreate : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6">
@@ -163,7 +162,7 @@ export default function MapeoCompetenciasPage() {
             onCreate={handleCreate}
           />
 
-          {isWorkflowActive && filteredRecords.length > 0 ? (
+          {isWorkflowActive && permissions.canUpdate && filteredRecords.length > 0 ? (
             <FlowActionBar
               description={
                 isMapeoComplete

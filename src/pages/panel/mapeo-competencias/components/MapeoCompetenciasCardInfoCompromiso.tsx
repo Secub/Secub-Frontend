@@ -6,7 +6,7 @@ export default function MapeoCompetenciasCardInfoCompromiso({
   title = "Indicaciones de Niveles de Compromiso",
 }: MapeoCompetenciasCardInfoCompromisoProps) {
   return (
-    <section className="w-full overflow-hidden rounded-xl border border-[var(--color-gray-6)] bg-white shadow-sm transition-shadow hover:shadow-md">
+    <section className="w-full overflow-hidden rounded-xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] shadow-sm transition-shadow hover:shadow-md">
       <div className="p-6 md:p-8">
         <h2 className="font-heading text-lg font-bold text-[var(--color-secondary-4)]">
           {title}

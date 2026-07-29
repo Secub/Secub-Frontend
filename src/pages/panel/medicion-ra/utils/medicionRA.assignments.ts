@@ -104,6 +104,11 @@ export function getSearchCourseId() {
   return getBrowserSearchParams().get("courseId") ?? "";
 }
 
+export function getSearchCycleId() {
+  if (typeof window === "undefined") return "";
+  return getBrowserSearchParams().get("cycleId") ?? "";
+}
+
 export function resolveMedicionRaContextForCourse(course?: CourseRecord) {
   const cicloId = course?.cycleId;
   const currentUser = getCurrentMockUser();

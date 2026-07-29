@@ -1,5 +1,5 @@
-import { GoChevronRight, GoEye, GoMail } from "react-icons/go";
-import { Badge, Button, Table, type TableColumn } from "../../../../components/ui";
+import { GoChevronRight, GoMail } from "react-icons/go";
+import { Badge, Button, IconButton, Table, type TableColumn } from "../../../../components/ui";
 import type { EnrichedCourse } from "../dashboard.types";
 
 interface CoursesMeasurementTableProps {
@@ -8,8 +8,8 @@ interface CoursesMeasurementTableProps {
   courses: EnrichedCourse[];
   mode: "teacher" | "supervisor";
   onMeasureCourse?: (course: EnrichedCourse) => void;
-  onViewResults: (course: EnrichedCourse) => void;
   onNotifyTeacher?: (course: EnrichedCourse) => void;
+  canNotifyTeacher?: boolean;
 }
 
 const statusVariant = {
@@ -31,8 +31,8 @@ export default function CoursesMeasurementTable({
   courses,
   mode,
   onMeasureCourse,
-  onViewResults,
   onNotifyTeacher,
+  canNotifyTeacher = false,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
     {
@@ -101,22 +101,6 @@ export default function CoursesMeasurementTable({
       title: "Acciones",
       render: (course) => (
         <div className="flex flex-col items-center justify-center gap-2">
-          <Button
-            variant="primary_soft"
-            size="sm"
-            leftIcon={<GoEye className="text-base" />}
-            onClick={() => onViewResults(course)}
-            disabled={course.results.length === 0}
-            title={
-              course.results.length === 0
-                ? "El detalle se habilita cuando exista al menos un RA medido."
-                : "Ver detalle del curso"
-            }
-            className="w-full max-w-[130px] px-3 text-center leading-tight"
-          >
-            Ver detalle
-          </Button>
-
           {course.status === "pendiente" ? (
             <Button
               variant="outline"
@@ -211,43 +195,28 @@ export default function CoursesMeasurementTable({
       className: `${compactCell} w-[10%] text-center`,
       headerClassName: `${compactHeader} w-[10%] text-center`,
     },
-    {
-      key: "actions",
-      title: "Acciones",
-      render: (course) => (
-        <div className="flex flex-col items-center justify-center gap-2">
-          {course.status === "pendiente" ? (
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={<GoMail className="text-base" />}
-              onClick={() => onNotifyTeacher?.(course)}
-              className="w-full max-w-[125px] px-3 text-center leading-tight"
-            >
-              Enviar correo
-            </Button>
-          ) : null}
-
-          <Button
-            variant="primary_soft"
-            size="sm"
-            leftIcon={<GoEye className="text-base" />}
-            onClick={() => onViewResults(course)}
-            disabled={course.results.length === 0}
-            title={
-              course.results.length === 0
-                ? "El detalle se habilita cuando exista al menos un RA medido."
-                : "Ver detalle del curso"
-            }
-            className="w-full max-w-[125px] px-3 text-center leading-tight"
-          >
-            Ver detalle
-          </Button>
-        </div>
-      ),
-      className: `${compactCell} w-[14%] text-center`,
-      headerClassName: `${compactHeader} w-[14%] text-center`,
-    },
+    ...(canNotifyTeacher
+      ? [
+          {
+            key: "actions",
+            title: "Acciones",
+            render: (course: EnrichedCourse) => (
+              <div className="flex flex-col items-center justify-center gap-2">
+                {course.status === "pendiente" ? (
+                  <IconButton
+                    variant="outline"
+                    icon={<GoMail />}
+                    label={`Enviar correo a ${course.teacherName} por el curso ${course.name}`}
+                    onClick={() => onNotifyTeacher?.(course)}
+                  />
+                ) : null}
+              </div>
+            ),
+            className: `${compactCell} w-[14%] text-center`,
+            headerClassName: `${compactHeader} w-[14%] text-center`,
+          } satisfies TableColumn<EnrichedCourse>,
+        ]
+      : []),
   ];
 
   return (

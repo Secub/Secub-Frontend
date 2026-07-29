@@ -13,6 +13,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   error?: string;
   helperText?: string;
   hideLabel?: boolean;
+  readOnly?: boolean;
 }
 
 export function Select({
@@ -25,6 +26,8 @@ export function Select({
   id,
   className = "",
   value,
+  disabled = false,
+  readOnly = false,
   "aria-describedby": ariaDescribedBy,
   ...props
 }: SelectProps) {
@@ -65,6 +68,8 @@ export function Select({
           aria-describedby={describedBy}
           aria-label={accessibleNameFallback}
           value={value}
+          disabled={disabled || readOnly}
+          aria-readonly={readOnly || undefined}
           className={[
             "w-full min-w-0 appearance-none rounded-xl border bg-[var(--secub-surface)] px-4 py-3 pr-11 text-sm text-[var(--secub-text)] shadow-sm transition-all duration-200",
             "focus:outline-none focus:ring-4",
@@ -83,10 +88,12 @@ export function Select({
           ))}
         </select>
 
-        <GoChevronDown
-          aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--color-gray-4)]"
-        />
+        {!disabled && !readOnly ? (
+          <GoChevronDown
+            aria-hidden="true"
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--color-gray-4)]"
+          />
+        ) : null}
       </div>
 
       {error ? (

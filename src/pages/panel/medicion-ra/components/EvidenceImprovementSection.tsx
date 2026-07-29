@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent } from "react";
 import { showNotification } from "../../../../shared/feedback";
 import { GoAlert, GoFile, GoLink, GoTrash, GoUpload } from "react-icons/go";
-import { Button, ConfirmDialog, Input, Textarea } from "../../../../components/ui";
+import { Button, ConfirmDialog, IconButton, Input, Textarea } from "../../../../components/ui";
 import { ACCEPTED_FILE_FORMATS } from "../medicion-ra.mock";
 import type {
   Competence,
@@ -104,7 +104,7 @@ export default function EvidenceImprovementSection({
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-3">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-white)] text-[var(--color-secondary-1)]">
+              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--secub-surface)] text-[var(--color-secondary-1)]">
                 <GoFile className="text-xl" />
               </span>
 
@@ -165,20 +165,19 @@ export default function EvidenceImprovementSection({
               </label>
 
               {evidence.fileName ? (
-                <Button
+                <IconButton
                   variant="outline"
-                  leftIcon={<GoTrash className="text-lg" />}
+                  icon={<GoTrash />}
+                  label="Eliminar archivo de evidencia"
                   disabled={disabled}
-                  title={disabled ? lockedTooltip : undefined}
+                  title={disabled ? lockedTooltip : "Eliminar archivo de evidencia"}
                   onClick={() => setDeleteTarget("file")}
-                >
-                  Eliminar archivo
-                </Button>
+                />
               ) : null}
             </div>
           </div>
 
-          <div className="mt-4 rounded-[var(--radius-md)] bg-[var(--color-white)] px-4 py-3 text-sm text-[var(--color-gray-3)]">
+          <div className="mt-4 rounded-[var(--radius-md)] bg-[var(--secub-surface)] px-4 py-3 text-sm text-[var(--color-gray-3)]">
             <span className="font-semibold text-[var(--color-secondary-4)]">
               Archivo seleccionado:
             </span>{" "}
@@ -205,15 +204,14 @@ export default function EvidenceImprovementSection({
 
           {evidence.link ? (
             <div className="mt-3 flex justify-end">
-              <Button
+              <IconButton
                 variant="outline"
-                leftIcon={<GoTrash className="text-lg" />}
+                icon={<GoTrash />}
+                label="Eliminar enlace de evidencia"
                 disabled={disabled}
-                title={disabled ? lockedTooltip : undefined}
+                title={disabled ? lockedTooltip : "Eliminar enlace de evidencia"}
                 onClick={() => setDeleteTarget("link")}
-              >
-                Eliminar enlace
-              </Button>
+              />
             </div>
           ) : null}
         </div>

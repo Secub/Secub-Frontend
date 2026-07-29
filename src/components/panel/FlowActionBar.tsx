@@ -150,7 +150,7 @@ export default function FlowActionBar({
 
       <div
         ref={barRef}
-        className="fixed bottom-0 z-20 w-full min-w-0 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-4 py-4 shadow-[var(--shadow-lg)] sm:px-6"
+        className="fixed bottom-0 z-20 w-full min-w-0 border-t border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-4 shadow-[var(--shadow-lg)] sm:px-6"
         style={fixedBarStyle}
       >
         <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

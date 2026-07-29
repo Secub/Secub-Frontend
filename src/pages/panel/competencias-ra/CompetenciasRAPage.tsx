@@ -67,7 +67,8 @@ export default function CompetenciasRaFormacionPage() {
   const workflowProgress = useAcademicWorkflowProgress();
   const isCompetenciasStepComplete = Boolean(workflowProgress["competencias-ra"]) && invalidCompetencias.length === 0;
   const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
-  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
+  const showFlowActionBar =
+    isWorkflowActive && !isStepLocked && permissions.canUpdate && hasRecords;
   const handleNextStep = () => {
     if (!isCompetenciasStepComplete) return;
 
@@ -107,7 +108,6 @@ export default function CompetenciasRaFormacionPage() {
           description="Cuando se cargue la primera competencia, se habilitará la vista completa. Agrega al menos un RA para completar el paso y habilitar Mapeo."
           actionLabel={permissions.canCreate ? "Crear competencia" : undefined}
           onAction={permissions.canCreate ? openCreateModal : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6 pb-24">
@@ -193,8 +193,8 @@ export default function CompetenciasRaFormacionPage() {
 
       <ConfirmDialog
         open={Boolean(recordToDelete)}
-        title="¿Estás seguro de que deseas eliminar este registro?"
-        description={`Se eliminará la competencia de ${recordToDelete?.programaNombre ?? "este programa"}, sus RA asociados y las relaciones demo vinculadas. Esta acción no se puede deshacer.`}
+        title={`¿Seguro que deseas eliminar la competencia "${recordToDelete?.nombre ?? "seleccionada"}"?`}
+        description={`Se eliminará la competencia, sus RA asociados y las relaciones vinculadas en ${recordToDelete?.programaNombre ?? "este programa"}. Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         variant="danger"
         onCancel={() => setRecordToDelete(null)}

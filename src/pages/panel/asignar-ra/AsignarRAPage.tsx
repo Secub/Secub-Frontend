@@ -219,8 +219,8 @@ export default function AsignarRAPage() {
 
           <ConfirmDialog
             open={showDeleteConfirm}
-            title="Eliminar asignación del curso"
-            description={`Se eliminarán ${selectedCourseAssignments.length} asignación(es) RA del curso seleccionado y sus mediciones relacionadas para evitar relaciones huérfanas.`}
+            title={`¿Seguro que deseas eliminar las asignaciones de "${selectedCourse?.nombre ?? "este curso"}"?`}
+            description={`Se eliminarán ${selectedCourseAssignments.length} asignación(es) RA de ${selectedCourse?.nombre ?? "este curso"} y sus mediciones relacionadas. Esta acción no se puede deshacer.`}
             confirmLabel="Sí, eliminar"
             variant="danger"
             onCancel={() => setShowDeleteConfirm(false)}

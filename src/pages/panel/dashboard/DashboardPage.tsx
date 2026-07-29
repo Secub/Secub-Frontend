@@ -7,6 +7,7 @@ import DashboardEmptyState from "./components/DashboardEmptyState";
 import DashboardFilters from "./components/DashboardFilters";
 import DashboardModals from "./components/DashboardModals";
 import MeasurementCycleCard from "./components/MeasurementCycleCard";
+import TeacherCourseMeasurementCards from "./components/TeacherCourseMeasurementCards";
 import MeasurementSummaryCards, {
   buildSupervisorSummaryItems,
   buildTeacherSummaryItems,
@@ -14,6 +15,8 @@ import MeasurementSummaryCards, {
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { simulateEvidenceDownload } from "./dashboard.utils";
+import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import { getDocenteMeasurementOverview } from "../medicion-ra/utils/medicionRA.overview";
 
 function DashboardBackButton({
   label,
@@ -38,6 +41,9 @@ function DashboardBackButton({
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
+  const docenteMeasurementOverview = dashboard.isTeacher
+    ? getDocenteMeasurementOverview(getCurrentMockUser())
+    : { courses: [], summaries: [] };
 
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
@@ -86,48 +92,111 @@ export default function DashboardPage() {
             }
           />
 
-          <DashboardFilters
-            user={dashboard.user}
-            catalogs={dashboard.dashboardData.catalogs}
-            cycles={dashboard.scopedCycles}
-            filters={dashboard.filters}
-            onFilterChange={dashboard.handleFilterChange}
-            onReset={dashboard.handleResetFilters}
-          />
-
-          <section className="space-y-5">
-            <div>
-              <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-                Ciclos de Medición
-              </h2>
-            </div>
-
-            {dashboard.filteredCycles.length > 0 ? (
-              <div className="grid gap-5">
-                {dashboard.filteredCycles.map((cycle) => (
-                  <MeasurementCycleCard
-                    key={cycle.id}
-                    cycle={cycle}
-                    isTeacher={dashboard.isTeacher}
-                    isDirector={dashboard.isDirector}
-                    onViewPending={dashboard.handleViewPending}
-                    onViewResults={dashboard.handleViewResultsFromCycle}
-                    onDownloadReport={dashboard.handleDownloadCycleReport}
-                    onImprovementPlan={dashboard.handleImprovementPlan}
-                  />
-                ))}
-              </div>
-            ) : (
-              <DashboardEmptyState
-                title="No hay ciclos para los filtros seleccionados"
-                description="Ajusta los filtros para consultar otros periodos, programas o estados de medición."
+          {dashboard.isTeacher ? (
+            <>
+              <TeacherCourseMeasurementCards
+                courses={docenteMeasurementOverview.courses}
+                courseSummaries={docenteMeasurementOverview.summaries}
+                onCourseSelect={(courseId, cycleId) => {
+                  const selectedCourse = dashboard.scopedCourses.find(
+                    (course) =>
+                      course.id === courseId &&
+                      (!cycleId || course.cycleId === cycleId),
+                  );
+                  if (selectedCourse) dashboard.handleMeasureCourse(selectedCourse);
+                }}
               />
-            )}
-          </section>
+
+              {/*
+                VISTA DOCENTE — BLOQUE OCULTO INTENCIONALMENTE
+
+                Los filtros y las cards de progreso global del ciclo se conservan comentados
+                para poder recuperarlos fácilmente si el flujo cambia en el futuro.
+
+                Para Docencia, esa información no aporta al trabajo que debe realizar en esta
+                pantalla: el docente necesita consultar el avance de SUS CURSOS y entrar desde
+                cada curso a Medición RA. El seguimiento global del ciclo (estado del ciclo,
+                avance general, resultados consolidados y plan de mejora) corresponde al rol de
+                Dirección de programa.
+
+                Por ese motivo, el Estado del ciclo de Docencia muestra únicamente:
+                1. Las cuatro cards informativas de sus cursos.
+                2. Las cards de los cursos asignados con su progreso de Medición RA.
+
+                Código anterior conservado como referencia:
+
+                <DashboardFilters
+                  user={dashboard.user}
+                  catalogs={dashboard.dashboardData.catalogs}
+                  cycles={dashboard.scopedCycles}
+                  filters={dashboard.filters}
+                  onFilterChange={dashboard.handleFilterChange}
+                  onReset={dashboard.handleResetFilters}
+                />
+
+                <section className="space-y-5">
+                  <h2>Ciclos de Medición</h2>
+                  {dashboard.filteredCycles.map((cycle) => (
+                    <MeasurementCycleCard
+                      key={cycle.id}
+                      cycle={cycle}
+                      isTeacher={dashboard.isTeacher}
+                      isDirector={dashboard.isDirector}
+                      onViewPending={dashboard.handleViewPending}
+                      onViewResults={dashboard.handleViewResultsFromCycle}
+                      onDownloadReport={dashboard.handleDownloadCycleReport}
+                      onImprovementPlan={dashboard.handleImprovementPlan}
+                    />
+                  ))}
+                </section>
+              */}
+            </>
+          ) : (
+            <>
+              <DashboardFilters
+                user={dashboard.user}
+                catalogs={dashboard.dashboardData.catalogs}
+                cycles={dashboard.scopedCycles}
+                filters={dashboard.filters}
+                onFilterChange={dashboard.handleFilterChange}
+                onReset={dashboard.handleResetFilters}
+              />
+
+              <section className="space-y-5">
+                <div>
+                  <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
+                    Ciclos de Medición
+                  </h2>
+                </div>
+
+                {dashboard.filteredCycles.length > 0 ? (
+                  <div className="grid gap-5">
+                    {dashboard.filteredCycles.map((cycle) => (
+                      <MeasurementCycleCard
+                        key={cycle.id}
+                        cycle={cycle}
+                        isTeacher={dashboard.isTeacher}
+                        isDirector={dashboard.isDirector}
+                        onViewPending={dashboard.handleViewPending}
+                        onViewResults={dashboard.handleViewResultsFromCycle}
+                        onDownloadReport={dashboard.handleDownloadCycleReport}
+                        onImprovementPlan={dashboard.handleImprovementPlan}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <DashboardEmptyState
+                    title="No hay ciclos para los filtros seleccionados"
+                    description="Ajusta los filtros para consultar otros periodos, programas o estados de medición."
+                  />
+                )}
+              </section>
+            </>
+          )}
         </div>
       ) : null}
 
-      {dashboard.view === "courses" ? (
+      {dashboard.view === "courses" && !dashboard.isTeacher ? (
         <div className="space-y-6">
           <DashboardBackButton
             label="Volver al Estado del ciclo"
@@ -147,8 +216,8 @@ export default function DashboardPage() {
             courses={dashboard.coursesForSelectedView}
             mode={dashboard.isTeacher ? "teacher" : "supervisor"}
             onMeasureCourse={dashboard.handleMeasureCourse}
-            onViewResults={dashboard.handleViewCourseDetail}
             onNotifyTeacher={dashboard.setNotifyCourse}
+            canNotifyTeacher={dashboard.isDirector}
           />
         </div>
       ) : null}

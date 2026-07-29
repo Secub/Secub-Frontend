@@ -64,6 +64,16 @@ export function useDashboardNavigation({
     [userRole],
   );
 
+  useEffect(() => {
+    if (userRole !== "docente" || view !== "courses") return;
+
+    setSelectedCycleId("");
+    setDetailCourseId("");
+    setDetailCompetenceId("");
+    setView("control");
+    navigateToDashboardView({ view: "control" });
+  }, [navigateToDashboardView, userRole, view]);
+
   const goToPendingCourses = (cycle: EnrichedCycle) => {
     setSelectedCycleId(cycle.id);
     setDetailCourseId("");

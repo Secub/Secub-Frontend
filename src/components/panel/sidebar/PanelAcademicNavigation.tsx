@@ -165,6 +165,23 @@ export default function PanelAcademicNavigation({
         showNotification(WORKFLOW_LOCKED_MESSAGE);
         return;
       }
+
+      if (isDocente && item.key === "medicion-ra") {
+        const dashboardHref =
+          panelNavigation.find((navigationItem) => navigationItem.key === "dashboard")?.href;
+
+        showNotification({
+          title: "Selecciona primero el curso que vas a medir",
+          message:
+            "Para iniciar Medición RA, ve a Estado del ciclo y selecciona el curso que deseas evaluar. La medición se abrirá directamente con ese curso.",
+          variant: "info",
+          durationMs: 6500,
+        });
+
+        if (dashboardHref) goTo(dashboardHref);
+        return;
+      }
+
       goTo(item.href);
     };
 
