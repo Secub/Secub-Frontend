@@ -20,6 +20,7 @@ interface PerfilEgresoFormModalProps {
   user: CurrentUser;
   catalogs: Catalogs;
   initialValues: FormState;
+  records: PerfilEgresoEnriched[]; //Validar si ya existe perfil con mismo plan de estudios
   record: PerfilEgresoEnriched | null;
   onClose: () => void;
   onSubmit: (values: FormState) => void;
@@ -35,6 +36,7 @@ export function PerfilEgresoFormModal({
   user,
   catalogs,
   initialValues,
+  records,
   record,
   onClose,
   onSubmit,
@@ -72,6 +74,17 @@ export function PerfilEgresoFormModal({
       nextErrors.descripcion = "Escribe la descripción del perfil de egreso.";
     }
 
+    const existePlan = records.some(
+  (item) =>
+    item.planId === form.planId &&
+    item.id !== record?.id
+    );
+
+    if (existePlan) {
+      nextErrors.planId =
+        "Ya existe un perfil de egreso asociado a este plan de estudios.";
+    }
+
     const errorKeys = Object.keys(nextErrors);
     const hasErrors = errorKeys.length > 0;
 
@@ -98,6 +111,7 @@ export function PerfilEgresoFormModal({
 
     return !hasErrors;
   };
+
 
   const handleSubmit = () => {
     if (!validate()) return;
