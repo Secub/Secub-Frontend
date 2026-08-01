@@ -19,6 +19,7 @@ interface PropositoFormModalProps {
   user: CurrentUser;
   catalogs: Catalogs;
   initialValues: FormState;
+  records: PropositoEnriched[];
   record: PropositoEnriched | null;
   onClose: () => void;
   onSubmit: (values: FormState) => void;
@@ -33,6 +34,8 @@ export function PropositoFormModal({
   mode,
   user,
   catalogs,
+  records,
+  record,
   initialValues,
   onClose,
   onSubmit,
@@ -68,6 +71,17 @@ export function PropositoFormModal({
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
     if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del propósito de formación.";
+    }
+
+    const existePlan = records.some(
+      (item) =>
+        item.planId === form.planId &&
+        item.id !== record?.id
+    );
+
+    if (existePlan) {
+      nextErrors.planId =
+        "Ya existe un propósito de formación asociado a este plan de estudios.";
     }
 
     const errorKeys = Object.keys(nextErrors);
@@ -233,7 +247,7 @@ export function PropositoFormModal({
         ) : null}
       </div>
 
-      
+
 
       <div className="mt-5">
         <Textarea

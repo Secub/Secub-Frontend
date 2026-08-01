@@ -147,6 +147,7 @@ export default function PropositoFormacionPage() {
         user={currentUser}
         catalogs={catalogs}
         initialValues={formValues}
+        records={roleScopedRecords}
         record={selectedRecord}
         onClose={() => setFormOpen(false)}
         onSubmit={handleFormSubmit}
