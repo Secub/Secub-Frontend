@@ -97,7 +97,7 @@ export function useCicloFormModal({
     availableCourses.some((course) => course.id === cursoId),
   ).length;
 
-  const nombreError = submitted && values.nombre.trim().length === 0 ? "El nombre del ciclo es obligatorio." : undefined;
+  // const nombreError = submitted && values.nombre.trim().length === 0 ? "El nombre del ciclo es obligatorio." : undefined;
   const programaError =
     submitted && (!values.programaId || selectedPrograma?.estado !== "activo")
       ? "Solo se pueden crear ciclos para programas activos."
@@ -107,12 +107,12 @@ export function useCicloFormModal({
       ? "El plan de estudios debe estar activo."
       : undefined;
   const cursosError = submitted && selectedCount === 0 ? "Selecciona al menos un curso para confirmar el ciclo." : undefined;
-  const showValidationAlert = submitted && Boolean(nombreError || programaError || planError || cursosError);
+  const showValidationAlert = submitted && Boolean(/*nombreError ||*/ programaError || planError || cursosError);
   const canSubmit =
     !isReadOnly &&
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
-    values.nombre.trim().length > 0 &&
+    // values.nombre.trim().length > 0 &&
     selectedCount > 0;
 
   const handleProgramChange = (programaId: string) => {
@@ -133,7 +133,7 @@ export function useCicloFormModal({
   const handleSubmit = () => {
     setSubmitted(true);
     if (!canSubmit) {
-      scrollToFirstValidationError({ fieldOrder: ["nombre", "programaId", "planId", "cursoIds"] });
+      scrollToFirstValidationError({ fieldOrder: [/*"nombre",*/ "programaId", "planId", "cursoIds"] });
       return;
     }
     onSubmit(values);
@@ -154,7 +154,7 @@ export function useCicloFormModal({
     availableProgramas,
     availableCourses,
     selectedCount,
-    nombreError,
+    // nombreError,
     programaError,
     planError,
     cursosError,

@@ -65,7 +65,7 @@ export default function CicloFormModal(props: CicloFormModalProps) {
           selectedFacultad={form.selectedFacultad}
           programaOptions={programaOptions}
           planOptions={planOptions}
-          nombreError={form.nombreError}
+          // nombreError={form.nombreError}
           programaError={form.programaError}
           planError={form.planError}
           selectedProgramaEstado={selectedPrograma?.estado}

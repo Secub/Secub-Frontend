@@ -113,7 +113,7 @@ export function useCicloPage() {
     const formValues = mapCycleToForm(cycle);
     setFormValues({
       ...formValues,
-      nombre: `${cycle.nombre} - Copia`,
+      // nombre: `${cycle.nombre} - Copia`,
     });
     setFormOpen(true);
   };

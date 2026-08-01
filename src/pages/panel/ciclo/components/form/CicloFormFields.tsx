@@ -9,7 +9,7 @@ interface CicloFormFieldsProps {
   selectedFacultad?: Facultad;
   programaOptions: SelectOption[];
   planOptions: SelectOption[];
-  nombreError?: string;
+  // nombreError?: string;
   programaError?: string;
   planError?: string;
   selectedProgramaEstado?: string;
