@@ -12,22 +12,26 @@ import { Badge } from "../../../../components/ui";
 import {
   applyFilters,
   buildAvailableFilters,
-  buildCsvLikeExcel,
-  // buildSimplePdf,
   formatPlanLabel,
   getEstadoBadgeVariant,
-  triggerBrowserDownload,
 } from "../proposito-formacion.utils";
 import type {
   Catalogs,
   PropositoEnriched,
   PropositoFilters,
   RolePermissions,
+  PropositoPdfRow,
 } from "../proposito-formacion.types";
 import {
   downloadPdf,
   type PdfColumn,
 } from "../../../../components/PdfTemplate";
+import {
+  downloadExcel,
+  type ExcelColumn,
+} from "../../../../components/ExcelTemplate";
+
+import { getExcelBranding } from "../../../../config/excelBranding";
 
 interface PropositoExportModalProps {
   open: boolean;
@@ -63,6 +67,19 @@ export function PropositoExportModal({
   const exportRecords = useMemo(() => {
     return applyFilters(baseRecords, filters);
   }, [baseRecords, filters]);
+
+  const pdfRecords = useMemo<PropositoPdfRow[]>(() => {
+  return exportRecords.map((record) => ({
+    facultad: record.facultadNombre,
+    programa: record.programaNombre,
+    plan: record.planNombre,
+    descripcion: record.descripcion,
+    estado:
+      record.estado === "activo"
+        ? "Activo"
+        : "Inactivo",
+  }));
+  }, [exportRecords]);
 
   const columns: TableColumn<PropositoEnriched>[] = [
     {
@@ -105,38 +122,78 @@ export function PropositoExportModal({
     },
   ];
 
-  const PDF_COLUMNS: PdfColumn<PropositoEnriched>[] = [
+  const PDF_COLUMNS: PdfColumn<PropositoPdfRow>[] = [
   {
     header: "Facultad",
     widthPct: 18,
-    accessor: (r) => r.facultadNombre,
+    accessor: r => r.facultad,
   },
   {
     header: "Programa académico",
     widthPct: 26,
-    accessor: (r) => r.programaNombre,
+    accessor: r => r.programa,
   },
   {
     header: "Plan de estudio",
     widthPct: 16,
-    accessor: (r) => r.planNombre,
+    accessor: r => r.plan,
   },
   {
     header: "Descripción",
     widthPct: 30,
-    accessor: (r) => r.descripcion,
+    accessor: r => r.descripcion,
   },
   {
     header: "Estado",
     widthPct: 10,
-    accessor: (r) =>
-      r.estado === "activo"
+    accessor: r => r.estado,
+  },
+  ];
+
+  // ------------- Excel export configuration -------------
+
+  const excelColumns: ExcelColumn<PropositoPdfRow>[] = [
+  {
+    header: "Facultad",
+    width: 25,
+    accessor: r => r.facultad,
+  },
+  {
+    header: "Programa académico",
+    width: 30,
+    accessor: r => r.programa,
+  },
+  {
+    header: "Plan de estudio",
+    width: 20,
+    accessor: r => r.plan,
+  },
+  {
+    header: "Descripción",
+    width: 70,
+    accessor: r => r.descripcion,
+  },
+  {
+    header: "Estado",
+    width: 15,
+    accessor: r => r.estado,
+  },
+  ];
+
+  const exportRows: PropositoPdfRow[] = [...exportRecords]
+  .sort((a, b) => a.planNombre.localeCompare(b.planNombre))
+  .map(record => ({
+    facultad: record.facultadNombre,
+    programa: record.programaNombre,
+    plan: record.planNombre,
+    descripcion: record.descripcion,
+    estado:
+      record.estado === "activo"
         ? "Activo"
         : "Inactivo",
-  },
-];
+  }));
 
- const handleDownload = async () => {
+const handleDownload = async () => {
   const timestamp = new Date()
     .toISOString()
     .slice(0, 10);
@@ -144,30 +201,43 @@ export function PropositoExportModal({
   if (format === "pdf") {
     await downloadPdf(
       {
-        title: "Competencias RAs Exportadas",
+        title: "Propósitos de Formación Exportados",
         subtitle: "Sistema de gestión académica",
-          ...SECUB_PDF_BRANDING,
-        footerText:
-          "Documento generado automáticamente",
+        ...SECUB_PDF_BRANDING,
+        footerText: "Documento generado automáticamente",
         columns: PDF_COLUMNS,
-        records: exportRecords,
+        records: pdfRecords,
         theme: {
           primary: "#474747",
         },
       },
-      `competencias-ra-${timestamp}.pdf`,
+      `propositos-formacion-${timestamp}.pdf`,
     );
 
     return;
   }
 
-    const csvContent = buildCsvLikeExcel(exportRecords);
-    triggerBrowserDownload(
-      csvContent,
-      `propositos-formacion-${timestamp}.csv`,
-      "text/csv;charset=utf-8;",
-    );
-  };
+  const branding = await getExcelBranding();
+
+  await downloadExcel(
+    {
+      title: "Propósitos de Formación",
+      subtitle: "Sistema de Gestión Académica",
+
+      logoUrl: branding.logoUrl,
+      logoUrl2: branding.logoUrl2,
+
+      columns: excelColumns,
+      records: exportRows,
+
+      theme: {
+        primary: "#474747",
+      },
+    },
+    `propositos-formacion-${timestamp}.xlsx`,
+  );
+};
+
 
   return (
     <Modal

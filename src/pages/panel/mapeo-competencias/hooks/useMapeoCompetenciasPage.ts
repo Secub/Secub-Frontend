@@ -14,8 +14,8 @@ import {
   INITIAL_FILTERS,
   applyFilters,
   applyRoleScope,
-  buildCsvLikeExcel,
-  downloadTextFile,
+  // buildCsvLikeExcel,
+  // downloadTextFile,
   enrichMapeoRecords,
   // printMapeoCompetenciasPdf,
 } from "../MapeoCompetencias.utils";
@@ -24,6 +24,12 @@ import {
   downloadPdf,
   type PdfColumn,
 } from "../../../../components/PdfTemplate";
+import {
+  downloadExcel,
+  type ExcelColumn,
+} from "../../../../components/ExcelTemplate";
+
+import { getExcelBranding } from "../../../../config/excelBranding";
 
 
 function buildCreatePath(role: string, programaId?: string, planId?: string) {
@@ -120,8 +126,50 @@ export function useMapeoCompetenciasPage() {
     navigateToRoute(buildEditPath(currentUser.role, record));
   };
 
-  const handleExportExcel = () => {
-    downloadTextFile("mapeo-competencias.csv", buildCsvLikeExcel(filteredRecords), "text/csv;charset=utf-8");
+  const handleExportExcel = async () => {
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    const branding = await getExcelBranding();
+
+    await downloadExcel(
+      {
+        title: "Mapeo de Competencias",
+        subtitle: "Sistema de gestión académica",
+
+        logoUrl: branding.logoUrl,
+        logoUrl2: branding.logoUrl2,
+
+        columns: EXCEL_COLUMNS,
+        records: exportRecords,
+      },
+      `Mapeo-Competencias-${timestamp}.xlsx`,
+    );
+  };
+
+
+  const handleDownloadpdf = async () => {
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 10);
+    await downloadPdf(
+      {
+        title: "Mapeo Competencias Exportadas",
+        subtitle: "Sistema de gestión académica",
+        ...SECUB_PDF_BRANDING,
+        footerText:
+          "Documento generado automáticamente",
+        columns: PDF_COLUMNS,
+        records: exportRecords,
+        theme: {
+          primary: "#474747",
+        },
+      },
+      `Mapeo-Competencias-${timestamp}.pdf`,
+    );
+
+    return;
   };
 
 
@@ -134,27 +182,39 @@ export function useMapeoCompetenciasPage() {
   // }, [enrichedRecords , filters]);
 
   const exportRecords = useMemo(() => {
-    return filteredRecords.flatMap((record) =>
-      record.semestresResumen.map((semestre) => ({
-        programa: record.programaNombre,
-        plan: record.planNombre,
+    return filteredRecords
+      .flatMap((record) =>
+        record.semestresResumen.map((semestre) => ({
+          programa: record.programaNombre,
+          plan: record.planNombre,
 
-        semestre: semestre.semestreNumero,
+          semestre: semestre.semestreNumero,
 
-        nucleo: semestre.nucleo ?? "-",
+          nucleo: semestre.nucleo ?? "-",
 
-        estado:
-          semestre.estado === "completo"
-            ? "Completo"
-            : semestre.estado === "en-progreso"
-              ? "En progreso"
-              : "Pendiente",
+          estado:
+            semestre.estado === "completo"
+              ? "Completo"
+              : semestre.estado === "en-progreso"
+                ? "En progreso"
+                : "Pendiente",
 
-        cursos: semestre.cursos.length,
+          cursos: semestre.cursos.length,
 
-        niveles: `${semestre.totalAsignadas}/${semestre.totalCeldas}`,
-      })),
-    );
+          niveles: `${semestre.totalAsignadas}/${semestre.totalCeldas}`,
+        })),
+      )
+      .sort((a, b) => {
+        if (a.programa !== b.programa) {
+          return a.programa.localeCompare(b.programa);
+        }
+
+        if (a.plan !== b.plan) {
+          return a.plan.localeCompare(b.plan);
+        }
+
+        return a.semestre - b.semestre;
+      });
   }, [filteredRecords]);
 
 
@@ -198,28 +258,44 @@ export function useMapeoCompetenciasPage() {
     },
   ];
 
-  const handleDownloadpdf = async () => {
-    const timestamp = new Date()
-      .toISOString()
-      .slice(0, 10);
-    await downloadPdf(
-      {
-        title: "Mapeo Competencias Exportadas",
-        subtitle: "Sistema de gestión académica",
-          ...SECUB_PDF_BRANDING,
-        footerText:
-          "Documento generado automáticamente",
-        columns: PDF_COLUMNS,
-        records: exportRecords,
-        theme: {
-          primary: "#474747",
-        },
-      },
-      `Mapeo-Competencias-${timestamp}.pdf`,
-    );
+  const EXCEL_COLUMNS: ExcelColumn<(typeof exportRecords)[number]>[] = [
+    {
+      header: "Programa académico",
+      width: 30,
+      accessor: (r) => r.programa,
+    },
+    {
+      header: "Plan de estudios",
+      width: 22,
+      accessor: (r) => r.plan,
+    },
+    {
+      header: "Semestre",
+      width: 12,
+      accessor: (r) => String(r.semestre),
+    },
+    {
+      header: "Núcleo",
+      width: 25,
+      accessor: (r) => r.nucleo,
+    },
+    {
+      header: "Estado",
+      width: 18,
+      accessor: (r) => r.estado,
+    },
+    {
+      header: "Cursos",
+      width: 12,
+      accessor: (r) => String(r.cursos),
+    },
+    {
+      header: "Niveles asignados",
+      width: 20,
+      accessor: (r) => r.niveles,
+    },
+  ];
 
-    return;
-  };
 
   // const handleExportPdf = () => {
   //   printMapeoCompetenciasPdf(filteredRecords);

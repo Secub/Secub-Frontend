@@ -105,6 +105,15 @@ export interface PerfilEgresoEnriched extends PerfilEgresoRecord {
   planEstado: "activo" | "inactivo";
 }
 
+export interface PerfilEgresoPdfRow {
+  facultad: string;
+  programa: string;
+  lugar: string;
+  plan: string;
+  descripcion: string;
+  estado: string;
+}
+
 export interface Catalogs {
   seccionales: Seccional[];
   lugares: LugarDesarrollo[];

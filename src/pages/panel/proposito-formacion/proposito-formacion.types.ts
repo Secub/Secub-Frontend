@@ -91,6 +91,14 @@ export interface PropositoEnriched extends PropositoFormacionRecord {
   planEstado: "activo" | "inactivo";
 }
 
+export interface PropositoPdfRow {
+  facultad: string;
+  programa: string;
+  plan: string;
+  descripcion: string;
+  estado: string;
+}
+
 export interface PropositoFilters {
   seccionalId: string;
   facultadId: string;

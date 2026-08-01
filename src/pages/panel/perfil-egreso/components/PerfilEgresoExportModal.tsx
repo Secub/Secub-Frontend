@@ -9,25 +9,45 @@ import {
   type TableColumn,
 } from "../../../../components/ui";
 import { Badge } from "../../../../components/ui";
+// import {
+//   applyFilters,
+//   buildAvailableFilters,
+//   buildCsvLikeExcel,
+//   // buildSimplePdf,
+//   formatPlanLabel,
+//   getEstadoBadgeVariant,
+//   triggerBrowserDownload,
+// } from "../perfil-egreso.utils";
 import {
   applyFilters,
   buildAvailableFilters,
-  buildCsvLikeExcel,
-  // buildSimplePdf,
   formatPlanLabel,
   getEstadoBadgeVariant,
-  triggerBrowserDownload,
 } from "../perfil-egreso.utils";
+// import type {
+//   Catalogs,
+//   PerfilEgresoEnriched,
+//   PerfilEgresoFilters,
+//   RolePermissions,
+// } from "../perfil-egreso.types";
 import type {
   Catalogs,
   PerfilEgresoEnriched,
   PerfilEgresoFilters,
+  // PerfilEgresoExcelRow,
   RolePermissions,
+  PerfilEgresoPdfRow,
 } from "../perfil-egreso.types";
 import {
   downloadPdf,
   type PdfColumn,
 } from "../../../../components/PdfTemplate";
+import {
+  downloadExcel,
+  type ExcelColumn,
+} from "../../../../components/ExcelTemplate";
+
+import { getExcelBranding } from "../../../../config/excelBranding";
 
 interface PerfilEgresoExportModalProps {
   open: boolean;
@@ -63,6 +83,20 @@ export function PerfilEgresoExportModal({
   const exportRecords = useMemo(() => {
     return applyFilters(baseRecords, filters);
   }, [baseRecords, filters]);
+
+  const pdfRecords = useMemo<PerfilEgresoPdfRow[]>(() => {
+  return exportRecords.map((record) => ({
+    facultad: record.facultadNombre,
+    programa: record.programaNombre,
+    lugar: record.lugarNombre,
+    plan: record.planNombre,
+    descripcion: record.descripcion,
+    estado:
+      record.estado === "activo"
+        ? "Activo"
+        : "Inactivo",
+  }));
+  }, [exportRecords]);
 
   const columns: TableColumn<PerfilEgresoEnriched>[] = [
     {
@@ -111,21 +145,21 @@ export function PerfilEgresoExportModal({
     },
   ];
 
-  const PDF_COLUMNS: PdfColumn<PerfilEgresoEnriched>[] = [
+  const PDF_COLUMNS: PdfColumn<PerfilEgresoPdfRow>[] = [
     {
       header: "Facultad",
       widthPct: 18,
-      accessor: (r) => r.facultadNombre,
+      accessor: (r) => r.facultad,
     },
     {
       header: "Programa académico",
       widthPct: 26,
-      accessor: (r) => r.programaNombre,
+      accessor: (r) => r.programa,
     },
     {
       header: "Plan de estudio",
       widthPct: 16,
-      accessor: (r) => r.planNombre,
+      accessor: (r) => r.plan,
     },
     {
       header: "Descripción",
@@ -142,6 +176,56 @@ export function PerfilEgresoExportModal({
     },
   ];
 
+  // -------------------- Excel Export --------------------
+
+  const excelColumns: ExcelColumn<PerfilEgresoPdfRow>[] = [
+    {
+      header: "Facultad",
+      width: 25,
+      accessor: (r) => r.facultad,
+    },
+    {
+      header: "Programa académico",
+      width: 30,
+      accessor: (r) => r.programa,
+    },
+    {
+      header: "Lugar de desarrollo",
+      width: 25,
+      accessor: (r) => r.lugar,
+    },
+    {
+      header: "Plan de estudio",
+      width: 20,
+      accessor: (r) => r.plan,
+    },
+    {
+      header: "Descripción",
+      width: 70,
+      accessor: (r) => r.descripcion,
+    },
+    {
+      header: "Estado",
+      width: 15,
+      accessor: (r) => r.estado,
+    },
+  ];
+
+
+  const exportRows: PerfilEgresoPdfRow[] = [...exportRecords]
+    .sort((a, b) => a.planNombre.localeCompare(b.planNombre))
+    .map((record) => ({
+      facultad: record.facultadNombre,
+      programa: record.programaNombre,
+      lugar: record.lugarNombre,
+      plan: record.planNombre,
+      descripcion: record.descripcion,
+      estado:
+        record.estado === "activo"
+          ? "Activo"
+          : "Inactivo",
+    }));
+
   const handleDownload = async () => {
     const timestamp = new Date()
       .toISOString()
@@ -156,7 +240,7 @@ export function PerfilEgresoExportModal({
           footerText:
             "Documento generado automáticamente",
           columns: PDF_COLUMNS,
-          records: exportRecords,
+          records: pdfRecords,
           theme: {
             primary: "#474747",
           },
@@ -167,11 +251,24 @@ export function PerfilEgresoExportModal({
       return;
     }
 
-    const csvContent = buildCsvLikeExcel(exportRecords);
-    triggerBrowserDownload(
-      csvContent,
-      `perfiles-egreso-${timestamp}.csv`,
-      "text/csv;charset=utf-8;",
+    const branding = await getExcelBranding();
+
+    await downloadExcel(
+      {
+        title: "Perfiles de Egreso",
+        subtitle: "Sistema de Gestión Académica",
+
+        logoUrl: branding.logoUrl,
+        logoUrl2: branding.logoUrl2,
+
+        columns: excelColumns,
+        records: exportRows,
+
+        theme: {
+          primary: "#474747",
+        },
+      },
+      `perfiles-egreso-${timestamp}.xlsx`,
     );
   };
 
