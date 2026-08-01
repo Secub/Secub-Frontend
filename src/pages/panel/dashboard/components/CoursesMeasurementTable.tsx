@@ -12,6 +12,31 @@ interface CoursesMeasurementTableProps {
   onNotifyTeacher?: (course: EnrichedCourse) => void;
 }
 
+// ----------- Funcion gestion de correos con mailto sin gestion interna -----------------
+
+const sendEmail = (course: EnrichedCourse) => {
+  const subject = encodeURIComponent(
+    `Medición pendiente - ${course.name}`
+  );
+
+  const body = encodeURIComponent(`
+Hola ${course.teacherName},
+
+Tiene pendiente la medición de los Resultados de Aprendizaje.
+
+Curso: ${course.name}
+Código: ${course.code}
+Periodo: ${course.period}
+
+Gracias.
+`);
+
+  window.open(
+    `mailto:${course.teacherEmail}?subject=${subject}&body=${body}`,
+    "_blank"
+  );
+};
+
 const statusVariant = {
   pendiente: "warning",
   finalizado: "success",
@@ -32,7 +57,7 @@ export default function CoursesMeasurementTable({
   mode,
   onMeasureCourse,
   onViewResults,
-  onNotifyTeacher,
+  // onNotifyTeacher,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
     {
@@ -221,7 +246,7 @@ export default function CoursesMeasurementTable({
               variant="outline"
               size="sm"
               leftIcon={<GoMail className="text-base" />}
-              onClick={() => onNotifyTeacher?.(course)}
+              onClick={() => sendEmail(course)}
               className="w-full max-w-[125px] px-3 text-center leading-tight"
             >
               Enviar correo
