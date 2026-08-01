@@ -95,6 +95,16 @@ export interface CompetenciasRaEnriched extends CompetenciasRaFormacionRecord {
   planEstado: "activo" | "inactivo";
 }
 
+export interface CompetenciasRaPdfRow {
+    numeroCompetencia: number;
+    facultad: string;
+    programa: string;
+    plan: string;
+    competencia: string;
+    ra: string;
+    estado: string;
+}
+
 export interface CompetenciasRaFilters {
   seccionalId: string;
   facultadId: string;

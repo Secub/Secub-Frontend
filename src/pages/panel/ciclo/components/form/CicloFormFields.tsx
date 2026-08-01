@@ -25,7 +25,7 @@ export default function CicloFormFields({
   selectedFacultad,
   programaOptions,
   planOptions,
-  nombreError,
+  // nombreError,
   programaError,
   planError,
   selectedProgramaEstado,
@@ -36,7 +36,7 @@ export default function CicloFormFields({
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <div className="lg:col-span-2">
-        <Input
+        {/* <Input
           label="Nombre ciclo"
           value={values.nombre}
           onChange={(event) => onValuesChange((current) => ({ ...current, nombre: event.target.value }))}
@@ -44,7 +44,7 @@ export default function CicloFormFields({
           id="nombre"
           data-validation-field="nombre"
           error={nombreError}
-        />
+        /> */}
       </div>
 
       <Input label="Duración del ciclo" value="1.5 años" disabled />

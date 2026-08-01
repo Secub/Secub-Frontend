@@ -12,23 +12,28 @@ import { Badge } from "../../../../components/ui";
 import {
   applyFilters,
   buildAvailableFilters,
-  buildCsvLikeExcel,
+  // buildCsvLikeExcel,
   // buildSimplePdf,
   formatPlanLabel,
   getEstadoBadgeVariant,
-  triggerBrowserDownload,
+  // triggerBrowserDownload,
 } from "../CompetenciasRa.utils";
 import type {
   Catalogs,
   CompetenciasRaEnriched,
   CompetenciasRaFilters,
   RolePermissions,
+  CompetenciasRaPdfRow,
 } from "../CompetenciasRa.types";
 import {
   downloadPdf,
   type PdfColumn,
 } from "../../../../components/PdfTemplate";
-
+import {
+  downloadExcel,
+  type ExcelColumn,
+} from "../../../../components/ExcelTemplate";
+import { getExcelBranding } from "../../../../config/excelBranding";
 interface CompetenciasRaExportModalProps {
   open: boolean;
   title: string;
@@ -39,6 +44,30 @@ interface CompetenciasRaExportModalProps {
   initialFilters: CompetenciasRaFilters;
   onClose: () => void;
 }
+
+function formatCompetenciaSummary(row: CompetenciasRaEnriched) {
+  const competenciaLabel = row.nombre?.trim() || `Competencia ${row.numero}`;
+  const descripcion = row.descripcion.trim();
+
+  return descripcion ? `${competenciaLabel}: ${descripcion}` : competenciaLabel;
+}
+
+// function formatLearningResultsSummary(row: CompetenciasRaEnriched) {
+//   const learningResults = row.resultadosAprendizaje ?? [];
+
+//   if (learningResults.length === 0) {
+//     return "Sin RA's asignados";
+//   }
+
+//   return learningResults
+//     .map((ra) => {
+//       const raLabel = Number.isFinite(ra.numero) ? `RA ${ra.numero}` : "RA";
+//       const descripcion = ra.descripcion.trim();
+
+//       return descripcion ? `${raLabel}: ${descripcion}` : raLabel;
+//     })
+//     .join("\n");
+// }
 
 export function CompetenciasRaExportModal({
   open,
@@ -64,6 +93,42 @@ export function CompetenciasRaExportModal({
     return applyFilters(baseRecords, filters);
   }, [baseRecords, filters]);
 
+  const pdfRecords = useMemo<CompetenciasRaPdfRow[]>(() => {
+  return exportRecords.flatMap((record) => {
+    const ras = record.resultadosAprendizaje ?? [];
+
+    if (ras.length === 0) {
+      return [{
+        numeroCompetencia: record.numero,
+        facultad: record.facultadNombre,
+        programa: record.programaNombre,
+        plan: record.planNombre,
+        competencia: formatCompetenciaSummary(record),
+        ra: "Sin RA's asignados",
+        estado: record.estado === "activo"
+          ? "Activo"
+          : "Inactivo",
+      }];
+    }
+
+    return ras.map((ra, index) => ({
+      numeroCompetencia: index === 0 ? record.numero : 0,
+      facultad: index === 0 ? record.facultadNombre : "",
+      programa: index === 0 ? record.programaNombre : "",
+      plan: index === 0 ? record.planNombre : "",
+      competencia: index === 0
+        ? formatCompetenciaSummary(record)
+        : "",
+      ra: `RA ${ra.numero}: ${ra.descripcion}`,
+      estado: index === 0
+        ? (record.estado === "activo"
+            ? "Activo"
+            : "Inactivo")
+        : "",
+    }));
+  });
+}, [exportRecords]);
+
   const columns: TableColumn<CompetenciasRaEnriched>[] = [
     {
       key: "facultad",
@@ -84,14 +149,44 @@ export function CompetenciasRaExportModal({
       className: "min-w-[140px]",
     },
     {
-      key: "descripcion",
-      title: "Descripción",
+      key: "competencia",
+      title: "Competencia y descripción",
       render: (row) => (
-        <p className="max-w-[420px] text-sm leading-6 text-[var(--color-gray-3)]">
-          {row.descripcion}
+        <p className="max-w-[560px] text-sm leading-6 text-[var(--color-gray-3)]">
+          {formatCompetenciaSummary(row)}
         </p>
       ),
-      className: "min-w-[340px]",
+      className: "min-w-[520px]",
+    },
+    {
+      key: "resultadosAprendizaje",
+      title: "RA's asignados",
+      render: (row) => {
+        const ras = row.resultadosAprendizaje ?? [];
+
+        if (ras.length === 0) {
+          return (
+            <span className="text-sm text-[var(--color-gray-3)]">
+              Sin RA's asignados
+            </span>
+          );
+        }
+
+        return (
+          <div className="flex flex-col divide-y divide-gray-200">
+            {ras.map((ra) => (
+              <div
+                key={ra.id}
+                className="py-2 text-sm leading-6 text-[var(--color-gray-3)]"
+              >
+                <strong>RA {ra.numero}</strong>
+                <div>{ra.descripcion}</div>
+              </div>
+            ))}
+          </div>
+        );
+      },
+      className: "min-w-[600px]",
     },
     {
       key: "estado",
@@ -105,71 +200,175 @@ export function CompetenciasRaExportModal({
     },
   ];
 
-  const PDF_COLUMNS: PdfColumn<CompetenciasRaEnriched>[] = [
+  const PDF_COLUMNS: PdfColumn<CompetenciasRaPdfRow>[] = [
+    {
+      header: "Facultad",
+      widthPct: 10,
+      accessor: (r) => r.facultad,
+    },
+    {
+      header: "Programa",
+      widthPct: 12,
+      accessor: (r) => r.programa,
+    },
+    {
+      header: "Plan",
+      widthPct: 8,
+      accessor: (r) => r.plan,
+    },
+    {
+      header: "Competencia",
+      widthPct: 34,
+      accessor: (r) => r.competencia,
+    },
+    {
+      header: "RA's asociados",
+      widthPct: 28,
+      accessor: (r) => r.ra,
+    },
+    {
+      header: "Estado",
+      widthPct: 8,
+      accessor: (r) =>
+        r.estado === "activo"
+          ? "Activo"
+          : "Inactivo",
+    },
+  ];
+
+  const handleDownload = async () => {
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    if (format === "pdf") {
+      await downloadPdf(
+        {
+          title: "Competencias RAs Exportadas",
+          subtitle: "Sistema de gestión académica",
+          ...SECUB_PDF_BRANDING,
+          footerText:
+            "Documento generado automáticamente",
+          columns: PDF_COLUMNS,
+          records: pdfRecords,
+          theme: {
+            primary: "#474747",
+          },
+        },
+        `competencias-ra-${timestamp}.pdf`,
+      );
+
+      return;
+    }else{
+      const branding = await getExcelBranding();
+
+      await downloadExcel({
+          title: "...",
+          subtitle: "...",
+
+          logoUrl: branding.logoUrl,
+          logoUrl2: branding.logoUrl2,
+
+          columns: excelColumns,
+          records: exportRows,
+      });
+
+    }
+
+    // const csvContent =
+    //   buildCsvLikeExcel(exportRecords);
+
+    // triggerBrowserDownload(
+    //   csvContent,
+    //   `competencias-ra-${timestamp}.csv`,
+    //   "text/csv;charset=utf-8;",
+    // );
+  };
+
+  //---------- Excel Download ----------
+
+  const excelColumns: ExcelColumn<CompetenciasRaPdfRow>[] = [
+  {
+    header: "#",
+    width: 8,
+    accessor: r =>
+        r.numeroCompetencia === 0
+            ? ""
+            : r.numeroCompetencia.toString(),
+  },
   {
     header: "Facultad",
-    widthPct: 18,
-    accessor: (r) => r.facultadNombre,
+    width: 25,
+    accessor: (r: CompetenciasRaPdfRow) => r.facultad,
   },
   {
-    header: "Programa académico",
-    widthPct: 26,
-    accessor: (r) => r.programaNombre,
+    header: "Programa",
+    width: 30,
+    accessor: (r: CompetenciasRaPdfRow) => r.programa,
   },
   {
-    header: "Plan de estudio",
-    widthPct: 16,
-    accessor: (r) => r.planNombre,
+    header: "Plan",
+    width: 18,
+    accessor: (r: CompetenciasRaPdfRow) => r.plan,
   },
   {
-    header: "Descripción",
-    widthPct: 30,
-    accessor: (r) => r.descripcion,
+    header: "Competencia",
+    width: 45,
+    accessor: (r: CompetenciasRaPdfRow) => r.competencia,
+  },
+  {
+    header: "Resultado de aprendizaje",
+    width: 55,
+    accessor: (r: CompetenciasRaPdfRow) => r.ra,
   },
   {
     header: "Estado",
-    widthPct: 10,
-    accessor: (r) =>
-      r.estado === "activo"
-        ? "Activo"
-        : "Inactivo",
+    width: 15,
+    accessor: (r: CompetenciasRaPdfRow) => r.estado,
   },
-];
+  ];
 
- const handleDownload = async () => {
-  const timestamp = new Date()
-    .toISOString()
-    .slice(0, 10);
+//   const exportRows: CompetenciasRaPdfRow[] = baseRecords.flatMap(record =>
+//   record.resultadosAprendizaje.map(ra => ({
+//     facultad: record.facultadNombre,
+//     programa: record.programaNombre,
+//     plan: record.planNombre,
+//     competencia: `${record.numero}. ${record.nombre}`,
+//     ra: `${ra.numero}. ${ra.descripcion}`,
+//     estado: record.estado,
+//   }))
+// );
 
-  if (format === "pdf") {
-    await downloadPdf(
-      {
-        title: "Competencias RAs Exportadas",
-        subtitle: "Sistema de gestión académica",
-          ...SECUB_PDF_BRANDING,
-        footerText:
-          "Documento generado automáticamente",
-        columns: PDF_COLUMNS,
-        records: exportRecords,
-        theme: {
-          primary: "#474747",
-        },
-      },
-      `competencias-ra-${timestamp}.pdf`,
-    );
+const exportRows: CompetenciasRaPdfRow[] = [...exportRecords]
 
-    return;
-  }
+  .sort((a, b) => a.numero - b.numero)
 
-  const csvContent =
-    buildCsvLikeExcel(exportRecords);
+  .flatMap((record) => {
+    const ras = [...record.resultadosAprendizaje]
+      .sort((a, b) => a.numero - b.numero);
 
-  triggerBrowserDownload(
-    csvContent,
-    `competencias-ra-${timestamp}.csv`,
-    "text/csv;charset=utf-8;",
-  );
-};
+    return ras.map((ra, index) => ({
+      numeroCompetencia: index === 0 ? record.numero : 0,
+
+      facultad: index === 0 ? record.facultadNombre : "",
+
+      programa: index === 0 ? record.programaNombre : "",
+
+      plan: index === 0 ? record.planNombre : "",
+
+      competencia:
+        index === 0
+          ? `${record.numero}. ${record.nombre}`
+          : "",
+
+      ra: `RA ${ra.numero}. ${ra.descripcion}`,
+
+      estado:
+        index === 0
+          ? record.estado
+          : "",
+    }));
+  });
 
   return (
     <Modal

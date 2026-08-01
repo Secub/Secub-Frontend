@@ -77,69 +77,71 @@ const DEFAULT_THEME: PdfTheme = {
 const buildStyles = (theme: PdfTheme) =>
   StyleSheet.create({
     page: {
-      
+      paddingTop: 25,
       paddingHorizontal: 25,
+      paddingBottom: 120,
       fontFamily: "Helvetica",
       fontSize: 9,
       color: theme.text,
     },
 
     // Encabezado del documento 
-    header: { 
+    header: {
       flexDirection: "row",
       alignItems: "center",
       // borderBottomWidth: 2,
-      },
-    logo: { 
+    },
+    logo: {
       width: 130,
       height: 130,
       marginRight: 12,
       objectFit: "contain",
-      },
-    logoUsb: { 
+    },
+    logoUsb: {
       width: 150,
       height: 150,
       marginRight: 12,
       objectFit: "contain",
-      },
-    logoFooter1: { 
-      width: 150,
-      height: 150,
-      objectFit: "contain",
-      },
-    logoFooter2: { 
+    },
+    logoFooter1: {
       width: 130,
       height: 130,
       objectFit: "contain",
-      },      
-    headerTexts: { 
-      flex: 1, 
-      },
+    },
+    logoFooter2: {
+      width: 90,
+      height: 90,
+      objectFit: "contain",
+    },
+    headerTexts: {
+      flex: 1,
+    },
     title: {
       fontSize: 16,
       fontFamily: "Helvetica-Bold",
       color: theme.primary,
-      marginBottom: 2, 
-      },
+      marginBottom: 2,
+    },
     subtitle: {
       fontSize: 9,
       color: theme.muted,
-      },
+    },
     dateText: {
       fontSize: 8,
       color: theme.muted,
       marginTop: 2,
-      },
-// Tabla 
-    table: { 
-      marginTop: 8, 
-      },
-    tableRow: { 
+    },
+    // Tabla 
+    table: {
+      marginTop: 8,
+      marginBottom: 25,
+    },
+    tableRow: {
       flexDirection: "row",
       borderBottomWidth: 0.5,
       borderBottomColor: "#CBD5E1",
-      minHeight: 22, alignItems: "center",
-      },
+      alignItems: "stretch",
+    },
     tableHeaderRow: {
       flexDirection: "row",
       backgroundColor: theme.headerBg,
@@ -153,7 +155,8 @@ const buildStyles = (theme: PdfTheme) =>
     },
     cell: {
       paddingHorizontal: 6,
-      paddingVertical: 4,
+      paddingVertical: 5,
+      justifyContent: "flex-start",
     },
     cellHeader: {
       fontFamily: "Helvetica-Bold",
@@ -180,13 +183,33 @@ const buildStyles = (theme: PdfTheme) =>
     // Pie de página
     footer: {
       position: "absolute",
-      bottom: 20,
-      left: 40,
-      right: 40,
+      bottom: 15,
+      left: 25,
+      right: 25,
+
       flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+
       borderTopWidth: 0.5,
       borderTopColor: "#CBD5E1",
-      paddingTop: 6,
+
+      paddingTop: 8,
+    },
+    footerLeft: {
+      width: "25%",
+      alignItems: "flex-start",
+    },
+
+    footerCenter: {
+      width: "50%",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    footerRight: {
+      width: "25%",
+      alignItems: "flex-end",
     },
   });
 
@@ -226,7 +249,7 @@ function PdfDocument<T>({
               : null} <Text style={styles.dateText}>Generado el {dateStr}</Text>
           </View>
           {logoUrl2 ? <Image src={logoUrl2} style={styles.logo}
-          /> : null} 
+          /> : null}
         </View>
 
         {/* ── Tabla ── */}
@@ -252,16 +275,22 @@ function PdfDocument<T>({
                 styles.tableRow,
                 rowIdx % 2 !== 0 ? styles.tableRowAlt : {},
               ]}
-              wrap={false}
             >
-              {columns.map((col) => (
-                <Text
-                  key={col.header}
-                  style={[styles.cell, { width: `${col.widthPct}%` }]}
+              {columns.map(col => (
+                <View
+                  style={[
+                    styles.cell,
+                    {
+                      width: `${col.widthPct}%`
+                    }
+                  ]}
                 >
-                  {col.accessor(row)}
-                </Text>
-              ))}
+                  <Text>
+                    {col.accessor(row)}
+                  </Text>
+                </View>
+              ))
+              }
             </View>
           ))}
         </View>
@@ -275,21 +304,29 @@ function PdfDocument<T>({
 
         {/* ── Pie de página (fijo en todas las páginas) ── */}
         <View style={styles.footer} fixed>
-          {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1}
-          /> : null}
-          {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2}
-          /> : null}
-          {/* <View>
-            <Text style={styles.footerText}>
-            {footerText ?? title}
-          </Text>
-          <Text
-            style={styles.footerText}
-            render={({ pageNumber, totalPages }) =>
-              `Página ${pageNumber} de ${totalPages}`
-            }
-          />
-          </View> */}
+
+          <View style={styles.footerLeft}>
+            <Image
+              src={logoUrlfoot1}
+              style={styles.logoFooter1}
+            />
+          </View>
+
+          <View style={styles.footerCenter}>
+            <Text
+              render={({ pageNumber, totalPages }) =>
+                `Página ${pageNumber} de ${totalPages}`
+              }
+            />
+          </View>
+
+          <View style={styles.footerRight}>
+            <Image
+              src={logoUrlfoot2}
+              style={styles.logoFooter2}
+            />
+          </View>
+
         </View>
       </Page>
     </Document>
