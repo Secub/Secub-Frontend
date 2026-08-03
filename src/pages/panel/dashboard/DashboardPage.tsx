@@ -217,6 +217,7 @@ export default function DashboardPage() {
             mode={dashboard.isTeacher ? "teacher" : "supervisor"}
             onMeasureCourse={dashboard.handleMeasureCourse}
             onNotifyTeacher={dashboard.setNotifyCourse}
+            onViewResults={dashboard.handleViewCourseDetail}
             canNotifyTeacher={dashboard.isDirector}
           />
         </div>

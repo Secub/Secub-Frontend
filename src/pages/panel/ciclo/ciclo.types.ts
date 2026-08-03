@@ -102,7 +102,7 @@ export interface CicloFilters {
 }
 
 export interface CicloFormState {
-  // nombre: string;
+  nombre: string;
   programaId: string;
   planId: string;
   fechaInicio: string;
