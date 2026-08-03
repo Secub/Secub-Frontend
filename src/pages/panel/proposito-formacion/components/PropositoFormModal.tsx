@@ -50,7 +50,7 @@ export function PropositoFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const canEditStructure = mode === "create";
+  const canEditStructure = true;
   const {
     lugaresDisponibles,
     facultadesDisponibles,
@@ -127,8 +127,8 @@ export function PropositoFormModal({
       }
       description={
         mode === "create"
-          ? "Registra un nuevo propósito asociado a una seccional, lugar de desarrollo, facultad, programa y plan específico."
-          : "En edición solo se modifica el estado y el texto descriptivo, manteniendo la estructura académica bloqueada."
+          ? "Registra un nuevo propósito seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
+          : "Actualiza el lugar de desarrollo, facultad, programa académico, plan de estudios, estado y descripción del propósito de formación."
       }
       size="lg"
       footer={
@@ -152,20 +152,6 @@ export function PropositoFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Select
-          label="Seccional"
-          value={form.seccionalId}
-          onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-          options={catalogs.seccionales.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Selecciona una seccional"
-          disabled={!canEditStructure || !!user.scope.seccionalId}
-          id="seccionalId"
-          data-validation-field="seccionalId"
-          error={errors.seccionalId}
-        />
 
         <Select
           label="Lugar de desarrollo"

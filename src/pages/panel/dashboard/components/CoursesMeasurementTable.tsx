@@ -1,4 +1,4 @@
-import { GoChevronRight, GoEye, GoMail } from "react-icons/go";
+import { GoChevronRight, GoMail, GoEye } from "react-icons/go";
 import { Badge, Button, Table, type TableColumn } from "../../../../components/ui";
 import type { EnrichedCourse } from "../dashboard.types";
 
@@ -10,6 +10,7 @@ interface CoursesMeasurementTableProps {
   onMeasureCourse?: (course: EnrichedCourse) => void;
   onViewResults: (course: EnrichedCourse) => void;
   onNotifyTeacher?: (course: EnrichedCourse) => void;
+  canNotifyTeacher?: boolean;
 }
 
 // ----------- Funcion gestion de correos con mailto sin gestion interna -----------------
@@ -126,22 +127,6 @@ export default function CoursesMeasurementTable({
       title: "Acciones",
       render: (course) => (
         <div className="flex flex-col items-center justify-center gap-2">
-          <Button
-            variant="primary_soft"
-            size="sm"
-            leftIcon={<GoEye className="text-base" />}
-            onClick={() => onViewResults(course)}
-            disabled={course.results.length === 0}
-            title={
-              course.results.length === 0
-                ? "El detalle se habilita cuando exista al menos un RA medido."
-                : "Ver detalle del curso"
-            }
-            className="w-full max-w-[130px] px-3 text-center leading-tight"
-          >
-            Ver detalle
-          </Button>
-
           {course.status === "pendiente" ? (
             <Button
               variant="outline"

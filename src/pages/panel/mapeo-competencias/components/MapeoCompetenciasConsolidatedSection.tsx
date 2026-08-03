@@ -32,8 +32,8 @@ export default function MapeoCompetenciasConsolidatedSection({
   if (!hasRequiredFilters) {
     return (
       <MapeoCompetenciasAccessState
-        title="Selecciona un programa académico y un plan de estudios"
-        description="El mapeo se consulta y se guarda por programaId y planId. Usa los filtros para visualizar la malla curricular."
+        title="No se encontró el contexto académico del mapeo"
+        description="Regresa a Competencias y RA y verifica que el programa académico y el plan de estudios estén definidos previamente."
       />
     );
   }

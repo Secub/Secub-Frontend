@@ -78,7 +78,7 @@ function SemesterFlow({
                     ? "border-[var(--color-success)] bg-[var(--color-success)] text-white"
                     : isActive
                       ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-white"
-                      : "border-[var(--color-secondary-4)] bg-white text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
+                      : "border-[var(--color-secondary-4)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
                 ].join(" ")}
               >
                 {isCompleted ? (

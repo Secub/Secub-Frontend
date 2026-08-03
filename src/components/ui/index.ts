@@ -1,4 +1,5 @@
 export { Button } from "./Button";
+export { IconButton } from "./IconButton";
 export { LinkButton } from "./LinkButton";
 export { Input } from "./Input";
 export { Select } from "./Select";
@@ -14,3 +15,5 @@ export * from "./progress";
 export type { SelectOption } from "./Select";
 export type { TableColumn, TableAction } from "./Table";
 export type { BreadcrumbItem } from "./Breadcrumb";
+
+export type { IconButtonSize, IconButtonVariant } from "./IconButton";

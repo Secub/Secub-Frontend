@@ -10,10 +10,7 @@ import {
   useAcademicWorkflowProgress,
 } from "../../../components/panel/academicWorkflow";
 import { Button } from "../../../components/ui";
-import {
-  MapeoCompetenciasAccessState,
-  MapeoCompetenciasFilters,
-} from "./components";
+import { MapeoCompetenciasAccessState } from "./components";
 import MapeoCompetenciasConsolidatedSection from "./components/MapeoCompetenciasConsolidatedSection";
 import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
@@ -46,7 +43,6 @@ export default function MapeoCompetenciasPage() {
   const page = useMapeoCompetenciasPage();
   const {
     currentUser,
-    catalogs,
     permissions,
     hasRecords,
     filters,
@@ -55,7 +51,6 @@ export default function MapeoCompetenciasPage() {
     selectedPlan,
     selectedRecord,
     canOpenCreate,
-    setFilters,
     handleCreate,
     handleExportExcel,
     handleDownloadpdf,
@@ -105,10 +100,9 @@ export default function MapeoCompetenciasPage() {
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay mapeos de competencias específicas creados"
-          description="Cuando se cargue el primer mapeo de competencias específicas, se habilitará la vista completa con filtros, consolidado, acciones y exportación."
+          description="Cuando se cargue el primer mapeo de competencias específicas, se habilitará la vista consolidada con sus acciones y opciones de exportación."
           actionLabel={canOpenCreate ? "Crear mapeo" : undefined}
           onAction={canOpenCreate ? handleCreate : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6">
@@ -142,14 +136,6 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : null}
 
-          <MapeoCompetenciasFilters
-            filters={filters}
-            catalogs={catalogs}
-            permissions={permissions}
-            currentUser={currentUser}
-            onChange={setFilters}
-          />
-
           {selectedPrograma?.estado === "inactivo" || selectedPlan?.estado === "inactivo" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
               Este programa académico está inactivo. Solo puedes visualizar la información.
@@ -163,7 +149,7 @@ export default function MapeoCompetenciasPage() {
             onCreate={handleCreate}
           />
 
-          {isWorkflowActive && filteredRecords.length > 0 ? (
+          {isWorkflowActive && permissions.canUpdate && filteredRecords.length > 0 ? (
             <FlowActionBar
               description={
                 isMapeoComplete

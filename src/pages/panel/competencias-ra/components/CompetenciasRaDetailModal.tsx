@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Badge, Button, Modal, Textarea } from "../../../../components/ui";
+import { GoPencil, GoTrash } from "react-icons/go";
+import { Badge, Button, IconButton, Modal, Textarea } from "../../../../components/ui";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
 import {
   formatDate,
@@ -173,7 +174,7 @@ export function CompetenciasRaDetailModal({
           {resultadosAprendizaje.length > 0 ? resultadosAprendizaje.map((ra) => (
             <div
               key={ra.id}
-              className="flex flex-col gap-3 rounded-md border border-[var(--color-gray-6)] bg-white p-3 sm:flex-row sm:items-start sm:justify-between"
+              className="flex flex-col gap-3 rounded-md border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-3 sm:flex-row sm:items-start sm:justify-between"
             >
               <div className="flex min-w-0 gap-3">
                 <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)] text-xs font-semibold text-white">
@@ -189,9 +190,12 @@ export function CompetenciasRaDetailModal({
 
               <div className="flex shrink-0 gap-2">
                 {canEdit ? (
-                  <Button type="button" variant="outline" size="sm" onClick={() => onEditRa(record, ra)}>
-                    Editar RA
-                  </Button>
+                  <IconButton
+                    variant="outline"
+                    icon={<GoPencil />}
+                    label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
+                    onClick={() => onEditRa(record, ra)}
+                  />
                 ) : null}
               </div>
             </div>
@@ -212,20 +216,13 @@ export function CompetenciasRaDetailModal({
       </div>
 
       {canDelete ? (
-        <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--color-error)]/40 bg-[var(--color-surface-soft)] p-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
-                Eliminar competencia
-              </h3>
-              <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-                Esta acción elimina la competencia y sus Resultados de Aprendizaje asociados. También se limpiarán relaciones demo de mapeo o asignación vinculadas.
-              </p>
-            </div>
-            <Button variant="danger" onClick={() => onDelete(record)}>
-              Eliminar competencia
-            </Button>
-          </div>
+        <div className="mt-8 flex justify-end">
+          <IconButton
+            variant="danger"
+            icon={<GoTrash />}
+            label={`Eliminar competencia ${record.nombre}`}
+            onClick={() => onDelete(record)}
+          />
         </div>
       ) : null}
     </Modal>

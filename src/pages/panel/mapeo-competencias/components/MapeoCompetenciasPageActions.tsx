@@ -1,6 +1,6 @@
 // import { useMemo, useState, useEffect } from "react";
 import { GoDownload, GoPencil, GoPlus, GoFile } from "react-icons/go";
-import { Button } from "../../../../components/ui";
+import { Button, IconButton } from "../../../../components/ui";
 import type { MapeoCompetenciasEnriched, RolePermissions, MapeoCompetenciasFilters, Catalogs, CurrentUser } from "../MapeoCompetencias.types";
 
 export interface MapeoCompetenciasPageActionsProps {
@@ -66,9 +66,12 @@ export default function MapeoCompetenciasPageActions({
         </Button>
       ) : null}
       {canOpenEdit && selectedRecord ? (
-        <Button variant="primary" leftIcon={<GoPencil />} onClick={() => onEdit(selectedRecord)}>
-          Editar mapeo
-        </Button>
+        <IconButton
+          variant="primary"
+          icon={<GoPencil />}
+          label={`Editar mapeo de ${selectedRecord.programaNombre ?? "programa seleccionado"}`}
+          onClick={() => onEdit(selectedRecord)}
+        />
       ) : canOpenCreate ? (
         <Button variant="primary" leftIcon={<GoPlus />} onClick={onCreate}>
           Crear mapeo

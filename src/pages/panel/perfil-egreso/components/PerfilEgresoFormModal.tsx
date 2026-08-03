@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Button, Modal, Select, Textarea, Input } from "../../../../components/ui";
+import { Button, Modal, Select, Textarea } from "../../../../components/ui";
 import {
   useAcademicScopeForm,
   validateAcademicScope,
   type AcademicScopeErrors,
 } from "../../../../features/academic-scope";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { formatDate } from "../perfil-egreso.utils";
 import type {
   Catalogs,
   CurrentUser,
@@ -51,7 +50,7 @@ export function PerfilEgresoFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const canEditStructure = mode === "create";
+  const canEditStructure = true;
   const {
     lugaresDisponibles,
     facultadesDisponibles,
@@ -125,8 +124,8 @@ export function PerfilEgresoFormModal({
       title={mode === "create" ? "Crear perfil de egreso" : "Editar perfil de egreso"}
       description={
         mode === "create"
-          ? "Registra un nuevo perfil de egreso asociado a una seccional, lugar de desarrollo, facultad, programa y plan específico."
-          : "En edición solo se modifica el estado y el texto descriptivo, manteniendo el programa y el plan de estudios bloqueados."
+          ? "Registra un nuevo perfil de egreso seleccionando lugar de desarrollo, facultad, programa académico y plan de estudios."
+          : "Actualiza el lugar de desarrollo, facultad, programa académico, plan de estudios, estado y descripción del perfil de egreso."
       }
       size="lg"
       footer={
@@ -150,20 +149,6 @@ export function PerfilEgresoFormModal({
       ) : null}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Select
-          label="Seccional"
-          value={form.seccionalId}
-          onChange={(event) => updateScopeField("seccionalId", event.target.value)}
-          options={catalogs.seccionales.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Selecciona una seccional"
-          disabled={!canEditStructure || !!user.scope.seccionalId}
-          id="seccionalId"
-          data-validation-field="seccionalId"
-          error={errors.seccionalId}
-        />
 
         <Select
           label="Lugar de desarrollo"
@@ -244,16 +229,6 @@ export function PerfilEgresoFormModal({
           />
         ) : null}
 
-        <Input
-          label="Fecha de creación"
-          value={
-            mode === "create"
-              ? formatDate(new Date().toISOString())
-              : formatDate(record?.createdAt ?? new Date().toISOString())
-          }
-          disabled
-          helperText="Se almacena automáticamente al crear el perfil de egreso."
-        />
       </div>
 
 

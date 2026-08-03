@@ -55,7 +55,7 @@ export default function CompetenciasRaListSection({
           <select
             value={sortOrder}
             onChange={(event: ChangeEvent<HTMLSelectElement>) => onSortOrderChange(event.target.value as "asc" | "desc")}
-            className="rounded border border-[var(--color-gray-6)] bg-white px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
+            className="rounded border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
           >
             <option value="asc">Ascendente (1-10)</option>
             <option value="desc">Descendente (10-1)</option>

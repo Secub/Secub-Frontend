@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { getCurrentMockUser } from "../../../../services/auth/mockUser";
 import { mockBackend } from "../../../../services/mockBackend";
 import type { AsignacionRaDemoRecord, MedicionRaDemoState } from "../types/medicionRA.persistence.types";
-import { buildCoursesFromRealAssignments, getSearchCourseId } from "../utils/medicionRA.assignments";
+import { buildCoursesFromRealAssignments, getSearchCourseId, getSearchCycleId } from "../utils/medicionRA.assignments";
 import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
 import { useMockBackendVersion } from "./useMockBackendVersion";
 
@@ -20,12 +20,17 @@ export function useMedicionRAData() {
     : [];
 
   const requestedCourseId = getSearchCourseId();
+  const requestedCycleId = getSearchCycleId();
   const initialCourseId =
-    requestedCourseId && availableCourses.some((course) => course.id === requestedCourseId)
+    requestedCourseId && requestedCycleId && availableCourses.some(
+      (course) => course.id === requestedCourseId && course.cycleId === requestedCycleId,
+    )
       ? requestedCourseId
-      : (availableCourses[0]?.id ?? "");
+      : "";
 
-  const selectedCourse = availableCourses.find((item) => item.id === initialCourseId);
+  const selectedCourse = availableCourses.find(
+    (item) => item.id === initialCourseId && item.cycleId === requestedCycleId,
+  );
   const initialStateId = buildMedicionRaDemoStateId({
     userId: currentUser.id,
     cicloId: selectedCourse?.cycleId,

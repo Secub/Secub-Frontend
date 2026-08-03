@@ -106,6 +106,10 @@ export function useCicloFormModal({
     submitted && (!values.planId || selectedPlan?.estado !== "activo")
       ? "El plan de estudios debe estar activo."
       : undefined;
+  const fechaInicioError =
+    submitted && values.fechaInicio.trim().length === 0
+      ? "Selecciona la fecha de inicio del ciclo."
+      : undefined;
   const cursosError = submitted && selectedCount === 0 ? "Selecciona al menos un curso para confirmar el ciclo." : undefined;
   const showValidationAlert = submitted && Boolean(/*nombreError ||*/ programaError || planError || cursosError);
   const canSubmit =
@@ -113,6 +117,7 @@ export function useCicloFormModal({
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
     // values.nombre.trim().length > 0 &&
+    values.fechaInicio.trim().length > 0 &&
     selectedCount > 0;
 
   const handleProgramChange = (programaId: string) => {
@@ -133,7 +138,7 @@ export function useCicloFormModal({
   const handleSubmit = () => {
     setSubmitted(true);
     if (!canSubmit) {
-      scrollToFirstValidationError({ fieldOrder: [/*"nombre",*/ "programaId", "planId", "cursoIds"] });
+      scrollToFirstValidationError({ fieldOrder: [/*"nombre",*/ "programaId", "planId", "fechaInicio", "cursoIds"] });
       return;
     }
     onSubmit(values);
@@ -157,6 +162,7 @@ export function useCicloFormModal({
     // nombreError,
     programaError,
     planError,
+    fechaInicioError,
     cursosError,
     showValidationAlert,
     canSubmit,

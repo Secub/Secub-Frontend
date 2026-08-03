@@ -12,16 +12,16 @@ export const roleLabels: Record<CompetenciasRaFormacionRole, string> = {
   docente: "Docencia",
 };
 
-// Decisión funcional aplicada: solo la Dirección de programa define contenido académico.
-// Admin/Vicerrectoría conservan lectura, filtros y exportación; CRUD queda bloqueado hasta confirmación de negocio.
+// Decisión funcional aplicada: solo la Dirección de programa gestiona contenido académico.
+// Admin, Vicerrectoría y Decanatura son roles estrictamente de consulta: lectura y filtros, sin CRUD, exportación ni acciones de flujo.
 export const rolePermissions: Record<CompetenciasRaFormacionRole, RolePermissions> = {
   admin: {
     canRead: true,
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: true,
     canFilterByLugar: true,
     canFilterByFacultad: true,
@@ -34,8 +34,8 @@ export const rolePermissions: Record<CompetenciasRaFormacionRole, RolePermission
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: true,
     canFilterByFacultad: true,
@@ -48,8 +48,8 @@ export const rolePermissions: Record<CompetenciasRaFormacionRole, RolePermission
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,

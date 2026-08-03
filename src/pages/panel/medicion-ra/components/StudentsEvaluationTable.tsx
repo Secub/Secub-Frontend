@@ -167,7 +167,7 @@ export default function StudentsEvaluationTable({
                         aria-describedby={hasLevelError ? errorId : undefined}
                         data-validation-field={`evaluation-${student.id}-${ra.id}`}
                         className={[
-                          "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed",
+                          "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed disabled:appearance-none disabled:pr-3",
                           selectTone[selectedLevel],
                           hasLevelError
                             ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.14)]"

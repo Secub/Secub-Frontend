@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { GoChevronDown, GoChevronUp, GoEye, GoPlus } from "react-icons/go";
-import { Badge, Button } from "../../../../components/ui";
+import { GoChevronDown, GoChevronUp, GoEye, GoPencil, GoPlus } from "react-icons/go";
+import { Badge, IconButton } from "../../../../components/ui";
 import {
   MAX_RA_PER_COMPETENCIA,
   canAddLearningResult,
@@ -60,15 +60,12 @@ export default function CompetenciasRaCard({
           </Badge>
         </div>
 
-        <button
+        <IconButton
           onClick={() => onView(record)}
-          className="rounded p-1.5 text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-gray-5)] hover:text-[var(--color-secondary-1)]"
-          title="Ver más de la competencia"
-          aria-label={`Ver detalle de la competencia ${record.nombre}`}
-          type="button"
-        >
-          <GoEye aria-hidden="true" className="text-lg" />
-        </button>
+          variant="ghost"
+          label={`${canEdit ? "Editar" : "Ver detalle de"} la competencia ${record.nombre}`}
+          icon={canEdit ? <GoPencil /> : <GoEye />}
+        />
       </div>
 
       <div className="mb-3">
@@ -93,7 +90,7 @@ export default function CompetenciasRaCard({
         <button
           type="button"
           onClick={() => setExpandedRAs(!expandedRAs)}
-          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-[var(--color-gray-6)] bg-white px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary-1)] focus:ring-offset-2"
+          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary-1)] focus:ring-offset-2"
           aria-expanded={expandedRAs}
         >
           <span>
@@ -122,31 +119,24 @@ export default function CompetenciasRaCard({
         ) : null}
 
         {expandedRAs ? (
-          <div className="mt-3 space-y-3 rounded-2xl border border-[var(--color-gray-6)] bg-white p-4">
+          <div className="mt-3 space-y-3 rounded-2xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-medium text-[var(--color-gray-4)]">
                 RA asociados a esta competencia
               </p>
               {canEdit ? (
-                <span
-                  className={canAddMoreRa ? "inline-flex" : "inline-flex cursor-not-allowed"}
+                <IconButton
+                  variant="outline"
+                  icon={<GoPlus />}
+                  label={`Agregar Resultado de Aprendizaje a ${record.nombre}`}
                   title={
                     canAddMoreRa
                       ? "Agregar Resultado de Aprendizaje"
                       : "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos."
                   }
-                >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<GoPlus className="text-base" />}
-                    onClick={() => onAddRa(record)}
-                    disabled={!canAddMoreRa}
-                  >
-                    Agregar RA
-                  </Button>
-                </span>
+                  onClick={() => onAddRa(record)}
+                  disabled={!canAddMoreRa}
+                />
               ) : null}
             </div>
 
@@ -170,9 +160,12 @@ export default function CompetenciasRaCard({
 
                   <div className="flex shrink-0 gap-2">
                     {canEdit ? (
-                      <Button type="button" variant="outline" size="sm" onClick={() => onEditRa(record, ra)}>
-                        Editar RA
-                      </Button>
+                      <IconButton
+                        variant="outline"
+                        icon={<GoPencil />}
+                        label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
+                        onClick={() => onEditRa(record, ra)}
+                      />
                     ) : null}
                   </div>
                 </div>

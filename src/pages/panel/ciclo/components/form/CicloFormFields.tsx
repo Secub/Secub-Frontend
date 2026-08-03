@@ -12,6 +12,7 @@ interface CicloFormFieldsProps {
   // nombreError?: string;
   programaError?: string;
   planError?: string;
+  fechaInicioError?: string;
   selectedProgramaEstado?: string;
   activePlansLength: number;
   onValuesChange: (next: CicloFormState | ((current: CicloFormState) => CicloFormState)) => void;
@@ -28,6 +29,7 @@ export default function CicloFormFields({
   // nombreError,
   programaError,
   planError,
+  fechaInicioError,
   selectedProgramaEstado,
   activePlansLength,
   onValuesChange,
@@ -82,6 +84,10 @@ export default function CicloFormFields({
         type="date"
         value={values.fechaInicio}
         disabled={isReadOnly}
+        required
+        id="fechaInicio"
+        data-validation-field="fechaInicio"
+        error={fechaInicioError}
         onChange={(event) => onValuesChange((current) => ({ ...current, fechaInicio: event.target.value }))}
       />
 

@@ -14,7 +14,7 @@ export const roleLabels: Record<MapeoCompetenciasRole, string> = {
 
 /**
  * Regla visual RF05.
- * - "matrix-readonly": conserva la matriz CRUD: Admin/Vice/Decano consultan y Dirección de programa edita.
+ * - "matrix-readonly": Admin/Vice/Decano solo consultan; Dirección de programa gestiona y exporta.
  * - "director-only": solo Dirección de programa visualiza RF05; los demás roles ven acceso restringido.
  */
 export const RF05_ACCESS_POLICY = "matrix-readonly" as "matrix-readonly" | "director-only";
@@ -25,8 +25,8 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: true,
     canFilterByLugar: true,
     canFilterByFacultad: true,
@@ -39,8 +39,8 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: true,
     canFilterByFacultad: true,
@@ -53,8 +53,8 @@ const matrixReadOnlyPermissions: Record<MapeoCompetenciasRole, RolePermissions> 
     canCreate: false,
     canUpdate: false,
     canDelete: false,
-    canExportPdf: true,
-    canExportExcel: true,
+    canExportPdf: false,
+    canExportExcel: false,
     canFilterBySeccional: false,
     canFilterByLugar: false,
     canFilterByFacultad: false,

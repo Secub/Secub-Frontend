@@ -64,7 +64,7 @@ export default function MeasurementCycleCard({
 
   const handleStepChange = (stepId: string) => {
     if (stepId === "medicion-ra" && !isMeasurementComplete) {
-      onViewPending(cycle);
+      if (!isTeacher) onViewPending(cycle);
       return;
     }
 
@@ -109,7 +109,7 @@ export default function MeasurementCycleCard({
             </p>
           </div>
 
-          <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
+          <span className="rounded-full border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-2 font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
             {cycle.progress}% completado
           </span>
         </div>
@@ -150,20 +150,22 @@ export default function MeasurementCycleCard({
       </div>
 
       <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          leftIcon={<GoListUnordered className="text-lg" />}
-          onClick={() => onViewPending(cycle)}
-          disabled={isMeasurementComplete}
-          title={
-            isMeasurementComplete
-              ? "No hay pendientes de Medición RA; revisa el Plan de mejora para cerrar el ciclo."
-              : "Ver cursos pendientes del ciclo"
-          }
-        >
-          Ver pendientes
-        </Button>
+        {!isTeacher ? (
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<GoListUnordered className="text-lg" />}
+            onClick={() => onViewPending(cycle)}
+            disabled={isMeasurementComplete}
+            title={
+              isMeasurementComplete
+                ? "No hay pendientes de Medición RA; revisa el Plan de mejora para cerrar el ciclo."
+                : "Ver cursos pendientes del ciclo"
+            }
+          >
+            Ver pendientes
+          </Button>
+        ) : null}
 
         <Button
           variant="outline"
@@ -180,7 +182,7 @@ export default function MeasurementCycleCard({
           Ver resultados
         </Button>
 
-        {!isTeacher ? (
+        {isDirector ? (
           <Button
             variant={canLoadImprovementPlan ? "primary" : "outline"}
             size="sm"
@@ -197,19 +199,21 @@ export default function MeasurementCycleCard({
           </Button>
         ) : null}
 
-        <Button
-          variant="primary_soft"
-          size="sm"
-          leftIcon={<GoDownload className="text-lg" />}
-          onClick={() => onDownloadReport(cycle)}
-          disabled={!isCycleClosed}
-          title={
-            reportLockedReason ??
-            (isTeacher ? "Descargar reporte individual" : "Descargar reporte consolidado")
-          }
-        >
-          Descargar reporte
-        </Button>
+        {isTeacher || isDirector ? (
+          <Button
+            variant="primary_soft"
+            size="sm"
+            leftIcon={<GoDownload className="text-lg" />}
+            onClick={() => onDownloadReport(cycle)}
+            disabled={!isCycleClosed}
+            title={
+              reportLockedReason ??
+              (isTeacher ? "Descargar reporte individual" : "Descargar reporte consolidado")
+            }
+          >
+            Descargar reporte
+          </Button>
+        ) : null}
       </div>
     </article>
   );

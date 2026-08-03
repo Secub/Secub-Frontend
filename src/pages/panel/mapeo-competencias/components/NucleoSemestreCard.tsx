@@ -61,7 +61,7 @@ export default function NucleoSemestreCard({
   };
 
   return (
-    <article className="w-full overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-white shadow-sm transition-shadow hover:shadow-md">
+    <article className="w-full overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-[var(--secub-surface)] shadow-sm transition-shadow hover:shadow-md">
       <div className="border-b border-[var(--color-gray-6)] px-5 py-4 md:px-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0">

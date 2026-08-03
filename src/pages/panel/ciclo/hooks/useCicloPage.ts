@@ -154,7 +154,7 @@ export function useCicloPage() {
       return;
     }
     setCycles(mockBackend.remove<CicloMedicion>("ciclosMedicion", cycleToDelete.id, user));
-    setSavedMessage("El ciclo fue eliminado de los datos temporales actuales.");
+    setSavedMessage("El ciclo fue eliminado correctamente.");
     setCycleToDelete(null);
   };
 

@@ -57,7 +57,7 @@ export default function CicloPage() {
   const showFlowActionBar =
     isWorkflowActive &&
     !isStepLocked &&
-    permissions.canReadSummary &&
+    permissions.canConfirmSelection &&
     hasCycles &&
     Boolean(workflowProgress.ciclo);
   const handleNextStep = () => {
@@ -77,7 +77,7 @@ export default function CicloPage() {
       currentStep="ciclo"
       title="Creación del ciclo"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
-      actions={!isStepLocked && hasCycles ? pageActions : undefined}
+      actions={!isStepLocked && hasCycles && permissions.canCreateCycle ? pageActions : undefined}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -94,7 +94,6 @@ export default function CicloPage() {
           description="Cuando se cree el primer ciclo, se habilitará el resumen con filtros, cursos seleccionados, periodo, estado y responsable."
           actionLabel={canCreateCycle ? "Crear ciclo de medición" : undefined}
           onAction={canCreateCycle ? openCreateModal : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6 pb-24">
@@ -149,8 +148,8 @@ export default function CicloPage() {
 
       <ConfirmDialog
         open={Boolean(cycleToDelete)}
-        title="¿Estás seguro de que deseas eliminar este registro?"
-        description={`Se eliminará ${cycleToDelete?.nombre ?? "este ciclo"}. Esta acción no se puede deshacer en los datos temporales actuales.`}
+        title={`¿Seguro que deseas eliminar el ciclo "${cycleToDelete?.nombre ?? "seleccionado"}"?`}
+        description="Se eliminará el ciclo seleccionado y sus relaciones asociadas. Esta acción no se puede deshacer."
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
         variant="danger"

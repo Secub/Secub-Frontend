@@ -53,7 +53,8 @@ export default function PerfilEgresoPage() {
   const workflowProgress = useAcademicWorkflowProgress();
   const isPerfilStepComplete = Boolean(workflowProgress["perfil-egreso"]);
   const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
-  const showFlowActionBar = isWorkflowActive && !isStepLocked && permissions.canRead && hasRecords;
+  const showFlowActionBar =
+    isWorkflowActive && !isStepLocked && permissions.canUpdate && hasRecords;
   const handleNextStep = () => {
     if (!isPerfilStepComplete) return;
 
@@ -89,7 +90,6 @@ export default function PerfilEgresoPage() {
           description="Cuando se cargue el primer perfil de egreso, se habilitará la vista completa con filtros, tabla, acciones y exportación."
           actionLabel={permissions.canCreate && !isInheritedBaseStep ? "Crear perfil de egreso" : undefined}
           onAction={permissions.canCreate && !isInheritedBaseStep ? openCreateModal : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6 pb-24">
@@ -152,8 +152,8 @@ export default function PerfilEgresoPage() {
 
       <ConfirmDialog
         open={Boolean(recordToDelete)}
-        title="¿Estás seguro de que deseas eliminar este registro?"
-        description={`Se eliminará el perfil de egreso de ${recordToDelete?.programaNombre ?? "este programa"}. Esta acción no se puede deshacer en los datos temporales actuales.`}
+        title={`¿Seguro que deseas eliminar el perfil de egreso de "${recordToDelete?.programaNombre ?? "este programa"}"?`}
+        description="Se eliminará el perfil de egreso seleccionado. Esta acción no se puede deshacer."
         confirmLabel="Eliminar"
         variant="danger"
         onCancel={() => setRecordToDelete(null)}

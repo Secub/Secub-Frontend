@@ -61,16 +61,8 @@ export function AsignarRACourseDetail({
     );
   }
 
-  const topBarClass = hasUnsavedChanges
-    ? "bg-[var(--color-warning)]"
-    : status?.label === "Medido"
-      ? "bg-[var(--color-success)]"
-      : "bg-[var(--color-secondary-1)]";
-
   return (
     <section className="surface-card overflow-hidden">
-      <div className={["h-2 w-full", topBarClass].join(" ")} />
-
       <div className="p-6 md:p-7">
         <div className="border-b border-[var(--color-gray-6)] pb-6">
           <div>
