@@ -142,7 +142,7 @@ export function useMapeoCompetenciasPage() {
         logoUrl2: branding.logoUrl2,
 
         columns: EXCEL_COLUMNS,
-        records: exportRecords,
+        records: buildExportRecords(),
       },
       `Mapeo-Competencias-${timestamp}.xlsx`,
     );
@@ -161,7 +161,7 @@ export function useMapeoCompetenciasPage() {
         footerText:
           "Documento generado automáticamente",
         columns: PDF_COLUMNS,
-        records: exportRecords,
+        records: buildExportRecords(),
         theme: {
           primary: "#474747",
         },
@@ -181,46 +181,55 @@ export function useMapeoCompetenciasPage() {
   //   return applyFilters(enrichedRecords , filters);
   // }, [enrichedRecords , filters]);
 
-  const exportRecords = useMemo(() => {
-    return filteredRecords
-      .flatMap((record) =>
-        record.semestresResumen.map((semestre) => ({
-          programa: record.programaNombre,
-          plan: record.planNombre,
+  type ExportRecord = {
+  programa: string;
+  plan: string;
+  semestre: number;
+  nucleo: string;
+  estado: string;
+  cursos: number;
+  niveles: string;
+};
 
-          semestre: semestre.semestreNumero,
+const buildExportRecords = (): ExportRecord[] => {
+  return filteredRecords
+    .flatMap((record) =>
+      record.semestresResumen.map((semestre) => ({
+        programa: record.programaNombre,
+        plan: record.planNombre,
 
-          nucleo: semestre.nucleo ?? "-",
+        semestre: semestre.semestreNumero,
 
-          estado:
-            semestre.estado === "completo"
-              ? "Completo"
-              : semestre.estado === "en-progreso"
-                ? "En progreso"
-                : "Pendiente",
+        nucleo: semestre.nucleo ?? "-",
 
-          cursos: semestre.cursos.length,
+        estado:
+          semestre.estado === "completo"
+            ? "Completo"
+            : semestre.estado === "en-progreso"
+              ? "En progreso"
+              : "Pendiente",
 
-          niveles: `${semestre.totalAsignadas}/${semestre.totalCeldas}`,
-        })),
-      )
-      .sort((a, b) => {
-        if (a.programa !== b.programa) {
-          return a.programa.localeCompare(b.programa);
-        }
+        cursos: semestre.cursos.length,
 
-        if (a.plan !== b.plan) {
-          return a.plan.localeCompare(b.plan);
-        }
+        niveles: `${semestre.totalAsignadas}/${semestre.totalCeldas}`,
+      })),
+    )
+    .sort((a, b) => {
+      if (a.programa !== b.programa) {
+        return a.programa.localeCompare(b.programa);
+      }
 
-        return a.semestre - b.semestre;
-      });
-  }, [filteredRecords]);
+      if (a.plan !== b.plan) {
+        return a.plan.localeCompare(b.plan);
+      }
 
+      return a.semestre - b.semestre;
+    });
+};
 
   // const [filters, setFilters] = useState<MapeoCompetenciasFilters>(initialFilters);
 
-  const PDF_COLUMNS: PdfColumn<(typeof exportRecords)[number]>[] = [
+  const PDF_COLUMNS: PdfColumn<ExportRecord>[] = [
     {
       header: "Programa\nacadémico",
       widthPct: 22,
@@ -258,7 +267,7 @@ export function useMapeoCompetenciasPage() {
     },
   ];
 
-  const EXCEL_COLUMNS: ExcelColumn<(typeof exportRecords)[number]>[] = [
+  const EXCEL_COLUMNS: ExcelColumn<ExportRecord>[] = [
     {
       header: "Programa académico",
       width: 30,
