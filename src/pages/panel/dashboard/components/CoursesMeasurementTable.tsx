@@ -231,7 +231,7 @@ export default function CoursesMeasurementTable({
       key: "actions",
       title: "Acciones",
       render: (course) => (
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="mx-auto flex w-fit flex-col items-center justify-center gap-2">
           {course.status === "pendiente" ? (
             <IconButton
               variant="outline"
@@ -257,8 +257,8 @@ export default function CoursesMeasurementTable({
           />
         </div>
       ),
-      className: `${compactCell} w-[14%] text-center`,
-      headerClassName: `${compactHeader} w-[14%] text-center`,
+      className: `${compactCell} w-[14%] !text-center !align-middle`,
+      headerClassName: `${compactHeader} w-[14%] !text-center`,
     },
   ];
 
