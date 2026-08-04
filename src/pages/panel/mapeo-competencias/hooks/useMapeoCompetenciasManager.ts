@@ -57,16 +57,33 @@ export function useMapeoCompetenciasManager({
   const lastLoadedRecordId = useRef<string | null>(null);
 
   useEffect(() => {
-    const key = `${existingRecord?.id ?? `${programaId}-${planId}`}__${totalSemestres}`;
-    if (!programaId || !planId || lastLoadedRecordId.current === key) return;
+    if (!programaId || !planId) return;
 
-    setNucleosDraft(existingRecord ? readNucleosFromRecord(existingRecord, totalSemestres) : buildEmptyNucleosDraft(totalSemestres));
-    setNivelesDraft(existingRecord ? readNivelesFromRecord(existingRecord) : {});
+    const key = `${existingRecord?.id ?? "new"}-${programaId}-${planId}`;
+
+    // Si ya cargamos este mismo contexto, no reinicializamos el formulario.
+    if (lastLoadedRecordId.current === key) {
+      return;
+    }
+
+    setNucleosDraft(
+      existingRecord
+        ? readNucleosFromRecord(existingRecord, totalSemestres)
+        : buildEmptyNucleosDraft(totalSemestres)
+    );
+
+    setNivelesDraft(
+      existingRecord
+        ? readNivelesFromRecord(existingRecord)
+        : {}
+    );
+
     setActiveStep("nucleos");
     setActiveSemester(1);
     setFeedback(null);
+
     lastLoadedRecordId.current = key;
-  }, [existingRecord, planId, programaId, totalSemestres]);
+  }, [programaId, planId, existingRecord?.id, totalSemestres]);
 
   useEffect(() => {
     if (activeSemester > totalSemestres) {
@@ -187,7 +204,11 @@ export function useMapeoCompetenciasManager({
   }
 
   function tryContinueToMapeo() {
-    if (!classificationComplete) {
+    const isClassificationComplete =
+      areAllSemestersClassified(nucleosDraft, totalSemestres) &&
+      allNucleosRepresented(nucleosDraft);
+
+    if (!isClassificationComplete) {
       setFeedback({
         type: "warning",
         message: "Debes clasificar todos los semestres antes de continuar al mapeo de competencias.",
@@ -198,14 +219,21 @@ export function useMapeoCompetenciasManager({
     const savedRecord = saveProgress(false);
     if (!savedRecord) return false;
 
+    lastLoadedRecordId.current = `${savedRecord.id}-${programaId}-${planId}`;
+
     fillMissingLevelsWithNoAplica();
     setActiveStep("mapeo");
     setActiveSemester(1);
     return true;
   }
 
+
   function tryFinish() {
-    if (!classificationComplete) {
+    const isClassificationComplete =
+      areAllSemestersClassified(nucleosDraft, totalSemestres) &&
+      allNucleosRepresented(nucleosDraft);
+
+    if (!isClassificationComplete) {
       setActiveStep("nucleos");
       setFeedback({
         type: "warning",
