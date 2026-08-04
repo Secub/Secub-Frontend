@@ -1,5 +1,11 @@
 import { GoChevronRight, GoMail, GoEye } from "react-icons/go";
-import { Badge, Button, Table, type TableColumn } from "../../../../components/ui";
+import {
+  Badge,
+  Button,
+  IconButton,
+  Table,
+  type TableColumn,
+} from "../../../../components/ui";
 import type { EnrichedCourse } from "../dashboard.types";
 
 interface CoursesMeasurementTableProps {
@@ -227,32 +233,28 @@ export default function CoursesMeasurementTable({
       render: (course) => (
         <div className="flex flex-col items-center justify-center gap-2">
           {course.status === "pendiente" ? (
-            <Button
+            <IconButton
               variant="outline"
               size="sm"
-              leftIcon={<GoMail className="text-base" />}
+              icon={<GoMail />}
+              label={`Enviar correo a ${course.teacherName}`}
               onClick={() => sendEmail(course)}
-              className="w-full max-w-[125px] px-3 text-center leading-tight"
-            >
-              Enviar correo
-            </Button>
+            />
           ) : null}
 
-          <Button
+          <IconButton
             variant="primary_soft"
             size="sm"
-            leftIcon={<GoEye className="text-base" />}
+            icon={<GoEye />}
+            label={`Ver detalle del curso ${course.name}`}
             onClick={() => onViewResults(course)}
             disabled={course.results.length === 0}
             title={
               course.results.length === 0
                 ? "El detalle se habilita cuando exista al menos un RA medido."
-                : "Ver detalle del curso"
+                : `Ver detalle del curso ${course.name}`
             }
-            className="w-full max-w-[125px] px-3 text-center leading-tight"
-          >
-            Ver detalle
-          </Button>
+          />
         </div>
       ),
       className: `${compactCell} w-[14%] text-center`,
