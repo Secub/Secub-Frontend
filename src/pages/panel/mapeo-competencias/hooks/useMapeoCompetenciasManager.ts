@@ -48,6 +48,7 @@ export function useMapeoCompetenciasManager({
   canManage,
   totalSemestres,
 }: UseMapeoCompetenciasManagerParams) {
+  console.log("useMapeoCompetenciasManager render");
   const [activeStep, setActiveStep] = useState<"nucleos" | "mapeo">("nucleos");
   const [activeSemester, setActiveSemester] = useState(1);
   const [nucleosDraft, setNucleosDraft] = useState<NucleosDraft>(() => buildEmptyNucleosDraft(totalSemestres));
@@ -55,16 +56,13 @@ export function useMapeoCompetenciasManager({
   const [feedback, setFeedback] = useState<{ type: "success" | "warning" | "danger"; message: string } | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const lastLoadedRecordId = useRef<string | null>(null);
+  const initializedRef = useRef(false);
+  
 
   useEffect(() => {
     if (!programaId || !planId) return;
 
-    const key = `${existingRecord?.id ?? "new"}-${programaId}-${planId}`;
-
-    // Si ya cargamos este mismo contexto, no reinicializamos el formulario.
-    if (lastLoadedRecordId.current === key) {
-      return;
-    }
+    if (initializedRef.current) return;
 
     setNucleosDraft(
       existingRecord
@@ -82,8 +80,12 @@ export function useMapeoCompetenciasManager({
     setActiveSemester(1);
     setFeedback(null);
 
-    lastLoadedRecordId.current = key;
-  }, [programaId, planId, existingRecord?.id, totalSemestres]);
+    initializedRef.current = true;
+  }, [existingRecord, programaId, planId, totalSemestres]);
+
+  useEffect(() => {
+    initializedRef.current = false;
+  }, [programaId, planId]);
 
   useEffect(() => {
     if (activeSemester > totalSemestres) {
@@ -135,25 +137,26 @@ export function useMapeoCompetenciasManager({
     });
   }
 
-  function fillMissingLevelsWithNoAplica() {
-    setNivelesDraft((current) => {
-      const next = { ...current };
+  function buildPreparedNivelesDraft(currentDraft: NivelesDraft = nivelesDraft) {
+    const next = { ...currentDraft };
 
-      cursos.forEach((curso) => {
-        // const nucleo = nucleosDraft[curso.semestre];
-        // if (nucleo !== "fundamentacion" && nucleo !== "profesionalizacion") return;
-
-        competencias.forEach((competencia) => {
-          const key = getMappingKey(curso.id, competencia.id);
-          if (!next[key]) next[key] = "no-aplica";
-        });
+    cursos.forEach((curso) => {
+      competencias.forEach((competencia) => {
+        const key = getMappingKey(curso.id, competencia.id);
+        if (!next[key]) next[key] = "no-aplica";
       });
-
-      return next;
     });
+
+    return next;
   }
 
-  function buildRecord() {
+  function fillMissingLevelsWithNoAplica() {
+    const next = buildPreparedNivelesDraft();
+    setNivelesDraft(next);
+    return next;
+  }
+
+  function buildRecord(nextNivelesDraft: NivelesDraft = nivelesDraft) {
     return buildMapeoRecord({
       existingRecord,
       seccionalId,
@@ -162,14 +165,14 @@ export function useMapeoCompetenciasManager({
       programaId,
       planId,
       nucleosDraft,
-      nivelesDraft,
+      nivelesDraft: nextNivelesDraft,
       cursos,
       competencias,
       totalSemestres,
     });
   }
 
-  function saveProgress(notifySuccess = true) {
+  function saveProgress(notifySuccess = true, draftOverride?: NivelesDraft) {
     if (!canManage) return null;
 
     if (!programaId || !planId) {
@@ -181,7 +184,8 @@ export function useMapeoCompetenciasManager({
     }
 
     try {
-      const nextRecord = buildRecord();
+      const nextNivelesDraft = draftOverride ?? nivelesDraft;
+      const nextRecord = buildRecord(nextNivelesDraft);
       mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", nextRecord, currentUser);
       setFeedback(null);
 
@@ -216,12 +220,11 @@ export function useMapeoCompetenciasManager({
       return false;
     }
 
-    const savedRecord = saveProgress(false);
+    const preparedNivelesDraft = fillMissingLevelsWithNoAplica();
+    const savedRecord = saveProgress(false, preparedNivelesDraft);
     if (!savedRecord) return false;
 
     lastLoadedRecordId.current = `${savedRecord.id}-${programaId}-${planId}`;
-
-    fillMissingLevelsWithNoAplica();
     setActiveStep("mapeo");
     setActiveSemester(1);
     return true;

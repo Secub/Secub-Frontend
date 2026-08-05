@@ -18,7 +18,7 @@ export default function WorkflowCompletionAlert({ open, onClose }: WorkflowCompl
       onClose={onClose}
       footer={
         <div className="flex justify-end">
-          <Button data-autofocus onClick={onClose}>
+          <Button onClick={onClose}>
             Entendido
           </Button>
         </div>
