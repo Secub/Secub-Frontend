@@ -1,3 +1,4 @@
+import type { SecubRole } from "../../../../config/access/roles";
 import {
   Badge,
   Table,
@@ -10,22 +11,18 @@ import {
   PROFILE_PURPOSE_DELETE_ACTION_CLASSNAME,
 } from "../../shared/profilePurposeTableLayout";
 import {
-  canDeletePerfil,
-  canEditPerfil,
-  getEditDisabledReason,
-} from "../perfil-egreso.permissions";
+  canEditAcademicRecord,
+  getAcademicEditDisabledReason,
+  type AcademicModulePermissions,
+} from "../../../../config/access/permissions";
 import { getEstadoBadgeVariant } from "../perfil-egreso.utils";
-import type {
-  PerfilEgresoEnriched,
-  PerfilEgresoRole,
-  RolePermissions,
-} from "../perfil-egreso.types";
+import type { PerfilEgresoEnriched } from "../perfil-egreso.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PerfilEgresoTableProps {
   data: PerfilEgresoEnriched[];
-  role: PerfilEgresoRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: PerfilEgresoEnriched) => void;
   onEdit: (record: PerfilEgresoEnriched) => void;
   onDelete: (record: PerfilEgresoEnriched) => void;
@@ -121,8 +118,8 @@ export function PerfilEgresoTable({
       label: "Editar perfil",
       onClick: onEdit,
       icon: <ActionIcon name="edit" />,
-      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditPerfil(role, row),
-      disabledReason: (row) => getInheritedReadonlyReason(row, getEditDisabledReason(role, row)),
+      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditAcademicRecord("perfilEgreso", role, row.estado),
+      disabledReason: (row) => getInheritedReadonlyReason(row, getAcademicEditDisabledReason("perfilEgreso", role, row.estado, "Solo se permite actualizar perfiles asociados a programas activos.")),
       show: () => permissions.canUpdate,
     },
     {
@@ -130,7 +127,7 @@ export function PerfilEgresoTable({
       label: "Eliminar perfil",
       onClick: onDelete,
       icon: <ActionIcon name="delete" />,
-      show: () => canDeletePerfil(role),
+      show: () => permissions.canDelete,
       disabled: (row) => isInheritedReadonlyRecord(row),
       disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar perfil"),
       variant: "danger-hover",

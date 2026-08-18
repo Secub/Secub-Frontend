@@ -1,13 +1,13 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { AcademicScopeFilters } from "../../../../features/academic-scope";
 import type {
   CurrentUser,
   PerfilEgresoFilters as PerfilEgresoFiltersState,
-  RolePermissions,
-} from "../perfil-egreso.types";
+  } from "../perfil-egreso.types";
 
 interface PerfilEgresoFiltersProps {
   user: CurrentUser;
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filters: PerfilEgresoFiltersState;
   filterOptions: {
     lugares: { id: string; nombre: string }[];

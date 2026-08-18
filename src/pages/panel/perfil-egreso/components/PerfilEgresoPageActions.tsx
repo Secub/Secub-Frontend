@@ -1,9 +1,10 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { Button } from "../../../../components/ui";
-import type { PerfilEgresoEnriched, RolePermissions } from "../perfil-egreso.types";
+import type { PerfilEgresoEnriched } from "../perfil-egreso.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PerfilEgresoPageActionsProps {
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filteredRecords: PerfilEgresoEnriched[];
   onCreate: () => void;
   onExport: (format: "pdf" | "excel") => void;

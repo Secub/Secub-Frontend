@@ -1,15 +1,19 @@
 import { getSelectedProgram, getSelectedProgramScope } from "../programSelection";
-import { getRoleScopedProgramSelection } from "./roleAccess";
+import { getRoleScopedProgramSelection } from "../../config/access/permissions";
 import { getBrowserSearchParams } from "../../shared/browser";
-
-export type MockUserRole = "admin" | "vice" | "decano" | "direccionPrograma" | "docente";
+import {
+  DEFAULT_SECUB_ROLE,
+  SECUB_ROLE_LABELS,
+  normalizeSecubRole,
+  type SecubRole,
+} from "../../config/access/roles";
 
 export interface CentralMockUser {
   id: string;
   nombre: string;
   email: string;
   cargo: string;
-  role: MockUserRole;
+  role: SecubRole;
   seccionalId?: string;
   facultadId?: string;
   programaId?: string;
@@ -24,23 +28,7 @@ export interface CentralMockUser {
   };
 }
 
-export const DEFAULT_DEMO_ROLE: MockUserRole = "admin";
-
-const neutralRoleLabels: Record<MockUserRole, string> = {
-  admin: "Administrador SECUB",
-  vice: "Vicerrectoría",
-  decano: "Decanatura",
-  direccionPrograma: "Dirección de programa",
-  docente: "Docencia",
-};
-
-export function getNeutralRoleLabel(role: MockUserRole) {
-  return neutralRoleLabels[role];
-}
-
-export function getNeutralUserCargo(user: Pick<CentralMockUser, "role" | "cargo">) {
-  return neutralRoleLabels[user.role] ?? user.cargo;
-}
+export const DEFAULT_DEMO_ROLE: SecubRole = DEFAULT_SECUB_ROLE;
 
 export const DEMO_DOCENTE_SECUB = {
   id: "docente-secub",
@@ -50,44 +38,44 @@ export const DEMO_DOCENTE_SECUB = {
 
 export const LEGACY_DEMO_DOCENTE_IDS = [] as const;
 
-export const centralMockUsers: Record<MockUserRole, CentralMockUser> = {
-  admin: {
+export const centralMockUsers: Record<SecubRole, CentralMockUser> = {
+  administrador: {
     id: "usr-admin",
     nombre: "Usuario administrador",
     email: "",
-    cargo: "Administrador SECUB",
-    role: "admin",
+    cargo: SECUB_ROLE_LABELS.administrador,
+    role: "administrador",
     scope: {},
   },
-  vice: {
+  vicerrector: {
     id: "usr-vice",
-    nombre: "Usuario Vicerrectoría",
+    nombre: "Usuario Vicerrector",
     email: "",
-    cargo: "Vicerrectoría",
-    role: "vice",
+    cargo: SECUB_ROLE_LABELS.vicerrector,
+    role: "vicerrector",
     scope: {},
   },
   decano: {
     id: "usr-decano",
-    nombre: "Usuario Decanatura",
+    nombre: "Usuario Decano",
     email: "",
-    cargo: "Decanatura",
+    cargo: SECUB_ROLE_LABELS.decano,
     role: "decano",
     scope: {},
   },
-  direccionPrograma: {
-    id: "usr-direccion-programa",
-    nombre: "Dirección de programa",
+  director: {
+    id: "usr-director",
+    nombre: "Usuario Director",
     email: "",
-    cargo: "Dirección de programa",
-    role: "direccionPrograma",
+    cargo: SECUB_ROLE_LABELS.director,
+    role: "director",
     scope: {},
   },
   docente: {
     id: DEMO_DOCENTE_SECUB.id,
     nombre: DEMO_DOCENTE_SECUB.nombre,
     email: "",
-    cargo: "Docencia",
+    cargo: SECUB_ROLE_LABELS.docente,
     role: "docente",
     scope: {},
   },
@@ -127,40 +115,6 @@ export function buildDemoDocenteIdFromName(nombre?: string) {
   return normalizedName ? `usr-docente-${normalizedName}` : "usr-docente-sin-asignar";
 }
 
-export function normalizeMockRole(rawRole: string | null | undefined): MockUserRole {
-  const normalizedRole = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
-  const compactRole = normalizedRole.replace(/[^a-z0-9]+/g, "");
-
-  const aliases: Record<string, MockUserRole> = {
-    admin: "admin",
-    administrador: "admin",
-    superadmin: "admin",
-
-    vice: "vice",
-    vicerrector: "vice",
-    vicerrectoria: "vice",
-
-    decano: "decano",
-
-    director: "direccionPrograma",
-    directorprograma: "direccionPrograma",
-    direccion: "direccionPrograma",
-    direccionprograma: "direccionPrograma",
-    jefatura: "direccionPrograma",
-    jefaturaprograma: "direccionPrograma",
-
-    docente: "docente",
-    docencia: "docente",
-    teacher: "docente",
-  };
-
-  return aliases[normalizedRole] ?? aliases[compactRole] ?? DEFAULT_DEMO_ROLE;
-}
 
 export function getCurrentMockUser(): CentralMockUser {
   const params =
@@ -168,7 +122,7 @@ export function getCurrentMockUser(): CentralMockUser {
       ? getBrowserSearchParams()
       : new URLSearchParams();
 
-  const role = normalizeMockRole(params.get("role"));
+  const role = normalizeSecubRole(params.get("role"));
   const fallbackUser = centralMockUsers[role];
   const selectedProgram = getSelectedProgram();
   const selectedScope = getRoleScopedProgramSelection(role, getSelectedProgramScope());
@@ -176,12 +130,12 @@ export function getCurrentMockUser(): CentralMockUser {
 
   return {
     ...fallbackUser,
-    nombre: role === "direccionPrograma" && selectedProgram ? programRoleLabel : fallbackUser.nombre,
+    nombre: role === "director" && selectedProgram ? programRoleLabel : fallbackUser.nombre,
     email:
-      role === "direccionPrograma" && selectedProgram
-        ? `jefatura.${selectedProgram.id}@usb.edu.co`
+      role === "director" && selectedProgram
+        ? `direccion.${selectedProgram.id}@usb.edu.co`
         : fallbackUser.email,
-    cargo: role === "direccionPrograma" && selectedProgram ? programRoleLabel : fallbackUser.cargo,
+    cargo: role === "director" && selectedProgram ? programRoleLabel : fallbackUser.cargo,
     seccionalId: selectedScope.seccionalId ?? fallbackUser.seccionalId,
     facultadId: selectedScope.facultadId ?? fallbackUser.facultadId,
     programaId: selectedScope.programaId ?? fallbackUser.programaId,
@@ -203,5 +157,5 @@ export function getSeccionalFromEmail(_email: string) {
 }
 
 export function canUserSelectSeccional(user: Pick<CentralMockUser, "role">) {
-  return user.role === "admin";
+  return user.role === "administrador";
 }

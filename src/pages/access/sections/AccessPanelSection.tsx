@@ -5,7 +5,7 @@ import { LinkButton } from "../../../components/ui";
 
 
 export default function AccessPanelSection() {
-  const microsoftLoginUrl = `${ROUTES.programSelector}?role=direccionPrograma`;
+  const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#f7f7f8] px-6 py-8 sm:px-8 lg:px-10 lg:py-10 xl:px-12">

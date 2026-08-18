@@ -1,9 +1,10 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { Button } from "../../../../components/ui";
-import type { CompetenciasRaEnriched, RolePermissions } from "../CompetenciasRa.types";
+import type { CompetenciasRaEnriched } from "../CompetenciasRa.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CompetenciasRaPageActionsProps {
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filteredRecords: CompetenciasRaEnriched[];
   onCreate: () => void;
   onExport: (format: "pdf" | "excel") => void;

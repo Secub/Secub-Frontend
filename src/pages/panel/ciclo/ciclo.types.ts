@@ -1,4 +1,4 @@
-export type CicloRole = "admin" | "vice" | "decano" | "direccionPrograma" | "docente";
+import type { SecubRole } from "../../../config/access/roles";
 
 export type ProgramaEstado = "activo" | "inactivo";
 export type CicloEstado = "borrador" | "activo" | "finalizado" | "pendiente";
@@ -18,7 +18,7 @@ export interface CurrentUser {
   nombre: string;
   email?: string;
   cargo: string;
-  role: CicloRole;
+  role: SecubRole;
   scope: UserScope;
 }
 
@@ -124,16 +124,3 @@ export interface CursoElegibility {
   reason: string;
 }
 
-export interface CicloRolePermissions {
-  canReadSummary: boolean;
-  canCreateCycle: boolean;
-  canEditCycle: boolean;
-  canDeleteCycle: boolean;
-  canDuplicateCycle: boolean;
-  canConfirmSelection: boolean;
-  canFilterBySeccional: boolean;
-  canFilterByFacultad: boolean;
-  canFilterByPrograma: boolean;
-  canFilterByPeriodo: boolean;
-  canFilterByEstado: boolean;
-}

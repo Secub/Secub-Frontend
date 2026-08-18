@@ -9,9 +9,12 @@ import {
   useAcademicWorkflowProgress,
 } from "../../../components/panel/academicWorkflow";
 import { Button } from "../../../components/ui";
-import { MapeoCompetenciasAccessState } from "./components";
+import {
+  MapeoCompetenciasAccessState,
+  MapeoCompetenciasFilters,
+} from "./components";
 import MapeoCompetenciasConsolidatedSection from "./components/MapeoCompetenciasConsolidatedSection";
-import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
+import { getMapeoAccessRestrictedDescription } from "../../../config/access/permissions";
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
 import { useMapeoCompetenciasPage } from "./hooks/useMapeoCompetenciasPage";
 
@@ -44,6 +47,7 @@ export default function MapeoCompetenciasPage() {
   const {
     currentUser,
     permissions,
+    catalogs,
     hasRecords,
     filters,
     filteredRecords,
@@ -51,7 +55,10 @@ export default function MapeoCompetenciasPage() {
     selectedPlan,
     selectedRecord,
     canOpenCreate,
+    canOpenEdit,
+    setFilters,
     handleCreate,
+    handleEdit,
     handleExportExcel,
     handleDownloadpdf,
     // handleExportPdf,
@@ -95,7 +102,7 @@ export default function MapeoCompetenciasPage() {
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
           title="Módulo no disponible"
-          description={getAccessRestrictedDescription(currentUser.role)}
+          description={getMapeoAccessRestrictedDescription()}
         />
       ) : !hasRecords ? (
         <WorkflowStateCard
@@ -136,6 +143,14 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : null}
 
+          <MapeoCompetenciasFilters
+            filters={filters}
+            catalogs={catalogs}
+            permissions={permissions}
+            currentUser={currentUser}
+            onChange={setFilters}
+          />
+
           {selectedPrograma?.estado === "inactivo" || selectedPlan?.estado === "inactivo" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
               Este programa académico está inactivo. Solo puedes visualizar la información.
@@ -147,6 +162,8 @@ export default function MapeoCompetenciasPage() {
             hasRequiredFilters={Boolean(filters.programaId && filters.planId)}
             canOpenCreate={canOpenCreate}
             onCreate={handleCreate}
+            editableRecordId={canOpenEdit ? selectedRecord?.id : undefined}
+            onEdit={handleEdit}
           />
 
           {isWorkflowActive && permissions.canUpdate && filteredRecords.length > 0 ? (

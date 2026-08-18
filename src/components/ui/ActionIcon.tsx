@@ -24,6 +24,7 @@ export type ActionIconName =
   | "clock"
   | "upload"
   | "copy"
+  | "more"
   | "list"
   | "chart"
   | "info"
@@ -61,6 +62,7 @@ const boldActionIcons = new Set<ActionIconName>([
 ]);
 
 function getActionWeight(name: ActionIconName): IconWeight {
+  if (name === "more") return "regular";
   return boldActionIcons.has(name) ? "bold" : "fill";
 }
 

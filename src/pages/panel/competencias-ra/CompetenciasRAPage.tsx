@@ -14,7 +14,7 @@ import CompetenciasRaFormModal from "./components/CompetenciasRaFormModal";
 import CompetenciasRaListSection from "./components/CompetenciasRaListSection";
 import CompetenciasRaModalRA from "./components/CompetenciasRaModalRA";
 import CompetenciasRaPageActions from "./components/CompetenciasRaPageActions";
-import { canEditCompetenciasRa } from "./CompetenciasRa.permissions";
+import { canEditAcademicRecord } from "../../../config/access/permissions";
 import { INITIAL_FILTERS, MAX_RA_PER_COMPETENCIA } from "./CompetenciasRa.utils";
 import { useCompetenciasRAPage } from "./hooks/useCompetenciasRAPage";
 
@@ -160,7 +160,7 @@ export default function CompetenciasRaFormacionPage() {
       <CompetenciasRaDetailModal
         open={detailOpen}
         record={selectedRecord}
-        canEdit={Boolean(selectedRecord && canEditCompetenciasRa(currentUser.role, selectedRecord) && permissions.canUpdate)}
+        canEdit={Boolean(selectedRecord && canEditAcademicRecord("competenciasRa", currentUser.role, selectedRecord.estado) && permissions.canUpdate)}
         canDelete={Boolean(selectedRecord && permissions.canDelete)}
         onClose={() => setDetailOpen(false)}
         onSaveDescription={handleSaveCompetenciaDescription}

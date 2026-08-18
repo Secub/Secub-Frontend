@@ -45,7 +45,7 @@ export function getPendingRaCount(course: CourseMeasurement) {
 
 export function applyRoleScopeToCycles(cycles: MeasurementCycle[], user: DashboardUser) {
   return cycles.filter((cycle) => {
-    if (user.role === "admin") return true;
+    if (user.role === "administrador") return true;
     if (user.scope.seccionalId && cycle.seccionalId !== user.scope.seccionalId) return false;
     if (user.scope.facultadId && cycle.facultadId !== user.scope.facultadId) return false;
     if (user.scope.programaIds?.length && !user.scope.programaIds.includes(cycle.programaId)) {
@@ -61,7 +61,7 @@ export function applyRoleScopeToCourses(courses: CourseMeasurement[], user: Dash
       return course.teacherId === user.scope.teacherId;
     }
 
-    if (user.role === "admin") return true;
+    if (user.role === "administrador") return true;
     if (user.scope.seccionalId && course.seccionalId !== user.scope.seccionalId) return false;
     if (user.scope.facultadId && course.facultadId !== user.scope.facultadId) return false;
     if (user.scope.programaIds?.length && !user.scope.programaIds.includes(course.programaId)) {

@@ -1,3 +1,4 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -27,14 +28,13 @@ import {
 //   Catalogs,
 //   PerfilEgresoEnriched,
 //   PerfilEgresoFilters,
-//   RolePermissions,
-// } from "../perfil-egreso.types";
+//
+  // } from "../perfil-egreso.types";
 import type {
   Catalogs,
   PerfilEgresoEnriched,
   PerfilEgresoFilters,
   // PerfilEgresoExcelRow,
-  RolePermissions,
   PerfilEgresoPdfRow,
 } from "../perfil-egreso.types";
 import {
@@ -53,7 +53,7 @@ interface PerfilEgresoExportModalProps {
   open: boolean;
   title: string;
   format: "pdf" | "excel";
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   catalogs: Catalogs;
   baseRecords: PerfilEgresoEnriched[];
   initialFilters: PerfilEgresoFilters;

@@ -7,7 +7,7 @@ import MapeoCompetenciasFeedback from "./components/MapeoCompetenciasFeedback";
 import MapeoCompetenciasIraStep from "./components/MapeoCompetenciasIraStep";
 import MapeoCompetenciasNucleosStep from "./components/MapeoCompetenciasNucleosStep";
 import MapeoCompetenciasStepProgress from "./components/MapeoCompetenciasStepProgress";
-import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
+import { getMapeoAccessRestrictedDescription } from "../../../config/access/permissions";
 import { navigateToMapeoList, useMapeoCompetenciasCreatePage } from "./hooks/useMapeoCompetenciasCreatePage";
 
 import { ActionIcon } from "../../../components/ui/ActionIcon";
@@ -60,7 +60,7 @@ export default function MapeoCompetenciasCreatePage() {
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
           title="Acceso restringido"
-          description={getAccessRestrictedDescription(currentUser.role)}
+          description={getMapeoAccessRestrictedDescription()}
         />
       ) : (
         <div className="space-y-6">

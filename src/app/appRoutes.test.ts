@@ -17,6 +17,6 @@ describe("appRoutes", () => {
 
   it("construye rutas sin signos de interrogación vacíos", () => {
     expect(buildRouteWithSearch("/panel", {})).toBe("/panel");
-    expect(buildRouteWithSearch("/panel", { role: "admin" })).toBe("/panel?role=admin");
+    expect(buildRouteWithSearch("/panel", { role: "administrador" })).toBe("/panel?role=administrador");
   });
 });

@@ -140,7 +140,7 @@ function normalizeTextForScope(value?: string) {
 }
 
 export function applyUserScopeToCycles(cycles: EnrichedCycle[], user: DashboardUser) {
-  if (user.role === "admin") return cycles;
+  if (user.role === "administrador") return cycles;
 
   return cycles.filter((cycle) => {
     if (user.scope.seccionalId && cycle.seccionalId !== user.scope.seccionalId) return false;
@@ -151,7 +151,7 @@ export function applyUserScopeToCycles(cycles: EnrichedCycle[], user: DashboardU
 }
 
 export function applyUserScopeToCourses(courses: EnrichedCourse[], user: DashboardUser) {
-  if (user.role === "admin") return courses;
+  if (user.role === "administrador") return courses;
 
   if (user.role === "docente") {
     const normalizedUserName = normalizeTextForScope(user.name);

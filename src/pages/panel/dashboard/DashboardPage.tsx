@@ -114,13 +114,13 @@ export default function DashboardPage() {
                 Los filtros y las cards de progreso global del ciclo se conservan comentados
                 para poder recuperarlos fácilmente si el flujo cambia en el futuro.
 
-                Para Docencia, esa información no aporta al trabajo que debe realizar en esta
+                Para Docente, esa información no aporta al trabajo que debe realizar en esta
                 pantalla: el docente necesita consultar el avance de SUS CURSOS y entrar desde
                 cada curso a Medición RA. El seguimiento global del ciclo (estado del ciclo,
                 avance general, resultados consolidados y plan de mejora) corresponde al rol de
                 Dirección de programa.
 
-                Por ese motivo, el Estado del ciclo de Docencia muestra únicamente:
+                Por ese motivo, el Estado del ciclo del Docente muestra únicamente:
                 1. Las cuatro cards informativas de sus cursos.
                 2. Las cards de los cursos asignados con su progreso de Medición RA.
 

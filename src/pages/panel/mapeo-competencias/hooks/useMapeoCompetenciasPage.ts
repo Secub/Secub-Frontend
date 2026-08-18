@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
 
 import { mockBackend } from "../../../../services/mockBackend";
-import { canDeleteMapeo, rolePermissions } from "../MapeoCompetencias.permissions";
+import { canManageMapeo, getAcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import type {
   MapeoCompetenciasEnriched,
   MapeoCompetenciasFilters as FiltersState,
@@ -32,14 +33,14 @@ import {
 import { getExcelBranding } from "../../../../config/excelBranding";
 
 
-function buildCreatePath(role: string, programaId?: string, planId?: string) {
+function buildCreatePath(role: SecubRole, programaId?: string, planId?: string) {
   const params = new URLSearchParams({ role });
   if (programaId) params.set("programaId", programaId);
   if (planId) params.set("planId", planId);
   return buildRouteWithSearch(ROUTES.panelMapeoCompetenciasCrear, params);
 }
 
-function buildEditPath(role: string, record: MapeoCompetenciasEnriched) {
+function buildEditPath(role: SecubRole, record: MapeoCompetenciasEnriched) {
   const params = new URLSearchParams({ role, id: record.id, programaId: record.programaId, planId: record.planId });
   return buildRouteWithSearch(ROUTES.panelMapeoCompetenciasEditar, params);
 }
@@ -47,7 +48,7 @@ function buildEditPath(role: string, record: MapeoCompetenciasEnriched) {
 export function useMapeoCompetenciasPage() {
   const data = useMapeoCompetenciasData();
   const { currentUser, catalogs, cursos, competenciasRa, records } = data;
-  const permissions = rolePermissions[currentUser.role];
+  const permissions = getAcademicModulePermissions("mapeoCompetencias", currentUser.role);
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...INITIAL_FILTERS,
     seccionalId: currentUser.scope.seccionalId ?? "",
@@ -85,14 +86,14 @@ export function useMapeoCompetenciasPage() {
 
   const canOpenCreate =
     permissions.canCreate &&
-    currentUser.role === "direccionPrograma" &&
+    currentUser.role === "director" &&
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
     Boolean(filters.programaId && filters.planId) &&
     !selectedRecord;
   const canOpenEdit =
     permissions.canUpdate &&
-    currentUser.role === "direccionPrograma" &&
+    currentUser.role === "director" &&
     selectedRecord?.programaEstado === "activo" &&
     selectedRecord?.planEstado === "activo";
 
@@ -313,7 +314,7 @@ const buildExportRecords = (): ExportRecord[] => {
   const confirmDelete = () => {
     if (!recordToDelete) return;
 
-    if (!canDeleteMapeo(currentUser.role, selectedPrograma?.estado)) {
+    if (!permissions.canDelete || !canManageMapeo(currentUser.role, selectedPrograma?.estado)) {
       setRecordToDelete(null);
       return;
     }

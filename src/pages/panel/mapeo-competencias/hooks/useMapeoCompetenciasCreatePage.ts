@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
-import { canManageMapeo, rolePermissions } from "../MapeoCompetencias.permissions";
+import { canManageMapeo, getAcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import type { MapeoCompetenciasFilters as FiltersState, MapeoCompetenciasRecord } from "../MapeoCompetencias.types";
 import {
   INITIAL_FILTERS,
@@ -21,13 +22,13 @@ function readInitialFilters() {
   return { id: params.get("id") ?? "", programaId: params.get("programaId") ?? "", planId: params.get("planId") ?? "" };
 }
 
-export function navigateToMapeoList(role: string) {
+export function navigateToMapeoList(role: SecubRole) {
   navigateToRoute(buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role }));
 }
 
 export function useMapeoCompetenciasCreatePage() {
   const { currentUser, catalogs, cursos, competenciasRa, records } = useMapeoCompetenciasData();
-  const permissions = rolePermissions[currentUser.role];
+  const permissions = getAcademicModulePermissions("mapeoCompetencias", currentUser.role);
   const initial = useMemo(() => readInitialFilters(), []);
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...INITIAL_FILTERS,

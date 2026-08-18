@@ -1,7 +1,7 @@
 import { useId, useMemo, useState } from "react";
 import { navigateToRoute } from "../../../app/appRoutes";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
-import { canStartNewAcademicPlan as canRoleStartNewAcademicPlan } from "../../../services/auth/roleAccess";
+import { canStartAcademicPlan } from "../../../config/access/permissions";
 import { showNotification } from "../../../shared/feedback";
 import { SecubIcon } from "../../ui";
 import {
@@ -64,7 +64,7 @@ export default function PanelAcademicNavigation({
   const isWorkflowCompleted = !isDocente && workflowState === "completed";
   const renewalAvailability = getNewAcademicPlanRenewalAvailability(workflowProgress);
   const canStartNewAcademicPlan = renewalAvailability.isAvailable;
-  const canManageNewAcademicPlan = canRoleStartNewAcademicPlan(currentUser.role);
+  const canManageNewAcademicPlan = canStartAcademicPlan(currentUser.role);
   const newAcademicPlanLockedMessage =
     renewalAvailability.lockedMessage ??
     "El nuevo plan académico estará disponible cuando el ciclo actual cumpla 1.5 años.";

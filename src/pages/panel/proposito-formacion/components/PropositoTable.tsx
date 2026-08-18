@@ -1,3 +1,4 @@
+import type { SecubRole } from "../../../../config/access/roles";
 import {
   Badge,
   Table,
@@ -10,21 +11,18 @@ import {
   PROFILE_PURPOSE_DELETE_ACTION_CLASSNAME,
 } from "../../shared/profilePurposeTableLayout";
 import {
-  canEditProposito,
-  getEditDisabledReason,
-} from "../proposito-formacion.permissions";
+  canEditAcademicRecord,
+  getAcademicEditDisabledReason,
+  type AcademicModulePermissions,
+} from "../../../../config/access/permissions";
 import { getEstadoBadgeVariant } from "../proposito-formacion.utils";
-import type {
-  PropositoEnriched,
-  PropositoFormacionRole,
-  RolePermissions,
-} from "../proposito-formacion.types";
+import type { PropositoEnriched } from "../proposito-formacion.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PropositoTableProps {
   data: PropositoEnriched[];
-  role: PropositoFormacionRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: PropositoEnriched) => void;
   onEdit: (record: PropositoEnriched) => void;
   onDelete: (record: PropositoEnriched) => void;
@@ -116,8 +114,8 @@ export function PropositoTable({
       label: "Editar propósito de formación",
       onClick: onEdit,
       icon: <ActionIcon name="edit" />,
-      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditProposito(role, row),
-      disabledReason: (row) => getInheritedReadonlyReason(row, getEditDisabledReason(role, row)),
+      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditAcademicRecord("propositoFormacion", role, row.estado),
+      disabledReason: (row) => getInheritedReadonlyReason(row, getAcademicEditDisabledReason("propositoFormacion", role, row.estado, "Solo se permite editar propósitos asociados a programas activos.")),
       show: () => permissions.canUpdate,
     },
     {

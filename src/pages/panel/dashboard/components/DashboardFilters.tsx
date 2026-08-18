@@ -7,6 +7,7 @@ import type {
 } from "../dashboard.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
+import { getFilterPermissions } from "../../../../config/access/permissions";
 
 interface DashboardFiltersProps {
   user: DashboardUser;
@@ -37,8 +38,9 @@ export default function DashboardFilters({
   onFilterChange,
   onReset,
 }: DashboardFiltersProps) {
-  const showSeccional = user.role === "admin";
-  const showFacultad = user.role === "admin" || user.role === "vice" || user.role === "decano";
+  const filterPermissions = getFilterPermissions("dashboard", user.role);
+  const showSeccional = filterPermissions.canFilterBySeccional;
+  const showFacultad = filterPermissions.canFilterByFacultad;
 
   const scopedProgramaIds = user.scope.programaIds ?? [];
   const seccionalOptions = toOptions(catalogs.seccionales);

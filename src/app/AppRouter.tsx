@@ -39,7 +39,7 @@ export default function AppRouter() {
     if (!needsProgramSelection) return;
 
     const params = pickSearchParams(location.search, PERSISTED_DEMO_SEARCH_PARAMS);
-    params.set("role", params.get("role") ?? "direccionPrograma");
+    params.set("role", params.get("role") ?? "director");
     navigateToRoute(buildRouteWithSearch(ROUTES.programSelector, params), {
       replace: true,
     });

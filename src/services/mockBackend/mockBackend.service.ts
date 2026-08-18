@@ -5,11 +5,12 @@ import {
   resetAcademicPlanState,
 } from "./academicPlanState";
 import { DEMO_DOCENTE_SECUB, LEGACY_DEMO_DOCENTE_IDS } from "../auth/mockUser";
+import type { SecubRole } from "../../config/access/roles";
 import {
-  canWriteSecubEntity,
+  canWriteEntity,
   getWriteAccessDeniedMessage,
   type SecubWriteAction,
-} from "../auth/roleAccess";
+} from "../../config/access/permissions";
 import { MAX_RA_PER_COMPETENCIA } from "../../utils/learningResultsRules";
 import { storageClient } from "../../shared/browser";
 
@@ -52,7 +53,7 @@ export interface MockUserScope {
 
 export interface MockBackendUser {
   id: string;
-  role: string;
+  role: SecubRole;
   scope?: MockUserScope;
 }
 
@@ -108,7 +109,7 @@ function writeDatabase(database: MockBackendDatabase) {
 }
 
 function isAdminLike(user?: MockBackendUser | null) {
-  return user?.role === "admin" || user?.role === "super-admin";
+  return user?.role === "administrador";
 }
 
 function isAcademicWorkflowEntity(entityKey: MockBackendEntityKey) {
@@ -177,7 +178,7 @@ function assertAuthorizedWrite(
   action: SecubWriteAction,
   user?: MockBackendUser | null,
 ) {
-  if (!user || !canWriteSecubEntity(user.role, entityKey, action)) {
+  if (!user || !canWriteEntity(user.role, entityKey, action)) {
     throw new Error(getWriteAccessDeniedMessage(entityKey));
   }
 }

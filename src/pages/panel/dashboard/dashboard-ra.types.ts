@@ -1,4 +1,4 @@
-export type DashboardRole = "admin" | "vice" | "decano" | "direccionPrograma" | "docente";
+import type { SecubRole } from "../../../config/access/roles";
 
 export type MeasurementStatus = "pendiente" | "finalizado";
 
@@ -13,7 +13,7 @@ export interface DashboardUser {
   id: string;
   nombre: string;
   cargo: string;
-  role: DashboardRole;
+  role: SecubRole;
   scope: DashboardScope;
 }
 

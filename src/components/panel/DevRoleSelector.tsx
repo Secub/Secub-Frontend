@@ -1,13 +1,18 @@
-import { getNeutralRoleLabel, normalizeMockRole, type MockUserRole } from "../../services/auth/mockUser";
+import {
+  SECUB_ROLE_LABELS,
+  SECUB_ROLE_ORDER,
+  normalizeSecubRole,
+  type SecubRole,
+} from "../../config/access/roles";
 import { mockBackend } from "../../services/mockBackend";
 
-const devRoles: MockUserRole[] = ["admin", "vice", "decano", "direccionPrograma", "docente"];
+const devRoles = SECUB_ROLE_ORDER;
 
 export default function DevRoleSelector() {
   const params = new URLSearchParams(window.location.search);
-  const currentRole = normalizeMockRole(params.get("role") ?? "admin");
+  const currentRole = normalizeSecubRole(params.get("role") ?? "administrador");
 
-  const handleChange = (role: string) => {
+  const handleChange = (role: SecubRole) => {
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.set("role", role);
 
@@ -37,12 +42,12 @@ export default function DevRoleSelector() {
       <select
         id="dev-role-selector"
         value={currentRole}
-        onChange={(event) => handleChange(event.target.value)}
+        onChange={(event) => handleChange(normalizeSecubRole(event.target.value))}
         className="bg-transparent text-sm font-semibold text-[var(--color-secondary-4)] focus:outline-none"
       >
         {devRoles.map((role) => (
           <option key={role} value={role}>
-            {getNeutralRoleLabel(role)}
+            {SECUB_ROLE_LABELS[role]}
           </option>
         ))}
       </select>

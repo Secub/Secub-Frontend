@@ -1,3 +1,4 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -18,7 +19,6 @@ import type {
   Catalogs,
   PropositoEnriched,
   PropositoFilters,
-  RolePermissions,
   PropositoPdfRow,
 } from "../proposito-formacion.types";
 import {
@@ -37,7 +37,7 @@ interface PropositoExportModalProps {
   open: boolean;
   title: string;
   format: "pdf" | "excel";
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   catalogs: Catalogs;
   baseRecords: PropositoEnriched[];
   initialFilters: PropositoFilters;

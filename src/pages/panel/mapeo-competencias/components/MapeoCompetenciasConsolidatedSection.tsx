@@ -1,4 +1,4 @@
-import { Badge, Button } from "../../../../components/ui";
+import { Badge, Button, IconButton } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
 import type {
@@ -15,6 +15,8 @@ interface MapeoCompetenciasConsolidatedSectionProps {
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
   onCreate: () => void;
+  editableRecordId?: string;
+  onEdit?: (record: MapeoCompetenciasEnriched) => void;
   onNivelChange?: (
     recordId: string,
     cursoId: string,
@@ -28,6 +30,8 @@ export default function MapeoCompetenciasConsolidatedSection({
   hasRequiredFilters,
   canOpenCreate,
   onCreate,
+  editableRecordId,
+  onEdit,
 }: MapeoCompetenciasConsolidatedSectionProps) {
   if (!hasRequiredFilters) {
     return (
@@ -84,11 +88,20 @@ export default function MapeoCompetenciasConsolidatedSection({
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant={getEstadoBadgeVariant(record.estado)}>
                 {record.estado}
               </Badge>
 
+              {editableRecordId === record.id && onEdit ? (
+                <IconButton
+                  variant="outline"
+                  icon={<ActionIcon name="edit" />}
+                  label={`Editar mapeo de ${record.programaNombre}`}
+                  title="Editar mapeo"
+                  onClick={() => onEdit(record)}
+                />
+              ) : null}
             </div>
           </div>
 

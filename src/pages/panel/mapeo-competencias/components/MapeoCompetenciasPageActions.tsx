@@ -1,10 +1,12 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 // import { useMemo, useState, useEffect } from "react";
 import { Button, IconButton } from "../../../../components/ui";
-import type { MapeoCompetenciasEnriched, RolePermissions, MapeoCompetenciasFilters, Catalogs, CurrentUser } from "../MapeoCompetencias.types";
+import type { MapeoCompetenciasEnriched,
+  MapeoCompetenciasFilters, Catalogs, CurrentUser } from "../MapeoCompetencias.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 export interface MapeoCompetenciasPageActionsProps {
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   recordsLength: number;
   selectedRecord: MapeoCompetenciasEnriched | null;
   canOpenCreate: boolean;

@@ -1,14 +1,14 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { AcademicScopeFilters } from "../../../../features/academic-scope";
 import type {
   CurrentUser,
   PropositoEnriched,
   PropositoFilters as PropositoFiltersState,
-  RolePermissions,
-} from "../proposito-formacion.types";
+  } from "../proposito-formacion.types";
 
 interface PropositoFiltersProps {
   user: CurrentUser;
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filters: PropositoFiltersState;
   filterOptions: {
     facultades: { id: string; nombre: string }[];

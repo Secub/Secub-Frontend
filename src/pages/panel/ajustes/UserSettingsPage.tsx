@@ -1,19 +1,17 @@
 import { SecubIcon } from "../../../components/ui/SecubIcon";
 import PanelLayout from "../../../components/panel/PanelLayout";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
-import { getCurrentMockUser, getNeutralUserCargo } from "../../../services/auth/mockUser";
+import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { clearSelectedProgramId, getSelectedProgram } from "../../../services/programSelection";
-
-const normalizeSettingsLabel = (label: string) =>
-  label.replace(/Jefatura/gi, "Dirección");
+import { SECUB_ROLE_LABELS } from "../../../config/access/roles";
 
 export default function UserSettingsPage() {
   const currentUser = getCurrentMockUser();
   const selectedProgram = getSelectedProgram();
-  const displayUserName = normalizeSettingsLabel(currentUser.nombre);
-  const displayEmail = currentUser.email.replace(/jefatura/gi, "direccion");
-  const roleLabel = normalizeSettingsLabel(getNeutralUserCargo(currentUser));
-  const activeCargoLabel = normalizeSettingsLabel(currentUser.cargo);
+  const displayUserName = currentUser.nombre;
+  const displayEmail = currentUser.email;
+  const roleLabel = SECUB_ROLE_LABELS[currentUser.role];
+  const activeCargoLabel = currentUser.cargo;
 
   const handleChangeProgram = () => {
     clearSelectedProgramId();

@@ -16,6 +16,7 @@ import {
   ClockIcon,
   CopyIcon,
   DownloadSimpleIcon,
+  DotsThreeOutlineVerticalIcon,
   EnvelopeSimpleIcon,
   EyeIcon,
   FileIcon,
@@ -70,6 +71,7 @@ export type SecubIconName =
   | "clock"
   | "upload"
   | "copy"
+  | "more"
   | "list"
   | "checklist"
   | "chart"
@@ -127,6 +129,7 @@ const secubIcons: Record<SecubIconName, Icon> = {
   clock: ClockIcon,
   upload: UploadSimpleIcon,
   copy: CopyIcon,
+  more: DotsThreeOutlineVerticalIcon,
   list: ListBulletsIcon,
   checklist: ListChecksIcon,
   chart: ChartBarIcon,

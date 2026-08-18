@@ -1,12 +1,14 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import PerfilEgresoTable from "./PerfilEgresoTable";
-import type { PerfilEgresoEnriched, PerfilEgresoRole, RolePermissions } from "../perfil-egreso.types";
+import type { PerfilEgresoEnriched } from "../perfil-egreso.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface PerfilEgresoListSectionProps {
   data: PerfilEgresoEnriched[];
-  role: PerfilEgresoRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: PerfilEgresoEnriched) => void;
   onEdit: (record: PerfilEgresoEnriched) => void;
   onDelete: (record: PerfilEgresoEnriched) => void;

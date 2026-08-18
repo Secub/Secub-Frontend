@@ -1,9 +1,10 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { Button } from "../../../../components/ui";
-import type { PropositoEnriched, RolePermissions } from "../proposito-formacion.types";
+import type { PropositoEnriched } from "../proposito-formacion.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PropositoPageActionsProps {
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filteredRecords: PropositoEnriched[];
   onCreate: () => void;
   onExport: (format: "pdf" | "excel") => void;

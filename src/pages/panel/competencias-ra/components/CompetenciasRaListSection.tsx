@@ -1,19 +1,19 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import type { ChangeEvent } from "react";
 import { Button } from "../../../../components/ui";
 import CompetenciasRaCardGrid from "./CompetenciasRaCardGrid";
 import type {
   CompetenciasRaEnriched,
-  CompetenciasRaFormacionRole,
   ResultadoAprendizaje,
-  RolePermissions,
-} from "../CompetenciasRa.types";
+  } from "../CompetenciasRa.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CompetenciasRaListSectionProps {
   data: CompetenciasRaEnriched[];
-  role: CompetenciasRaFormacionRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   invalidCount: number;
   sortOrder: "asc" | "desc";
   onSortOrderChange: (value: "asc" | "desc") => void;
@@ -83,7 +83,7 @@ export default function CompetenciasRaListSection({
         onEditRa={onEditRa}
       />
       <div className="mt-4 flex flex-1 justify-center">
-        {permissions.canCreate && role === "direccionPrograma" ? (
+        {permissions.canCreate && role === "director" ? (
           <Button
             variant="primary"
             leftIcon={<ActionIcon name="add" />}

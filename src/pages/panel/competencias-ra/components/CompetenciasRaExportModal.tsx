@@ -1,3 +1,4 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -21,7 +22,6 @@ import type {
   Catalogs,
   CompetenciasRaEnriched,
   CompetenciasRaFilters,
-  RolePermissions,
   CompetenciasRaPdfRow,
 } from "../CompetenciasRa.types";
 import {
@@ -38,7 +38,7 @@ interface CompetenciasRaExportModalProps {
   open: boolean;
   title: string;
   format: "pdf" | "excel";
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   catalogs: Catalogs;
   baseRecords: CompetenciasRaEnriched[];
   initialFilters: CompetenciasRaFilters;

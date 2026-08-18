@@ -1,12 +1,14 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import PropositoTable from "./PropositoTable";
-import type { PropositoEnriched, PropositoFormacionRole, RolePermissions } from "../proposito-formacion.types";
+import type { PropositoEnriched } from "../proposito-formacion.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface PropositoListSectionProps {
   data: PropositoEnriched[];
-  role: PropositoFormacionRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: PropositoEnriched) => void;
   onEdit: (record: PropositoEnriched) => void;
   onDelete: (record: PropositoEnriched) => void;
