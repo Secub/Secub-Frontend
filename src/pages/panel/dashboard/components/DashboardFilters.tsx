@@ -1,4 +1,3 @@
-import { GoX } from "react-icons/go";
 import { Button, Select, type SelectOption } from "../../../../components/ui";
 import type {
   DashboardCatalogs,
@@ -6,6 +5,8 @@ import type {
   DashboardUser,
   EnrichedCycle,
 } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface DashboardFiltersProps {
   user: DashboardUser;
@@ -90,7 +91,7 @@ export default function DashboardFilters({
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoX className="text-lg" />}
+          leftIcon={<ActionIcon name="close" />}
           onClick={onReset}
         >
           Limpiar filtros

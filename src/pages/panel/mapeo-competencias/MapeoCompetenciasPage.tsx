@@ -1,4 +1,3 @@
-import { GoDownload, GoPlus } from "react-icons/go";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import {
   FlowActionBar,
@@ -16,6 +15,7 @@ import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions"
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
 import { useMapeoCompetenciasPage } from "./hooks/useMapeoCompetenciasPage";
 
+import { ActionIcon } from "../../../components/ui/ActionIcon";
 function getNucleoCount(records: ReturnType<typeof useMapeoCompetenciasPage>["filteredRecords"], nucleo: string) {
   return records.reduce((total, record) => {
     return total + record.semestresResumen.filter((semestre) => semestre.nucleo === nucleo).length;
@@ -67,13 +67,13 @@ export default function MapeoCompetenciasPage() {
   const exportActions = hasRecords ? (
     <>
       {permissions.canExportPdf ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleDownloadpdf}>
+        <Button variant="outline" leftIcon={<ActionIcon name="pdf" />} disabled={filteredRecords.length === 0} onClick={handleDownloadpdf}>
           Exportar PDF
         </Button>
       ) : null}
 
       {permissions.canExportExcel ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
+        <Button variant="outline" leftIcon={<ActionIcon name="excel" />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
           Exportar Excel
         </Button>
       ) : null}
@@ -130,7 +130,7 @@ export default function MapeoCompetenciasPage() {
 
           {canOpenCreate ? (
             <div className="flex flex-wrap justify-end gap-3">
-              <Button variant="primary" leftIcon={<GoPlus />} onClick={handleCreate}>
+              <Button variant="primary" leftIcon={<ActionIcon name="add" />} onClick={handleCreate}>
                 Crear mapeo
               </Button>
             </div>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { GoChevronDown, GoChevronUp, GoEye, GoPencil, GoPlus } from "react-icons/go";
 import { Badge, IconButton } from "../../../../components/ui";
 import {
   MAX_RA_PER_COMPETENCIA,
@@ -9,6 +8,8 @@ import {
   getLearningResultsValidationMessage,
 } from "../CompetenciasRa.utils";
 import type { CompetenciasRaEnriched, ResultadoAprendizaje } from "../CompetenciasRa.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CompetenciasRaCardProps {
   record: CompetenciasRaEnriched;
@@ -64,7 +65,7 @@ export default function CompetenciasRaCard({
           onClick={() => onView(record)}
           variant="ghost"
           label={`${canEdit ? "Editar" : "Ver detalle de"} la competencia ${record.nombre}`}
-          icon={canEdit ? <GoPencil /> : <GoEye />}
+          icon={canEdit ? <ActionIcon name="edit" /> : <ActionIcon name="view" />}
         />
       </div>
 
@@ -90,7 +91,7 @@ export default function CompetenciasRaCard({
         <button
           type="button"
           onClick={() => setExpandedRAs(!expandedRAs)}
-          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary-1)] focus:ring-offset-2"
+          className="group flex w-full items-center justify-between gap-4 rounded-2xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary-1)] focus:ring-offset-2"
           aria-expanded={expandedRAs}
         >
           <span>
@@ -101,8 +102,8 @@ export default function CompetenciasRaCard({
               {getLearningResultsCountLabel(record)}
             </span>
           </span>
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)]/5 text-[var(--color-secondary-1)]">
-            {expandedRAs ? <GoChevronUp aria-hidden="true" /> : <GoChevronDown aria-hidden="true" />}
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-[var(--color-gray-4)] transition-colors group-hover:text-[var(--color-secondary-1)] group-focus-visible:text-[var(--color-secondary-1)]">
+            {expandedRAs ? <ActionIcon name="chevron-up" size="sm" /> : <ActionIcon name="chevron-down" size="sm" />}
           </span>
         </button>
 
@@ -127,7 +128,7 @@ export default function CompetenciasRaCard({
               {canEdit ? (
                 <IconButton
                   variant="outline"
-                  icon={<GoPlus />}
+                  icon={<ActionIcon name="add" />}
                   label={`Agregar Resultado de Aprendizaje a ${record.nombre}`}
                   title={
                     canAddMoreRa
@@ -162,7 +163,7 @@ export default function CompetenciasRaCard({
                     {canEdit ? (
                       <IconButton
                         variant="outline"
-                        icon={<GoPencil />}
+                        icon={<ActionIcon name="edit" />}
                         label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
                         onClick={() => onEditRa(record, ra)}
                       />

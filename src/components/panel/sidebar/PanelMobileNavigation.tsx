@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { FiMenu as Menu, FiX as X } from "react-icons/fi";
+import { IconButton, SecubIcon } from "../../ui";
 import type { PanelStepKey } from "../panelNavigation";
 import PanelSidebar from "../PanelSidebar";
 
@@ -82,7 +82,7 @@ export default function PanelMobileNavigation({ currentStep }: PanelMobileNaviga
           aria-haspopup="dialog"
           aria-expanded={open}
         >
-          <Menu aria-hidden="true" className="h-5 w-5" />
+          <SecubIcon name="list" size={20} weight="regular" />
           Menú
         </button>
       </header>
@@ -103,14 +103,14 @@ export default function PanelMobileNavigation({ currentStep }: PanelMobileNaviga
                 aria-label="Navegación del panel"
                 className="relative z-10 h-screen w-[min(88vw,360px)] shadow-[0_24px_80px_rgba(24,34,51,0.3)]"
               >
-                <button
-                  type="button"
+                <IconButton
+                  icon={<SecubIcon name="close" size={20} weight="regular" />}
+                  label="Cerrar menú"
+                  variant="inverse"
+                  size="sm"
+                  className="absolute right-3 top-3 z-30"
                   onClick={() => setOpen(false)}
-                  className="absolute right-3 top-3 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[var(--color-footer-dark)] text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-white/30"
-                  aria-label="Cerrar menú"
-                >
-                  <X aria-hidden="true" className="h-5 w-5" />
-                </button>
+                />
                 <PanelSidebar
                   currentStep={currentStep}
                   variant="mobile"

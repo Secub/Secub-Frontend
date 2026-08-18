@@ -1,6 +1,6 @@
-import { FiBarChart2 as BarChart3 } from "react-icons/fi";
 import { navigateToRoute } from "../../app/appRoutes";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
+import { SecubIcon } from "../ui";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import SidebarUserProfileMenu from "./SidebarUserProfileMenu";
 import PanelAcademicNavigation from "./sidebar/PanelAcademicNavigation";
@@ -88,7 +88,7 @@ export default function PanelSidebar({
                       : "text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
                   ].join(" ")}
                 >
-                  <BarChart3 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <SecubIcon name={dashboardItem.icon} size={22} weight="bold" />
                   <span className="truncate">Estado del ciclo</span>
                 </button>
               </li>

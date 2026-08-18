@@ -1,4 +1,3 @@
-import { GoChevronRight, GoMail, GoEye } from "react-icons/go";
 import {
   Badge,
   Button,
@@ -7,6 +6,8 @@ import {
   type TableColumn,
 } from "../../../../components/ui";
 import type { EnrichedCourse } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CoursesMeasurementTableProps {
   title?: string;
@@ -137,7 +138,7 @@ export default function CoursesMeasurementTable({
             <Button
               variant="outline"
               size="sm"
-              rightIcon={<GoChevronRight className="text-base" />}
+              rightIcon={<ActionIcon name="chevron-right" size="sm" />}
               onClick={() => onMeasureCourse?.(course)}
               className="w-full max-w-[130px] px-3 text-center leading-tight"
             >
@@ -231,21 +232,21 @@ export default function CoursesMeasurementTable({
       key: "actions",
       title: "Acciones",
       render: (course) => (
-        <div className="mx-auto flex w-fit flex-col items-center justify-center gap-2">
+        <div className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5">
           {course.status === "pendiente" ? (
             <IconButton
               variant="outline"
               size="sm"
-              icon={<GoMail />}
+              icon={<ActionIcon name="email" />}
               label={`Enviar correo a ${course.teacherName}`}
               onClick={() => sendEmail(course)}
             />
           ) : null}
 
           <IconButton
-            variant="primary_soft"
+            variant="outline"
             size="sm"
-            icon={<GoEye />}
+            icon={<ActionIcon name="view" />}
             label={`Ver detalle del curso ${course.name}`}
             onClick={() => onViewResults(course)}
             disabled={course.results.length === 0}

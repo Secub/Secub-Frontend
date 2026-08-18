@@ -1,7 +1,9 @@
-import { GoChecklist, GoDownload, GoInfo } from "react-icons/go";
 import { Badge, Button, Table, type TableColumn } from "../../../../components/ui";
 import type { RaResultSummary } from "../dashboard-ra.types";
 import RaSimpleBarChart from "./RaSimpleBarChart";
+
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface ResultsMeasurementSectionProps {
   title?: string;
@@ -43,7 +45,7 @@ export default function ResultsMeasurementSection({
         >
           {row.competenceCode} · {row.raCode}
           <span className="ml-2 inline-flex align-middle text-[var(--color-gray-4)]">
-            <GoInfo aria-hidden="true" />
+            <ActionIcon name="info" size="sm" />
           </span>
         </button>
       ),
@@ -79,7 +81,7 @@ export default function ResultsMeasurementSection({
           <Button
             variant="outline"
             size="sm"
-            leftIcon={<GoDownload className="text-lg" />}
+            leftIcon={<ActionIcon name="download" />}
             onClick={() => onDownload(row.instrumentFile)}
           >
             Instrumento
@@ -87,7 +89,7 @@ export default function ResultsMeasurementSection({
           <Button
             variant="outline"
             size="sm"
-            leftIcon={<GoDownload className="text-lg" />}
+            leftIcon={<ActionIcon name="download" />}
             onClick={() => onDownload(row.evidenceFile)}
           >
             Evidencias
@@ -95,7 +97,7 @@ export default function ResultsMeasurementSection({
           <Button
             variant={row.status === "no-aprobado" ? "primary_soft" : "outline"}
             size="sm"
-            leftIcon={<GoChecklist className="text-lg" />}
+            leftIcon={<ActionIcon name="list" />}
             disabled={row.status === "aprobado"}
             title={
               row.status === "aprobado"

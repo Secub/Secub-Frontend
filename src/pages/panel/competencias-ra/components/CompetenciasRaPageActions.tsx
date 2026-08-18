@@ -1,7 +1,7 @@
-import { GoDownload, GoFile, GoPlus } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import type { CompetenciasRaEnriched, RolePermissions } from "../CompetenciasRa.types";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CompetenciasRaPageActionsProps {
   permissions: RolePermissions;
   filteredRecords: CompetenciasRaEnriched[];
@@ -22,7 +22,7 @@ export default function CompetenciasRaPageActions({
       {permissions.canCreate ? (
         <Button
           variant="primary"
-          leftIcon={<GoPlus className="text-lg" />}
+          leftIcon={<ActionIcon name="add" />}
           onClick={onCreate}
           title="Crear una nueva competencia"
         >
@@ -33,7 +33,7 @@ export default function CompetenciasRaPageActions({
       {permissions.canExportPdf ? (
         <Button
           variant="outline"
-          leftIcon={<GoFile className="text-lg" />}
+          leftIcon={<ActionIcon name="pdf" />}
           onClick={() => onExport("pdf")}
           disabled={!hasRecords}
           title={hasRecords ? "Exportar resultados filtrados en PDF" : "No hay registros para exportar."}
@@ -45,7 +45,7 @@ export default function CompetenciasRaPageActions({
       {permissions.canExportExcel ? (
         <Button
           variant="outline"
-          leftIcon={<GoDownload className="text-lg" />}
+          leftIcon={<ActionIcon name="excel" />}
           onClick={() => onExport("excel")}
           disabled={!hasRecords}
           title={hasRecords ? "Exportar resultados filtrados en Excel" : "No hay registros para exportar."}

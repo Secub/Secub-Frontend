@@ -1,6 +1,7 @@
-import { GoEye } from "react-icons/go";
 import PropositoTable from "./PropositoTable";
 import type { PropositoEnriched, PropositoFormacionRole, RolePermissions } from "../proposito-formacion.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface PropositoListSectionProps {
   data: PropositoEnriched[];
@@ -32,7 +33,7 @@ export default function PropositoListSection({
         </div>
 
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-          <GoEye className="text-base text-[var(--color-secondary-1)]" />
+          <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
           La actualización solo se habilita sobre programas activos.
         </div>
       </div>

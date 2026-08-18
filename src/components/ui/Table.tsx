@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { IconButton } from "./IconButton";
 
 export interface TableColumn<T> {
   key: string;
@@ -16,7 +17,15 @@ export interface TableAction<T> {
   show?: (row: T) => boolean;
   disabled?: (row: T) => boolean;
   disabledReason?: (row: T) => string;
-  variant?: "default" | "danger";
+  variant?: "default" | "danger" | "danger-hover";
+  className?: string;
+}
+
+export interface TableActionsLayout {
+  columnWidthClassName?: string;
+  horizontalPaddingClassName?: string;
+  alignment?: "left" | "center" | "right";
+  groupClassName?: string;
 }
 
 interface TableProps<T> {
@@ -24,21 +33,33 @@ interface TableProps<T> {
   data: T[];
   rowKey: (row: T, index: number) => string;
   actions?: TableAction<T>[];
+  actionsLayout?: TableActionsLayout;
   emptyMessage?: string;
   caption?: string;
   ariaLabel?: string;
 }
+
+const actionAlignmentClasses: Record<NonNullable<TableActionsLayout["alignment"]>, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+};
 
 export function Table<T>({
   columns,
   data,
   rowKey,
   actions = [],
+  actionsLayout,
   emptyMessage = "No hay datos disponibles.",
   caption,
   ariaLabel,
 }: TableProps<T>) {
   const hasActions = actions.length > 0;
+  const actionsColumnWidthClassName = actionsLayout?.columnWidthClassName ?? "w-[110px]";
+  const actionsHorizontalPaddingClassName = actionsLayout?.horizontalPaddingClassName ?? "px-5";
+  const actionsAlignmentClassName = actionAlignmentClasses[actionsLayout?.alignment ?? "left"];
+  const actionsGroupClassName = actionsLayout?.groupClassName ?? "gap-2";
 
   return (
     <div className="overflow-hidden rounded-[20px] border border-[var(--secub-border)] bg-[var(--secub-surface)] shadow-sm">
@@ -61,7 +82,15 @@ export function Table<T>({
               ))}
 
               {hasActions ? (
-                <th scope="col" className="w-[110px] border-b border-[var(--secub-border)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]">
+                <th
+                  scope="col"
+                  className={[
+                    actionsColumnWidthClassName,
+                    actionsHorizontalPaddingClassName,
+                    actionsAlignmentClassName,
+                    "border-b border-[var(--secub-border)] py-4 text-sm font-semibold text-[var(--color-secondary-4)]",
+                  ].join(" ")}
+                >
                   Acciones
                 </th>
               ) : null}
@@ -94,8 +123,14 @@ export function Table<T>({
                   ))}
 
                   {hasActions ? (
-                    <td className="w-[110px] border-b border-[var(--secub-border)] px-5 py-4 align-middle">
-                      <div className="flex items-center gap-2">
+                    <td
+                      className={[
+                        actionsColumnWidthClassName,
+                        actionsHorizontalPaddingClassName,
+                        "border-b border-[var(--secub-border)] py-4 align-middle",
+                      ].join(" ")}
+                    >
+                      <div className={["flex items-center", actionsGroupClassName].join(" ")}>
                         {actions.map((action) => {
                           const isVisible = action.show ? action.show(row) : true;
 
@@ -109,33 +144,44 @@ export function Table<T>({
                             ? action.disabledReason?.(row) ?? action.label
                             : action.label;
 
+                          if (action.icon) {
+                            const iconVariant =
+                              action.variant === "danger"
+                                ? "danger"
+                                : action.variant === "danger-hover"
+                                  ? "danger_hover"
+                                  : "outline";
+
+                            return (
+                              <IconButton
+                                key={action.key}
+                                icon={action.icon}
+                                label={action.label}
+                                title={title}
+                                variant={iconVariant}
+                                disabled={isDisabled}
+                                className={action.className}
+                                onClick={() => action.onClick(row)}
+                              />
+                            );
+                          }
+
                           return (
                             <button
                               key={action.key}
                               type="button"
                               onClick={() => {
-                                if (!isDisabled) {
-                                  action.onClick(row);
-                                }
+                                if (!isDisabled) action.onClick(row);
                               }}
                               disabled={isDisabled}
                               className={[
-                                "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
-                                "disabled:cursor-not-allowed disabled:opacity-45",
-                                action.variant === "danger"
-                                  ? "text-[var(--color-error)] hover:bg-[color:rgba(235,87,87,0.10)]"
-                                  : "text-[var(--color-gray-4)] hover:bg-[var(--color-surface-soft)]",
+                                "text-xs font-medium text-[var(--color-gray-4)] transition-colors hover:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45",
+                                action.className ?? "",
                               ].join(" ")}
                               aria-label={title}
                               title={title}
                             >
-                              {action.icon ? (
-                                <span aria-hidden="true">{action.icon}</span>
-                              ) : (
-                                <span className="text-xs font-medium">
-                                  {action.label}
-                                </span>
-                              )}
+                              {action.label}
                             </button>
                           );
                         })}

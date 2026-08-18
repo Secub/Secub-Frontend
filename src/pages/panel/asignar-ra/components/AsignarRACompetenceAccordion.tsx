@@ -1,4 +1,4 @@
-import { GoLock } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../components/ui";
 import type {
   AsignacionRaRecord,
@@ -109,7 +109,7 @@ export function AsignarRACompetenceAccordion({
                     <Badge variant={selected ? "info" : "neutral"}>{getRaLabel(ra, raIndex)}</Badge>
                     {selected ? <Badge variant="success">Asignado</Badge> : null}
                     {isMeasured ? <Badge variant="success">Medido</Badge> : <Badge variant="warning">Pendiente</Badge>}
-                    {isMeasured ? <GoLock aria-hidden="true" className="text-sm text-[var(--color-gray-4)]" /> : null}
+                    {isMeasured ? <SecubIcon name="lock" weight="fill" aria-hidden="true" className="text-sm text-[var(--color-gray-4)]" /> : null}
                   </span>
                   <span className="mt-2 block text-sm leading-6 text-[var(--color-gray-3)]">
                     {ra.descripcion ?? "Sin descripción registrada."}

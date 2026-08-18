@@ -1,4 +1,3 @@
-import { GoGraph } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import type {
   CompetenceOption,
@@ -6,6 +5,8 @@ import type {
   LearningResultOption,
 } from "../dashboard-ra.types";
 import { canViewMeasurementResult } from "../dashboard-ra.utils";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface MonitoringSectionProps {
   competences: CompetenceOption[];
@@ -97,7 +98,7 @@ export default function MonitoringSection({
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      leftIcon={<GoGraph className="text-lg" />}
+                                      leftIcon={<ActionIcon name="chart" />}
                                       disabled={!resultEnabled}
                                       title={
                                         resultEnabled

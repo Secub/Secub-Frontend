@@ -1,4 +1,3 @@
-import { GoArrowLeft } from "react-icons/go";
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
 import { PanelLayout } from "../../../components/panel";
 import { Button, ConfirmDialog } from "../../../components/ui";
@@ -11,6 +10,7 @@ import MapeoCompetenciasStepProgress from "./components/MapeoCompetenciasStepPro
 import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
 import { navigateToMapeoList, useMapeoCompetenciasCreatePage } from "./hooks/useMapeoCompetenciasCreatePage";
 
+import { ActionIcon } from "../../../components/ui/ActionIcon";
 export default function MapeoCompetenciasCreatePage() {
   const page = useMapeoCompetenciasCreatePage();
   const {
@@ -50,7 +50,7 @@ export default function MapeoCompetenciasCreatePage() {
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoArrowLeft className="text-lg" />}
+          leftIcon={<ActionIcon name="back" />}
           onClick={handleGoBack}
         >
           Volver a Mapeo de Competencias

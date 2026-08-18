@@ -1,5 +1,5 @@
-import { GoArrowRight, GoCheckCircle, GoClock, GoGoal } from "react-icons/go";
-import { Badge, InformativeProgressBar } from "../../../../components/ui";
+import { Badge, InformativeProgressBar, SecubIcon } from "../../../../components/ui";
+import type { SecubIconName } from "../../../../components/ui";
 import type { CourseMeasurementSummary, CourseRecord } from "../../medicion-ra/medicion-ra.types";
 
 interface TeacherCourseMeasurementCardsProps {
@@ -12,23 +12,23 @@ const statusConfig: Record<
   CourseMeasurementSummary["status"],
   {
     badgeVariant: "neutral" | "info" | "success";
-    icon: typeof GoClock;
+    icon: SecubIconName;
     helper: string;
   }
 > = {
   pending: {
     badgeVariant: "neutral",
-    icon: GoClock,
+    icon: "clock",
     helper: "Sin avances registrados",
   },
   "in-progress": {
     badgeVariant: "info",
-    icon: GoGoal,
+    icon: "target",
     helper: "Medición iniciada",
   },
   completed: {
     badgeVariant: "success",
-    icon: GoCheckCircle,
+    icon: "complete",
     helper: "Curso listo o finalizado",
   },
 };
@@ -88,7 +88,6 @@ export default function TeacherCourseMeasurementCards({
         {courses.map((course) => {
           const summary = getSummaryForCourse(course.id, courseSummaries);
           const config = statusConfig[summary.status];
-          const StatusIcon = config.icon;
 
           return (
             <button
@@ -122,7 +121,7 @@ export default function TeacherCourseMeasurementCards({
                   ].join(" ")}
                   aria-hidden="true"
                 >
-                  <StatusIcon />
+                  <SecubIcon name={config.icon} size={20} weight="fill" />
                 </span>
               </div>
 
@@ -143,7 +142,7 @@ export default function TeacherCourseMeasurementCards({
 
               <span className="mt-4 inline-flex items-center gap-2 font-heading text-sm font-semibold text-[var(--color-primary)]">
                 {summary.isLocked ? "Consultar medición" : "Ir a Medición RA"}
-                <GoArrowRight aria-hidden="true" className="text-base" />
+                <SecubIcon name="next" weight="bold" aria-hidden="true" className="text-base" />
               </span>
             </button>
           );

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { GoArrowRight, GoCheckCircle, GoClock } from "react-icons/go";
 import { Button } from "../ui";
 import type { ButtonVariant } from "../ui/Button";
+
+import { ActionIcon } from "../ui/ActionIcon";
 
 interface FlowActionBarAction {
   label: string;
@@ -170,7 +171,7 @@ export default function FlowActionBar({
             {shouldShowSave ? (
               <Button
                 variant="outline"
-                leftIcon={<GoClock className="text-lg" />}
+                leftIcon={<ActionIcon name="clock" />}
                 onClick={onSaveProgress}
                 disabled={saveDisabled}
                 title={saveTitle}
@@ -183,7 +184,7 @@ export default function FlowActionBar({
             {shouldShowNext ? (
               <Button
                 variant="primary"
-                leftIcon={<GoArrowRight className="text-lg" />}
+                leftIcon={<ActionIcon name="next" />}
                 onClick={onNext}
                 disabled={nextDisabled}
                 title={nextTitle}
@@ -196,7 +197,7 @@ export default function FlowActionBar({
             {shouldShowFinish ? (
               <Button
                 variant="primary"
-                leftIcon={<GoCheckCircle className="text-lg" />}
+                leftIcon={<ActionIcon name="complete" />}
                 onClick={onFinish}
                 disabled={finishDisabled}
                 title={finishTitle}

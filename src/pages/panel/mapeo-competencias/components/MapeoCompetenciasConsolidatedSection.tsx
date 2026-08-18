@@ -1,4 +1,3 @@
-import { GoPlus } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
@@ -9,6 +8,7 @@ import type {
 } from "../MapeoCompetencias.types";
 import { formatDate, getEstadoBadgeVariant } from "../MapeoCompetencias.utils";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface MapeoCompetenciasConsolidatedSectionProps {
   records: MapeoCompetenciasEnriched[];
   competenciasRa?: CompetenciaRaDemoRecord[];
@@ -52,7 +52,7 @@ export default function MapeoCompetenciasConsolidatedSection({
 
         {canOpenCreate ? (
           <div className="mt-5">
-            <Button leftIcon={<GoPlus />} onClick={onCreate}>
+            <Button leftIcon={<ActionIcon name="add" />} onClick={onCreate}>
               Crear mapeo
             </Button>
           </div>

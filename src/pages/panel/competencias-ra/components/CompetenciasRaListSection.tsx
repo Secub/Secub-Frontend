@@ -1,5 +1,4 @@
 import type { ChangeEvent } from "react";
-import { GoEye, GoPlus } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import CompetenciasRaCardGrid from "./CompetenciasRaCardGrid";
 import type {
@@ -8,6 +7,8 @@ import type {
   ResultadoAprendizaje,
   RolePermissions,
 } from "../CompetenciasRa.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CompetenciasRaListSectionProps {
   data: CompetenciasRaEnriched[];
@@ -45,7 +46,7 @@ export default function CompetenciasRaListSection({
             Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados. Expande para ver los detalles de cada resultado.
           </p>
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-            <GoEye className="text-base text-[var(--color-secondary-1)]" />
+            <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
             La edición solo se habilita sobre programas activos.
           </div>
         </div>
@@ -85,7 +86,7 @@ export default function CompetenciasRaListSection({
         {permissions.canCreate && role === "direccionPrograma" ? (
           <Button
             variant="primary"
-            leftIcon={<GoPlus className="text-lg" />}
+            leftIcon={<ActionIcon name="add" />}
             onClick={onCreate}
             title="Crear una nueva competencia"
           >

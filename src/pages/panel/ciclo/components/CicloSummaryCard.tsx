@@ -1,11 +1,4 @@
-import {
-  GoCalendar,
-  GoEye,
-  GoCopy,
-  GoPencil,
-  GoTrash,
-  GoVerified,
-} from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge, Button, IconButton } from "../../../../components/ui";
 import type { CicloEnriched, CurrentUser } from "../ciclo.types";
 import {
@@ -16,6 +9,8 @@ import {
   getDuplicateCycleDisabledReason,
 } from "../ciclo.permissions";
 import { formatCicloTitle, formatDate, formatDateTime, getNivelCompromisoLabel } from "../ciclo.utils";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CicloSummaryCardProps {
   ciclo: CicloEnriched;
@@ -83,7 +78,7 @@ export default function CicloSummaryCard({
           {permissions.canEditCycle ? (
             <IconButton
               variant="outline"
-              icon={<GoPencil />}
+              icon={<ActionIcon name="edit" />}
               label={`Editar ciclo ${formatCicloTitle(ciclo)}`}
               onClick={() => onEdit(ciclo)}
               disabled={!canEdit}
@@ -93,7 +88,7 @@ export default function CicloSummaryCard({
 
           <IconButton
             variant="outline"
-            icon={<GoEye />}
+            icon={<ActionIcon name="view" />}
             label={`Ver detalle del ciclo ${formatCicloTitle(ciclo)}`}
             onClick={() => onView(ciclo)}
           />
@@ -102,7 +97,7 @@ export default function CicloSummaryCard({
             <Button
               variant="outline"
               size="sm"
-              leftIcon={<GoCopy className="text-lg" />}
+              leftIcon={<ActionIcon name="copy" />}
               onClick={() => onDuplicate(ciclo)}
               disabled={!canDuplicate}
               title={
@@ -123,7 +118,7 @@ export default function CicloSummaryCard({
           {permissions.canDeleteCycle ? (
             <IconButton
               variant="danger"
-              icon={<GoTrash />}
+              icon={<ActionIcon name="delete" />}
               label={`Eliminar ciclo ${formatCicloTitle(ciclo)}`}
               onClick={() => onDelete(ciclo)}
               disabled={!canEdit}
@@ -164,7 +159,7 @@ export default function CicloSummaryCard({
             Selección de cursos {ciclo.periodo}
           </h4>
           <span className="inline-flex items-center gap-2 text-xs font-medium text-[var(--color-gray-4)]">
-            <GoCalendar className="text-base text-[var(--color-secondary-1)]" />
+            <SecubIcon name="calendar" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
             Última actualización: {formatDateTime(ciclo.updatedAt)}
           </span>
         </div>
@@ -203,7 +198,7 @@ export default function CicloSummaryCard({
 
       <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-[var(--color-gray-3)]">
         <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-surface-soft)] px-4 py-2">
-          <GoVerified className="text-base text-[var(--color-secondary-1)]" />
+          <SecubIcon name="verified" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
           Responsable: {ciclo.responsableNombre}
         </span>
         <span className="rounded-full bg-[var(--color-surface-soft)] px-4 py-2">

@@ -1,8 +1,9 @@
-import { GoArrowLeft } from "react-icons/go";
 import PanelLayout from "../../../components/panel/PanelLayout";
 import AccessibilitySettingsPanel from "../../../accessibility/AccessibilitySettingsPanel";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
 import { Button } from "../../../components/ui";
+
+import { ActionIcon } from "../../../components/ui/ActionIcon";
 
 export default function AccessibilitySettingsPage() {
   return (
@@ -19,7 +20,7 @@ export default function AccessibilitySettingsPage() {
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoArrowLeft className="text-lg" />}
+          leftIcon={<ActionIcon name="back" />}
           onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
         >
           Volver a Ajustes de usuario

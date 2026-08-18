@@ -1,7 +1,7 @@
-import { GoDownload, GoFile, GoPlus } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import type { PerfilEgresoEnriched, RolePermissions } from "../perfil-egreso.types";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PerfilEgresoPageActionsProps {
   permissions: RolePermissions;
   filteredRecords: PerfilEgresoEnriched[];
@@ -22,7 +22,7 @@ export default function PerfilEgresoPageActions({
       {permissions.canCreate ? (
         <Button
           variant="primary"
-          leftIcon={<GoPlus className="text-lg" />}
+          leftIcon={<ActionIcon name="add" />}
           onClick={onCreate}
           title="Crear un nuevo perfil de egreso"
         >
@@ -33,7 +33,7 @@ export default function PerfilEgresoPageActions({
       {permissions.canExportPdf ? (
         <Button
           variant="outline"
-          leftIcon={<GoFile className="text-lg" />}
+          leftIcon={<ActionIcon name="pdf" />}
           onClick={() => onExport("pdf")}
           disabled={!hasRecords}
           title={hasRecords ? "Exportar resultados filtrados en PDF" : "No hay registros para exportar."}
@@ -45,7 +45,7 @@ export default function PerfilEgresoPageActions({
       {permissions.canExportExcel ? (
         <Button
           variant="outline"
-          leftIcon={<GoDownload className="text-lg" />}
+          leftIcon={<ActionIcon name="excel" />}
           onClick={() => onExport("excel")}
           disabled={!hasRecords}
           title={hasRecords ? "Exportar resultados filtrados en Excel" : "No hay registros para exportar."}

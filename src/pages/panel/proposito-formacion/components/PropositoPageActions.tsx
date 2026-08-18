@@ -1,7 +1,7 @@
-import { GoDownload, GoFile, GoPlus } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import type { PropositoEnriched, RolePermissions } from "../proposito-formacion.types";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PropositoPageActionsProps {
   permissions: RolePermissions;
   filteredRecords: PropositoEnriched[];
@@ -22,7 +22,7 @@ export default function PropositoPageActions({
       {permissions.canCreate ? (
         <Button
           variant="primary"
-          leftIcon={<GoPlus className="text-lg" />}
+          leftIcon={<ActionIcon name="add" />}
           onClick={onCreate}
           title="Crear un nuevo propósito de formación"
         >
@@ -33,7 +33,7 @@ export default function PropositoPageActions({
       {permissions.canExportPdf ? (
         <Button
           variant="outline"
-          leftIcon={<GoFile className="text-lg" />}
+          leftIcon={<ActionIcon name="pdf" />}
           onClick={() => onExport("pdf")}
           disabled={!hasRecords}
           title={hasRecords ? "Exportar resultados filtrados en PDF" : "No hay registros para exportar."}
@@ -45,7 +45,7 @@ export default function PropositoPageActions({
       {permissions.canExportExcel ? (
         <Button
           variant="outline"
-          leftIcon={<GoDownload className="text-lg" />}
+          leftIcon={<ActionIcon name="excel" />}
           onClick={() => onExport("excel")}
           disabled={!hasRecords}
           title={hasRecords ? "Exportar resultados filtrados en Excel" : "No hay registros para exportar."}

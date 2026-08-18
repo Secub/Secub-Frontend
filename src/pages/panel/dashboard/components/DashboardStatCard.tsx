@@ -1,10 +1,10 @@
-import type { IconType } from "react-icons";
+import { SecubIcon, type SecubIconName } from "../../../../components/ui";
 
 interface DashboardStatCardProps {
   label: string;
   value: string | number;
   helper: string;
-  icon: IconType;
+  icon: SecubIconName;
   tone?: "info" | "success" | "warning" | "danger" | "accent";
 }
 
@@ -20,14 +20,14 @@ export default function DashboardStatCard({
   label,
   value,
   helper,
-  icon: Icon,
+  icon,
   tone = "info",
 }: DashboardStatCardProps) {
   return (
     <article className="surface-card p-5">
       <div className="flex items-start justify-between gap-4">
         <span className={["flex h-12 w-12 items-center justify-center rounded-2xl", toneStyles[tone]].join(" ")}>
-          <Icon className="text-xl" />
+          <SecubIcon name={icon} weight="fill" size={20} />
         </span>
       </div>
 

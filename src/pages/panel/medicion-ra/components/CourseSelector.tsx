@@ -1,5 +1,5 @@
-import { GoCheckCircle, GoClock, GoGoal } from "react-icons/go";
-import { Badge, InformativeProgressBar } from "../../../../components/ui";
+import { Badge, InformativeProgressBar, SecubIcon } from "../../../../components/ui";
+import type { SecubIconName } from "../../../../components/ui";
 import type { CourseMeasurementSummary, CourseRecord } from "../medicion-ra.types";
 
 interface CourseSelectorProps {
@@ -13,23 +13,23 @@ const statusConfig: Record<
   CourseMeasurementSummary["status"],
   {
     badgeVariant: "neutral" | "info" | "success";
-    icon: typeof GoClock;
+    icon: SecubIconName;
     helper: string;
   }
 > = {
   pending: {
     badgeVariant: "neutral",
-    icon: GoClock,
+    icon: "clock",
     helper: "Sin avances registrados",
   },
   "in-progress": {
     badgeVariant: "info",
-    icon: GoGoal,
+    icon: "target",
     helper: "Medición iniciada",
   },
   completed: {
     badgeVariant: "success",
-    icon: GoCheckCircle,
+    icon: "complete",
     helper: "Curso listo o finalizado",
   },
 };
@@ -86,7 +86,6 @@ export default function CourseSelector({
           const summary = getSummaryForCourse(course.id, courseSummaries);
           const isActive = course.id === selectedCourseId;
           const config = statusConfig[summary.status];
-          const StatusIcon = config.icon;
 
           return (
             <button
@@ -124,7 +123,7 @@ export default function CourseSelector({
                   ].join(" ")}
                   aria-hidden="true"
                 >
-                  <StatusIcon />
+                  <SecubIcon name={config.icon} size={20} weight="fill" />
                 </span>
               </div>
 

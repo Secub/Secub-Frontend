@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { GoPencil, GoTrash } from "react-icons/go";
 import { Badge, Button, IconButton, Modal, Textarea } from "../../../../components/ui";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
 import {
@@ -9,6 +8,8 @@ import {
   getLearningResultsValidationMessage,
 } from "../CompetenciasRa.utils";
 import type { CompetenciasRaEnriched, ResultadoAprendizaje } from "../CompetenciasRa.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CompetenciasRaDetailModalProps {
   open: boolean;
@@ -192,7 +193,7 @@ export function CompetenciasRaDetailModal({
                 {canEdit ? (
                   <IconButton
                     variant="outline"
-                    icon={<GoPencil />}
+                    icon={<ActionIcon name="edit" />}
                     label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
                     onClick={() => onEditRa(record, ra)}
                   />
@@ -219,7 +220,7 @@ export function CompetenciasRaDetailModal({
         <div className="mt-8 flex justify-end">
           <IconButton
             variant="danger"
-            icon={<GoTrash />}
+            icon={<ActionIcon name="delete" />}
             label={`Eliminar competencia ${record.nombre}`}
             onClick={() => onDelete(record)}
           />

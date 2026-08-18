@@ -1,7 +1,9 @@
-import { GoCheck, GoProject } from "react-icons/go";
+import { SecubIcon } from "../../../../../components/ui/SecubIcon";
 import { Button } from "../../../../../components/ui";
 import type { CicloEnriched } from "../../ciclo.types";
 import { formatDate } from "../../ciclo.utils";
+
+import { ActionIcon } from "../../../../../components/ui/ActionIcon";
 
 interface CicloFormFooterProps {
   record?: CicloEnriched | null;
@@ -25,7 +27,7 @@ export default function CicloFormFooter({
       <div className="grid gap-3 border-b border-[var(--color-gray-6)] pb-4 text-sm text-[var(--color-gray-3)] md:grid-cols-2">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] text-[var(--color-secondary-1)]">
-            <GoProject className="text-xl" />
+            <SecubIcon name="cycle" weight="fill" className="text-xl" />
           </span>
           <span>
             <strong className="text-[var(--color-secondary-4)]">Creado:</strong>{" "}
@@ -35,7 +37,7 @@ export default function CicloFormFooter({
 
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] text-[var(--color-secondary-1)]">
-            <GoProject className="text-xl" />
+            <SecubIcon name="cycle" weight="fill" className="text-xl" />
           </span>
           <span>
             <strong className="text-[var(--color-secondary-4)]">Modificado:</strong>{" "}
@@ -52,7 +54,7 @@ export default function CicloFormFooter({
         {!isReadOnly ? (
           <Button
             variant="primary"
-            leftIcon={<GoCheck className="text-lg" />}
+            leftIcon={<ActionIcon name="check" />}
             onClick={onSubmit}
             disabled={isReadOnly}
             title={canSubmit ? "Confirmar selección de cursos" : "Completa la información obligatoria para confirmar la selección."}

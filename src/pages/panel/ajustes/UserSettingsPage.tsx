@@ -1,5 +1,4 @@
-import { GoBook, GoChevronRight } from "react-icons/go";
-import { FaUniversalAccess } from "react-icons/fa";
+import { SecubIcon } from "../../../components/ui/SecubIcon";
 import PanelLayout from "../../../components/panel/PanelLayout";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
 import { getCurrentMockUser, getNeutralUserCargo } from "../../../services/auth/mockUser";
@@ -111,7 +110,7 @@ export default function UserSettingsPage() {
               className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(14,101,217,0.10)] text-xl text-[var(--color-secondary-1)]" aria-hidden="true">
-                <FaUniversalAccess />
+                <SecubIcon name="accessibility" weight="fill" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-heading text-base font-semibold text-[var(--secub-text)]">
@@ -121,7 +120,7 @@ export default function UserSettingsPage() {
                   Ajusta contraste, tamaño de texto y opciones de lectura.
                 </span>
               </span>
-              <GoChevronRight className="mt-1 shrink-0 text-lg text-[var(--secub-muted-text)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--color-secondary-1)]" aria-hidden="true" />
+              <SecubIcon name="chevron-right" weight="bold" className="mt-1 shrink-0 text-lg text-[var(--secub-muted-text)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--color-secondary-1)]" aria-hidden="true" />
             </button>
 
             <button
@@ -130,7 +129,7 @@ export default function UserSettingsPage() {
               className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(118,202,102,0.14)] text-xl text-[var(--color-success)]" aria-hidden="true">
-                <GoBook />
+                <SecubIcon name="book" weight="fill" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-heading text-base font-semibold text-[var(--secub-text)]">
@@ -140,7 +139,7 @@ export default function UserSettingsPage() {
                   Vuelve a seleccionar programa académico y rol de ingreso.
                 </span>
               </span>
-              <GoChevronRight className="mt-1 shrink-0 text-lg text-[var(--secub-muted-text)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--color-secondary-1)]" aria-hidden="true" />
+              <SecubIcon name="chevron-right" weight="bold" className="mt-1 shrink-0 text-lg text-[var(--secub-muted-text)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--color-secondary-1)]" aria-hidden="true" />
             </button>
           </div>
         </section>

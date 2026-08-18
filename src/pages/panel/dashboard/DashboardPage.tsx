@@ -1,4 +1,3 @@
-import { GoArrowLeft } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
 import { Button } from "../../../components/ui";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
@@ -18,6 +17,8 @@ import { simulateEvidenceDownload } from "./dashboard.utils";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { getDocenteMeasurementOverview } from "../medicion-ra/utils/medicionRA.overview";
 
+import { ActionIcon } from "../../../components/ui/ActionIcon";
+
 function DashboardBackButton({
   label,
   onClick,
@@ -30,7 +31,7 @@ function DashboardBackButton({
       <Button
         variant="ghost"
         size="sm"
-        leftIcon={<GoArrowLeft className="text-lg" />}
+        leftIcon={<ActionIcon name="back" />}
         onClick={onClick}
       >
         {label}

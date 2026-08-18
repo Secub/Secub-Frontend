@@ -1,4 +1,3 @@
-import { GoX } from "react-icons/go";
 import { Button, Select, type SelectOption } from "../../../../components/ui";
 import type {
   CicloCatalogs,
@@ -8,6 +7,8 @@ import type {
   CurrentUser,
 } from "../ciclo.types";
 import { getAvailablePeriods } from "../ciclo.utils";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CicloFiltersProps {
   user: CurrentUser;
@@ -93,7 +94,7 @@ export default function CicloFilters({
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoX className="text-lg" />}
+          leftIcon={<ActionIcon name="close" />}
           onClick={onReset}
           title={`${filteredCount} de ${totalCount} ciclos visibles`}
         >

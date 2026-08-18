@@ -1,6 +1,7 @@
-import { GoDownload } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import type { CompetenceCatalog, EnrichedCycle } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface ConsolidatedReportPanelProps {
   cycle: EnrichedCycle | null;
@@ -34,7 +35,7 @@ export default function ConsolidatedReportPanel({
         <Button
           variant="primary"
           size="sm"
-          leftIcon={<GoDownload className="text-lg" />}
+          leftIcon={<ActionIcon name="pdf" />}
           onClick={onDownload}
           disabled={!canDownload}
           title={
