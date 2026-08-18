@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from "react";
 import type { IconWeight } from "@phosphor-icons/react";
-import { SecubIcon, type SecubIconName } from "./SecubIcon";
+import { SecubIcon } from "./SecubIcon";
 
 export type ActionIconName =
   | "add"
@@ -73,7 +73,7 @@ export function ActionIcon({
 }: ActionIconProps) {
   return (
     <SecubIcon
-      name={name as SecubIconName}
+      name={name}
       size={iconSizes[size]}
       weight={weight ?? getActionWeight(name)}
       className={["leading-none", className].join(" ")}
