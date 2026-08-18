@@ -55,14 +55,72 @@ export function useMapeoCompetenciasManager({
   const [nivelesDraft, setNivelesDraft] = useState<NivelesDraft>({});
   const [feedback, setFeedback] = useState<{ type: "success" | "warning" | "danger"; message: string } | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const lastLoadedRecordId = useRef<string | null>(null);
-  const initializedRef = useRef(false);
-  
+  // const lastLoadedRecordId = useRef<string | null>(null);
+  // const initializedRef = useRef(false);
+
+
+  // useEffect(() => {
+
+  //   console.log("========== INITIALIZATION EFFECT ==========");
+  //   console.log("existingRecord:", existingRecord);
+  //   console.log("initializedRef:", initializedRef.current);
+  //   console.log("programaId:", programaId);
+  //   console.log("planId:", planId);
+
+  //   if (!programaId || !planId) return;
+
+  //   if (initializedRef.current) {
+  //     console.log("⛔ EFFECT BLOQUEADO POR initializedRef");
+  //     return;
+  //   }
+
+  //   console.log("⚠️ EFFECT INICIALIZANDO NÚCLEOS");
+  //   setNucleosDraft(
+  //     existingRecord
+  //       ? readNucleosFromRecord(existingRecord, totalSemestres)
+  //       : buildEmptyNucleosDraft(totalSemestres)
+  //   );
+
+  //   setNivelesDraft(
+  //     existingRecord
+  //       ? readNivelesFromRecord(existingRecord)
+  //       : {}
+  //   );
+
+  //   setActiveStep("nucleos");
+  //   setActiveSemester(1);
+  //   setFeedback(null);
+
+  //   initializedRef.current = true;
+
+  //   console.log("🔴 EFFECT TERMINÓ → activeStep = nucleos");
+  // }, [existingRecord, programaId, planId, totalSemestres]);
+
+  // useEffect(() => {
+  //   initializedRef.current = false;
+  // }, [programaId, planId]);
+
+
+  const initializedContextRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!programaId || !planId) return;
 
-    if (initializedRef.current) return;
+    const contextKey = `${programaId}__${planId}__${totalSemestres}`;
+
+    if (initializedContextRef.current === contextKey) {
+      return;
+    }
+
+    // Si estamos editando y todavía no tenemos el registro,
+    // esperamos a que llegue antes de inicializar.
+    if (existingRecord === undefined) {
+      return;
+    }
+
+    console.log("========== INICIALIZANDO CONTEXTO ==========");
+    console.log("contextKey:", contextKey);
+    console.log("existingRecord:", existingRecord);
 
     setNucleosDraft(
       existingRecord
@@ -80,12 +138,8 @@ export function useMapeoCompetenciasManager({
     setActiveSemester(1);
     setFeedback(null);
 
-    initializedRef.current = true;
-  }, [existingRecord, programaId, planId, totalSemestres]);
-
-  useEffect(() => {
-    initializedRef.current = false;
-  }, [programaId, planId]);
+    initializedContextRef.current = contextKey;
+  }, [programaId, planId, totalSemestres, existingRecord]);
 
   useEffect(() => {
     if (activeSemester > totalSemestres) {
@@ -208,11 +262,19 @@ export function useMapeoCompetenciasManager({
   }
 
   function tryContinueToMapeo() {
+    console.log("========== CLICK SIGUIENTE ==========");
+    console.log("activeStep ANTES:", activeStep);
+    console.log("nucleosDraft:", nucleosDraft);
+    console.log("totalSemestres:", totalSemestres);
+
     const isClassificationComplete =
       areAllSemestersClassified(nucleosDraft, totalSemestres) &&
       allNucleosRepresented(nucleosDraft);
 
+    console.log("isClassificationComplete:", isClassificationComplete);
+
     if (!isClassificationComplete) {
+      console.log("❌ CLASIFICACIÓN INCOMPLETA");
       setFeedback({
         type: "warning",
         message: "Debes clasificar todos los semestres antes de continuar al mapeo de competencias.",
@@ -220,13 +282,31 @@ export function useMapeoCompetenciasManager({
       return false;
     }
 
-    const preparedNivelesDraft = fillMissingLevelsWithNoAplica();
-    const savedRecord = saveProgress(false, preparedNivelesDraft);
-    if (!savedRecord) return false;
 
-    lastLoadedRecordId.current = `${savedRecord.id}-${programaId}-${planId}`;
+    console.log("✅ CLASIFICACIÓN COMPLETA");
+
+    const preparedNivelesDraft = fillMissingLevelsWithNoAplica();
+
+    console.log("niveles preparados:", preparedNivelesDraft);
+
+    const savedRecord = saveProgress(false, preparedNivelesDraft);
+
+    console.log("savedRecord:", savedRecord);
+
+
+    if (!savedRecord) {
+      console.log("❌ NO SE GUARDÓ EL REGISTRO");
+      return false;
+    }
+
+    console.log("➡️ CAMBIANDO A MAPEO");
+
+    // lastLoadedRecordId.current = `${savedRecord.id}-${programaId}-${planId}`;
     setActiveStep("mapeo");
     setActiveSemester(1);
+
+    console.log("setActiveStep('mapeo') EJECUTADO");
+
     return true;
   }
 
