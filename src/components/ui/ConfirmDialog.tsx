@@ -1,4 +1,4 @@
-import { GoAlert } from "react-icons/go";
+import { SecubIcon } from "./SecubIcon";
 import Button from "./Button";
 import Modal from "./Modal";
 
@@ -38,7 +38,7 @@ export default function ConfirmDialog({
 
           <Button
             variant={variant === "danger" ? "danger" : "accent"}
-            leftIcon={<GoAlert aria-hidden="true" className="text-lg" />}
+            leftIcon={<SecubIcon name="warning" weight="fill" aria-hidden="true" className="text-lg" />}
             onClick={onConfirm}
           >
             {confirmLabel}
@@ -49,7 +49,7 @@ export default function ConfirmDialog({
       <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-4">
         <div className="flex gap-3">
           <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-warning)] text-[var(--color-secondary-4)]">
-            <GoAlert aria-hidden="true" className="text-xl" />
+            <SecubIcon name="warning" weight="fill" aria-hidden="true" className="text-xl" />
           </span>
 
           <p className="text-sm leading-6 text-[var(--color-gray-3)]">

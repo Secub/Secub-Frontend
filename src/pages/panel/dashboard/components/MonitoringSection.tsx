@@ -1,4 +1,3 @@
-import { GoGraph } from "react-icons/go";
 import { Badge, Button } from "../../../../components/ui";
 import type {
   CompetenceOption,
@@ -6,6 +5,8 @@ import type {
   LearningResultOption,
 } from "../dashboard-ra.types";
 import { canViewMeasurementResult } from "../dashboard-ra.utils";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface MonitoringSectionProps {
   competences: CompetenceOption[];
@@ -27,7 +28,7 @@ export default function MonitoringSection({
           Monitoreo de competencias y RA
         </h2>
         <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--color-gray-3)]">
-          Vista jerárquica exclusiva para Jefatura de programa. Permite revisar competencias, Resultados de Aprendizaje y cursos asociados dentro del ciclo seleccionado.
+          Vista jerárquica exclusiva para Dirección de programa. Permite revisar competencias, Resultados de Aprendizaje y cursos asociados dentro del ciclo seleccionado.
         </p>
       </div>
 
@@ -97,7 +98,7 @@ export default function MonitoringSection({
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      leftIcon={<GoGraph className="text-lg" />}
+                                      leftIcon={<ActionIcon name="chart" />}
                                       disabled={!resultEnabled}
                                       title={
                                         resultEnabled

@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  canFilterByFacultad,
-  canFilterBySeccional,
-} from "../AsignarRA.permissions";
+import { getAsignarRaPermissions } from "../../../../config/access/permissions";
 import type { CicloDemoRecord } from "../AsignarRA.types";
 import { getCycleCourses } from "../AsignarRA.utils";
 import { asignarRAAcademicCatalogs as academicCatalogs, asignarRACurrentUser as currentUser } from "./asignarRA.shared";
@@ -188,8 +185,8 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
       isFacultadLocked: Boolean(currentUser.scope.facultadId),
       isProgramLocked: Boolean(scopedProgramId),
       isPlanLocked: Boolean(scopedPlanId),
-      showSeccionalFilter: canFilterBySeccional(currentUser),
-      showFacultadFilter: canFilterByFacultad(currentUser),
+      showSeccionalFilter: getAsignarRaPermissions(currentUser.role).canFilterBySeccional,
+      showFacultadFilter: getAsignarRaPermissions(currentUser.role).canFilterByFacultad,
     },
     cycles,
     selectedCycle,

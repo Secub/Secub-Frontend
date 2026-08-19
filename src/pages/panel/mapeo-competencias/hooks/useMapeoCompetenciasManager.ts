@@ -48,23 +48,79 @@ export function useMapeoCompetenciasManager({
   canManage,
   totalSemestres,
 }: UseMapeoCompetenciasManagerParams) {
+  console.log("useMapeoCompetenciasManager render");
   const [activeStep, setActiveStep] = useState<"nucleos" | "mapeo">("nucleos");
   const [activeSemester, setActiveSemester] = useState(1);
   const [nucleosDraft, setNucleosDraft] = useState<NucleosDraft>(() => buildEmptyNucleosDraft(totalSemestres));
   const [nivelesDraft, setNivelesDraft] = useState<NivelesDraft>({});
   const [feedback, setFeedback] = useState<{ type: "success" | "warning" | "danger"; message: string } | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const lastLoadedRecordId = useRef<string | null>(null);
+  // const lastLoadedRecordId = useRef<string | null>(null);
+  // const initializedRef = useRef(false);
+
+
+  // useEffect(() => {
+
+  //   console.log("========== INITIALIZATION EFFECT ==========");
+  //   console.log("existingRecord:", existingRecord);
+  //   console.log("initializedRef:", initializedRef.current);
+  //   console.log("programaId:", programaId);
+  //   console.log("planId:", planId);
+
+  //   if (!programaId || !planId) return;
+
+  //   if (initializedRef.current) {
+  //     console.log(" EFFECT BLOQUEADO POR initializedRef");
+  //     return;
+  //   }
+
+  //   console.log(" EFFECT INICIALIZANDO NÚCLEOS");
+  //   setNucleosDraft(
+  //     existingRecord
+  //       ? readNucleosFromRecord(existingRecord, totalSemestres)
+  //       : buildEmptyNucleosDraft(totalSemestres)
+  //   );
+
+  //   setNivelesDraft(
+  //     existingRecord
+  //       ? readNivelesFromRecord(existingRecord)
+  //       : {}
+  //   );
+
+  //   setActiveStep("nucleos");
+  //   setActiveSemester(1);
+  //   setFeedback(null);
+
+  //   initializedRef.current = true;
+
+  //   console.log(" EFFECT TERMINÓ → activeStep = nucleos");
+  // }, [existingRecord, programaId, planId, totalSemestres]);
+
+  // useEffect(() => {
+  //   initializedRef.current = false;
+  // }, [programaId, planId]);
+
+
+  const initializedContextRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!programaId || !planId) return;
 
-    const key = `${existingRecord?.id ?? "new"}-${programaId}-${planId}`;
+    const contextKey = `${programaId}__${planId}__${totalSemestres}`;
 
-    // Si ya cargamos este mismo contexto, no reinicializamos el formulario.
-    if (lastLoadedRecordId.current === key) {
+    if (initializedContextRef.current === contextKey) {
       return;
     }
+
+    // Si estamos editando y todavía no tenemos el registro,
+    // esperamos a que llegue antes de inicializar.
+    if (existingRecord === undefined) {
+      return;
+    }
+
+    console.log("========== INICIALIZANDO CONTEXTO ==========");
+    console.log("contextKey:", contextKey);
+    console.log("existingRecord:", existingRecord);
 
     setNucleosDraft(
       existingRecord
@@ -82,8 +138,8 @@ export function useMapeoCompetenciasManager({
     setActiveSemester(1);
     setFeedback(null);
 
-    lastLoadedRecordId.current = key;
-  }, [programaId, planId, existingRecord?.id, totalSemestres]);
+    initializedContextRef.current = contextKey;
+  }, [programaId, planId, totalSemestres, existingRecord]);
 
   useEffect(() => {
     if (activeSemester > totalSemestres) {
@@ -135,25 +191,26 @@ export function useMapeoCompetenciasManager({
     });
   }
 
-  function fillMissingLevelsWithNoAplica() {
-    setNivelesDraft((current) => {
-      const next = { ...current };
+  function buildPreparedNivelesDraft(currentDraft: NivelesDraft = nivelesDraft) {
+    const next = { ...currentDraft };
 
-      cursos.forEach((curso) => {
-        // const nucleo = nucleosDraft[curso.semestre];
-        // if (nucleo !== "fundamentacion" && nucleo !== "profesionalizacion") return;
-
-        competencias.forEach((competencia) => {
-          const key = getMappingKey(curso.id, competencia.id);
-          if (!next[key]) next[key] = "no-aplica";
-        });
+    cursos.forEach((curso) => {
+      competencias.forEach((competencia) => {
+        const key = getMappingKey(curso.id, competencia.id);
+        if (!next[key]) next[key] = "no-aplica";
       });
-
-      return next;
     });
+
+    return next;
   }
 
-  function buildRecord() {
+  function fillMissingLevelsWithNoAplica() {
+    const next = buildPreparedNivelesDraft();
+    setNivelesDraft(next);
+    return next;
+  }
+
+  function buildRecord(nextNivelesDraft: NivelesDraft = nivelesDraft) {
     return buildMapeoRecord({
       existingRecord,
       seccionalId,
@@ -162,14 +219,14 @@ export function useMapeoCompetenciasManager({
       programaId,
       planId,
       nucleosDraft,
-      nivelesDraft,
+      nivelesDraft: nextNivelesDraft,
       cursos,
       competencias,
       totalSemestres,
     });
   }
 
-  function saveProgress(notifySuccess = true) {
+  function saveProgress(notifySuccess = true, draftOverride?: NivelesDraft) {
     if (!canManage) return null;
 
     if (!programaId || !planId) {
@@ -181,7 +238,8 @@ export function useMapeoCompetenciasManager({
     }
 
     try {
-      const nextRecord = buildRecord();
+      const nextNivelesDraft = draftOverride ?? nivelesDraft;
+      const nextRecord = buildRecord(nextNivelesDraft);
       mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", nextRecord, currentUser);
       setFeedback(null);
 
@@ -204,11 +262,19 @@ export function useMapeoCompetenciasManager({
   }
 
   function tryContinueToMapeo() {
+    console.log("========== CLICK SIGUIENTE ==========");
+    console.log("activeStep ANTES:", activeStep);
+    console.log("nucleosDraft:", nucleosDraft);
+    console.log("totalSemestres:", totalSemestres);
+
     const isClassificationComplete =
       areAllSemestersClassified(nucleosDraft, totalSemestres) &&
       allNucleosRepresented(nucleosDraft);
 
+    console.log("isClassificationComplete:", isClassificationComplete);
+
     if (!isClassificationComplete) {
+      console.log("❌ CLASIFICACIÓN INCOMPLETA");
       setFeedback({
         type: "warning",
         message: "Debes clasificar todos los semestres antes de continuar al mapeo de competencias.",
@@ -216,14 +282,31 @@ export function useMapeoCompetenciasManager({
       return false;
     }
 
-    const savedRecord = saveProgress(false);
-    if (!savedRecord) return false;
 
-    lastLoadedRecordId.current = `${savedRecord.id}-${programaId}-${planId}`;
+    console.log("✅ CLASIFICACIÓN COMPLETA");
 
-    fillMissingLevelsWithNoAplica();
+    const preparedNivelesDraft = fillMissingLevelsWithNoAplica();
+
+    console.log("niveles preparados:", preparedNivelesDraft);
+
+    const savedRecord = saveProgress(false, preparedNivelesDraft);
+
+    console.log("savedRecord:", savedRecord);
+
+
+    if (!savedRecord) {
+      console.log("❌ NO SE GUARDÓ EL REGISTRO");
+      return false;
+    }
+
+    console.log("➡️ CAMBIANDO A MAPEO");
+
+    // lastLoadedRecordId.current = `${savedRecord.id}-${programaId}-${planId}`;
     setActiveStep("mapeo");
     setActiveSemester(1);
+
+    console.log("setActiveStep('mapeo') EJECUTADO");
+
     return true;
   }
 

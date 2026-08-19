@@ -23,7 +23,7 @@ export function applyRoleScope(
   records: MapeoCompetenciasEnriched[],
   user: CurrentUser,
 ): MapeoCompetenciasEnriched[] {
-  if (user.role === "admin") return records;
+  if (user.role === "administrador") return records;
 
   const scope = user.scope ?? {};
   const userProgramId = scope.programaId ?? scope.academicProgramId;

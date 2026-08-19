@@ -1,6 +1,6 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
-import { GoDownload } from "react-icons/go";
 import {
   Button,
   Modal,
@@ -22,7 +22,6 @@ import type {
   Catalogs,
   CompetenciasRaEnriched,
   CompetenciasRaFilters,
-  RolePermissions,
   CompetenciasRaPdfRow,
 } from "../CompetenciasRa.types";
 import {
@@ -34,11 +33,12 @@ import {
   type ExcelColumn,
 } from "../../../../components/ExcelTemplate";
 import { getExcelBranding } from "../../../../config/excelBranding";
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CompetenciasRaExportModalProps {
   open: boolean;
   title: string;
   format: "pdf" | "excel";
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   catalogs: Catalogs;
   baseRecords: CompetenciasRaEnriched[];
   initialFilters: CompetenciasRaFilters;
@@ -391,7 +391,7 @@ const exportRows: CompetenciasRaPdfRow[] = [...exportRecords]
               variant="primary"
               onClick={handleDownload}
               disabled={exportRecords.length === 0}
-              leftIcon={<GoDownload className="text-lg" />}
+              leftIcon={<ActionIcon name={format === "pdf" ? "pdf" : "excel"} />}
             >
               Descargar {format === "pdf" ? "PDF" : "Excel"}
             </Button>

@@ -1,7 +1,9 @@
-import { GoChecklist, GoDownload, GoEye } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge, Button } from "../../../../components/ui";
 import type { CycleSummary } from "../dashboard-ra.types";
 import { formatDate, isReportAvailable } from "../dashboard-ra.utils";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CycleProgressCardProps {
   cycle: CycleSummary;
@@ -40,7 +42,7 @@ export default function CycleProgressCard({
           <Button
             variant="outline"
             size="sm"
-            leftIcon={<GoEye className="text-lg" />}
+            leftIcon={<ActionIcon name="view" />}
             disabled={finished}
             title={finished ? "El ciclo ya está finalizado y no tiene pendientes." : "Ver pendientes"}
             onClick={() => onViewPending(cycle)}
@@ -51,7 +53,7 @@ export default function CycleProgressCard({
           <Button
             variant={reportAvailable ? "primary" : "outline"}
             size="sm"
-            leftIcon={<GoDownload className="text-lg" />}
+            leftIcon={<ActionIcon name="pdf" />}
             disabled={!reportAvailable}
             title={
               reportAvailable
@@ -68,7 +70,7 @@ export default function CycleProgressCard({
       <div className="mt-5">
         <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[var(--color-gray-4)]">
           <span className="inline-flex items-center gap-2">
-            <GoChecklist className="text-base text-[var(--color-secondary-1)]" />
+            <SecubIcon name="checklist" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
             {cycle.evaluatedRa} de {cycle.totalRa} RA evaluados
           </span>
           <span>{cycle.progress}% completado</span>

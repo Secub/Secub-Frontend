@@ -1,4 +1,4 @@
-import { GoCheck, GoGoal } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { StepCircleProgress } from "../../../../components/ui";
 
 interface MapeoCompetenciasStepProgressProps {
@@ -39,13 +39,13 @@ export default function MapeoCompetenciasStepProgress({
               id: "nucleos",
               label: "Núcleos",
               sublabel: "Selecciona núcleos de formación",
-              icon: <GoGoal className="text-xl" />,
+              icon: <SecubIcon name="target" weight="fill" className="text-xl" />,
             },
               {
                 id: "mapeo",
                 label: "Niveles de compromiso",
                 sublabel: "Selecciona I-R-A-NA",
-                icon: classificationComplete ? <GoCheck className="text-xl" /> : <GoGoal className="text-xl" />,
+                icon: classificationComplete ? <SecubIcon name="check" weight="bold" className="text-xl" /> : <SecubIcon name="target" weight="fill" className="text-xl" />,
                 disabled: !classificationComplete,
                 disabledTooltip: "Clasifica todos los semestres antes de continuar.",
               },

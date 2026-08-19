@@ -1,6 +1,6 @@
-import { GoPlus } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CicloPageActionsProps {
   canCreate: boolean;
   disabledReason?: string;
@@ -11,7 +11,7 @@ export default function CicloPageActions({ canCreate, disabledReason, onCreate }
   return (
     <Button 
       variant="primary" 
-      leftIcon={<GoPlus className="text-lg" />} 
+      leftIcon={<ActionIcon name="add" />} 
       onClick={onCreate}
       disabled={!canCreate}
       title={!canCreate ? disabledReason : "Crear ciclo de medición"}

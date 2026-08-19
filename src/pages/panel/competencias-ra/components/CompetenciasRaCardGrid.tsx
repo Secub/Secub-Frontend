@@ -1,16 +1,15 @@
+import type { SecubRole } from "../../../../config/access/roles";
 import CompetenciasRaCard from "./CompetenciasRaCard";
 import type {
   CompetenciasRaEnriched,
-  CompetenciasRaFormacionRole,
   ResultadoAprendizaje,
-  RolePermissions,
 } from "../CompetenciasRa.types";
-import { canEditCompetenciasRa } from "../CompetenciasRa.permissions";
+import { canEditAcademicRecord, type AcademicModulePermissions } from "../../../../config/access/permissions";
 
 interface CompetenciasRaCardGridProps {
   data: CompetenciasRaEnriched[];
-  role: CompetenciasRaFormacionRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: CompetenciasRaEnriched) => void;
   onAddRa: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
@@ -37,7 +36,7 @@ export default function CompetenciasRaCardGrid({
   return (
     <div className="grid auto-rows-max grid-cols-1 gap-6">
       {data.map((record) => {
-        const canEditRecord = canEditCompetenciasRa(role, record) && permissions.canUpdate;
+        const canEditRecord = canEditAcademicRecord("competenciasRa", role, record.estado) && permissions.canUpdate;
 
         return (
           <CompetenciasRaCard

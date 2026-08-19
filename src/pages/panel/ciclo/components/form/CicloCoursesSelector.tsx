@@ -1,4 +1,4 @@
-import { GoAlert } from "react-icons/go";
+import { SecubIcon } from "../../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../../components/ui";
 import type { CursoSintesis } from "../../ciclo.types";
 import { getNivelCompromisoLabel } from "../../ciclo.utils";
@@ -88,7 +88,7 @@ export default function CicloCoursesSelector({
 
                   {teacherAlert ? (
                     <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:rgba(251,199,86,0.16)] px-3 py-2 text-sm text-[var(--color-gray-2)]">
-                      <GoAlert className="shrink-0 text-base text-[var(--color-secondary-4)]" />
+                      <SecubIcon name="warning" weight="fill" className="shrink-0 text-base text-[var(--color-secondary-4)]" />
                       <Badge variant="warning">Caso excepcional</Badge>
                       <span>{teacherAlert}</span>
                     </div>

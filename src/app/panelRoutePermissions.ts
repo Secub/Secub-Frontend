@@ -1,5 +1,5 @@
-import type { MockUserRole } from "../services/auth/mockUser";
-import { canAccessPanelModule, type PanelModuleKey } from "../services/auth/roleAccess";
+import type { SecubRole } from "../config/access/roles";
+import { canAccessModule, type PanelModuleKey } from "../config/access/permissions";
 import { ROUTES } from "./appRoutes";
 
 const panelRouteModules: Record<string, PanelModuleKey> = {
@@ -18,11 +18,11 @@ const panelRouteModules: Record<string, PanelModuleKey> = {
   [ROUTES.panelMedicionRa]: "medicionRa",
 };
 
-export function getPanelRouteAccessRedirect(pathname: string, role: MockUserRole) {
+export function getPanelRouteAccessRedirect(pathname: string, role: SecubRole) {
   const module = panelRouteModules[pathname];
 
   // Las rutas desconocidas continúan con el enrutamiento normal.
-  if (!module || canAccessPanelModule(role, module)) return null;
+  if (!module || canAccessModule(role, module)) return null;
 
   return ROUTES.panelDashboard;
 }

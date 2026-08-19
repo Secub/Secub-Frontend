@@ -1,4 +1,4 @@
-import { GoX } from "react-icons/go";
+import { SecubIcon } from "../../../components/ui/SecubIcon";
 import { Button, Select } from "../../../components/ui";
 
 export interface AcademicScopeFilterValues {
@@ -88,7 +88,7 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoX className="text-lg" />}
+          leftIcon={<SecubIcon name="close" weight="bold" className="text-lg" />}
           onClick={onReset}
         >
           Limpiar filtros

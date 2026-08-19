@@ -1,21 +1,17 @@
-import {
-  GoCalendar,
-  GoEye,
-  GoCopy,
-  GoPencil,
-  GoTrash,
-  GoVerified,
-} from "react-icons/go";
-import { Badge, Button, IconButton } from "../../../../components/ui";
+import { useEffect, useRef, useState } from "react";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
+import { Badge, IconButton } from "../../../../components/ui";
 import type { CicloEnriched, CurrentUser } from "../ciclo.types";
 import {
   canDuplicateCycle,
   canManageCycle,
-  cicloRolePermissions,
   getCycleActionDisabledReason,
+  getCyclePermissions,
   getDuplicateCycleDisabledReason,
-} from "../ciclo.permissions";
+} from "../../../../config/access/permissions";
 import { formatCicloTitle, formatDate, formatDateTime, getNivelCompromisoLabel } from "../ciclo.utils";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CicloSummaryCardProps {
   ciclo: CicloEnriched;
@@ -50,7 +46,9 @@ export default function CicloSummaryCard({
   onDelete,
   onDuplicate,
 }: CicloSummaryCardProps) {
-  const permissions = cicloRolePermissions[user.role];
+  const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const actionsMenuRef = useRef<HTMLDivElement>(null);
+  const permissions = getCyclePermissions(user.role);
   const canEdit = canManageCycle(user, ciclo);
   const disabledReason = getCycleActionDisabledReason(user, ciclo);
   const activeCycleDuplicateReason = activeCycle
@@ -58,6 +56,37 @@ export default function CicloSummaryCard({
     : "";
   const canDuplicate = !activeCycle && canDuplicateCycle(user, ciclo);
   const duplicateDisabledReason = activeCycleDuplicateReason || getDuplicateCycleDisabledReason(user, ciclo);
+  const hasSecondaryActions =
+    permissions.canEditCycle || permissions.canDuplicateCycle || permissions.canDeleteCycle;
+
+  useEffect(() => {
+    if (!isActionsMenuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!actionsMenuRef.current?.contains(event.target as Node)) {
+        setIsActionsMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsActionsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isActionsMenuOpen]);
+
+  const runMenuAction = (action: () => void) => {
+    setIsActionsMenuOpen(false);
+    action();
+  };
 
   return (
     <article className="surface-card p-6">
@@ -80,55 +109,77 @@ export default function CicloSummaryCard({
         </div>
 
         <div className="flex shrink-0 flex-nowrap items-center gap-3">
-          {permissions.canEditCycle ? (
-            <IconButton
-              variant="outline"
-              icon={<GoPencil />}
-              label={`Editar ciclo ${formatCicloTitle(ciclo)}`}
-              onClick={() => onEdit(ciclo)}
-              disabled={!canEdit}
-              title={!canEdit ? disabledReason : `Editar ciclo ${formatCicloTitle(ciclo)}`}
-            />
-          ) : null}
-
           <IconButton
             variant="outline"
-            icon={<GoEye />}
+            icon={<ActionIcon name="view" />}
             label={`Ver detalle del ciclo ${formatCicloTitle(ciclo)}`}
             onClick={() => onView(ciclo)}
           />
 
-          {permissions.canDuplicateCycle ? (
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={<GoCopy className="text-lg" />}
-              onClick={() => onDuplicate(ciclo)}
-              disabled={!canDuplicate}
-              title={
-                !canDuplicate
-                  ? duplicateDisabledReason
-                  : "Duplicar ciclo"
-              }
-              className={
-                !canDuplicate
-                  ? "cursor-not-allowed hover:text-red-600"
-                  : ""
-              }
-            >
-              Duplicar
-            </Button>
-          ) : null}
+          {hasSecondaryActions ? (
+            <div ref={actionsMenuRef} className="relative">
+              <button
+                type="button"
+                aria-label={`Más acciones para el ciclo ${formatCicloTitle(ciclo)}`}
+                title="Más acciones"
+                aria-haspopup="menu"
+                aria-expanded={isActionsMenuOpen}
+                onClick={() => setIsActionsMenuOpen((isOpen) => !isOpen)}
+                className="inline-flex h-10 w-10 shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 text-[var(--color-gray-4)] shadow-none transition-colors hover:bg-transparent hover:text-[var(--color-secondary-1)] focus-visible:bg-transparent focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none active:bg-transparent active:text-[var(--color-secondary-1)]"
+              >
+                <ActionIcon name="more" />
+              </button>
 
-          {permissions.canDeleteCycle ? (
-            <IconButton
-              variant="danger"
-              icon={<GoTrash />}
-              label={`Eliminar ciclo ${formatCicloTitle(ciclo)}`}
-              onClick={() => onDelete(ciclo)}
-              disabled={!canEdit}
-              title={!canEdit ? disabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
-            />
+              {isActionsMenuOpen ? (
+                <div
+                  role="menu"
+                  aria-label={`Acciones del ciclo ${formatCicloTitle(ciclo)}`}
+                  className="absolute right-0 top-full z-30 mt-2 min-w-44 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-1.5 shadow-lg"
+                >
+                  {permissions.canEditCycle ? (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={!canEdit}
+                      title={!canEdit ? disabledReason : `Editar ciclo ${formatCicloTitle(ciclo)}`}
+                      onClick={() => runMenuAction(() => onEdit(ciclo))}
+                      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                    >
+                      <ActionIcon name="edit" size="sm" />
+                      <span>Editar</span>
+                    </button>
+                  ) : null}
+
+                  {permissions.canDuplicateCycle ? (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={!canDuplicate}
+                      title={!canDuplicate ? duplicateDisabledReason : "Duplicar ciclo"}
+                      onClick={() => runMenuAction(() => onDuplicate(ciclo))}
+                      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                    >
+                      <ActionIcon name="copy" size="sm" />
+                      <span>Duplicar</span>
+                    </button>
+                  ) : null}
+
+                  {permissions.canDeleteCycle ? (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={!canEdit}
+                      title={!canEdit ? disabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
+                      onClick={() => runMenuAction(() => onDelete(ciclo))}
+                      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-error)] transition-colors hover:bg-[var(--color-surface-soft)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                    >
+                      <ActionIcon name="delete" size="sm" />
+                      <span>Eliminar</span>
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>
@@ -164,7 +215,7 @@ export default function CicloSummaryCard({
             Selección de cursos {ciclo.periodo}
           </h4>
           <span className="inline-flex items-center gap-2 text-xs font-medium text-[var(--color-gray-4)]">
-            <GoCalendar className="text-base text-[var(--color-secondary-1)]" />
+            <SecubIcon name="calendar" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
             Última actualización: {formatDateTime(ciclo.updatedAt)}
           </span>
         </div>
@@ -203,7 +254,7 @@ export default function CicloSummaryCard({
 
       <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-[var(--color-gray-3)]">
         <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-surface-soft)] px-4 py-2">
-          <GoVerified className="text-base text-[var(--color-secondary-1)]" />
+          <SecubIcon name="verified" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
           Responsable: {ciclo.responsableNombre}
         </span>
         <span className="rounded-full bg-[var(--color-surface-soft)] px-4 py-2">

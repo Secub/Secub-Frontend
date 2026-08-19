@@ -1,6 +1,5 @@
+import { SecubIcon } from "../SecubIcon";
 import type { ReactNode } from "react";
-import { GoCheckCircle, GoGoal } from "react-icons/go";
-
 export interface StepCircleProgressItem {
   id: string;
   label: string;
@@ -86,9 +85,9 @@ export default function StepCircleProgress({
                     aria-hidden="true"
                   >
                     {isCompleted ? (
-                      <GoCheckCircle className="text-xl" />
+                      <SecubIcon name="complete" weight="fill" className="text-xl" />
                     ) : isActive ? (
-                      item.icon ?? <GoGoal className="text-xl" />
+                      item.icon ?? <SecubIcon name="target" weight="fill" className="text-xl" />
                     ) : (
                       index + 1
                     )}

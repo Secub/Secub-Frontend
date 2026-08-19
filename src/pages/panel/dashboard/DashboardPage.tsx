@@ -1,4 +1,3 @@
-import { GoArrowLeft } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
 import { Button } from "../../../components/ui";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
@@ -7,7 +6,6 @@ import DashboardEmptyState from "./components/DashboardEmptyState";
 import DashboardFilters from "./components/DashboardFilters";
 import DashboardModals from "./components/DashboardModals";
 import MeasurementCycleCard from "./components/MeasurementCycleCard";
-import TeacherCourseMeasurementCards from "./components/TeacherCourseMeasurementCards";
 import MeasurementSummaryCards, {
   buildSupervisorSummaryItems,
   buildTeacherSummaryItems,
@@ -15,8 +13,8 @@ import MeasurementSummaryCards, {
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { simulateEvidenceDownload } from "./dashboard.utils";
-import { getCurrentMockUser } from "../../../services/auth/mockUser";
-import { getDocenteMeasurementOverview } from "../medicion-ra/utils/medicionRA.overview";
+
+import { ActionIcon } from "../../../components/ui/ActionIcon";
 
 function DashboardBackButton({
   label,
@@ -30,7 +28,7 @@ function DashboardBackButton({
       <Button
         variant="ghost"
         size="sm"
-        leftIcon={<GoArrowLeft className="text-lg" />}
+        leftIcon={<ActionIcon name="back" />}
         onClick={onClick}
       >
         {label}
@@ -41,10 +39,6 @@ function DashboardBackButton({
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
-  const docenteMeasurementOverview = dashboard.isTeacher
-    ? getDocenteMeasurementOverview(getCurrentMockUser())
-    : { courses: [], summaries: [] };
-
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout
@@ -94,62 +88,23 @@ export default function DashboardPage() {
 
           {dashboard.isTeacher ? (
             <>
-              <TeacherCourseMeasurementCards
-                courses={docenteMeasurementOverview.courses}
-                courseSummaries={docenteMeasurementOverview.summaries}
-                onCourseSelect={(courseId, cycleId) => {
-                  const selectedCourse = dashboard.scopedCourses.find(
-                    (course) =>
-                      course.id === courseId &&
-                      (!cycleId || course.cycleId === cycleId),
-                  );
-                  if (selectedCourse) dashboard.handleMeasureCourse(selectedCourse);
-                }}
+              <DashboardFilters
+                user={dashboard.user}
+                catalogs={dashboard.dashboardData.catalogs}
+                cycles={dashboard.scopedCycles}
+                filters={dashboard.filters}
+                onFilterChange={dashboard.handleFilterChange}
+                onReset={dashboard.handleResetFilters}
               />
 
-              {/*
-                VISTA DOCENTE — BLOQUE OCULTO INTENCIONALMENTE
-
-                Los filtros y las cards de progreso global del ciclo se conservan comentados
-                para poder recuperarlos fácilmente si el flujo cambia en el futuro.
-
-                Para Docencia, esa información no aporta al trabajo que debe realizar en esta
-                pantalla: el docente necesita consultar el avance de SUS CURSOS y entrar desde
-                cada curso a Medición RA. El seguimiento global del ciclo (estado del ciclo,
-                avance general, resultados consolidados y plan de mejora) corresponde al rol de
-                Dirección de programa.
-
-                Por ese motivo, el Estado del ciclo de Docencia muestra únicamente:
-                1. Las cuatro cards informativas de sus cursos.
-                2. Las cards de los cursos asignados con su progreso de Medición RA.
-
-                Código anterior conservado como referencia:
-
-                <DashboardFilters
-                  user={dashboard.user}
-                  catalogs={dashboard.dashboardData.catalogs}
-                  cycles={dashboard.scopedCycles}
-                  filters={dashboard.filters}
-                  onFilterChange={dashboard.handleFilterChange}
-                  onReset={dashboard.handleResetFilters}
-                />
-
-                <section className="space-y-5">
-                  <h2>Ciclos de Medición</h2>
-                  {dashboard.filteredCycles.map((cycle) => (
-                    <MeasurementCycleCard
-                      key={cycle.id}
-                      cycle={cycle}
-                      isTeacher={dashboard.isTeacher}
-                      isDirector={dashboard.isDirector}
-                      onViewPending={dashboard.handleViewPending}
-                      onViewResults={dashboard.handleViewResultsFromCycle}
-                      onDownloadReport={dashboard.handleDownloadCycleReport}
-                      onImprovementPlan={dashboard.handleImprovementPlan}
-                    />
-                  ))}
-                </section>
-              */}
+              <CoursesMeasurementTable
+                title="Cursos asignados"
+                description="Consulta el avance de tus cursos y entra a Medición RA desde la acción de cada fila."
+                courses={dashboard.filteredCourses}
+                mode="teacher"
+                onMeasureCourse={dashboard.handleMeasureCourse}
+                onViewResults={dashboard.handleViewCourseDetail}
+              />
             </>
           ) : (
             <>
@@ -266,6 +221,7 @@ export default function DashboardPage() {
         selectedReportCompetences={dashboard.selectedReportCompetences}
         improvementCycle={dashboard.improvementCycle}
         improvementDraft={dashboard.improvementDraft}
+        improvementTitle={dashboard.improvementTitle}
         improvementError={dashboard.improvementError}
         onCloseSelectedRa={() => dashboard.setSelectedRa(null)}
         onCloseNotifyCourse={() => dashboard.setNotifyCourse(null)}
@@ -278,6 +234,9 @@ export default function DashboardPage() {
         onImprovementDraftChange={(value) => {
           dashboard.setImprovementDraft(value);
           dashboard.setImprovementError("");
+        }}
+        setImprovementTitle={(value) => {
+          dashboard.setImprovementTitle(value);
         }}
       />
     </PanelLayout>

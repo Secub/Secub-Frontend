@@ -1,4 +1,4 @@
-import { GoAlert, GoCheckCircle, GoGraph } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../components/ui";
 import type { RaResultSummary } from "../medicion-ra.types";
 
@@ -23,7 +23,7 @@ export default function RaResultsCharts({
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="flex items-center gap-3">
           <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
-            <GoGraph className="text-xl" />
+            <SecubIcon name="chart-up" weight="fill" className="text-xl" />
           </span>
 
           <div>
@@ -69,9 +69,9 @@ export default function RaResultsCharts({
                   ].join(" ")}
                 >
                   {result.reachedTarget ? (
-                    <GoCheckCircle className="text-xl" />
+                    <SecubIcon name="complete" weight="fill" className="text-xl" />
                   ) : (
-                    <GoAlert className="text-xl" />
+                    <SecubIcon name="warning" weight="fill" className="text-xl" />
                   )}
                 </span>
               </div>

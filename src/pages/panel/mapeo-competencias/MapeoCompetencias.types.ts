@@ -1,9 +1,4 @@
-export type MapeoCompetenciasRole =
-  | "admin"
-  | "vice"
-  | "decano"
-  | "direccionPrograma"
-  | "docente";
+import type { SecubRole } from "../../../config/access/roles";
 
 export type MapeoCompetenciasEstado = "activo" | "inactivo";
 export type ProgramaEstado = "activo" | "inactivo";
@@ -76,7 +71,7 @@ export interface CurrentUser {
   nombre: string;
   email?: string;
   cargo: string;
-  role: MapeoCompetenciasRole;
+  role: SecubRole;
   scope: UserScope;
 }
 
@@ -198,20 +193,6 @@ export interface FormState {
   raDescripciones: string[];
 }
 
-export interface RolePermissions {
-  canRead: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-  canExportPdf: boolean;
-  canExportExcel: boolean;
-  canFilterBySeccional: boolean;
-  canFilterByLugar: boolean;
-  canFilterByFacultad: boolean;
-  canFilterByPrograma: boolean;
-  canFilterByPlan: boolean;
-  canFilterByEstado: boolean;
-}
 
 export type NucleosDraft = Record<number, NucleoFormacion | null>;
 export type NivelesDraft = Record<string, NivelCompromiso>;

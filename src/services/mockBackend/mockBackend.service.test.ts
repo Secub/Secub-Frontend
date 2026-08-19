@@ -13,7 +13,7 @@ describe("mockBackend upsert for mapeosCompetencias", () => {
   it("mantiene una sola instancia por programa y plan al guardar varias veces", () => {
     const user: MockBackendUser = {
       id: "user-1",
-      role: "direccionPrograma",
+      role: "director",
       scope: { seccionalId: "sec-1", facultadId: "fac-1", programaId: "prog-1", planId: "plan-1" },
     };
 
@@ -65,7 +65,7 @@ describe("mockBackend upsert for mapeosCompetencias", () => {
     expect(records[0].descripcion).toBe("Mapa actualizado");
   });
   it("rechaza escrituras académicas de roles de consulta", () => {
-    const adminUser: MockBackendUser = { id: "admin-1", role: "admin", scope: {} };
+    const adminUser: MockBackendUser = { id: "admin-1", role: "administrador", scope: {} };
 
     expect(() =>
       mockBackend.create(

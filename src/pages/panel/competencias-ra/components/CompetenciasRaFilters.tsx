@@ -1,14 +1,14 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { AcademicScopeFilters } from "../../../../features/academic-scope";
 import type {
   CurrentUser,
   CompetenciasRaEnriched,
   CompetenciasRaFilters as CompetenciasRaFiltersState,
-  RolePermissions,
-} from "../CompetenciasRa.types";
+  } from "../CompetenciasRa.types";
 
 interface CompetenciasRaFiltersProps {
   user: CurrentUser;
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filters: CompetenciasRaFiltersState;
   filterOptions: {
     facultades: { id: string; nombre: string }[];

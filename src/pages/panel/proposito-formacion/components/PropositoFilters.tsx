@@ -1,14 +1,14 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { AcademicScopeFilters } from "../../../../features/academic-scope";
 import type {
   CurrentUser,
   PropositoEnriched,
   PropositoFilters as PropositoFiltersState,
-  RolePermissions,
-} from "../proposito-formacion.types";
+  } from "../proposito-formacion.types";
 
 interface PropositoFiltersProps {
   user: CurrentUser;
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filters: PropositoFiltersState;
   filterOptions: {
     facultades: { id: string; nombre: string }[];
@@ -41,7 +41,7 @@ export function PropositoFilters({
       filters={filters}
       filterOptions={filterOptions}
       permissions={{
-        canFilterByLugar: true,
+        canFilterByLugar: permissions.canFilterByLugar,
         canFilterByFacultad: permissions.canFilterByFacultad,
         canFilterByPrograma: permissions.canFilterByPrograma,
         canFilterByPlan: permissions.canFilterByPlan,

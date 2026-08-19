@@ -1,9 +1,4 @@
-export type CompetenciasRaFormacionRole =
-  | "admin"
-  | "vice"
-  | "decano"
-  | "direccionPrograma"
-  | "docente";
+import type { SecubRole } from "../../../config/access/roles";
 
 export type CompetenciasRaEstado = "activo" | "inactivo";
 
@@ -65,7 +60,7 @@ export interface CurrentUser {
   nombre: string;
   email?: string;
   cargo: string;
-  role: CompetenciasRaFormacionRole;
+  role: SecubRole;
   scope: UserScope;
 }
 
@@ -126,17 +121,3 @@ export interface FormState {
   raDescripciones: string[];
 }
 
-export interface RolePermissions {
-  canRead: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-  canExportPdf: boolean;
-  canExportExcel: boolean;
-  canFilterBySeccional: boolean;
-  canFilterByLugar: boolean;
-  canFilterByFacultad: boolean;
-  canFilterByPrograma: boolean;
-  canFilterByPlan: boolean;
-  canFilterByEstado: boolean;
-}

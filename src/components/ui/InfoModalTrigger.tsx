@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { GoInfo } from "react-icons/go";
 import { Button } from "./Button";
+import { IconButton } from "./IconButton";
+import { ActionIcon } from "./ActionIcon";
 import { Modal } from "./Modal";
 
 interface InfoModalTriggerProps {
@@ -15,25 +16,22 @@ export function InfoModalTrigger({
   title,
   content,
   ariaLabel,
-  icon = <GoInfo aria-hidden="true" className="text-sm" />,
+  icon = <ActionIcon name="info" size="sm" />,
   className,
 }: InfoModalTriggerProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button
-        type="button"
-        className={
-          className ??
-          "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--color-secondary-1)] bg-white text-[var(--color-secondary-1)] transition hover:bg-[var(--color-secondary-1)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.28)] focus-visible:ring-offset-2"
-        }
-        aria-label={ariaLabel}
+      <IconButton
+        icon={icon}
+        label={ariaLabel}
+        variant="primary_soft"
+        size="xs"
+        className={className}
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
-      >
-        {icon}
-      </button>
+      />
 
       <Modal
         open={open}

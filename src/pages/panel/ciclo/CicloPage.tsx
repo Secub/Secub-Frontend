@@ -98,9 +98,6 @@ export default function CicloPage() {
       ) : (
         <div className="space-y-6 pb-24">
           <CicloSavedMessage message={savedMessage} onClose={() => setSavedMessage("")} />
-          {activeCycleLockMessage ? (
-            <CicloSavedMessage message={activeCycleLockMessage} variant="warning" />
-          ) : null}
 
           <CicloFilters
             user={user}

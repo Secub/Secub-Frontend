@@ -1,5 +1,4 @@
-import { GoAlert, GoCheckCircle } from "react-icons/go";
-
+import { SecubIcon } from "../../../../components/ui";
 interface CicloSavedMessageProps {
   message: string;
   onClose?: () => void;
@@ -16,7 +15,7 @@ const messageStyles = {
 export default function CicloSavedMessage({ message, onClose, variant = "success" }: CicloSavedMessageProps) {
   if (!message) return null;
 
-  const Icon = variant === "warning" ? GoAlert : GoCheckCircle;
+  const iconName = variant === "warning" ? "warning" : "complete";
 
   return (
     <div
@@ -24,7 +23,7 @@ export default function CicloSavedMessage({ message, onClose, variant = "success
       className={`flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border px-5 py-4 text-sm ${messageStyles[variant]}`}
     >
       <span className="inline-flex items-center gap-2">
-        <Icon aria-hidden="true" className="text-xl" />
+        <SecubIcon name={iconName} weight="fill" size={20} />
         {message}
       </span>
       {onClose ? (

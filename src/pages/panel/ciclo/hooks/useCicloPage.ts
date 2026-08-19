@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import { mockBackend, subscribeToMockBackendChanges } from "../../../../services/mockBackend";
 import { getCicloCatalogs, getCurrentCicloUser } from "../ciclo.mock";
-import { cicloRolePermissions } from "../ciclo.permissions";
+import { getCyclePermissions } from "../../../../config/access/permissions";
 import type { CicloEnriched, CicloFilters as CicloFiltersState, CicloFormState, CicloMedicion } from "../ciclo.types";
 import {
   INITIAL_CICLO_FILTERS,
@@ -29,7 +29,7 @@ export function useCicloPage() {
   const [cycleToDelete, setCycleToDelete] = useState<CicloEnriched | null>(null);
   const [savedMessage, setSavedMessage] = useState("");
 
-  const permissions = cicloRolePermissions[user.role];
+  const permissions = getCyclePermissions(user.role);
   const isStepLocked = isAcademicWorkflowStepLocked("ciclo");
   const hasCycles = cycles.length > 0;
 

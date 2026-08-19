@@ -1,4 +1,3 @@
-import { GoArrowLeft } from "react-icons/go";
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
 import { PanelLayout } from "../../../components/panel";
 import { Button, ConfirmDialog } from "../../../components/ui";
@@ -8,9 +7,10 @@ import MapeoCompetenciasFeedback from "./components/MapeoCompetenciasFeedback";
 import MapeoCompetenciasIraStep from "./components/MapeoCompetenciasIraStep";
 import MapeoCompetenciasNucleosStep from "./components/MapeoCompetenciasNucleosStep";
 import MapeoCompetenciasStepProgress from "./components/MapeoCompetenciasStepProgress";
-import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
+import { getMapeoAccessRestrictedDescription } from "../../../config/access/permissions";
 import { navigateToMapeoList, useMapeoCompetenciasCreatePage } from "./hooks/useMapeoCompetenciasCreatePage";
 
+import { ActionIcon } from "../../../components/ui/ActionIcon";
 export default function MapeoCompetenciasCreatePage() {
   const page = useMapeoCompetenciasCreatePage();
   const {
@@ -50,7 +50,7 @@ export default function MapeoCompetenciasCreatePage() {
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoArrowLeft className="text-lg" />}
+          leftIcon={<ActionIcon name="back" />}
           onClick={handleGoBack}
         >
           Volver a Mapeo de Competencias
@@ -60,7 +60,7 @@ export default function MapeoCompetenciasCreatePage() {
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
           title="Acceso restringido"
-          description={getAccessRestrictedDescription(currentUser.role)}
+          description={getMapeoAccessRestrictedDescription()}
         />
       ) : (
         <div className="space-y-6">

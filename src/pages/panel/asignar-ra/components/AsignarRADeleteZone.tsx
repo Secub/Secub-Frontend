@@ -1,5 +1,6 @@
-import { GoTrash } from "react-icons/go";
 import { IconButton } from "../../../../components/ui";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface AsignarRADeleteZoneProps {
   canDelete: boolean;
@@ -19,7 +20,7 @@ export function AsignarRADeleteZone({ canDelete, hasAssignments, onDelete }: Asi
             Elimina los RA asignados a este curso para el ciclo seleccionado. También se limpiarán mediciones relacionadas.
           </p>
         </div>
-        <IconButton variant="danger" icon={<GoTrash />} label="Eliminar asignación del curso" onClick={onDelete} />
+        <IconButton variant="danger" icon={<ActionIcon name="delete" />} label="Eliminar asignación del curso" onClick={onDelete} />
       </div>
     </div>
   );

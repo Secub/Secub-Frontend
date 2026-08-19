@@ -1,6 +1,6 @@
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useMemo, useState, type ChangeEvent } from "react";
-import { GoInfo, GoPeople } from "react-icons/go";
-import { Modal } from "../../../../components/ui";
+import { IconButton, Modal } from "../../../../components/ui";
 import { performanceLevels } from "../medicion-ra.mock";
 import { getLevelLabel } from "../medicion-ra.utils";
 import type {
@@ -10,6 +10,8 @@ import type {
   PerformanceLevel,
   Student,
 } from "../medicion-ra.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface StudentsEvaluationTableProps {
   activeCompetence: Competence;
@@ -67,7 +69,7 @@ export default function StudentsEvaluationTable({
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(248,129,29,0.12)] text-[var(--color-primary)]">
-                <GoPeople className="text-xl" />
+                <SecubIcon name="people" weight="fill" className="text-xl" />
               </span>
               <div>
                 <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
@@ -111,15 +113,14 @@ export default function StudentsEvaluationTable({
                         {ra.title}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRa(ra)}
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--color-gray-6)] bg-white text-[var(--color-secondary-1)] transition-colors hover:bg-[var(--color-surface-soft)]"
-                      aria-label={`Ver descripción de ${ra.code}`}
+                    <IconButton
+                      icon={<ActionIcon name="info" />}
+                      label={`Ver descripción de ${ra.code}`}
                       title={`Ver descripción de ${ra.code}`}
-                    >
-                      <GoInfo aria-hidden="true" className="text-lg" />
-                    </button>
+                      variant="primary_soft"
+                      size="sm"
+                      onClick={() => setSelectedRa(ra)}
+                    />
                   </div>
                 </th>
               ))}
