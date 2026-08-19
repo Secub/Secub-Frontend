@@ -25,20 +25,26 @@ describe("SECUB - acceso centralizado", () => {
     expect(normalizeSecubRole("Dirección de programa")).toBe("administrador");
   });
 
-  it("centraliza permisos CRUD académicos", () => {
+  it("centraliza permisos CRUD académicos y mantiene al Docente en solo lectura", () => {
     const director = getAcademicModulePermissions("competenciasRa", "director");
     const decano = getAcademicModulePermissions("competenciasRa", "decano");
-    const docente = getAcademicModulePermissions("competenciasRa", "docente");
 
     expect(director.canCreate).toBe(true);
     expect(director.canUpdate).toBe(true);
     expect(director.canDelete).toBe(true);
     expect(decano.canCreate).toBe(false);
     expect(decano.canUpdate).toBe(false);
-    expect(docente.canRead).toBe(true);
-    expect(docente.canCreate).toBe(false);
-    expect(docente.canUpdate).toBe(false);
-    expect(docente.canDelete).toBe(false);
+
+    for (const module of ["perfilEgreso", "propositoFormacion", "competenciasRa"] as const) {
+      const docente = getAcademicModulePermissions(module, "docente");
+
+      expect(docente.canRead).toBe(true);
+      expect(docente.canCreate).toBe(false);
+      expect(docente.canUpdate).toBe(false);
+      expect(docente.canDelete).toBe(false);
+      expect(docente.canExportPdf).toBe(false);
+      expect(docente.canExportExcel).toBe(false);
+    }
   });
 
   it("limita los filtros académicos del Docente a Programa", () => {

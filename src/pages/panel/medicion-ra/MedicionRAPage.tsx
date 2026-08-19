@@ -94,8 +94,6 @@ function MedicionRAContent() {
     feedback,
     showFinishModal,
     isSelectedCourseLocked,
-    isSelectedCourseComplete,
-    hasNextPendingCourse,
     showValidationErrors,
     competenceContentRef,
     handleCompetenceChange,
@@ -104,13 +102,23 @@ function MedicionRAContent() {
     handleEvidenceChange,
     handleImprovementPlanChange,
     handleSaveProgress,
-    handleNextCourse,
     handleRequestFinishEvaluation,
     handleConfirmFinishEvaluation,
     handleCancelFinishEvaluation,
     handleCloseFeedback,
     hasAvailableCourses,
   } = useMedicionRA();
+
+  const handleFinishCourse = () => {
+    const didFinish = handleConfirmFinishEvaluation();
+    if (!didFinish) return;
+
+    navigateToRoute(
+      buildRouteWithSearch(ROUTES.panelDashboard, {
+        role: "docente",
+      }),
+    );
+  };
 
   if (!hasAvailableCourses) {
     return (
@@ -196,25 +204,22 @@ function MedicionRAContent() {
       <ConfirmDialog
         open={showFinishModal}
         title="¿Deseas finalizar la medición?"
-        description="Una vez finalizada, se guardará el estado de la medición del curso correspondiente."
-        confirmLabel="Finalizar"
+        description="Una vez finalizado, se guardará la medición del curso actual y volverás a Estado del ciclo para consultar el progreso actualizado."
+        confirmLabel="Finalizar curso"
         variant="warning"
         onCancel={handleCancelFinishEvaluation}
-        onConfirm={handleConfirmFinishEvaluation}
+        onConfirm={handleFinishCourse}
       />
 
       <FlowActionBar
-        description="Guardar conserva avances parciales del curso actual. Siguiente curso aparece cuando la medición del curso está completa y queda otro curso pendiente. Finalizar cierra la medición del último curso pendiente."
+        description="Guardar conserva el avance parcial del curso actual. Finalizar curso valida la medición, la guarda como completada y actualiza su progreso en Estado del ciclo."
         showSaveProgress={!isSelectedCourseLocked}
+        saveLabel="Guardar"
         onSaveProgress={handleSaveProgress}
         saveDisabled={isSelectedCourseLocked}
         saveTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
-        showNext={hasNextPendingCourse && isSelectedCourseComplete}
-        nextLabel="Siguiente curso"
-        onNext={handleNextCourse}
-        nextTitle="Guardar y continuar con el siguiente curso pendiente"
-        showFinish={!hasNextPendingCourse}
-        finishLabel={isSelectedCourseLocked ? "Medición finalizada" : "Finalizar"}
+        showFinish
+        finishLabel={isSelectedCourseLocked ? "Curso finalizado" : "Finalizar curso"}
         finishDisabled={isSelectedCourseLocked}
         finishTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
         onFinish={handleRequestFinishEvaluation}

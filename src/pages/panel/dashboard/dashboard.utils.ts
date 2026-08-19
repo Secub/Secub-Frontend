@@ -51,6 +51,10 @@ export function getCourseProgress(course: CourseMeasurement) {
 }
 
 export function getCourseStatus(course: CourseMeasurement) {
+  if (typeof course.measurementCompleted === "boolean") {
+    return course.measurementCompleted ? "finalizado" : "pendiente";
+  }
+
   return getCourseProgress(course) >= 100 ? "finalizado" : "pendiente";
 }
 
@@ -87,7 +91,10 @@ export function enrichCycles(
       programaName: catalogs.programas.find((item) => item.id === cycle.programaId)?.name ?? "Sin programa",
       planName: formatPlanName(catalogs.planes.find((item) => item.id === cycle.planId)),
       planEstado: catalogs.planes.find((item) => item.id === cycle.planId)?.estado ?? "inactivo",
-      status: progress >= 100 && Boolean(cycle.hasImprovementPlan) ? "finalizado" : "pendiente",
+      status:
+        cycleCourses.length > 0 && pendingCourses === 0 && Boolean(cycle.hasImprovementPlan)
+          ? "finalizado"
+          : "pendiente",
       progress,
       totalRa,
       evaluatedRa,
@@ -122,7 +129,7 @@ export function enrichCourses(
       competences: course.competenceIds
         .map((competenceId) => catalogs.competences.find((item) => item.id === competenceId))
         .filter((item): item is CompetenceCatalog => Boolean(item)),
-      status: progress >= 100 ? "finalizado" : "pendiente",
+      status: getCourseStatus(course),
       pendingRa: Math.max(course.totalRa - course.evaluatedRa, 0),
       progress,
     };

@@ -4,6 +4,7 @@ import {
   getCurrentMockUser,
   resolveDemoDocenteByName,
 } from "../../../services/auth/mockUser";
+import { getStudentsByCourse } from "../../../data/secubAcademicPrograms";
 import { mockBackend } from "../../../services/mockBackend";
 import { getCicloCatalogs } from "../ciclo/ciclo.mock";
 import type {
@@ -324,6 +325,19 @@ function buildPersistedCourses({
       );
       const assignedRaIds = uniqueValues(courseAssignments.map(getAssignmentRaId));
       const competenceIds = uniqueValues(courseAssignments.map(getAssignmentCompetenceId));
+      const courseMeasurement = courseAssignments
+        .map((assignment) => getMedicionForAssignment(mediciones, assignment, courseId, cycle.id))
+        .find((measurement): measurement is PersistedMedicionDemo => Boolean(measurement));
+      const expectedStudentIds = getStudentsByCourse(courseId).map((student) => student.id);
+      const courseEvaluations = courseMeasurement?.evaluationsByCourse?.[courseId] ?? {};
+      const evaluatedRa = assignedRaIds.filter(
+        (raId) =>
+          expectedStudentIds.length > 0 &&
+          expectedStudentIds.every((studentId) => Boolean(courseEvaluations[studentId]?.[raId])),
+      ).length;
+      const measurementCompleted = Boolean(
+        courseMeasurement?.completed || courseMeasurement?.isEvaluationLocked,
+      );
       const results = buildCourseResultsFromMeasurements({
         cycleId: cycle.id,
         courseId,
@@ -346,7 +360,8 @@ function buildPersistedCourses({
         competenceIds,
         assignedRaIds,
         totalRa: assignedRaIds.length,
-        evaluatedRa: results.length,
+        evaluatedRa,
+        measurementCompleted,
         results,
       }];
     });

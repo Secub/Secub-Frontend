@@ -109,6 +109,7 @@ export interface CourseMeasurement {
   assignedRaIds?: string[];
   totalRa: number;
   evaluatedRa: number;
+  measurementCompleted?: boolean;
   results: CourseRaResult[];
 }
 

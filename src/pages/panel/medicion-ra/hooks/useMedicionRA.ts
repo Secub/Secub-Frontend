@@ -99,7 +99,7 @@ export function useMedicionRA() {
     setShowValidationErrors(false);
   }, [computed.selectedCourse.id]);
 
-  useMedicionRAPersistence({
+  const { persistSelectedCourse } = useMedicionRAPersistence({
     activeCompetenceId: selection.activeCompetenceId,
     completedCompetenceIds: hydrated.completedCompetenceIds,
     currentUser,
@@ -185,10 +185,9 @@ export function useMedicionRA() {
     course: computed.selectedCourse,
     isLastCompetence: computed.isLastCompetence,
     isSelectedCourseLocked: hydrated.isSelectedCourseLocked,
-    nextPendingCourse,
     pendingAutoScrollCompetenceIdRef,
+    persistSelectedCourse,
     setActiveCompetenceId: selection.setActiveCompetenceId,
-    setSelectedCourseId: selection.setSelectedCourseId,
     setCompletedCompetenceIds: hydrated.setCompletedCompetenceIds,
     setEvaluationsByCourse: hydrated.setEvaluationsByCourse,
     setEvidenceByCompetence: hydrated.setEvidenceByCompetence,
