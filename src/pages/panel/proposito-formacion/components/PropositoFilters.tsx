@@ -41,7 +41,7 @@ export function PropositoFilters({
       filters={filters}
       filterOptions={filterOptions}
       permissions={{
-        canFilterByLugar: true,
+        canFilterByLugar: permissions.canFilterByLugar,
         canFilterByFacultad: permissions.canFilterByFacultad,
         canFilterByPrograma: permissions.canFilterByPrograma,
         canFilterByPlan: permissions.canFilterByPlan,

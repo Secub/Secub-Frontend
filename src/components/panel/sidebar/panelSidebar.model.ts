@@ -14,7 +14,12 @@ export const academicStepKeys: PanelStepKey[] = [
   "asignar-ra",
 ];
 
-export const docenteAcademicStepKeys: PanelStepKey[] = ["medicion-ra"];
+export const docenteAcademicStepKeys: PanelStepKey[] = [
+  "perfil-egreso",
+  "proposito-formacion",
+  "competencias-ra",
+  "medicion-ra",
+];
 
 export function isDocenteProgressStep(stepKey: PanelStepKey) {
   return stepKey === "medicion-ra";

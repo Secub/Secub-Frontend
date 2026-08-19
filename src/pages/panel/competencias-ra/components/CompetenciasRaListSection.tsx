@@ -43,11 +43,15 @@ export default function CompetenciasRaListSection({
             Competencias y Resultados de Aprendizaje
           </h3>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados. Expande para ver los detalles de cada resultado.
+            {permissions.canUpdate
+              ? "Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados. Expande para ver los detalles de cada resultado."
+              : "Consulta las competencias y sus Resultados de Aprendizaje asociados. Expande cada registro para revisar su información."}
           </p>
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
             <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
-            La edición solo se habilita sobre programas activos.
+            {permissions.canUpdate
+              ? "La edición solo se habilita sobre programas activos."
+              : "Vista de solo consulta."}
           </div>
         </div>
 
@@ -64,7 +68,7 @@ export default function CompetenciasRaListSection({
         </div>
       </div>
 
-      {invalidCount > 0 ? (
+      {permissions.canUpdate && invalidCount > 0 ? (
         <div
           role="alert"
           className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]"

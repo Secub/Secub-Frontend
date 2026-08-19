@@ -43,21 +43,21 @@ export const FILTER_POLICY: Record<
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
-    docente: { ...noFilters },
+    docente: { ...noFilters, canFilterByPrograma: true },
   },
   propositoFormacion: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
-    docente: { ...noFilters },
+    docente: { ...noFilters, canFilterByPrograma: true },
   },
   competenciasRa: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByLugar: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
-    docente: { ...noFilters },
+    docente: { ...noFilters, canFilterByPrograma: true },
   },
   mapeoCompetencias: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByLugar: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
@@ -146,21 +146,21 @@ const ACADEMIC_ACTION_POLICY: Record<
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
-    docente: noAcademicAccess,
+    docente: readOnlyAcademicActions,
   },
   propositoFormacion: {
     administrador: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
-    docente: noAcademicAccess,
+    docente: readOnlyAcademicActions,
   },
   competenciasRa: {
     administrador: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
-    docente: noAcademicAccess,
+    docente: readOnlyAcademicActions,
   },
   mapeoCompetencias: {
     administrador: readOnlyAcademicActions,
@@ -348,15 +348,24 @@ export const PANEL_MODULE_ACCESS: Record<PanelModuleKey, readonly SecubRole[]> =
   dashboard: ALL_ROLES,
   settings: ALL_ROLES,
   accessibility: ALL_ROLES,
-  perfilEgreso: NON_DOCENTE_ROLES,
-  propositoFormacion: NON_DOCENTE_ROLES,
-  competenciasRa: NON_DOCENTE_ROLES,
+  perfilEgreso: ALL_ROLES,
+  propositoFormacion: ALL_ROLES,
+  competenciasRa: ALL_ROLES,
   mapeoCompetencias: NON_DOCENTE_ROLES,
   mapeoCompetenciasManage: ["director"],
   ciclo: NON_DOCENTE_ROLES,
   asignarRa: NON_DOCENTE_ROLES,
   medicionRa: ["docente"],
 };
+
+/**
+ * El Docente consulta los módulos académicos como biblioteca de referencia,
+ * por fuera del bloqueo secuencial del flujo de edición. Los demás roles
+ * conservan la lógica actual del workflow.
+ */
+export function shouldEnforceAcademicWorkflowLock(role: SecubRole) {
+  return role !== "docente";
+}
 
 export function canAccessModule(role: SecubRole, module: PanelModuleKey) {
   return PANEL_MODULE_ACCESS[module].includes(role);

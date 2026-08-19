@@ -5,8 +5,10 @@ import {
   canStartAcademicPlan,
   canWriteEntity,
   getAcademicModulePermissions,
+  shouldEnforceAcademicWorkflowLock,
   getAsignarRaPermissions,
   getCyclePermissions,
+  getFilterPermissions,
   getRoleScopedProgramSelection,
 } from "./permissions";
 
@@ -26,12 +28,31 @@ describe("SECUB - acceso centralizado", () => {
   it("centraliza permisos CRUD académicos", () => {
     const director = getAcademicModulePermissions("competenciasRa", "director");
     const decano = getAcademicModulePermissions("competenciasRa", "decano");
+    const docente = getAcademicModulePermissions("competenciasRa", "docente");
 
     expect(director.canCreate).toBe(true);
     expect(director.canUpdate).toBe(true);
     expect(director.canDelete).toBe(true);
     expect(decano.canCreate).toBe(false);
     expect(decano.canUpdate).toBe(false);
+    expect(docente.canRead).toBe(true);
+    expect(docente.canCreate).toBe(false);
+    expect(docente.canUpdate).toBe(false);
+    expect(docente.canDelete).toBe(false);
+  });
+
+  it("limita los filtros académicos del Docente a Programa", () => {
+    for (const module of ["perfilEgreso", "propositoFormacion", "competenciasRa"] as const) {
+      const filters = getFilterPermissions(module, "docente");
+      expect(filters.canFilterByPrograma).toBe(true);
+      expect(filters.canFilterByFacultad).toBe(false);
+      expect(filters.canFilterByLugar).toBe(false);
+    }
+  });
+
+  it("mantiene el bloqueo secuencial para roles gestores, pero no para la consulta Docente", () => {
+    expect(shouldEnforceAcademicWorkflowLock("docente")).toBe(false);
+    expect(shouldEnforceAcademicWorkflowLock("director")).toBe(true);
   });
 
   it("mantiene Facultad oculta para Dirección en Competencias y RA", () => {
@@ -59,7 +80,10 @@ describe("SECUB - acceso centralizado", () => {
   it("centraliza navegación y persistencia", () => {
     expect(canAccessModule("docente", "dashboard")).toBe(true);
     expect(canAccessModule("docente", "medicionRa")).toBe(true);
-    expect(canAccessModule("docente", "competenciasRa")).toBe(false);
+    expect(canAccessModule("docente", "perfilEgreso")).toBe(true);
+    expect(canAccessModule("docente", "propositoFormacion")).toBe(true);
+    expect(canAccessModule("docente", "competenciasRa")).toBe(true);
+    expect(canAccessModule("docente", "mapeoCompetencias")).toBe(false);
 
     expect(canStartAcademicPlan("director")).toBe(true);
     expect(canStartAcademicPlan("administrador")).toBe(false);

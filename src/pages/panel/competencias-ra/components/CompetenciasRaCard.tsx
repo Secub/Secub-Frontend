@@ -107,7 +107,7 @@ export default function CompetenciasRaCard({
           </span>
         </button>
 
-        {raValidationMessage || maxReachedMessage ? (
+        {canEdit && (raValidationMessage || maxReachedMessage) ? (
           <div
             role={raValidationMessage ? "alert" : undefined}
             className="mt-3 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]"
@@ -173,13 +173,15 @@ export default function CompetenciasRaCard({
               ))
             ) : (
               <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-sm leading-6 text-[var(--color-gray-3)]">
-                Esta competencia todavía no tiene RA. Agrega al menos un Resultado de Aprendizaje para completar el paso y habilitar el mapeo.
+                {canEdit
+                ? "Esta competencia todavía no tiene RA. Agrega al menos un Resultado de Aprendizaje para completar el paso y habilitar el mapeo."
+                : "Esta competencia todavía no tiene Resultados de Aprendizaje asociados."}
               </div>
             )}
           </div>
         ) : null}
       </div>
-      
+
     </div>
   );
 }

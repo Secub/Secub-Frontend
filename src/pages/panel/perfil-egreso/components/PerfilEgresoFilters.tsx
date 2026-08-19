@@ -30,7 +30,7 @@ export function PerfilEgresoFilters(props: PerfilEgresoFiltersProps) {
       filters={props.filters}
       filterOptions={props.filterOptions}
       permissions={{
-        canFilterByLugar: true,
+        canFilterByLugar: props.permissions.canFilterByLugar,
         canFilterByFacultad: props.permissions.canFilterByFacultad,
         canFilterByPrograma: props.permissions.canFilterByPrograma,
         canFilterByPlan: props.permissions.canFilterByPlan,

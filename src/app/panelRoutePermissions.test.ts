@@ -3,9 +3,12 @@ import { ROUTES } from "./appRoutes";
 import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
 
 describe("panelRoutePermissions", () => {
-  it("redirige a Docente fuera de Dashboard y Medición RA", () => {
+  it("permite al Docente consultar los módulos académicos habilitados", () => {
     expect(getPanelRouteAccessRedirect(ROUTES.panelMedicionRa, "docente")).toBeNull();
-    expect(getPanelRouteAccessRedirect(ROUTES.panelPerfilEgreso, "docente")).toBe(ROUTES.panelDashboard);
+    expect(getPanelRouteAccessRedirect(ROUTES.panelPerfilEgreso, "docente")).toBeNull();
+    expect(getPanelRouteAccessRedirect(ROUTES.panelPropositoFormacion, "docente")).toBeNull();
+    expect(getPanelRouteAccessRedirect(ROUTES.panelCompetenciasRa, "docente")).toBeNull();
+    expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetencias, "docente")).toBe(ROUTES.panelDashboard);
     expect(getPanelRouteAccessRedirect(ROUTES.panelAsignarRa, "docente")).toBe(ROUTES.panelDashboard);
   });
 

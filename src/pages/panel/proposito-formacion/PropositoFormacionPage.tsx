@@ -61,20 +61,26 @@ export default function PropositoFormacionPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCompetenciasRa, { role: currentUser.role }));
   };
 
-  const pageActions = (
+  const hasPageActions =
+    permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
+  const pageActions = hasPageActions ? (
     <PropositoPageActions
       permissions={permissions}
       filteredRecords={filteredRecords}
       onCreate={openCreateModal}
       onExport={setExportFormat}
     />
-  );
+  ) : undefined;
 
   return (
     <PanelLayout
       currentStep="proposito-formacion"
       title="Propósito de Formación"
-      description="Consulta y gestión del propósito de formación institucional."
+      description={
+        permissions.canUpdate
+          ? "Consulta y gestión del propósito de formación institucional."
+          : "Consulta el propósito de formación institucional."
+      }
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (
@@ -87,12 +93,16 @@ export default function PropositoFormacionPage() {
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay propósitos de formación creados"
-          description="Cuando se cargue el primer propósito de formación, se habilitará la vista completa con filtros, tabla, acciones y exportación."
+          description={
+            permissions.canCreate
+              ? "Cuando se cargue el primer propósito de formación, se habilitará la vista completa con filtros, tabla, acciones y exportación."
+              : "Todavía no hay propósitos de formación disponibles para consulta."
+          }
           actionLabel={permissions.canCreate && !isInheritedBaseStep ? "Crear propósito de formación" : undefined}
           onAction={permissions.canCreate && !isInheritedBaseStep ? openCreateModal : undefined}
         />
       ) : (
-        <div className="space-y-6 pb-24">
+        <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
           <PropositoFiltersPanel
             user={currentUser}
             permissions={permissions}
@@ -141,49 +151,57 @@ export default function PropositoFormacionPage() {
         onClose={() => setDetailOpen(false)}
       />
 
-      <PropositoFormModal
-        open={formOpen}
-        mode={formMode}
-        user={currentUser}
-        catalogs={catalogs}
-        initialValues={formValues}
-        records={roleScopedRecords}
-        record={selectedRecord}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-      />
+      {permissions.canCreate || permissions.canUpdate ? (
+        <PropositoFormModal
+          open={formOpen}
+          mode={formMode}
+          user={currentUser}
+          catalogs={catalogs}
+          initialValues={formValues}
+          records={roleScopedRecords}
+          record={selectedRecord}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={Boolean(recordToDelete)}
-        title={`¿Seguro que deseas eliminar el propósito de formación de "${recordToDelete?.programaNombre ?? "este programa"}"?`}
-        description="Se eliminará el propósito de formación seleccionado. Esta acción no se puede deshacer."
-        confirmLabel="Eliminar"
-        variant="danger"
-        onCancel={() => setRecordToDelete(null)}
-        onConfirm={confirmDelete}
-      />
+      {permissions.canDelete ? (
+        <ConfirmDialog
+          open={Boolean(recordToDelete)}
+          title={`¿Seguro que deseas eliminar el propósito de formación de "${recordToDelete?.programaNombre ?? "este programa"}"?`}
+          description="Se eliminará el propósito de formación seleccionado. Esta acción no se puede deshacer."
+          confirmLabel="Eliminar"
+          variant="danger"
+          onCancel={() => setRecordToDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
 
-      <PropositoExportModal
-        open={exportFormat === "pdf"}
-        title="Exportación de propósitos de formación en PDF"
-        format="pdf"
-        permissions={permissions}
-        catalogs={catalogs}
-        baseRecords={roleScopedRecords}
-        initialFilters={filters}
-        onClose={() => setExportFormat(null)}
-      />
+      {permissions.canExportPdf ? (
+        <PropositoExportModal
+          open={exportFormat === "pdf"}
+          title="Exportación de propósitos de formación en PDF"
+          format="pdf"
+          permissions={permissions}
+          catalogs={catalogs}
+          baseRecords={roleScopedRecords}
+          initialFilters={filters}
+          onClose={() => setExportFormat(null)}
+        />
+      ) : null}
 
-      <PropositoExportModal
-        open={exportFormat === "excel"}
-        title="Exportación de propósitos de formación en Excel"
-        format="excel"
-        permissions={permissions}
-        catalogs={catalogs}
-        baseRecords={roleScopedRecords}
-        initialFilters={filters}
-        onClose={() => setExportFormat(null)}
-      />
+      {permissions.canExportExcel ? (
+        <PropositoExportModal
+          open={exportFormat === "excel"}
+          title="Exportación de propósitos de formación en Excel"
+          format="excel"
+          permissions={permissions}
+          catalogs={catalogs}
+          baseRecords={roleScopedRecords}
+          initialFilters={filters}
+          onClose={() => setExportFormat(null)}
+        />
+      ) : null}
     </PanelLayout>
   );
 }

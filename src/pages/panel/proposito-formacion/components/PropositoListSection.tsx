@@ -36,7 +36,9 @@ export default function PropositoListSection({
 
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
           <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
-          La actualización solo se habilita sobre programas activos.
+          {permissions.canUpdate
+            ? "La actualización solo se habilita sobre programas activos."
+            : "Vista de solo consulta."}
         </div>
       </div>
 

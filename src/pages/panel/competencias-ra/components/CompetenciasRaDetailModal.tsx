@@ -85,7 +85,11 @@ export function CompetenciasRaDetailModal({
       open={open}
       onClose={onClose}
       title="Detalle de la competencia"
-      description="Consulta y actualiza la información completa de la competencia seleccionada."
+      description={
+        canEdit
+          ? "Consulta y actualiza la información completa de la competencia seleccionada."
+          : "Consulta la información completa de la competencia seleccionada."
+      }
       size="lg"
     >
       <div className="grid gap-6 md:grid-cols-2">

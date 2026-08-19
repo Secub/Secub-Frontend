@@ -41,6 +41,9 @@ export default function DashboardFilters({
   const filterPermissions = getFilterPermissions("dashboard", user.role);
   const showSeccional = filterPermissions.canFilterBySeccional;
   const showFacultad = filterPermissions.canFilterByFacultad;
+  const showPrograma = filterPermissions.canFilterByPrograma;
+  const showPlan = filterPermissions.canFilterByPlan;
+  const showEstado = filterPermissions.canFilterByEstado;
 
   const scopedProgramaIds = user.scope.programaIds ?? [];
   const seccionalOptions = toOptions(catalogs.seccionales);
@@ -125,35 +128,41 @@ export default function DashboardFilters({
           </div>
         ) : null}
 
-        <div className="panel-filter-item">
-          <Select
-            label="Programa académico"
-            placeholder="Todos"
-            value={filters.programaId}
-            options={programaOptions}
-            onChange={(event) => onFilterChange("programaId", event.target.value)}
-          />
-        </div>
+        {showPrograma ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Programa académico"
+              placeholder="Todos"
+              value={filters.programaId}
+              options={programaOptions}
+              onChange={(event) => onFilterChange("programaId", event.target.value)}
+            />
+          </div>
+        ) : null}
 
-        <div className="panel-filter-item">
-          <Select
-            label="Plan de estudios"
-            placeholder="Todos"
-            value={filters.planId}
-            options={planOptions}
-            onChange={(event) => onFilterChange("planId", event.target.value)}
-          />
-        </div>
+        {showPlan ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Plan de estudios"
+              placeholder="Todos"
+              value={filters.planId}
+              options={planOptions}
+              onChange={(event) => onFilterChange("planId", event.target.value)}
+            />
+          </div>
+        ) : null}
 
-        <div className="panel-filter-item">
-          <Select
-            label="Estado"
-            placeholder="Todos los estados"
-            value={filters.status}
-            options={statusOptions}
-            onChange={(event) => onFilterChange("status", event.target.value)}
-          />
-        </div>
+        {showEstado ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Estado"
+              placeholder="Todos los estados"
+              value={filters.status}
+              options={statusOptions}
+              onChange={(event) => onFilterChange("status", event.target.value)}
+            />
+          </div>
+        ) : null}
 
         <div className="panel-filter-item">
           <Select
