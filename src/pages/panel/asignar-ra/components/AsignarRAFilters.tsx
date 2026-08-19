@@ -1,4 +1,4 @@
-import { GoSearch } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Select } from "../../../../components/ui";
 import type { FilterLocks, FilterOptions, FilterState } from "../AsignarRA.types";
 
@@ -32,7 +32,7 @@ export function AsignarRAFilters({
   return (
     <section className="surface-card p-6">
       <div className="mb-5 flex items-start gap-3">
-        <GoSearch className="mt-1 shrink-0 text-xl text-[var(--color-secondary-1)]" />
+        <SecubIcon name="search" weight="bold" className="mt-1 shrink-0 text-xl text-[var(--color-secondary-1)]" />
         <div>
           <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">Filtros de asignación</h2>
           <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">

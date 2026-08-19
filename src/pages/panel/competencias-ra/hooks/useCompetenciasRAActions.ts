@@ -2,7 +2,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
 import { getCurrentUser } from "../CompetenciasRa.mock";
-import { rolePermissions } from "../CompetenciasRa.permissions";
+import { getAcademicModulePermissions } from "../../../../config/access/permissions";
 import {
   MAX_RA_PER_COMPETENCIA,
   canAddLearningResult,
@@ -17,7 +17,7 @@ import { showNotification } from "../../../../shared/feedback";
 import { createClientId } from "../../../../shared/ids";
 
 const currentUser = getCurrentUser();
-const permissions = rolePermissions[currentUser.role];
+const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
 
 interface UseCompetenciasRAActionsParams {
   selectedRecord: CompetenciasRaEnriched | null;

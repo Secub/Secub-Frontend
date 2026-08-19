@@ -1,9 +1,4 @@
-export type PropositoFormacionRole =
-  | "admin"
-  | "vice"
-  | "decano"
-  | "direccionPrograma"
-  | "docente";
+import type { SecubRole } from "../../../config/access/roles";
 
 export type PropositoEstado = "activo" | "inactivo";
 
@@ -59,7 +54,7 @@ export interface CurrentUser {
   nombre: string;
   email?: string;
   cargo: string;
-  role: PropositoFormacionRole;
+  role: SecubRole;
   scope: UserScope;
 }
 
@@ -118,16 +113,3 @@ export interface FormState {
   descripcion: string;
 }
 
-export interface RolePermissions {
-  canRead: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-  canExportPdf: boolean;
-  canExportExcel: boolean;
-  canFilterBySeccional: boolean;
-  canFilterByFacultad: boolean;
-  canFilterByPrograma: boolean;
-  canFilterByPlan: boolean;
-  canFilterByEstado: boolean;
-}

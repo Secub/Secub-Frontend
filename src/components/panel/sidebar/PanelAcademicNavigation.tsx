@@ -1,15 +1,9 @@
 import { useId, useMemo, useState } from "react";
-import {
-  FiBookOpen as BookOpen,
-  FiCheck as Check,
-  FiChevronDown as ChevronDown,
-  FiLock as LockKeyhole,
-  FiPlus as Plus,
-} from "react-icons/fi";
 import { navigateToRoute } from "../../../app/appRoutes";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
-import { canStartNewAcademicPlan as canRoleStartNewAcademicPlan } from "../../../services/auth/roleAccess";
+import { canStartAcademicPlan } from "../../../config/access/permissions";
 import { showNotification } from "../../../shared/feedback";
+import { SecubIcon } from "../../ui";
 import {
   WORKFLOW_LOCKED_MESSAGE,
   getAcademicWorkflowLockedDescription,
@@ -70,7 +64,7 @@ export default function PanelAcademicNavigation({
   const isWorkflowCompleted = !isDocente && workflowState === "completed";
   const renewalAvailability = getNewAcademicPlanRenewalAvailability(workflowProgress);
   const canStartNewAcademicPlan = renewalAvailability.isAvailable;
-  const canManageNewAcademicPlan = canRoleStartNewAcademicPlan(currentUser.role);
+  const canManageNewAcademicPlan = canStartAcademicPlan(currentUser.role);
   const newAcademicPlanLockedMessage =
     renewalAvailability.lockedMessage ??
     "El nuevo plan académico estará disponible cuando el ciclo actual cumpla 1.5 años.";
@@ -153,7 +147,6 @@ export default function PanelAcademicNavigation({
     item: (typeof academicProgress)[number],
     completedView = false,
   ) => {
-    const ItemIcon = item.icon;
     const lockedDescription = item.isLocked
       ? getAcademicWorkflowLockedDescription(item.key)
       : item.label;
@@ -206,14 +199,14 @@ export default function PanelAcademicNavigation({
           >
             <span
               className={[
-                "flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-pill)] transition-colors",
+                "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)] transition-colors",
                 item.isCurrent
                   ? "bg-[color:rgba(118,202,102,0.14)] text-[var(--color-success)]"
                   : "text-[color:rgba(217,221,231,0.70)] group-hover:text-[var(--color-white)]",
               ].join(" ")}
               aria-hidden="true"
             >
-              <ItemIcon className="text-[0.78rem]" />
+              <SecubIcon name={item.icon} size={18} weight="regular" />
             </span>
             <span className="min-w-0 flex-1 truncate font-heading text-[0.86rem] font-semibold leading-5">
               {item.label}
@@ -241,10 +234,10 @@ export default function PanelAcademicNavigation({
                 : "cursor-pointer hover:bg-[color:rgba(255,255,255,0.05)]",
           ].join(" ")}
         >
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden="true">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center" aria-hidden="true">
             <span
               className={[
-                "flex h-3.5 w-3.5 items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
+                "flex h-[18px] w-[18px] items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
                 item.isLocked
                   ? "border-[color:rgba(179,206,226,0.30)] text-[color:rgba(179,206,226,0.30)]"
                   : item.isCompleted
@@ -255,9 +248,9 @@ export default function PanelAcademicNavigation({
               ].join(" ")}
             >
               {item.isCompleted ? (
-                <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                <SecubIcon name="check" size={12} weight="bold" />
               ) : item.isCurrent ? (
-                <span className="h-1.5 w-1.5 rounded-[var(--radius-pill)] bg-current" />
+                <span className="h-2 w-2 rounded-[var(--radius-pill)] bg-current" />
               ) : null}
             </span>
           </span>
@@ -301,17 +294,19 @@ export default function PanelAcademicNavigation({
             : "text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
         ].join(" ")}
       >
-        <BookOpen className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <SecubIcon name="book" size={22} weight="bold" />
         <span className="min-w-0 flex-1 truncate">Gestión Académica</span>
         <span className="rounded-[var(--radius-pill)] bg-[color:rgba(118,202,102,0.12)] px-2 py-0.5 text-[0.72rem] font-bold leading-4 text-[var(--color-success)]">
           {completedStepsCount}/{totalStepsCount}
         </span>
-        <ChevronDown
+        <SecubIcon
+          name="chevron-down"
+          size={16}
+          weight="bold"
           className={[
-            "h-3.5 w-3.5 shrink-0 text-[var(--color-secondary-2)] transition-transform",
+            "text-[var(--color-secondary-2)] transition-transform",
             isAcademicMenuOpen ? "rotate-180" : "",
           ].join(" ")}
-          aria-hidden="true"
         />
       </button>
 
@@ -362,7 +357,7 @@ export default function PanelAcademicNavigation({
             >
               <span
                 className={[
-                  "flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-pill)]",
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)]",
                   canStartNewAcademicPlan
                     ? "bg-[color:rgba(248,129,29,0.16)] text-[var(--color-primary)]"
                     : "text-[var(--color-secondary-3)]",
@@ -370,9 +365,9 @@ export default function PanelAcademicNavigation({
                 aria-hidden="true"
               >
                 {canStartNewAcademicPlan ? (
-                  <Plus className="h-3.5 w-3.5" />
+                  <SecubIcon name="add" size={18} weight="regular" />
                 ) : (
-                  <LockKeyhole className="h-3.5 w-3.5" />
+                  <SecubIcon name="lock" size={18} weight="regular" />
                 )}
               </span>
               <span className="min-w-0 flex-1">

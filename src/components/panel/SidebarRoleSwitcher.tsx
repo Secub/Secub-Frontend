@@ -1,17 +1,22 @@
 import { navigateToRoute } from "../../app/appRoutes";
-import { getNeutralRoleLabel, normalizeMockRole, type MockUserRole } from "../../services/auth/mockUser";
+import {
+  SECUB_ROLE_LABELS,
+  SECUB_ROLE_ORDER,
+  normalizeSecubRole,
+  type SecubRole,
+} from "../../config/access/roles";
 import { mockBackend } from "../../services/mockBackend";
 
-const demoRoles: MockUserRole[] = ["admin", "vice", "decano", "direccionPrograma", "docente"];
+const demoRoles = SECUB_ROLE_ORDER;
 
 export default function SidebarRoleSwitcher() {
   const params = new URLSearchParams(window.location.search);
-  const currentRole = normalizeMockRole(params.get("role") ?? "admin");
+  const currentRole = normalizeSecubRole(params.get("role") ?? "administrador");
   const currentRoleLabel = demoRoles.includes(currentRole)
-    ? getNeutralRoleLabel(currentRole)
-    : getNeutralRoleLabel("admin");
+    ? SECUB_ROLE_LABELS[currentRole]
+    : SECUB_ROLE_LABELS.administrador;
 
-  const handleChange = (role: string) => {
+  const handleChange = (role: SecubRole) => {
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.set("role", role);
 
@@ -49,12 +54,12 @@ export default function SidebarRoleSwitcher() {
         <select
           id="sidebar-role-selector"
           value={currentRole}
-          onChange={(event) => handleChange(event.target.value)}
+          onChange={(event) => handleChange(normalizeSecubRole(event.target.value))}
           className="w-full rounded-[12px] border border-[color:rgba(217,221,231,0.16)] bg-[var(--color-footer-dark)] px-3 py-2 text-[0.84rem] font-semibold text-[var(--color-white)] outline-none transition-colors hover:border-[var(--color-secondary-3)] focus:border-[var(--color-secondary-1)]"
         >
           {demoRoles.map((role) => (
             <option key={role} value={role}>
-              {getNeutralRoleLabel(role)}
+              {SECUB_ROLE_LABELS[role]}
             </option>
           ))}
         </select>

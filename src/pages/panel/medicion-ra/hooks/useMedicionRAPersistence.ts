@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { MutableRefObject } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import type { getCurrentMockUser } from "../../../../services/auth/mockUser";
@@ -16,7 +16,6 @@ import {
   pickCourseEvaluationState,
   pickCourseInstrumentState,
 } from "../utils/medicionRA.persistence";
-
 
 function hasEvaluationProgress(evaluationsByCourse: Record<string, EvaluationMatrix>) {
   return Object.values(evaluationsByCourse).some((evaluations) =>
@@ -40,6 +39,12 @@ function hasTextStateProgress<T extends object>(records: Record<string, T>) {
       (value) => typeof value === "string" && Boolean(value.trim()),
     ),
   );
+}
+
+interface PersistSelectedCourseOptions {
+  completedCompetenceIds?: string[];
+  isEvaluationLocked?: boolean;
+  completed?: boolean;
 }
 
 export function useMedicionRAPersistence({
@@ -73,24 +78,33 @@ export function useMedicionRAPersistence({
   selectedCourse: CourseRecord;
   selectedCourseId: string;
 }) {
-  useEffect(() => {
-    const courseEvaluations = pickCourseEvaluationState(evaluationsByCourse, selectedCourse.id);
-    const courseInstruments = pickCourseInstrumentState(instrumentsByCourse, selectedCourse.id);
-    const courseEvidence = pickCourseCompetenceState(evidenceByCompetence, selectedCourse.id);
-    const courseImprovementPlans = pickCourseCompetenceState(improvementByCompetence, selectedCourse.id);
-    const hasProgress =
-      completedCompetenceIds.length > 0 ||
-      hasEvaluationProgress(courseEvaluations) ||
-      hasInstrumentProgress(courseInstruments) ||
-      hasTextStateProgress(courseEvidence) ||
-      hasTextStateProgress(courseImprovementPlans) ||
-      isSelectedCourseLocked;
+  const persistSelectedCourse = useCallback(
+    (options: PersistSelectedCourseOptions = {}) => {
+      if (hydratedStateId !== medicionRaDemoStateId) return false;
 
-    if (!hasProgress || hydratedStateId !== medicionRaDemoStateId) return;
+      const courseEvaluations = pickCourseEvaluationState(
+        evaluationsByCourse,
+        selectedCourse.id,
+      );
+      const courseInstruments = pickCourseInstrumentState(
+        instrumentsByCourse,
+        selectedCourse.id,
+      );
+      const courseEvidence = pickCourseCompetenceState(
+        evidenceByCompetence,
+        selectedCourse.id,
+      );
+      const courseImprovementPlans = pickCourseCompetenceState(
+        improvementByCompetence,
+        selectedCourse.id,
+      );
+      const { relatedCiclo, cicloId, asignacionRaIds } = medicionRaContext;
+      const nextCompletedCompetenceIds =
+        options.completedCompetenceIds ?? completedCompetenceIds;
+      const nextIsEvaluationLocked =
+        options.isEvaluationLocked ?? isSelectedCourseLocked;
+      const nextCompleted = options.completed ?? nextIsEvaluationLocked;
 
-    const { relatedCiclo, cicloId, asignacionRaIds } = medicionRaContext;
-
-    const persistState = () => {
       ignoreNextBackendChangeRef.current = true;
       mockBackend.upsert<MedicionRaDemoState>(
         "medicionesRa",
@@ -105,9 +119,9 @@ export function useMedicionRAPersistence({
           instrumentsByCourse: courseInstruments,
           evidenceByCompetence: courseEvidence,
           improvementByCompetence: courseImprovementPlans,
-          completedCompetenceIds,
-          isEvaluationLocked: isSelectedCourseLocked,
-          completed: isSelectedCourseLocked,
+          completedCompetenceIds: nextCompletedCompetenceIds,
+          isEvaluationLocked: nextIsEvaluationLocked,
+          completed: nextCompleted,
           userId: currentUser.id,
           seccionalId: selectedCourse.seccionalId ?? relatedCiclo?.seccionalId,
           facultadId: selectedCourse.facultadId ?? relatedCiclo?.facultadId,
@@ -116,28 +130,74 @@ export function useMedicionRAPersistence({
         },
         currentUser,
       );
-    };
+
+      return true;
+    },
+    [
+      activeCompetenceId,
+      completedCompetenceIds,
+      currentUser,
+      evaluationsByCourse,
+      evidenceByCompetence,
+      hydratedStateId,
+      ignoreNextBackendChangeRef,
+      improvementByCompetence,
+      instrumentsByCourse,
+      isSelectedCourseLocked,
+      medicionRaContext,
+      medicionRaDemoStateId,
+      selectedCourse,
+      selectedCourseId,
+    ],
+  );
+
+  useEffect(() => {
+    const courseEvaluations = pickCourseEvaluationState(
+      evaluationsByCourse,
+      selectedCourse.id,
+    );
+    const courseInstruments = pickCourseInstrumentState(
+      instrumentsByCourse,
+      selectedCourse.id,
+    );
+    const courseEvidence = pickCourseCompetenceState(
+      evidenceByCompetence,
+      selectedCourse.id,
+    );
+    const courseImprovementPlans = pickCourseCompetenceState(
+      improvementByCompetence,
+      selectedCourse.id,
+    );
+    const hasProgress =
+      completedCompetenceIds.length > 0 ||
+      hasEvaluationProgress(courseEvaluations) ||
+      hasInstrumentProgress(courseInstruments) ||
+      hasTextStateProgress(courseEvidence) ||
+      hasTextStateProgress(courseImprovementPlans) ||
+      isSelectedCourseLocked;
+
+    if (!hasProgress || hydratedStateId !== medicionRaDemoStateId) return;
 
     const timeoutId = window.setTimeout(
-      persistState,
+      () => persistSelectedCourse(),
       isSelectedCourseLocked ? 0 : 500,
     );
 
     return () => window.clearTimeout(timeoutId);
   }, [
-    activeCompetenceId,
     completedCompetenceIds,
-    currentUser,
     evaluationsByCourse,
     evidenceByCompetence,
     hydratedStateId,
-    ignoreNextBackendChangeRef,
     improvementByCompetence,
     instrumentsByCourse,
     isSelectedCourseLocked,
-    medicionRaContext,
     medicionRaDemoStateId,
-    selectedCourse,
-    selectedCourseId,
+    persistSelectedCourse,
+    selectedCourse.id,
   ]);
+
+  return {
+    persistSelectedCourse,
+  };
 }

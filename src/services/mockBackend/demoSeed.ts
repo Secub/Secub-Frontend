@@ -95,7 +95,7 @@ const competencia = {
 
 const mapeoCompetencias = {
   id: SIMPLE_DEMO_RECORD_IDS.mapeoId,
-  userId: "usr-direccion-programa",
+  userId: "usr-director",
   seccionalId: SIMPLE_DEMO_IDS.seccionalId,
   facultadId: SIMPLE_DEMO_IDS.facultadId,
   lugarId: SIMPLE_DEMO_IDS.lugarId,
@@ -217,7 +217,7 @@ const cicloMedicion = {
   estado: "activo",
   cursoIds: [SIMPLE_DEMO_IDS.courseId],
   progreso: 100,
-  responsableId: "usr-direccion-programa",
+  responsableId: "usr-director",
   responsableNombre: "Dirección de Ingeniería Multimedia",
   createdAt: CREATED_AT,
   updatedAt: UPDATED_AT,
@@ -235,7 +235,7 @@ const asignacionRa = {
   resultadoAprendizajeIds: [SIMPLE_DEMO_RECORD_IDS.raId],
   estado: "activo",
   estadoMedicion: "medido",
-  userId: "usr-direccion-programa",
+  userId: "usr-director",
   seccionalId: SIMPLE_DEMO_IDS.seccionalId,
   facultadId: SIMPLE_DEMO_IDS.facultadId,
   programaId: SIMPLE_DEMO_IDS.programaId,
@@ -313,8 +313,8 @@ const planMejora: DemoImprovementPlanRecord = {
   cicloId: SIMPLE_DEMO_RECORD_IDS.cicloId,
   programaId: SIMPLE_DEMO_IDS.programaId,
   planId: SIMPLE_DEMO_IDS.planId,
-  directorId: "usr-direccion-programa",
-  userId: "usr-direccion-programa",
+  directorId: "usr-director",
+  userId: "usr-director",
   titulo: "Plan de mejora demo",
   descripcion:
     "Fortalecer la validación con usuarios y realizar seguimiento individual a los estudiantes que no alcanzaron el resultado de aprendizaje.",

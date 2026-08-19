@@ -1,7 +1,9 @@
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useMemo, useState } from "react";
-import { GoDownload, GoEye, GoFile, GoGraph } from "react-icons/go";
 import { Button, Select, Table, type SelectOption, type TableColumn } from "../../../../components/ui";
 import type { EnrichedCourse, EnrichedRaResult } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface ResultsMeasurementPanelProps {
   results: EnrichedRaResult[];
@@ -161,7 +163,7 @@ function ResultsCharts({
   return (
     <section className="surface-card rounded-[24px] p-6">
       <div className="mb-6 flex items-center justify-center gap-3">
-        <GoGraph className="text-xl text-[var(--color-secondary-1)]" />
+        <SecubIcon name="chart-up" weight="fill" className="text-xl text-[var(--color-secondary-1)]" />
         <h2 className="text-center font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
           Gráficos de Resultados por RA
         </h2>
@@ -235,8 +237,8 @@ function SupportFilesPanel({
                   <Button
                     variant="outline"
                     size="sm"
-                    leftIcon={<GoFile className="text-base" />}
-                    rightIcon={<GoDownload className="text-base" />}
+                    leftIcon={<ActionIcon name="document" size="sm" />}
+                    rightIcon={<ActionIcon name="download" size="sm" />}
                     onClick={() => onDownloadFile(group.evidenceFile ?? "")}
                   >
                     Evidencia · {group.evidenceFile}
@@ -249,8 +251,8 @@ function SupportFilesPanel({
                   <Button
                     variant="outline"
                     size="sm"
-                    leftIcon={<GoFile className="text-base" />}
-                    rightIcon={<GoDownload className="text-base" />}
+                    leftIcon={<ActionIcon name="document" size="sm" />}
+                    rightIcon={<ActionIcon name="download" size="sm" />}
                     onClick={() => onDownloadFile(group.improvementPlanFile ?? "")}
                     title={group.improvementPlanSummary}
                   >
@@ -349,7 +351,7 @@ export default function ResultsMeasurementPanel({
             onOpenRaDetail(result);
           }}
         >
-          <GoEye aria-hidden="true" className="text-base" />
+          <ActionIcon name="view" size="sm" />
           {result.raCode}
         </button>
       ),

@@ -5,7 +5,7 @@ import {
 } from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCurrentUser, getCatalogs } from "../proposito-formacion.mock";
-import { rolePermissions } from "../proposito-formacion.permissions";
+import { getAcademicModulePermissions, shouldEnforceAcademicWorkflowLock } from "../../../../config/access/permissions";
 import {
   INITIAL_FILTERS,
   applyFilters,
@@ -54,8 +54,10 @@ export function usePropositoFormacionPage() {
   const [formValues, setFormValues] = useState<FormState>(getEmptyFormState(currentUser));
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
-  const permissions = rolePermissions[currentUser.role];
-  const isStepLocked = isAcademicWorkflowStepLocked("proposito-formacion");
+  const permissions = getAcademicModulePermissions("propositoFormacion", currentUser.role);
+  const isStepLocked =
+    shouldEnforceAcademicWorkflowLock(currentUser.role) &&
+    isAcademicWorkflowStepLocked("proposito-formacion");
   const isInheritedBaseStep = isAcademicWorkflowBaseStepInherited("proposito-formacion");
   const hasRecords = records.length > 0;
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { cicloRolePermissions } from "../ciclo.permissions";
+import { getCyclePermissions } from "../../../../config/access/permissions";
 import type { CicloCatalogs, CicloEnriched, CicloFormState, CurrentUser } from "../ciclo.types";
 import {
   getActivePlansByProgram,
@@ -61,7 +61,7 @@ export function useCicloFormModal({
     }
   }, [initialValues, open]);
 
-  const permissions = cicloRolePermissions[user.role];
+  const permissions = getCyclePermissions(user.role);
   const isReadOnly = mode === "view" || !permissions.canConfirmSelection;
   const selectedPrograma = catalogs.programas.find((programa) => programa.id === values.programaId);
   const selectedPlan = catalogs.planes.find((plan) => plan.id === values.planId);

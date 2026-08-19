@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { GoCheckCircle, GoInfo, GoStop, GoXCircle } from "react-icons/go";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import { SecubIcon, type SecubIconName } from "../../components/ui";
 import {
   feedbackEvents,
   type ConfirmationRequest,
@@ -17,11 +17,11 @@ interface ConfirmationState {
   resolve: (value: boolean) => void;
 }
 
-const notificationIcons: Record<FeedbackVariant, typeof GoInfo> = {
-  info: GoInfo,
-  success: GoCheckCircle,
-  warning: GoStop,
-  error: GoXCircle,
+const notificationIcons: Record<FeedbackVariant, SecubIconName> = {
+  info: "info",
+  success: "complete",
+  warning: "stop",
+  error: "error",
 };
 
 export default function FeedbackProvider({ children }: FeedbackProviderProps) {
@@ -74,7 +74,7 @@ export default function FeedbackProvider({ children }: FeedbackProviderProps) {
   };
 
   const variant = notification?.variant ?? "info";
-  const NotificationIcon = notificationIcons[variant];
+  const notificationIcon = notificationIcons[variant];
 
   return (
     <>
@@ -87,7 +87,7 @@ export default function FeedbackProvider({ children }: FeedbackProviderProps) {
           aria-live={variant === "error" ? "assertive" : "polite"}
         >
           <div className="flex items-start gap-3">
-            <NotificationIcon aria-hidden="true" className="mt-0.5 shrink-0 text-xl text-[var(--color-secondary-1)]" />
+            <SecubIcon name={notificationIcon} weight="fill" size={20} className="mt-0.5 text-[var(--color-secondary-1)]" />
             <div className="min-w-0 flex-1">
               {notification.title ? (
                 <p className="font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
@@ -104,7 +104,7 @@ export default function FeedbackProvider({ children }: FeedbackProviderProps) {
               className="rounded-lg p-1 text-[var(--color-gray-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
               aria-label="Cerrar mensaje"
             >
-              ×
+              <SecubIcon name="close" weight="bold" size={18} />
             </button>
           </div>
         </div>

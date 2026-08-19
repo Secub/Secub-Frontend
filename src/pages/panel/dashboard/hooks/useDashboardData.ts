@@ -18,7 +18,7 @@ export function useDashboardData() {
   const user = getCurrentDashboardUser();
   const dashboardData = getDashboardData();
   const isTeacher = user.role === "docente";
-  const isDirector = user.role === "direccionPrograma";
+  const isDirector = user.role === "director";
 
   const enrichedCycles = enrichCycles(
     dashboardData.cycles,

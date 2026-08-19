@@ -5,7 +5,7 @@ import {
 } from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCatalogs, getCurrentUser } from "../perfil-egreso.mock";
-import { rolePermissions } from "../perfil-egreso.permissions";
+import { getAcademicModulePermissions, shouldEnforceAcademicWorkflowLock } from "../../../../config/access/permissions";
 import {
   INITIAL_FILTERS,
   applyFilters,
@@ -54,8 +54,10 @@ export function usePerfilEgresoPage() {
   const [formValues, setFormValues] = useState<FormState>(getEmptyFormState(currentUser));
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
-  const permissions = rolePermissions[currentUser.role];
-  const isStepLocked = isAcademicWorkflowStepLocked("perfil-egreso");
+  const permissions = getAcademicModulePermissions("perfilEgreso", currentUser.role);
+  const isStepLocked =
+    shouldEnforceAcademicWorkflowLock(currentUser.role) &&
+    isAcademicWorkflowStepLocked("perfil-egreso");
   const isInheritedBaseStep = isAcademicWorkflowBaseStepInherited("perfil-egreso");
   const hasRecords = records.length > 0;
 

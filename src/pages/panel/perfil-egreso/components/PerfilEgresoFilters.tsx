@@ -1,13 +1,13 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { AcademicScopeFilters } from "../../../../features/academic-scope";
 import type {
   CurrentUser,
   PerfilEgresoFilters as PerfilEgresoFiltersState,
-  RolePermissions,
-} from "../perfil-egreso.types";
+  } from "../perfil-egreso.types";
 
 interface PerfilEgresoFiltersProps {
   user: CurrentUser;
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filters: PerfilEgresoFiltersState;
   filterOptions: {
     lugares: { id: string; nombre: string }[];
@@ -30,7 +30,7 @@ export function PerfilEgresoFilters(props: PerfilEgresoFiltersProps) {
       filters={props.filters}
       filterOptions={props.filterOptions}
       permissions={{
-        canFilterByLugar: true,
+        canFilterByLugar: props.permissions.canFilterByLugar,
         canFilterByFacultad: props.permissions.canFilterByFacultad,
         canFilterByPrograma: props.permissions.canFilterByPrograma,
         canFilterByPlan: props.permissions.canFilterByPlan,

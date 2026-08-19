@@ -1,6 +1,5 @@
+import { SecubIcon } from "./SecubIcon";
 import React from "react";
-import { GoChevronDown } from "react-icons/go";
-
 export interface SelectOption {
   label: string;
   value: string;
@@ -89,7 +88,7 @@ export function Select({
         </select>
 
         {!disabled && !readOnly ? (
-          <GoChevronDown
+          <SecubIcon name="chevron-down" weight="bold"
             aria-hidden="true"
             className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--color-gray-4)]"
           />

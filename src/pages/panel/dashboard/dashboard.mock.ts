@@ -4,13 +4,13 @@ import {
   getCurrentMockUser,
   resolveDemoDocenteByName,
 } from "../../../services/auth/mockUser";
+import { getStudentsByCourse } from "../../../data/secubAcademicPrograms";
 import { mockBackend } from "../../../services/mockBackend";
 import { getCicloCatalogs } from "../ciclo/ciclo.mock";
 import type {
   CourseMeasurement,
   DashboardCatalogs,
   DashboardData,
-  DashboardRole,
   DashboardUser,
   MeasurementCycle,
 } from "./dashboard.types";
@@ -326,6 +326,19 @@ function buildPersistedCourses({
       );
       const assignedRaIds = uniqueValues(courseAssignments.map(getAssignmentRaId));
       const competenceIds = uniqueValues(courseAssignments.map(getAssignmentCompetenceId));
+      const courseMeasurement = courseAssignments
+        .map((assignment) => getMedicionForAssignment(mediciones, assignment, courseId, cycle.id))
+        .find((measurement): measurement is PersistedMedicionDemo => Boolean(measurement));
+      const expectedStudentIds = getStudentsByCourse(courseId).map((student) => student.id);
+      const courseEvaluations = courseMeasurement?.evaluationsByCourse?.[courseId] ?? {};
+      const evaluatedRa = assignedRaIds.filter(
+        (raId) =>
+          expectedStudentIds.length > 0 &&
+          expectedStudentIds.every((studentId) => Boolean(courseEvaluations[studentId]?.[raId])),
+      ).length;
+      const measurementCompleted = Boolean(
+        courseMeasurement?.completed || courseMeasurement?.isEvaluationLocked,
+      );
       const results = buildCourseResultsFromMeasurements({
         cycleId: cycle.id,
         courseId,
@@ -348,7 +361,8 @@ function buildPersistedCourses({
         competenceIds,
         assignedRaIds,
         totalRa: assignedRaIds.length,
-        evaluatedRa: results.length,
+        evaluatedRa,
+        measurementCompleted,
         results,
       }];
     });
@@ -427,106 +441,22 @@ export const dashboardCatalogs: DashboardCatalogs = {
 export const measurementCycles: MeasurementCycle[] = [];
 export const courseMeasurements: CourseMeasurement[] = [];
 
-const roleLabels: Record<DashboardRole, string> = {
-  admin: "Admin / Empresa",
-  vice: "Vicerrectoría de seccional",
-  decano: "Decanatura",
-  direccionPrograma: "Dirección de programa",
-  docente: "Docencia",
-};
-
-const mockUsers: Record<DashboardRole, DashboardUser> = {
-  admin: {
-    id: "usr-admin",
-    name: "Usuario administrador",
-    role: "admin",
-    label: roleLabels.admin,
-    scope: {},
-  },
-  vice: {
-    id: "usr-vice",
-    name: "Usuario Vicerrectoría",
-    role: "vice",
-    label: roleLabels.vice,
-    scope: {},
-  },
-  decano: {
-    id: "usr-decano",
-    name: "Usuario Decanatura",
-    role: "decano",
-    label: roleLabels.decano,
-    scope: {},
-  },
-  direccionPrograma: {
-    id: "direccion-programa-secub",
-    name: "Dirección de programa",
-    role: "direccionPrograma",
-    label: roleLabels["direccionPrograma"],
-    scope: {},
-  },
-  docente: {
-    id: DEMO_DOCENTE_SECUB.id,
-    name: DEMO_DOCENTE_SECUB.nombre,
-    role: "docente",
-    label: roleLabels.docente,
-    scope: { docenteId: DEMO_DOCENTE_SECUB.id },
-  },
-};
-
-export const DEFAULT_DASHBOARD_ROLE: DashboardRole = "docente";
-
-export function normalizeDashboardRole(rawRole: string | null | undefined): DashboardRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
-
-  const aliases: Record<string, DashboardRole> = {
-    admin: "admin",
-    administrador: "admin",
-    superadmin: "admin",
-    empresa: "admin",
-    vice: "vice",
-    vicerrector: "vice",
-    vicerrectoria: "vice",
-    vicerrectoría: "vice",
-    decano: "decano",
-    director: "direccionPrograma",
-    directorprograma: "direccionPrograma",
-    director_de_programa: "direccionPrograma",
-    direccionPrograma: "direccionPrograma",
-    direccionprograma: "direccionPrograma",
-    direccion_de_programa: "direccionPrograma",
-    docente: "docente",
-    docencia: "docente",
-  };
-
-  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_DASHBOARD_ROLE;
-}
-
 export function getCurrentDashboardUser(): DashboardUser {
   const demoUser = getCurrentMockUser();
-  const fallbackUser = mockUsers[demoUser.role] ?? mockUsers.admin;
 
   return {
-    ...fallbackUser,
     id: demoUser.id,
     name: demoUser.nombre,
     email: demoUser.email,
     role: demoUser.role,
-    label: demoUser.cargo || fallbackUser.label,
+    label: demoUser.cargo,
     scope: {
-      ...fallbackUser.scope,
-      seccionalId: demoUser.scope.seccionalId ?? fallbackUser.scope.seccionalId,
-      facultadId: demoUser.scope.facultadId ?? fallbackUser.scope.facultadId,
-      programaIds: demoUser.scope.programaId
-        ? [demoUser.scope.programaId]
-        : fallbackUser.scope.programaIds,
+      seccionalId: demoUser.scope.seccionalId,
+      facultadId: demoUser.scope.facultadId,
+      programaIds: demoUser.scope.programaId ? [demoUser.scope.programaId] : undefined,
       programaId: demoUser.scope.programaId,
       planId: demoUser.scope.planId,
-      docenteId: demoUser.role === "docente" ? demoUser.id : fallbackUser.scope.docenteId,
+      docenteId: demoUser.role === "docente" ? demoUser.id : undefined,
     },
   };
 }

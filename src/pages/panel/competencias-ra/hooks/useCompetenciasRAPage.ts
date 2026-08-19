@@ -2,7 +2,7 @@ import { useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCurrentUser, getCatalogs } from "../CompetenciasRa.mock";
-import { rolePermissions } from "../CompetenciasRa.permissions";
+import { getAcademicModulePermissions, shouldEnforceAcademicWorkflowLock } from "../../../../config/access/permissions";
 import {
   buildRecordFromForm,
   enrichCompetenciasRa,
@@ -33,8 +33,10 @@ export function useCompetenciasRAPage() {
   const [formValues, setFormValues] = useState<FormState>(getEmptyFormState(currentUser));
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
-  const permissions = rolePermissions[currentUser.role];
-  const isStepLocked = isAcademicWorkflowStepLocked("competencias-ra");
+  const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
+  const isStepLocked =
+    shouldEnforceAcademicWorkflowLock(currentUser.role) &&
+    isAcademicWorkflowStepLocked("competencias-ra");
   const hasRecords = records.length > 0;
   const filtersState = useCompetenciasRAFilters({ records, catalogs, currentUser });
   const {

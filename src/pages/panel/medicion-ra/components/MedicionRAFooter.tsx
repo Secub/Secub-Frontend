@@ -1,6 +1,7 @@
-import { GoCheckCircle, GoClock } from "react-icons/go";
 import { Button } from "../../../../components/ui";
 import { LOCKED_TOOLTIP } from "../hooks/useMedicionRA";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface MedicionRAFooterProps {
   isEvaluationLocked: boolean;
@@ -32,7 +33,7 @@ export default function MedicionRAFooter({
         <div className="flex shrink-0 items-center gap-3">
           <Button
             variant="outline"
-            leftIcon={<GoClock className="text-lg" />}
+            leftIcon={<ActionIcon name="clock" />}
             onClick={onSaveProgress}
             disabled={isEvaluationLocked}
             title={isEvaluationLocked ? LOCKED_TOOLTIP : undefined}
@@ -43,7 +44,7 @@ export default function MedicionRAFooter({
 
           <Button
             variant="primary"
-            leftIcon={<GoCheckCircle className="text-lg" />}
+            leftIcon={<ActionIcon name="complete" />}
             onClick={onPrimaryAction}
             disabled={isEvaluationLocked}
             title={isEvaluationLocked ? LOCKED_TOOLTIP : undefined}

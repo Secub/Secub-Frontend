@@ -1,4 +1,4 @@
-import { GoGoal } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { StepCircleProgress } from "../../../../components/ui";
 import type { SegmentedStepProgressItem } from "../../../../components/ui";
 import type { Competence } from "../medicion-ra.types";
@@ -52,7 +52,7 @@ export default function CompetenceStepper({
           id: competence.id,
           label: `Competencia ${index + 1}`,
           sublabel: competence.code,
-          icon: <GoGoal className="text-xl" />,
+          icon: <SecubIcon name="target" weight="fill" className="text-xl" />,
         }))}
         activeId={activeCompetenceId}
         completedIds={completedCompetenceIds}

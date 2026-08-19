@@ -6,50 +6,34 @@ import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
 import { mockBackend } from "../../services/mockBackend";
 import { persistSelectedProgramId } from "../../services/programSelection";
-import { normalizeMockRole, type MockUserRole } from "../../services/auth/mockUser";
+import {
+  SECUB_ROLE_LABELS,
+  SECUB_ROLE_ORDER,
+  normalizeSecubRole,
+  type SecubRole,
+} from "../../config/access/roles";
 import { requestConfirmation } from "../../shared/feedback";
 import { getBrowserSearchParams } from "../../shared/browser";
 
-const selectableRoles: Array<{
-  role: MockUserRole;
-  label: string;
-}> = [
-  {
-    role: "direccionPrograma",
-    label: "Dirección de programa",
-  },
-  {
-    role: "docente",
-    label: "Docente",
-  },
-  {
-    role: "vice",
-    label: "Vicerrector",
-  },
-  {
-    role: "decano",
-    label: "Decano",
-  },
-  {
-    role: "admin",
-    label: "Admin",
-  },
-];
+const selectableRoles = SECUB_ROLE_ORDER.map((role) => ({
+  role,
+  label: SECUB_ROLE_LABELS[role],
+}));
 
 function getInitialRole() {
-  if (typeof window === "undefined") return "direccionPrograma" as MockUserRole;
+  if (typeof window === "undefined") return "director" as SecubRole;
   const params = getBrowserSearchParams();
-  return normalizeMockRole(params.get("role") ?? "direccionPrograma");
+  return normalizeSecubRole(params.get("role") ?? "director");
 }
 
-function buildDashboardUrl(role: MockUserRole) {
+function buildDashboardUrl(role: SecubRole) {
   const params = getBrowserSearchParams();
   params.set("role", role);
   return `${ROUTES.panelDashboard}?${params.toString()}`;
 }
 
 export default function ProgramSelectorPage() {
-  const [selectedRole, setSelectedRole] = useState<MockUserRole>(() => getInitialRole());
+  const [selectedRole, setSelectedRole] = useState<SecubRole>(() => getInitialRole());
   const selectedRoleLabel = selectableRoles.find((item) => item.role === selectedRole)?.label;
 
   const handleSelectProgram = (programId: SecubProgramId) => {

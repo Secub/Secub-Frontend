@@ -1,6 +1,6 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
-import { GoDownload } from "react-icons/go";
 import {
   Button,
   Modal,
@@ -28,14 +28,13 @@ import {
 //   Catalogs,
 //   PerfilEgresoEnriched,
 //   PerfilEgresoFilters,
-//   RolePermissions,
-// } from "../perfil-egreso.types";
+//
+  // } from "../perfil-egreso.types";
 import type {
   Catalogs,
   PerfilEgresoEnriched,
   PerfilEgresoFilters,
   // PerfilEgresoExcelRow,
-  RolePermissions,
   PerfilEgresoPdfRow,
 } from "../perfil-egreso.types";
 import {
@@ -49,11 +48,12 @@ import {
 
 import { getExcelBranding } from "../../../../config/excelBranding";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PerfilEgresoExportModalProps {
   open: boolean;
   title: string;
   format: "pdf" | "excel";
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   catalogs: Catalogs;
   baseRecords: PerfilEgresoEnriched[];
   initialFilters: PerfilEgresoFilters;
@@ -293,7 +293,7 @@ export function PerfilEgresoExportModal({
               variant="primary"
               onClick={handleDownload}
               disabled={exportRecords.length === 0}
-              leftIcon={<GoDownload className="text-lg" />}
+              leftIcon={<ActionIcon name={format === "pdf" ? "pdf" : "excel"} />}
             >
               Descargar {format === "pdf" ? "PDF" : "Excel"}
             </Button>

@@ -183,20 +183,40 @@ export function PropositoFormModal({
           error={errors.facultadId}
         />
 
-        <Select
-          label="Programa académico"
-          value={form.programaId}
-          onChange={(event) => updateScopeField("programaId", event.target.value)}
-          options={programasDisponibles.map((item) => ({
-            label: item.nombre,
-            value: item.id,
-          }))}
-          placeholder="Selecciona un programa"
-          disabled={!canEditStructure || isDirectorScoped}
-          id="programaId"
-          data-validation-field="programaId"
-          error={errors.programaId}
-        />
+        <div className="space-y-5">
+          <Select
+            label="Programa académico"
+            value={form.programaId}
+            onChange={(event) => updateScopeField("programaId", event.target.value)}
+            options={programasDisponibles.map((item) => ({
+              label: item.nombre,
+              value: item.id,
+            }))}
+            placeholder="Selecciona un programa"
+            disabled={!canEditStructure || isDirectorScoped}
+            id="programaId"
+            data-validation-field="programaId"
+            error={errors.programaId}
+          />
+
+          {mode === "edit" ? (
+            <Select
+              label="Estado"
+              value={form.estado}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  estado: event.target.value as FormState["estado"],
+                }))
+              }
+              options={[
+                { label: "Activo", value: "activo" },
+                { label: "Inactivo", value: "inactivo" },
+              ]}
+              placeholder="Selecciona un estado"
+            />
+          ) : null}
+        </div>
 
         <Select
           label="Plan de estudios"
@@ -213,24 +233,6 @@ export function PropositoFormModal({
           data-validation-field="planId"
           error={errors.planId}
         />
-
-        {mode === "edit" ? (
-          <Select
-            label="Estado"
-            value={form.estado}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                estado: event.target.value as FormState["estado"],
-              }))
-            }
-            options={[
-              { label: "Activo", value: "activo" },
-              { label: "Inactivo", value: "inactivo" },
-            ]}
-            placeholder="Selecciona un estado"
-          />
-        ) : null}
       </div>
 
 

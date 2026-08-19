@@ -1,9 +1,4 @@
-export type PerfilEgresoRole =
-  | "admin"
-  | "vice"
-  | "decano"
-  | "direccionPrograma"
-  | "docente";
+import type { SecubRole } from "../../../config/access/roles";
 
 export type PerfilEgresoEstado = "activo" | "inactivo";
 
@@ -69,7 +64,7 @@ export interface CurrentUser {
   nombre: string;
   email?: string;
   cargo: string;
-  role: PerfilEgresoRole;
+  role: SecubRole;
   scope: CurrentUserScope;
 }
 
@@ -82,19 +77,6 @@ export interface PerfilEgresoFilters {
   estado: "" | PerfilEgresoEstado;
 }
 
-export interface RolePermissions {
-  canRead: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-  canExportPdf: boolean;
-  canExportExcel: boolean;
-  canFilterBySeccional: boolean;
-  canFilterByFacultad: boolean;
-  canFilterByPrograma: boolean;
-  canFilterByPlan: boolean;
-  canFilterByEstado: boolean;
-}
 
 export interface PerfilEgresoEnriched extends PerfilEgresoRecord {
   seccionalNombre: string;

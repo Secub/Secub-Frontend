@@ -1,6 +1,7 @@
-import { GoDownload } from "react-icons/go";
 import { Button, Modal } from "../../../../../components/ui";
 import type { CompetenceCatalog, EnrichedCycle } from "../../dashboard.types";
+
+import { ActionIcon } from "../../../../../components/ui/ActionIcon";
 
 interface ConsolidatedReportModalProps {
   reportCycle: EnrichedCycle | null;
@@ -33,7 +34,7 @@ export default function ConsolidatedReportModal({
           </Button>
           <Button
             variant="primary"
-            leftIcon={<GoDownload className="text-lg" />}
+            leftIcon={<ActionIcon name="pdf" />}
             disabled={!reportCycle || !reportCycle.hasImprovementPlan || reportCycle.progress < 100 || selectedReportCompetences.length === 0}
             onClick={onDownload}
           >

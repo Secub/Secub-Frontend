@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { GoChevronDown, GoChevronRight, GoDownload, GoEye, GoFile } from "react-icons/go";
-import { Button, Table, type TableColumn } from "../../../../components/ui";
+import { Button, IconButton, Table, type TableColumn } from "../../../../components/ui";
 import type { EnrichedRaResult } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CompetenceResultsPanelProps {
   results: EnrichedRaResult[];
@@ -261,15 +262,14 @@ function RaResultsTable({
       title: "Detalle",
       render: (result) => (
         <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => onOpenRaDetail(result)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-secondary-4)] transition-colors hover:bg-[var(--color-surface-soft)]"
+          <IconButton
+            icon={<ActionIcon name="view" />}
+            label={`Ver detalle del resultado de aprendizaje ${result.raCode}`}
             title="Ver detalle informativo del RA"
-            aria-label={`Ver detalle del resultado de aprendizaje ${result.raCode}`}
-          >
-            <GoEye aria-hidden="true" className="text-lg" />
-          </button>
+            variant="ghost"
+            size="sm"
+            onClick={() => onOpenRaDetail(result)}
+          />
         </div>
       ),
       className: "w-[6%] text-center",
@@ -337,8 +337,8 @@ function CompetenceSupportFiles({
                   <Button
                     variant="outline"
                     size="sm"
-                    leftIcon={<GoFile className="text-base" />}
-                    rightIcon={<GoDownload className="text-base" />}
+                    leftIcon={<ActionIcon name="document" size="sm" />}
+                    rightIcon={<ActionIcon name="download" size="sm" />}
                     onClick={() => onDownloadFile(group.evidenceFile ?? "")}
                   >
                     Evidencia · {group.evidenceFile}
@@ -351,8 +351,8 @@ function CompetenceSupportFiles({
                   <Button
                     variant="outline"
                     size="sm"
-                    leftIcon={<GoFile className="text-base" />}
-                    rightIcon={<GoDownload className="text-base" />}
+                    leftIcon={<ActionIcon name="document" size="sm" />}
+                    rightIcon={<ActionIcon name="download" size="sm" />}
                     onClick={() => onDownloadFile(group.improvementPlanFile ?? "")}
                     title={group.improvementPlanSummary}
                   >
@@ -435,9 +435,9 @@ export default function CompetenceResultsPanel({
                 >
                   <span className="flex items-center gap-3">
                     {expanded ? (
-                      <GoChevronDown aria-hidden="true" className="text-2xl text-[var(--color-secondary-4)]" />
+                      <ActionIcon name="chevron-down" size="lg" className="text-[var(--color-secondary-4)]" />
                     ) : (
-                      <GoChevronRight aria-hidden="true" className="text-2xl text-[var(--color-secondary-4)]" />
+                      <ActionIcon name="chevron-right" size="lg" className="text-[var(--color-secondary-4)]" />
                     )}
                     <span className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
                       {group.name}

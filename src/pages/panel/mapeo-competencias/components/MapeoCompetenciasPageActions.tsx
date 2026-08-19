@@ -1,10 +1,12 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 // import { useMemo, useState, useEffect } from "react";
-import { GoDownload, GoPencil, GoPlus, GoFile } from "react-icons/go";
 import { Button, IconButton } from "../../../../components/ui";
-import type { MapeoCompetenciasEnriched, RolePermissions, MapeoCompetenciasFilters, Catalogs, CurrentUser } from "../MapeoCompetencias.types";
+import type { MapeoCompetenciasEnriched,
+  MapeoCompetenciasFilters, Catalogs, CurrentUser } from "../MapeoCompetencias.types";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 export interface MapeoCompetenciasPageActionsProps {
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   recordsLength: number;
   selectedRecord: MapeoCompetenciasEnriched | null;
   canOpenCreate: boolean;
@@ -38,12 +40,9 @@ export default function MapeoCompetenciasPageActions({
   return (
     <>
       {permissions.canExportPdf ? (
-        // <Button variant="outline" leftIcon={<GoDownload />} disabled={recordsLength === 0} onClick={onExportPdf}>
-        //   Exportar PDF
-        // </Button>
         <Button
           variant="outline"
-          leftIcon={<GoFile className="text-lg" />}
+          leftIcon={<ActionIcon name="pdf" />}
           onClick={() => onExport("pdf")}
           disabled={!permissions.canExportPdf || filteredRecords.length === 0}
           title={filteredRecords.length > 0 ? "Exportar resultados filtrados en PDF" : "No hay registros para exportar."}
@@ -52,12 +51,9 @@ export default function MapeoCompetenciasPageActions({
         </Button>
       ) : null}
       {permissions.canExportExcel ? (
-        // <Button variant="outline" leftIcon={<GoDownload />} disabled={recordsLength === 0} onClick={onExportExcel}>
-        //   Exportar Excel
-        // </Button>
         <Button
           variant="outline"
-          leftIcon={<GoDownload className="text-lg" />}
+          leftIcon={<ActionIcon name="excel" />}
           onClick={() => onExport("excel")}
           disabled={!permissions.canExportExcel || filteredRecords.length === 0}
           title={filteredRecords.length > 0 ? "Exportar resultados filtrados en Excel" : "No hay registros para exportar."}
@@ -68,12 +64,12 @@ export default function MapeoCompetenciasPageActions({
       {canOpenEdit && selectedRecord ? (
         <IconButton
           variant="primary"
-          icon={<GoPencil />}
+          icon={<ActionIcon name="edit" />}
           label={`Editar mapeo de ${selectedRecord.programaNombre ?? "programa seleccionado"}`}
           onClick={() => onEdit(selectedRecord)}
         />
       ) : canOpenCreate ? (
-        <Button variant="primary" leftIcon={<GoPlus />} onClick={onCreate}>
+        <Button variant="primary" leftIcon={<ActionIcon name="add" />} onClick={onCreate}>
           Crear mapeo
         </Button>
       ) : null}

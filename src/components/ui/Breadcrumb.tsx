@@ -1,5 +1,5 @@
+import { SecubIcon } from "./SecubIcon";
 import type { MouseEvent } from "react";
-import { GoChevronRight } from "react-icons/go";
 import { isInternalRouteHref, navigateToRoute } from "../../app/appRoutes";
 
 export interface BreadcrumbItem {
@@ -59,7 +59,7 @@ export default function Breadcrumb({ items = [] }: BreadcrumbProps) {
             )}
 
             {!isLast ? (
-              <GoChevronRight aria-hidden="true" className="text-base text-[var(--color-gray-4)]" />
+              <SecubIcon name="chevron-right" weight="bold" aria-hidden="true" className="text-base text-[var(--color-gray-4)]" />
             ) : null}
           </span>
         );

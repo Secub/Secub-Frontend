@@ -1,6 +1,6 @@
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useState, type ChangeEvent } from "react";
 import { showNotification } from "../../../../shared/feedback";
-import { GoAlert, GoFile, GoLink, GoTrash, GoUpload } from "react-icons/go";
 import { ConfirmDialog, IconButton, Input, Textarea } from "../../../../components/ui";
 import { ACCEPTED_FILE_FORMATS } from "../medicion-ra.mock";
 import type {
@@ -9,6 +9,8 @@ import type {
   ImprovementPlanState,
   RaResultSummary,
 } from "../medicion-ra.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface EvidenceImprovementSectionProps {
   activeCompetence: Competence;
@@ -105,7 +107,7 @@ export default function EvidenceImprovementSection({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-3">
               <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--secub-surface)] text-[var(--color-secondary-1)]">
-                <GoFile className="text-xl" />
+                <SecubIcon name="file" weight="fill" className="text-xl" />
               </span>
 
               <div>
@@ -125,7 +127,7 @@ export default function EvidenceImprovementSection({
                   disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
                 ].join(" ")}
               >
-                <GoUpload className="text-lg" />
+                <SecubIcon name="upload" weight="fill" className="text-lg" />
                 Examinar
                 <input
                   type="file"
@@ -167,7 +169,7 @@ export default function EvidenceImprovementSection({
               {evidence.fileName ? (
                 <IconButton
                   variant="outline"
-                  icon={<GoTrash />}
+                  icon={<ActionIcon name="delete" />}
                   label="Eliminar archivo de evidencia"
                   disabled={disabled}
                   title={disabled ? lockedTooltip : "Eliminar archivo de evidencia"}
@@ -198,7 +200,7 @@ export default function EvidenceImprovementSection({
             disabled={disabled}
             onChange={(event) => onEvidenceLinkChange(event.target.value)}
             placeholder="https://"
-            leftIcon={<GoLink className="text-lg" />}
+            leftIcon={<ActionIcon name="link" />}
             helperText="Puedes pegar un enlace a Drive, repositorio, prototipo o carpeta institucional."
           />
 
@@ -206,7 +208,7 @@ export default function EvidenceImprovementSection({
             <div className="mt-3 flex justify-end">
               <IconButton
                 variant="outline"
-                icon={<GoTrash />}
+                icon={<ActionIcon name="delete" />}
                 label="Eliminar enlace de evidencia"
                 disabled={disabled}
                 title={disabled ? lockedTooltip : "Eliminar enlace de evidencia"}
@@ -236,7 +238,7 @@ export default function EvidenceImprovementSection({
         {hasUnderTargetResults ? (
           <div className="mb-5 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-4">
             <div className="flex items-start gap-3">
-              <GoAlert className="mt-0.5 shrink-0 text-xl text-[var(--color-primary)]" />
+              <SecubIcon name="warning" weight="fill" className="mt-0.5 shrink-0 text-xl text-[var(--color-primary)]" />
               <p className="text-sm leading-6 text-[var(--color-gray-3)]">
                 Hay RA por debajo del target:{" "}
                 {underTargetResults.map((result) => result.raCode).join(", ")}.

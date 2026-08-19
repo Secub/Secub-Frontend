@@ -1,5 +1,5 @@
 import { getCurrentMockUser } from "../../services/auth/mockUser";
-import { canStartNewAcademicPlan } from "../../services/auth/roleAccess";
+import { canStartAcademicPlan } from "../../config/access/permissions";
 import {
   createNewAcademicPlanInstance,
   getAcademicPlanRenewalAvailability,
@@ -143,7 +143,7 @@ export function getAcademicWorkflowState(
 export function completeAcademicWorkflowFromCurrentProgress(
   progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ) {
-  if (getCurrentMockUser().role !== "direccionPrograma") return null;
+  if (getCurrentMockUser().role !== "director") return null;
   if (!isAcademicWorkflowDataComplete(progress)) return null;
 
   return markActiveAcademicPlanCompleted({
@@ -245,7 +245,7 @@ export function startNewAcademicPlanFromCurrentProgress(
 ) {
   const user = getCurrentMockUser();
 
-  if (!canStartNewAcademicPlan(user.role)) {
+  if (!canStartAcademicPlan(user.role)) {
     throw new Error("La operación solicitada no está disponible.");
   }
 
@@ -275,7 +275,7 @@ export function isAcademicWorkflowStepCompleted(
 }
 
 export function canBypassAcademicWorkflowLock(user = getCurrentMockUser()) {
-  return user.role === "admin";
+  return user.role === "administrador";
 }
 
 export function isAcademicWorkflowStepLocked(

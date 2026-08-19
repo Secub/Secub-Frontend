@@ -1,4 +1,4 @@
-import { GoEye, GoPencil, GoTrash } from "react-icons/go";
+import type { SecubRole } from "../../../../config/access/roles";
 import {
   Badge,
   Table,
@@ -6,21 +6,23 @@ import {
   type TableColumn,
 } from "../../../../components/ui";
 import {
-  canDeletePerfil,
-  canEditPerfil,
-  getEditDisabledReason,
-} from "../perfil-egreso.permissions";
+  PROFILE_PURPOSE_ACTIONS_LAYOUT,
+  PROFILE_PURPOSE_COLUMN_WIDTHS,
+  PROFILE_PURPOSE_DELETE_ACTION_CLASSNAME,
+} from "../../shared/profilePurposeTableLayout";
+import {
+  canEditAcademicRecord,
+  getAcademicEditDisabledReason,
+  type AcademicModulePermissions,
+} from "../../../../config/access/permissions";
 import { getEstadoBadgeVariant } from "../perfil-egreso.utils";
-import type {
-  PerfilEgresoEnriched,
-  PerfilEgresoRole,
-  RolePermissions,
-} from "../perfil-egreso.types";
+import type { PerfilEgresoEnriched } from "../perfil-egreso.types";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface PerfilEgresoTableProps {
   data: PerfilEgresoEnriched[];
-  role: PerfilEgresoRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: PerfilEgresoEnriched) => void;
   onEdit: (record: PerfilEgresoEnriched) => void;
   onDelete: (record: PerfilEgresoEnriched) => void;
@@ -51,8 +53,8 @@ export function PerfilEgresoTable({
       render: (row) => (
         <span className="panel-table-cell-wrap">{row.facultadNombre}</span>
       ),
-      className: "w-[16%]",
-      headerClassName: "w-[16%]",
+      className: PROFILE_PURPOSE_COLUMN_WIDTHS.facultad,
+      headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.facultad,
     },
     {
       key: "programa",
@@ -60,8 +62,8 @@ export function PerfilEgresoTable({
       render: (row) => (
         <span className="panel-table-cell-wrap">{row.programaNombre}</span>
       ),
-      className: "w-[20%]",
-      headerClassName: "w-[20%]",
+      className: PROFILE_PURPOSE_COLUMN_WIDTHS.programa,
+      headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.programa,
     },
     {
       key: "plan",
@@ -77,8 +79,8 @@ export function PerfilEgresoTable({
           ) : null}
         </span>
       ),
-      className: "w-[14%]",
-      headerClassName: "w-[14%]",
+      className: PROFILE_PURPOSE_COLUMN_WIDTHS.plan,
+      headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.plan,
     },
     {
       key: "descripcion",
@@ -88,8 +90,8 @@ export function PerfilEgresoTable({
           {row.descripcion}
         </p>
       ),
-      className: "w-[38%]",
-      headerClassName: "w-[38%]",
+      className: PROFILE_PURPOSE_COLUMN_WIDTHS.descripcion,
+      headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.descripcion,
     },
     {
       key: "estado",
@@ -99,36 +101,37 @@ export function PerfilEgresoTable({
           {row.estado === "activo" ? "Activo" : "Inactivo"}
         </Badge>
       ),
-      className: "w-[12%] whitespace-nowrap",
-      headerClassName: "w-[12%]",
+      className: `${PROFILE_PURPOSE_COLUMN_WIDTHS.estado} whitespace-nowrap`,
+      headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.estado,
     },
   ];
 
   const actions: TableAction<PerfilEgresoEnriched>[] = [
     {
       key: "view",
-      label: "Ver detalle",
+      label: "Ver perfil",
       onClick: onView,
-      icon: <GoEye className="text-lg" />,
+      icon: <ActionIcon name="view" />,
     },
     {
       key: "edit",
       label: "Editar perfil",
       onClick: onEdit,
-      icon: <GoPencil className="text-lg" />,
-      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditPerfil(role, row),
-      disabledReason: (row) => getInheritedReadonlyReason(row, getEditDisabledReason(role, row)),
+      icon: <ActionIcon name="edit" />,
+      disabled: (row) => isInheritedReadonlyRecord(row) || !canEditAcademicRecord("perfilEgreso", role, row.estado),
+      disabledReason: (row) => getInheritedReadonlyReason(row, getAcademicEditDisabledReason("perfilEgreso", role, row.estado, "Solo se permite actualizar perfiles asociados a programas activos.")),
       show: () => permissions.canUpdate,
     },
     {
       key: "delete",
       label: "Eliminar perfil",
       onClick: onDelete,
-      icon: <GoTrash className="text-lg" />,
-      show: () => canDeletePerfil(role),
+      icon: <ActionIcon name="delete" />,
+      show: () => permissions.canDelete,
       disabled: (row) => isInheritedReadonlyRecord(row),
       disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar perfil"),
-      variant: "danger",
+      variant: "danger-hover",
+      className: PROFILE_PURPOSE_DELETE_ACTION_CLASSNAME,
     },
   ];
 
@@ -138,6 +141,7 @@ export function PerfilEgresoTable({
       data={data}
       rowKey={(row) => row.id}
       actions={actions}
+      actionsLayout={PROFILE_PURPOSE_ACTIONS_LAYOUT}
       emptyMessage="No hay perfiles de egreso para los filtros seleccionados."
     />
   );

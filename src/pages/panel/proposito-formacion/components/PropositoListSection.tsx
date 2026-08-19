@@ -1,11 +1,14 @@
-import { GoEye } from "react-icons/go";
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import PropositoTable from "./PropositoTable";
-import type { PropositoEnriched, PropositoFormacionRole, RolePermissions } from "../proposito-formacion.types";
+import type { PropositoEnriched } from "../proposito-formacion.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface PropositoListSectionProps {
   data: PropositoEnriched[];
-  role: PropositoFormacionRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   onView: (record: PropositoEnriched) => void;
   onEdit: (record: PropositoEnriched) => void;
   onDelete: (record: PropositoEnriched) => void;
@@ -32,8 +35,10 @@ export default function PropositoListSection({
         </div>
 
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-          <GoEye className="text-base text-[var(--color-secondary-1)]" />
-          La actualización solo se habilita sobre programas activos.
+          <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
+          {permissions.canUpdate
+            ? "La actualización solo se habilita sobre programas activos."
+            : "Vista de solo consulta."}
         </div>
       </div>
 

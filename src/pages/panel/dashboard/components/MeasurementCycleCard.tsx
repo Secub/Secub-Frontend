@@ -1,13 +1,8 @@
-import {
-  GoChecklist,
-  GoDownload,
-  GoEye,
-  GoGraph,
-  GoListUnordered,
-  GoUpload,
-} from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge, Button, StepCircleProgress } from "../../../../components/ui";
 import type { EnrichedCycle } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface MeasurementCycleCardProps {
   cycle: EnrichedCycle;
@@ -120,13 +115,13 @@ export default function MeasurementCycleCard({
               id: "gestion-academica",
               label: "Gestión académica",
               sublabel: hasAcademicManagement ? "Completada" : "Pendiente",
-              icon: <GoChecklist className="text-xl" />,
+              icon: <SecubIcon name="checklist" weight="fill" className="text-xl" />,
             },
             {
               id: "medicion-ra",
               label: "Medición RA",
               sublabel: isMeasurementComplete ? "Completada" : hasResults ? "En proceso" : "Pendiente",
-              icon: <GoGraph className="text-xl" />,
+              icon: <SecubIcon name="chart-up" weight="fill" className="text-xl" />,
             },
             {
               id: "plan-mejora",
@@ -138,7 +133,7 @@ export default function MeasurementCycleCard({
                   : isMeasurementComplete
                     ? "Pendiente"
                     : "Bloqueado",
-              icon: <GoUpload className="text-xl" />,
+              icon: <SecubIcon name="upload" weight="fill" className="text-xl" />,
               disabled: !canLoadImprovementPlan,
               disabledTooltip: improvementPlanLockedReason,
             },
@@ -154,7 +149,7 @@ export default function MeasurementCycleCard({
           <Button
             variant="outline"
             size="sm"
-            leftIcon={<GoListUnordered className="text-lg" />}
+            leftIcon={<ActionIcon name="list" />}
             onClick={() => onViewPending(cycle)}
             disabled={isMeasurementComplete}
             title={
@@ -170,7 +165,7 @@ export default function MeasurementCycleCard({
         <Button
           variant="outline"
           size="sm"
-          leftIcon={<GoEye className="text-lg" />}
+          leftIcon={<ActionIcon name="view" />}
           onClick={() => onViewResults(cycle)}
           disabled={!hasResults}
           title={
@@ -186,7 +181,7 @@ export default function MeasurementCycleCard({
           <Button
             variant={canLoadImprovementPlan ? "primary" : "outline"}
             size="sm"
-            leftIcon={<GoUpload className="text-lg" />}
+            leftIcon={<ActionIcon name="upload" />}
             onClick={() => onImprovementPlan(cycle)}
             disabled={!canLoadImprovementPlan}
             title={
@@ -203,7 +198,7 @@ export default function MeasurementCycleCard({
           <Button
             variant="primary_soft"
             size="sm"
-            leftIcon={<GoDownload className="text-lg" />}
+            leftIcon={<ActionIcon name="pdf" />}
             onClick={() => onDownloadReport(cycle)}
             disabled={!isCycleClosed}
             title={

@@ -6,7 +6,8 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { GoX } from "react-icons/go";
+import { IconButton } from "./IconButton";
+import { ActionIcon } from "./ActionIcon";
 
 interface ModalProps {
   open: boolean;
@@ -154,14 +155,13 @@ export function Modal({
             ) : null}
           </div>
 
-          <button
-            type="button"
+          <IconButton
+            icon={<ActionIcon name="close" size="lg" />}
+            label="Cerrar modal"
+            variant="ghost"
+            size="md"
             onClick={onClose}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-gray-6)] text-[var(--color-gray-4)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
-            aria-label="Cerrar modal"
-          >
-            <GoX aria-hidden="true" className="text-2xl" />
-          </button>
+          />
         </div>
 
         <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto px-6 py-6">

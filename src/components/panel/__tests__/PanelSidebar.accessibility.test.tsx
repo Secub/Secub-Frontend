@@ -30,15 +30,13 @@ vi.mock("../../../services/auth/mockUser", async (importOriginal) => {
   return {
     ...actual,
     getCurrentMockUser: () => ({
-      id: "usr-direccion-programa",
+      id: "usr-director",
       nombre: "Juliana Mejía",
       email: "",
       cargo: "Dirección de programa",
-      role: "direccionPrograma" as const,
+      role: "director" as const,
       scope: {},
     }),
-    getNeutralUserCargo: () => "Dirección de programa",
-    getNeutralRoleLabel: () => "Dirección de programa",
   };
 });
 
