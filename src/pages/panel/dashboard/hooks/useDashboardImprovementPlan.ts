@@ -10,6 +10,7 @@ interface DashboardImprovementPlanRecord {
   directorId: string;
   userId: string;
   descripcion: string;
+  titulo?: string;
   fechaCreacion: string;
   createdAt?: string;
   updatedAt?: string;
@@ -24,6 +25,7 @@ export function useDashboardImprovementPlan({
 }) {
   const [improvementCycle, setImprovementCycle] = useState<EnrichedCycle | null>(null);
   const [improvementDraft, setImprovementDraft] = useState("");
+  const [improvementTitle, setImprovementTitle] = useState("");
   const [improvementError, setImprovementError] = useState("");
 
   const handleImprovementPlan = (cycle: EnrichedCycle) => {
@@ -37,12 +39,14 @@ export function useDashboardImprovementPlan({
 
     setImprovementCycle(cycle);
     setImprovementDraft(existingPlan?.descripcion ?? "");
+    setImprovementTitle(existingPlan?.titulo ?? "");
     setImprovementError("");
   };
 
   const handleCloseImprovementPlan = () => {
     setImprovementCycle(null);
     setImprovementDraft("");
+    setImprovementTitle("");
     setImprovementError("");
   };
 
@@ -80,6 +84,7 @@ export function useDashboardImprovementPlan({
         directorId: user.id,
         userId: user.id,
         descripcion: description,
+        titulo: improvementTitle?.trim() ?? "",
         fechaCreacion: existingPlan?.fechaCreacion ?? now,
         createdAt: existingPlan?.createdAt ?? now,
         updatedAt: now,
@@ -93,9 +98,11 @@ export function useDashboardImprovementPlan({
   return {
     improvementCycle,
     improvementDraft,
+    improvementTitle,
     improvementError,
     setImprovementDraft,
     setImprovementError,
+    setImprovementTitle,
     handleImprovementPlan,
     handleCloseImprovementPlan,
     handleSaveImprovementPlan,

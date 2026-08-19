@@ -70,6 +70,7 @@ interface PersistedPlanMejoraDemo {
   programaId?: string;
   planId?: string;
   descripcion?: string;
+  titulo?: string;
   createdAt?: string;
   updatedAt?: string;
 }

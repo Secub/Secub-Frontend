@@ -266,6 +266,7 @@ export default function DashboardPage() {
         selectedReportCompetences={dashboard.selectedReportCompetences}
         improvementCycle={dashboard.improvementCycle}
         improvementDraft={dashboard.improvementDraft}
+        improvementTitle={dashboard.improvementTitle}
         improvementError={dashboard.improvementError}
         onCloseSelectedRa={() => dashboard.setSelectedRa(null)}
         onCloseNotifyCourse={() => dashboard.setNotifyCourse(null)}
@@ -278,6 +279,9 @@ export default function DashboardPage() {
         onImprovementDraftChange={(value) => {
           dashboard.setImprovementDraft(value);
           dashboard.setImprovementError("");
+        }}
+        setImprovementTitle={(value) => {
+          dashboard.setImprovementTitle(value);
         }}
       />
     </PanelLayout>

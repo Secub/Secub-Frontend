@@ -70,11 +70,11 @@ export function useMapeoCompetenciasManager({
   //   if (!programaId || !planId) return;
 
   //   if (initializedRef.current) {
-  //     console.log("⛔ EFFECT BLOQUEADO POR initializedRef");
+  //     console.log(" EFFECT BLOQUEADO POR initializedRef");
   //     return;
   //   }
 
-  //   console.log("⚠️ EFFECT INICIALIZANDO NÚCLEOS");
+  //   console.log(" EFFECT INICIALIZANDO NÚCLEOS");
   //   setNucleosDraft(
   //     existingRecord
   //       ? readNucleosFromRecord(existingRecord, totalSemestres)
@@ -93,7 +93,7 @@ export function useMapeoCompetenciasManager({
 
   //   initializedRef.current = true;
 
-  //   console.log("🔴 EFFECT TERMINÓ → activeStep = nucleos");
+  //   console.log(" EFFECT TERMINÓ → activeStep = nucleos");
   // }, [existingRecord, programaId, planId, totalSemestres]);
 
   // useEffect(() => {

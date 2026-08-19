@@ -314,6 +314,7 @@ const planMejora: DemoImprovementPlanRecord = {
   planId: SIMPLE_DEMO_IDS.planId,
   directorId: "usr-direccion-programa",
   userId: "usr-direccion-programa",
+  titulo: "Plan de mejora demo",
   descripcion:
     "Fortalecer la validación con usuarios y realizar seguimiento individual a los estudiantes que no alcanzaron el resultado de aprendizaje.",
   fechaCreacion: UPDATED_AT,

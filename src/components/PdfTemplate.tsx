@@ -370,3 +370,102 @@ export async function buildPdfBlob<T>(
 ): Promise<Blob> {
   return pdf(<PdfDocument {...props} />).toBlob();
 }
+
+/**
+ * Genera y descarga un PDF con estructura de carta formal que incluye
+ * encabezado con logos, título del plan y cuerpo con la descripción.
+ */
+export async function downloadLetterPdf(
+  params: {
+    title: string;
+    subtitle?: string;
+    logoUrl?: string;
+    logoUrl2?: string;
+    logoUrlfoot1?: string;
+    logoUrlfoot2?: string;
+    improvementTitle: string;
+    improvementDraft: string;
+    theme?: Partial<PdfTheme>;
+  },
+  filename?: string,
+): Promise<void> {
+  const {
+    title,
+    subtitle,
+    logoUrl,
+    logoUrl2,
+    logoUrlfoot1,
+    logoUrlfoot2,
+    improvementTitle,
+    improvementDraft,
+    theme,
+  } = params;
+
+  const LetterDocument = () => {
+    const t: PdfTheme = { ...DEFAULT_THEME, ...theme };
+    const styles = buildStyles(t);
+    const dateStr = new Date().toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const paragraphs = (improvementDraft || "").split(/\n+/).filter(Boolean);
+
+    return (
+      <Document>
+        <Page size="A4" style={styles.page} orientation="portrait">
+          <View style={styles.header} fixed>
+            {logoUrl ? <Image src={logoUrl} style={styles.logoUsb} /> : null}
+            <View style={styles.headerTexts}>
+              <Text style={styles.title}>{title}</Text>
+              {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+              <Text style={styles.dateText}>Generado el {dateStr}</Text>
+            </View>
+            {logoUrl2 ? <Image src={logoUrl2} style={styles.logo} /> : null}
+          </View>
+
+          <View style={{ marginTop: 20, paddingHorizontal: 6 }}>
+            {improvementTitle ? (
+              <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold", marginBottom: 15 }}>
+                {improvementTitle}
+              </Text>
+            ) : null}
+
+            {paragraphs.length > 0 ? (
+              paragraphs.map((p, i) => (
+                <Text key={i} style={{ marginBottom: 3, lineHeight: 1 }}>
+                  {p}
+                </Text>
+              ))
+            ) : (
+              <Text style={{ marginBottom: 3, lineHeight: 1 }}>-</Text>
+            )}
+
+            <View style={{ marginTop: 30 }}>
+              {/* <Text>Atentamente,</Text> */}
+              <Text style={{ marginTop: 30 }}>______________________________</Text>
+              <Text>Dirección de programa</Text>
+            </View>
+          </View>
+
+          <View style={styles.footer} fixed>
+            <View style={styles.footerLeft}>
+              {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1} /> : null}
+            </View>
+            <View style={styles.footerCenter}>
+              <Text render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`} />
+            </View>
+            <View style={styles.footerRight}>
+              {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2} /> : null}
+            </View>
+          </View>
+        </Page>
+      </Document>
+    );
+  };
+
+  const blob = await pdf(<LetterDocument />).toBlob();
+  const timestamp = new Date().toISOString().slice(0, 10);
+  downloadFile(blob, filename ?? `plan-mejora-${timestamp}.pdf`, "application/pdf");
+}
