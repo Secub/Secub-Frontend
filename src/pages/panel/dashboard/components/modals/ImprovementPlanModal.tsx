@@ -44,7 +44,13 @@ export default function ImprovementPlanModal({
               await downloadLetterPdf(
                 {
                   title: `Plan de mejora — ${improvementCycle.name}`,
-                  subtitle: improvementCycle.period,
+                  subtitle: [
+                    // `Ciclo: ${improvementCycle.name}`,
+                    `Programa: ${improvementCycle.programaName}`,
+                    `Plan de estudios: ${improvementCycle.planName}`,
+                    `Estado del ciclo: ${improvementCycle.status}`,
+                    // `Periodo: ${improvementCycle.period}`,
+                  ].join(" · "),
                   logoUrl: SECUB_PDF_BRANDING.logoUrl,
                   logoUrl2: SECUB_PDF_BRANDING.logoUrl2,
                   logoUrlfoot1: SECUB_PDF_BRANDING.logoUrlfoot1,

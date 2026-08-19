@@ -65,7 +65,7 @@ export interface PdfTheme {
 }
 
 const DEFAULT_THEME: PdfTheme = {
-  primary: "#1D4ED8",   // azul institucional
+  primary: "#030303",   // azul institucional
   headerBg: "#EFF6FF",
   rowAlt: "#F8FAFC",
   text: "#1E293B",
@@ -417,12 +417,16 @@ export async function downloadLetterPdf(
         <Page size="A4" style={styles.page} orientation="portrait">
           <View style={styles.header} fixed>
             {logoUrl ? <Image src={logoUrl} style={styles.logoUsb} /> : null}
-            <View style={styles.headerTexts}>
+            <View style={styles.headerTexts}></View>
+            {logoUrl2 ? <Image src={logoUrl2} style={styles.logo} /> : null}
+          </View>
+
+          <View style={{ paddingHorizontal: 6, marginBottom: 20 }}>
+            <View>
               <Text style={styles.title}>{title}</Text>
               {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
               <Text style={styles.dateText}>Generado el {dateStr}</Text>
             </View>
-            {logoUrl2 ? <Image src={logoUrl2} style={styles.logo} /> : null}
           </View>
 
           <View style={{ marginTop: 20, paddingHorizontal: 6 }}>
