@@ -303,6 +303,7 @@ interface DemoImprovementPlanRecord extends MockBackendRecord {
   planId: string;
   directorId: string;
   userId: string;
+  titulo: string;
   descripcion: string;
   fechaCreacion: string;
 }
