@@ -1,4 +1,6 @@
-import { Button } from "../../../../components/ui";
+import { IconButton } from "../../../../components/ui";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface AsignarRADeleteZoneProps {
   canDelete: boolean;
@@ -18,7 +20,7 @@ export function AsignarRADeleteZone({ canDelete, hasAssignments, onDelete }: Asi
             Elimina los RA asignados a este curso para el ciclo seleccionado. También se limpiarán mediciones relacionadas.
           </p>
         </div>
-        <Button variant="danger" onClick={onDelete}>Eliminar asignación</Button>
+        <IconButton variant="danger" icon={<ActionIcon name="delete" />} label="Eliminar asignación del curso" onClick={onDelete} />
       </div>
     </div>
   );

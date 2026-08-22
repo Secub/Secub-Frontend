@@ -1,13 +1,8 @@
-import {
-  GoChecklist,
-  GoDownload,
-  GoEye,
-  GoGraph,
-  GoListUnordered,
-  GoUpload,
-} from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge, Button, StepCircleProgress } from "../../../../components/ui";
 import type { EnrichedCycle } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface MeasurementCycleCardProps {
   cycle: EnrichedCycle;
@@ -54,7 +49,7 @@ export default function MeasurementCycleCard({
   const improvementPlanLockedReason = !isMeasurementComplete
     ? "El plan de mejora se habilita cuando la Medición RA del ciclo esté completada al 100%."
     : !isDirector
-      ? "Solo Dirección de programa puede cargar el plan de mejora del ciclo."
+      ? "El plan de mejora no está disponible en esta sesión."
       : "";
   const reportLockedReason = !isMeasurementComplete
     ? "El reporte se habilita cuando Gestión Académica, Medición RA y Plan de mejora estén completos."
@@ -64,7 +59,7 @@ export default function MeasurementCycleCard({
 
   const handleStepChange = (stepId: string) => {
     if (stepId === "medicion-ra" && !isMeasurementComplete) {
-      onViewPending(cycle);
+      if (!isTeacher) onViewPending(cycle);
       return;
     }
 
@@ -109,7 +104,7 @@ export default function MeasurementCycleCard({
             </p>
           </div>
 
-          <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
+          <span className="rounded-full border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-2 font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
             {cycle.progress}% completado
           </span>
         </div>
@@ -120,13 +115,13 @@ export default function MeasurementCycleCard({
               id: "gestion-academica",
               label: "Gestión académica",
               sublabel: hasAcademicManagement ? "Completada" : "Pendiente",
-              icon: <GoChecklist className="text-xl" />,
+              icon: <SecubIcon name="checklist" weight="fill" className="text-xl" />,
             },
             {
               id: "medicion-ra",
               label: "Medición RA",
               sublabel: isMeasurementComplete ? "Completada" : hasResults ? "En proceso" : "Pendiente",
-              icon: <GoGraph className="text-xl" />,
+              icon: <SecubIcon name="chart-up" weight="fill" className="text-xl" />,
             },
             {
               id: "plan-mejora",
@@ -138,7 +133,7 @@ export default function MeasurementCycleCard({
                   : isMeasurementComplete
                     ? "Pendiente"
                     : "Bloqueado",
-              icon: <GoUpload className="text-xl" />,
+              icon: <SecubIcon name="upload" weight="fill" className="text-xl" />,
               disabled: !canLoadImprovementPlan,
               disabledTooltip: improvementPlanLockedReason,
             },
@@ -150,25 +145,27 @@ export default function MeasurementCycleCard({
       </div>
 
       <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          leftIcon={<GoListUnordered className="text-lg" />}
-          onClick={() => onViewPending(cycle)}
-          disabled={isMeasurementComplete}
-          title={
-            isMeasurementComplete
-              ? "No hay pendientes de Medición RA; revisa el Plan de mejora para cerrar el ciclo."
-              : "Ver cursos pendientes del ciclo"
-          }
-        >
-          Ver pendientes
-        </Button>
+        {!isTeacher ? (
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<ActionIcon name="list" />}
+            onClick={() => onViewPending(cycle)}
+            disabled={isMeasurementComplete}
+            title={
+              isMeasurementComplete
+                ? "No hay pendientes de Medición RA; revisa el Plan de mejora para cerrar el ciclo."
+                : "Ver cursos pendientes del ciclo"
+            }
+          >
+            Ver pendientes
+          </Button>
+        ) : null}
 
         <Button
           variant="outline"
           size="sm"
-          leftIcon={<GoEye className="text-lg" />}
+          leftIcon={<ActionIcon name="view" />}
           onClick={() => onViewResults(cycle)}
           disabled={!hasResults}
           title={
@@ -180,11 +177,11 @@ export default function MeasurementCycleCard({
           Ver resultados
         </Button>
 
-        {!isTeacher ? (
+        {isDirector ? (
           <Button
             variant={canLoadImprovementPlan ? "primary" : "outline"}
             size="sm"
-            leftIcon={<GoUpload className="text-lg" />}
+            leftIcon={<ActionIcon name="upload" />}
             onClick={() => onImprovementPlan(cycle)}
             disabled={!canLoadImprovementPlan}
             title={
@@ -197,19 +194,21 @@ export default function MeasurementCycleCard({
           </Button>
         ) : null}
 
-        <Button
-          variant="primary_soft"
-          size="sm"
-          leftIcon={<GoDownload className="text-lg" />}
-          onClick={() => onDownloadReport(cycle)}
-          disabled={!isCycleClosed}
-          title={
-            reportLockedReason ??
-            (isTeacher ? "Descargar reporte individual" : "Descargar reporte consolidado")
-          }
-        >
-          Descargar reporte
-        </Button>
+        {isTeacher || isDirector ? (
+          <Button
+            variant="primary_soft"
+            size="sm"
+            leftIcon={<ActionIcon name="pdf" />}
+            onClick={() => onDownloadReport(cycle)}
+            disabled={!isCycleClosed}
+            title={
+              reportLockedReason ??
+              (isTeacher ? "Descargar reporte individual" : "Descargar reporte consolidado")
+            }
+          >
+            Descargar reporte
+          </Button>
+        ) : null}
       </div>
     </article>
   );

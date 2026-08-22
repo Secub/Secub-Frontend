@@ -1,5 +1,5 @@
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useEffect, useMemo, useState } from "react";
-import { GoArrowLeft, GoCheckCircle, GoGoal } from "react-icons/go";
 import { Badge } from "../../../../components/ui";
 import { FlowActionBar } from "../../../../components/panel";
 import MapeoCompetenciasCardInfoCompromiso from "./MapeoCompetenciasCardInfoCompromiso";
@@ -78,13 +78,13 @@ function SemesterFlow({
                     ? "border-[var(--color-success)] bg-[var(--color-success)] text-white"
                     : isActive
                       ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-white"
-                      : "border-[var(--color-secondary-4)] bg-white text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
+                      : "border-[var(--color-secondary-4)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-secondary-1)]",
                 ].join(" ")}
               >
                 {isCompleted ? (
-                  <GoCheckCircle aria-hidden="true" className="text-xl" />
+                  <SecubIcon name="complete" weight="fill" aria-hidden="true" className="text-xl" />
                 ) : isActive ? (
-                  <GoGoal aria-hidden="true" className="text-xl" />
+                  <SecubIcon name="target" weight="fill" aria-hidden="true" className="text-xl" />
                 ) : (
                   semester
                 )}
@@ -212,7 +212,7 @@ export default function MapeoCompetenciasIraStep({
             onClick: () => onActiveSemesterChange(Math.max(1, activeSemester - 1)),
             disabled: activeSemester <= 1,
             variant: "outline",
-            leftIcon: <GoArrowLeft className="text-lg" />,
+            leftIcon: <SecubIcon name="back" weight="bold" className="text-lg" />,
           },
         ]}
         showSaveProgress

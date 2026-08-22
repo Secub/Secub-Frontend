@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FiChevronLeft as ChevronLeft, FiChevronRight as ChevronRight } from "react-icons/fi";
 import SectionIntro from "./SectionIntro";
 
 import GestionEstructuradaImg from "../../../assets/modulos/gestion-estructurada.webp";
@@ -109,7 +109,9 @@ export default function AboutSection() {
                       ? "scale-100 opacity-100"
                       : "scale-105 opacity-0"
                   }`}
-                />
+                
+                  loading="lazy"
+                  decoding="async"/>
               ))}
 
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.04)_0%,rgba(2,6,23,0.16)_100%)]" />

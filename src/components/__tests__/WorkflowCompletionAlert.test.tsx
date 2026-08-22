@@ -14,7 +14,7 @@ describe("WorkflowCompletionAlert", () => {
       screen.getByRole("alertdialog", { name: /flujo completado/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/los módulos quedarán disponibles en modo visualización/i),
+      screen.getByText(/puedes continuar desde el estado del ciclo/i),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /entendido/i }));

@@ -10,6 +10,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PanelSidebar from "../PanelSidebar";
 import type { PanelStepKey } from "../panelNavigation";
+import { showNotification } from "../../../shared/feedback";
 
 let workflowState: "inProgress" | "completed" | "newAcademicPlan" =
   "inProgress";
@@ -21,18 +22,30 @@ const progress: Partial<Record<PanelStepKey, boolean>> = {
   "proposito-formacion": false,
 };
 
-vi.mock("../../../services/auth/mockUser", () => ({
-  getCurrentMockUser: () => ({
-    nombre: "Juliana Mejía",
-    cargo: "Dirección de programa",
-    role: "direccionPrograma",
-  }),
-  getNeutralUserCargo: () => "Dirección de programa",
-  getNeutralRoleLabel: () => "Dirección de programa",
-}));
+vi.mock("../../../services/auth/mockUser", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../services/auth/mockUser")
+  >();
+
+  return {
+    ...actual,
+    getCurrentMockUser: () => ({
+      id: "usr-director",
+      nombre: "Juliana Mejía",
+      email: "",
+      cargo: "Dirección de programa",
+      role: "director" as const,
+      scope: {},
+    }),
+  };
+});
 
 vi.mock("../../../config/demo.config", () => ({
   SHOW_DEMO_TOOLS: false,
+}));
+
+vi.mock("../../../shared/feedback", () => ({
+  showNotification: vi.fn(),
 }));
 
 vi.mock("../academicWorkflow", () => ({
@@ -90,10 +103,6 @@ describe("PanelSidebar accesible", () => {
     workflowState = "inProgress";
     renewalAvailable = false;
 
-    Object.defineProperty(window, "alert", {
-      writable: true,
-      value: vi.fn(),
-    });
   });
 
   afterEach(() => {
@@ -119,7 +128,7 @@ describe("PanelSidebar accesible", () => {
     expect(blockedStep.getAttribute("aria-label")).toMatch(/bloqueado/i);
   });
 
-  it("mantiene Plan académico nuevo bloqueado sin mostrar el mensaje informativo del ciclo", async () => {
+  it("mantiene Ciclo nuevo bloqueado sin mostrar el mensaje informativo del ciclo", async () => {
     workflowState = "completed";
 
     render(<PanelSidebar currentStep="perfil-egreso" />);
@@ -135,7 +144,7 @@ describe("PanelSidebar accesible", () => {
     ).toBeInTheDocument();
 
     const newPlan = screen.getByRole("button", {
-      name: /plan académico nuevo/i,
+      name: /ciclo nuevo/i,
     });
 
     expect(newPlan).toHaveAttribute("aria-disabled", "true");
@@ -144,7 +153,7 @@ describe("PanelSidebar accesible", () => {
 
     await userEvent.click(newPlan);
 
-    expect(window.alert).toHaveBeenCalledWith(
+    expect(showNotification).toHaveBeenCalledWith(
       expect.stringMatching(/1.5 años/i),
     );
 

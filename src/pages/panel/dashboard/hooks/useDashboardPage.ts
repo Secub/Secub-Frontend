@@ -50,7 +50,6 @@ export function useDashboardPage() {
     isTeacher: data.isTeacher,
     selectedCycle: metricsState.selectedCycle,
     selectedCycleId: navigation.selectedCycleId,
-    userLabel: data.user.label,
     userRole: data.user.role,
     view: navigation.view,
   });
@@ -75,6 +74,7 @@ export function useDashboardPage() {
     navigateToRoute(
       buildRouteWithSearch(ROUTES.panelMedicionRa, {
         role: "docente",
+        cycleId: course.cycleId,
         courseId: course.id,
       }),
     );

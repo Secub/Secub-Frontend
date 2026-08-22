@@ -2,7 +2,7 @@ import { useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCurrentUser, getCatalogs } from "../CompetenciasRa.mock";
-import { rolePermissions } from "../CompetenciasRa.permissions";
+import { getAcademicModulePermissions, shouldEnforceAcademicWorkflowLock } from "../../../../config/access/permissions";
 import {
   buildRecordFromForm,
   enrichCompetenciasRa,
@@ -17,6 +17,7 @@ import type {
 } from "../CompetenciasRa.types";
 import { useCompetenciasRAFilters } from "./useCompetenciasRAFilters";
 import { useCompetenciasRAActions } from "./useCompetenciasRAActions";
+import { showNotification } from "../../../../shared/feedback";
 
 const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
@@ -32,8 +33,10 @@ export function useCompetenciasRAPage() {
   const [formValues, setFormValues] = useState<FormState>(getEmptyFormState(currentUser));
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
 
-  const permissions = rolePermissions[currentUser.role];
-  const isStepLocked = isAcademicWorkflowStepLocked("competencias-ra");
+  const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
+  const isStepLocked =
+    shouldEnforceAcademicWorkflowLock(currentUser.role) &&
+    isAcademicWorkflowStepLocked("competencias-ra");
   const hasRecords = records.length > 0;
   const filtersState = useCompetenciasRAFilters({ records, catalogs, currentUser });
   const {
@@ -57,6 +60,8 @@ export function useCompetenciasRAPage() {
   };
 
   const openCreateModal = () => {
+    if (!permissions.canCreate) return;
+
     setFormMode("create");
     setFormValues(getEmptyFormState(currentUser));
     setSelectedRecord(null);
@@ -78,6 +83,12 @@ export function useCompetenciasRAPage() {
   });
 
   const handleFormSubmit = (values: FormState) => {
+    const canSubmit = formMode === "create" ? permissions.canCreate : permissions.canUpdate;
+    if (!canSubmit) {
+      setFormOpen(false);
+      return;
+    }
+
     const baseRecord = buildRecordFromForm(values, formMode === "edit" ? selectedRecord : null, records);
     const relatedProposito = mockBackend
       .list<{ id: string; programaId?: string; planId?: string }>("propositosFormacion", currentUser)
@@ -86,7 +97,7 @@ export function useCompetenciasRAPage() {
     const validationMessage = getLearningResultsValidationMessage(nextRecord);
 
     if (nextRecord.resultadosAprendizaje.length > MAX_RA_PER_COMPETENCIA) {
-      window.alert(validationMessage || "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
+      showNotification(validationMessage || "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
       return;
     }
 
@@ -97,7 +108,7 @@ export function useCompetenciasRAPage() {
           : mockBackend.update<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser),
       );
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "No fue posible guardar la competencia.");
+      showNotification(error instanceof Error ? error.message : "No fue posible guardar la competencia.");
       return;
     }
 

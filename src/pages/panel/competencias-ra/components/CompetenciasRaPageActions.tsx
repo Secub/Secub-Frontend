@@ -1,9 +1,10 @@
-import { GoDownload, GoFile, GoPlus } from "react-icons/go";
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { Button } from "../../../../components/ui";
-import type { CompetenciasRaEnriched, RolePermissions } from "../CompetenciasRa.types";
+import type { CompetenciasRaEnriched } from "../CompetenciasRa.types";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CompetenciasRaPageActionsProps {
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   filteredRecords: CompetenciasRaEnriched[];
   onCreate: () => void;
   onExport: (format: "pdf" | "excel") => void;
@@ -15,12 +16,14 @@ export default function CompetenciasRaPageActions({
   onCreate,
   onExport,
 }: CompetenciasRaPageActionsProps) {
+  const hasRecords = filteredRecords.length > 0;
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       {permissions.canCreate ? (
         <Button
           variant="primary"
-          leftIcon={<GoPlus className="text-lg" />}
+          leftIcon={<ActionIcon name="add" />}
           onClick={onCreate}
           title="Crear una nueva competencia"
         >
@@ -28,33 +31,29 @@ export default function CompetenciasRaPageActions({
         </Button>
       ) : null}
 
-      <Button
-        variant="outline"
-        leftIcon={<GoFile className="text-lg" />}
-        onClick={() => onExport("pdf")}
-        disabled={!permissions.canExportPdf || filteredRecords.length === 0}
-        title={
-          permissions.canExportPdf
-            ? "Exportar resultados filtrados en PDF"
-            : "Tu rol no tiene permiso para exportar en PDF."
-        }
-      >
-        PDF
-      </Button>
+      {permissions.canExportPdf ? (
+        <Button
+          variant="outline"
+          leftIcon={<ActionIcon name="pdf" />}
+          onClick={() => onExport("pdf")}
+          disabled={!hasRecords}
+          title={hasRecords ? "Exportar resultados filtrados en PDF" : "No hay registros para exportar."}
+        >
+          PDF
+        </Button>
+      ) : null}
 
-      <Button
-        variant="outline"
-        leftIcon={<GoDownload className="text-lg" />}
-        onClick={() => onExport("excel")}
-        disabled={!permissions.canExportExcel || filteredRecords.length === 0}
-        title={
-          permissions.canExportExcel
-            ? "Exportar resultados filtrados en Excel"
-            : "Tu rol no tiene permiso para exportar en Excel."
-        }
-      >
-        Excel
-      </Button>
+      {permissions.canExportExcel ? (
+        <Button
+          variant="outline"
+          leftIcon={<ActionIcon name="excel" />}
+          onClick={() => onExport("excel")}
+          disabled={!hasRecords}
+          title={hasRecords ? "Exportar resultados filtrados en Excel" : "No hay registros para exportar."}
+        >
+          Excel
+        </Button>
+      ) : null}
     </div>
   );
 }

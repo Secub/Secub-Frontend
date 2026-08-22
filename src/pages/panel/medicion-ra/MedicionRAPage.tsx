@@ -1,9 +1,9 @@
-import { GoLock } from "react-icons/go";
+import { useEffect } from "react";
+import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
-import { Badge, ConfirmDialog } from "../../../components/ui";
+import { ConfirmDialog } from "../../../components/ui";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import CompetenceStepper from "./components/CompetenceStepper";
-import CourseSelector from "./components/CourseSelector";
 import EvaluationInstructions from "./components/EvaluationInstructions";
 import EvidenceImprovementSection from "./components/EvidenceImprovementSection";
 import InstrumentSection from "./components/InstrumentSection";
@@ -11,37 +11,20 @@ import RaResultsCharts from "./components/RaResultsCharts";
 import StudentsEvaluationTable from "./components/StudentsEvaluationTable";
 import ValidationBanner from "./components/ValidationBanner";
 import { LOCKED_TOOLTIP, useMedicionRA } from "./hooks/useMedicionRA";
+import { buildCoursesFromRealAssignments, getSearchCourseId, getSearchCycleId } from "./utils/medicionRA.assignments";
 
-function MedicionRAAccessRestricted({ cargo }: { cargo: string }) {
+function MedicionRAAccessRestricted() {
   return (
     <PanelLayout
       currentStep="medicion-ra"
       title="Medición RA"
-      description="Este módulo es independiente del flujo de Gestión Académica y está habilitado únicamente para el rol Docencia."
+      description="Registro y seguimiento de Resultados de Aprendizaje."
     >
-      <div className="surface-card p-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[var(--radius-xl)] bg-[var(--color-surface-soft)] text-[var(--color-secondary-1)]">
-            <GoLock className="text-3xl" />
-          </div>
-
-          <h2 className="mt-5 font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-            Acceso restringido a Medición RA
-          </h2>
-
-          <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)]">
-            La medición de Resultados de Aprendizaje corresponde al rol Docencia.
-            Este módulo no hace parte de los pasos de Gestión Académica del sidebar.
-          </p>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <Badge variant="neutral">Rol actual: {cargo}</Badge>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm text-[var(--color-gray-3)]">
-              La validación se reemplazará por permisos reales desde backend/Auth.
-            </span>
-          </div>
-        </div>
-      </div>
+      <WorkflowStateCard
+        variant="locked"
+        title="Módulo no disponible"
+        description="Regresa al Estado del ciclo para continuar."
+      />
     </PanelLayout>
   );
 }
@@ -50,7 +33,48 @@ export default function MedicionRAPage() {
   const currentUser = getCurrentMockUser();
 
   if (currentUser.role !== "docente") {
-    return <MedicionRAAccessRestricted cargo={currentUser.cargo} />;
+    return <MedicionRAAccessRestricted />;
+  }
+
+  return <MedicionRAContextGate />;
+}
+
+function MedicionRAContextGate() {
+  const currentUser = getCurrentMockUser();
+  const availableCourses = buildCoursesFromRealAssignments(currentUser);
+  const requestedCourseId = getSearchCourseId();
+  const requestedCycleId = getSearchCycleId();
+  const hasValidCourseContext = Boolean(
+    requestedCourseId &&
+      requestedCycleId &&
+      availableCourses.some(
+        (course) => course.id === requestedCourseId && course.cycleId === requestedCycleId,
+      ),
+  );
+
+  useEffect(() => {
+    if (hasValidCourseContext) return;
+
+    navigateToRoute(
+      buildRouteWithSearch(ROUTES.panelDashboard, {
+        role: "docente",
+      }),
+    );
+  }, [hasValidCourseContext]);
+
+  if (!hasValidCourseContext) {
+    return (
+      <PanelLayout
+        currentStep="medicion-ra"
+        title="Medición RA"
+        description="Registro y seguimiento de Resultados de Aprendizaje asignados."
+      >
+        <WorkflowStateCard
+          title="Selecciona un curso desde Estado del ciclo"
+          description="La medición se abre con el contexto del curso seleccionado en Estado del ciclo."
+        />
+      </PanelLayout>
+    );
   }
 
   return <MedicionRAContent />;
@@ -58,7 +82,6 @@ export default function MedicionRAPage() {
 
 function MedicionRAContent() {
   const {
-    availableCourses,
     selectedCourse,
     activeCompetence,
     activeRaResults,
@@ -71,19 +94,14 @@ function MedicionRAContent() {
     feedback,
     showFinishModal,
     isSelectedCourseLocked,
-    courseSummaries,
-    isSelectedCourseComplete,
-    hasNextPendingCourse,
     showValidationErrors,
     competenceContentRef,
-    handleCourseChange,
     handleCompetenceChange,
     handleLevelChange,
     handleInstrumentDescriptionChange,
     handleEvidenceChange,
     handleImprovementPlanChange,
     handleSaveProgress,
-    handleNextCourse,
     handleRequestFinishEvaluation,
     handleConfirmFinishEvaluation,
     handleCancelFinishEvaluation,
@@ -91,18 +109,28 @@ function MedicionRAContent() {
     hasAvailableCourses,
   } = useMedicionRA();
 
+  const handleFinishCourse = () => {
+    const didFinish = handleConfirmFinishEvaluation();
+    if (!didFinish) return;
+
+    navigateToRoute(
+      buildRouteWithSearch(ROUTES.panelDashboard, {
+        role: "docente",
+      }),
+    );
+  };
+
   if (!hasAvailableCourses) {
     return (
       <PanelLayout
         currentStep="medicion-ra"
         title="Medición RA"
-        description="Panel docente para calificar Resultados de Aprendizaje asignados desde el flujo académico."
+        description="Registro y seguimiento de Resultados de Aprendizaje asignados."
       >
         <WorkflowStateCard
           variant="locked"
           title="No tienes cursos asignados para medir"
-          description="La medición solo muestra cursos realmente asignados al docente autenticado. Cuando Dirección de programa asigne RA a un curso asociado a este docente, aparecerá en este módulo."
-          helperText="El fallback demo solo se usa cuando todavía no existen asignaciones reales en mockBackend."
+          description="Los cursos con Resultados de Aprendizaje asignados aparecerán aquí cuando estén disponibles."
         />
       </PanelLayout>
     );
@@ -112,16 +140,9 @@ function MedicionRAContent() {
     <PanelLayout
       currentStep="medicion-ra"
       title="Medición RA"
-      description="Panel docente para calificar Resultados de Aprendizaje, definir instrumentos, cargar evidencias, analizar porcentajes y registrar planes de mejora por competencia."
+      description="Calificación de Resultados de Aprendizaje, instrumentos, evidencias y planes de mejora por competencia."
     >
       <div className="space-y-6 pb-24">
-        <CourseSelector
-          courses={availableCourses}
-          selectedCourseId={selectedCourse.id}
-          courseSummaries={courseSummaries}
-          onCourseChange={handleCourseChange}
-        />
-
         <CompetenceStepper
           competences={selectedCourse.competences}
           activeCompetenceId={activeCompetence.id}
@@ -183,25 +204,22 @@ function MedicionRAContent() {
       <ConfirmDialog
         open={showFinishModal}
         title="¿Deseas finalizar la medición?"
-        description="Una vez finalizada, se guardará el estado de la medición del curso correspondiente."
-        confirmLabel="Finalizar"
+        description="Una vez finalizado, se guardará la medición del curso actual y volverás a Estado del ciclo para consultar el progreso actualizado."
+        confirmLabel="Finalizar curso"
         variant="warning"
         onCancel={handleCancelFinishEvaluation}
-        onConfirm={handleConfirmFinishEvaluation}
+        onConfirm={handleFinishCourse}
       />
 
       <FlowActionBar
-        description="Guardar conserva avances parciales del curso actual. Siguiente curso aparece cuando la medición del curso está completa y queda otro curso pendiente. Finalizar cierra la medición del último curso pendiente."
+        description="Guardar conserva el avance parcial del curso actual. Finalizar curso valida la medición, la guarda como completada y actualiza su progreso en Estado del ciclo."
         showSaveProgress={!isSelectedCourseLocked}
+        saveLabel="Guardar"
         onSaveProgress={handleSaveProgress}
         saveDisabled={isSelectedCourseLocked}
         saveTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
-        showNext={hasNextPendingCourse && isSelectedCourseComplete}
-        nextLabel="Siguiente curso"
-        onNext={handleNextCourse}
-        nextTitle="Guardar y continuar con el siguiente curso pendiente"
-        showFinish={!hasNextPendingCourse}
-        finishLabel={isSelectedCourseLocked ? "Medición finalizada" : "Finalizar"}
+        showFinish
+        finishLabel={isSelectedCourseLocked ? "Curso finalizado" : "Finalizar curso"}
         finishDisabled={isSelectedCourseLocked}
         finishTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
         onFinish={handleRequestFinishEvaluation}

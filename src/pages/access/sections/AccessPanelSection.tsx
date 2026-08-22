@@ -5,7 +5,7 @@ import { LinkButton } from "../../../components/ui";
 
 
 export default function AccessPanelSection() {
-  const microsoftLoginUrl = `${ROUTES.programSelector}?role=direccionPrograma`;
+  const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#f7f7f8] px-6 py-8 sm:px-8 lg:px-10 lg:py-10 xl:px-12">
@@ -66,11 +66,7 @@ export default function AccessPanelSection() {
         </div>
 
         <div className="mt-8 text-sm leading-7 text-[var(--color-gray-3)]">
-          <p>
-            Usa tu correo corporativo para acceder a SECUB. Los permisos y la
-            visualización dentro de la plataforma dependen de la configuración
-            institucional del usuario.
-          </p>
+          <p>Usa tu correo corporativo para acceder a SECUB.</p>
         </div>
       </div>
     </section>

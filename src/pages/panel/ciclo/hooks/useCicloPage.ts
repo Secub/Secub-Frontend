@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import { mockBackend, subscribeToMockBackendChanges } from "../../../../services/mockBackend";
 import { getCicloCatalogs, getCurrentCicloUser } from "../ciclo.mock";
-import { cicloRolePermissions } from "../ciclo.permissions";
+import { getCyclePermissions } from "../../../../config/access/permissions";
 import type { CicloEnriched, CicloFilters as CicloFiltersState, CicloFormState, CicloMedicion } from "../ciclo.types";
 import {
   INITIAL_CICLO_FILTERS,
@@ -29,7 +29,7 @@ export function useCicloPage() {
   const [cycleToDelete, setCycleToDelete] = useState<CicloEnriched | null>(null);
   const [savedMessage, setSavedMessage] = useState("");
 
-  const permissions = cicloRolePermissions[user.role];
+  const permissions = getCyclePermissions(user.role);
   const isStepLocked = isAcademicWorkflowStepLocked("ciclo");
   const hasCycles = cycles.length > 0;
 
@@ -88,6 +88,8 @@ export function useCicloPage() {
   };
 
   const openEditModal = (cycle: CicloEnriched) => {
+    if (!permissions.canEditCycle) return;
+
     setModalMode("edit");
     setSelectedCycle(cycle);
     setFormValues(mapCycleToForm(cycle));
@@ -102,6 +104,8 @@ export function useCicloPage() {
   };
 
   const openDuplicateModal = (cycle: CicloEnriched) => {
+    if (!permissions.canDuplicateCycle) return;
+
     if (activeCycle) return;
 
     setModalMode("create");
@@ -109,12 +113,18 @@ export function useCicloPage() {
     const formValues = mapCycleToForm(cycle);
     setFormValues({
       ...formValues,
-      nombre: `${cycle.nombre} - Copia`,
+      // nombre: `${cycle.nombre} - Copia`,
     });
     setFormOpen(true);
   };
 
   const handleSubmit = (values: CicloFormState) => {
+    const canSubmit = modalMode === "edit" ? permissions.canEditCycle : permissions.canCreateCycle;
+    if (!canSubmit) {
+      setFormOpen(false);
+      return;
+    }
+
     const baseCycle = buildCycleFromForm(values, catalogs, user, modalMode === "edit" ? selectedCycle : null);
     const relatedMapeo = mockBackend
       .list<{ id: string; programaId?: string; planId?: string }>("mapeosCompetencias", user)
@@ -138,8 +148,13 @@ export function useCicloPage() {
 
   const confirmDelete = () => {
     if (!cycleToDelete) return;
+
+    if (!permissions.canDeleteCycle) {
+      setCycleToDelete(null);
+      return;
+    }
     setCycles(mockBackend.remove<CicloMedicion>("ciclosMedicion", cycleToDelete.id, user));
-    setSavedMessage("El ciclo fue eliminado de los datos temporales actuales.");
+    setSavedMessage("El ciclo fue eliminado correctamente.");
     setCycleToDelete(null);
   };
 

@@ -1,11 +1,9 @@
-import type { IconType } from "react-icons";
-import { GoBook, GoChecklist, GoGraph, GoPeople } from "react-icons/go";
-
+import { SecubIcon, type SecubIconName } from "../../../../components/ui";
 interface SummaryCardItem {
   label: string;
   value: string | number;
   helper: string;
-  icon: IconType;
+  icon: SecubIconName;
   tone: string;
 }
 
@@ -17,8 +15,6 @@ export default function MeasurementSummaryCards({ items }: MeasurementSummaryCar
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => {
-        const Icon = item.icon;
-
         return (
           <article
             key={item.label}
@@ -30,7 +26,7 @@ export default function MeasurementSummaryCards({ items }: MeasurementSummaryCar
                 item.tone,
               ].join(" ")}
             >
-              <Icon className="text-2xl" />
+              <SecubIcon name={item.icon} weight="fill" size={24} />
             </div>
 
             <div className="min-w-0">
@@ -63,28 +59,28 @@ export function buildTeacherSummaryItems({
       label: "Cursos totales",
       value: totalCourses,
       helper: "Cursos de Síntesis asociados al docente",
-      icon: GoBook,
+      icon: "book",
       tone: "bg-[color:rgba(160,195,255,0.18)] text-[var(--color-secondary-4)]",
     },
     {
       label: "Completados",
       value: completedCourses,
       helper: "Cursos con todos los RA evaluados",
-      icon: GoChecklist,
+      icon: "checklist",
       tone: "bg-[color:rgba(118,202,102,0.16)] text-[color:#2f7d32]",
     },
     {
       label: "Pendientes",
       value: pendingCourses,
       helper: "Cursos con RA por medir",
-      icon: GoPeople,
+      icon: "people",
       tone: "bg-[color:rgba(251,199,86,0.20)] text-[var(--color-secondary-4)]",
     },
     {
       label: "Avance total",
       value: `${advance}%`,
       helper: "RA evaluados sobre el total asignado",
-      icon: GoGraph,
+      icon: "chart-up",
       tone: "bg-[color:rgba(248,129,29,0.12)] text-[var(--color-primary)]",
     },
   ];
@@ -106,28 +102,28 @@ export function buildSupervisorSummaryItems({
       label: "Ciclo activo",
       value: activeCycles,
       helper: "Ciclos con mediciones pendientes",
-      icon: GoBook,
+      icon: "book",
       tone: "bg-[color:rgba(160,195,255,0.18)] text-[var(--color-secondary-4)]",
     },
     {
       label: "Ciclos finalizados",
       value: completedCycles,
       helper: "Ciclos con medición y Plan de mejora completos",
-      icon: GoChecklist,
+      icon: "checklist",
       tone: "bg-[color:rgba(118,202,102,0.16)] text-[color:#2f7d32]",
     },
     {
       label: "Cursos pendientes",
       value: pendingCourses,
       helper: "Cursos con RA pendientes por medir",
-      icon: GoPeople,
+      icon: "people",
       tone: "bg-[color:rgba(251,199,86,0.20)] text-[var(--color-secondary-4)]",
     },
     {
       label: "Cursos finalizados",
       value: completedCourses,
       helper: "Cursos con medición completada",
-      icon: GoGraph,
+      icon: "chart-up",
       tone: "bg-[color:rgba(248,129,29,0.12)] text-[var(--color-primary)]",
     },
   ];

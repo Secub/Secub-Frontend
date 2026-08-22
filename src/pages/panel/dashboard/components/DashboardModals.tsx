@@ -12,6 +12,7 @@ interface DashboardModalsProps {
   selectedReportCompetences: string[];
   improvementCycle: EnrichedCycle | null;
   improvementDraft: string;
+  improvementTitle: string;
   improvementError: string;
   onCloseSelectedRa: () => void;
   onCloseNotifyCourse: () => void;
@@ -22,6 +23,7 @@ interface DashboardModalsProps {
   onCloseImprovementPlan: () => void;
   onSaveImprovementPlan: () => void;
   onImprovementDraftChange: (value: string) => void;
+  setImprovementTitle: (value: string) => void;
 }
 
 export default function DashboardModals({
@@ -32,6 +34,7 @@ export default function DashboardModals({
   selectedReportCompetences,
   improvementCycle,
   improvementDraft,
+  improvementTitle,
   improvementError,
   onCloseSelectedRa,
   onCloseNotifyCourse,
@@ -42,6 +45,7 @@ export default function DashboardModals({
   onCloseImprovementPlan,
   onSaveImprovementPlan,
   onImprovementDraftChange,
+  setImprovementTitle,
 }: DashboardModalsProps) {
   return (
     <>
@@ -64,11 +68,13 @@ export default function DashboardModals({
 
       <ImprovementPlanModal
         improvementCycle={improvementCycle}
+        improvementTitle={improvementTitle}
         improvementDraft={improvementDraft}
         improvementError={improvementError}
         onClose={onCloseImprovementPlan}
         onSave={onSaveImprovementPlan}
         onDraftChange={onImprovementDraftChange}
+        setImprovementTitle={setImprovementTitle}
       />
     </>
   );

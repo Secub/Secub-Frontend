@@ -4,24 +4,17 @@ import {
   getCurrentMockUser,
   resolveDemoDocenteByName,
 } from "../../../services/auth/mockUser";
+import { getStudentsByCourse } from "../../../data/secubAcademicPrograms";
 import { mockBackend } from "../../../services/mockBackend";
 import { getCicloCatalogs } from "../ciclo/ciclo.mock";
-import {
-  secubAcademicCourses,
-  secubAcademicPrograms,
-  secubFacultades,
-  secubPlanes,
-  secubProgramas,
-  secubSeccionales,
-} from "../../../data/secubAcademicPrograms";
 import type {
   CourseMeasurement,
   DashboardCatalogs,
   DashboardData,
-  DashboardRole,
   DashboardUser,
   MeasurementCycle,
 } from "./dashboard.types";
+import { getBrowserSearchParams } from "../../../shared/browser";
 
 
 interface PersistedCycleDemo {
@@ -77,6 +70,7 @@ interface PersistedPlanMejoraDemo {
   programaId?: string;
   planId?: string;
   descripcion?: string;
+  titulo?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -332,6 +326,19 @@ function buildPersistedCourses({
       );
       const assignedRaIds = uniqueValues(courseAssignments.map(getAssignmentRaId));
       const competenceIds = uniqueValues(courseAssignments.map(getAssignmentCompetenceId));
+      const courseMeasurement = courseAssignments
+        .map((assignment) => getMedicionForAssignment(mediciones, assignment, courseId, cycle.id))
+        .find((measurement): measurement is PersistedMedicionDemo => Boolean(measurement));
+      const expectedStudentIds = getStudentsByCourse(courseId).map((student) => student.id);
+      const courseEvaluations = courseMeasurement?.evaluationsByCourse?.[courseId] ?? {};
+      const evaluatedRa = assignedRaIds.filter(
+        (raId) =>
+          expectedStudentIds.length > 0 &&
+          expectedStudentIds.every((studentId) => Boolean(courseEvaluations[studentId]?.[raId])),
+      ).length;
+      const measurementCompleted = Boolean(
+        courseMeasurement?.completed || courseMeasurement?.isEvaluationLocked,
+      );
       const results = buildCourseResultsFromMeasurements({
         cycleId: cycle.id,
         courseId,
@@ -354,7 +361,8 @@ function buildPersistedCourses({
         competenceIds,
         assignedRaIds,
         totalRa: assignedRaIds.length,
-        evaluatedRa: results.length,
+        evaluatedRa,
+        measurementCompleted,
         results,
       }];
     });
@@ -421,233 +429,40 @@ function getPersistedDashboardData(): DashboardData | null {
 
 export const TARGET_COMPLIANCE = 70;
 
-function getAcademicCourseOrThrow(courseId: string) {
-  const course = secubAcademicCourses.find((item) => item.id === courseId);
-  if (!course) throw new Error(`Curso académico no encontrado: ${courseId}`);
-  return course;
-}
-
-const dashboardTeacherCatalog = [
-  { id: DEMO_DOCENTE_SECUB.id, name: DEMO_DOCENTE_SECUB.nombre, email: DEMO_DOCENTE_SECUB.email },
-  { id: "usr-docente-psicologia", name: "Docente Psicología", email: "docente.psicologia@usb.edu.co" },
-  { id: "usr-docente-derecho", name: "Docente Derecho", email: "docente.derecho@usb.edu.co" },
-  { id: "usr-docente-investigacion", name: "Docente Investigación", email: "docente.investigacion@usb.edu.co" },
-  { id: "usr-docente-practica", name: "Docente Práctica", email: "docente.practica@usb.edu.co" },
-];
-
 export const dashboardCatalogs: DashboardCatalogs = {
-  seccionales: secubSeccionales.map((item) => ({ id: item.id, name: item.nombre })),
-  facultades: secubFacultades.map((item) => ({ id: item.id, name: item.nombre, seccionalId: item.seccionalId })),
-  programas: secubProgramas.map((item) => ({ id: item.id, name: item.nombre, facultadId: item.facultadId, seccionalId: item.seccionalId })),
-  planes: secubPlanes.map((item) => ({ id: item.id, name: item.nombre, programaId: item.programaId, estado: item.estado })),
-  teachers: dashboardTeacherCatalog,
-  competences: [
-    {
-      id: "comp-investigacion-contexto",
-      code: "C1",
-      name: "Investigación y análisis del contexto",
-      description: "Analiza problemas del contexto disciplinar y sustenta decisiones académicas con evidencias pertinentes.",
-      learningResults: [
-        { id: "ra-investigacion-01", code: "RA 01", name: "Reconoce el contexto", description: "Identifica elementos del contexto académico, social o jurídico asociados al problema de estudio." },
-        { id: "ra-investigacion-02", code: "RA 02", name: "Sustenta con evidencias", description: "Argumenta decisiones con fuentes, datos y criterios propios del programa académico." },
-      ],
-    },
-    {
-      id: "comp-intervencion-argumentacion",
-      code: "C2",
-      name: "Intervención y argumentación profesional",
-      description: "Propone alternativas de intervención, acompañamiento o gestión del conflicto con criterios éticos y disciplinares.",
-      learningResults: [
-        { id: "ra-intervencion-01", code: "RA 03", name: "Propone alternativas", description: "Formula alternativas coherentes con las necesidades del contexto y del programa." },
-        { id: "ra-intervencion-02", code: "RA 04", name: "Evalúa resultados", description: "Valora resultados y oportunidades de mejora a partir de evidencias de aprendizaje." },
-      ],
-    },
-    {
-      id: "comp-etica-responsabilidad",
-      code: "C3",
-      name: "Ética y responsabilidad social",
-      description: "Integra criterios éticos, humanísticos y de responsabilidad social en el desempeño académico y profesional.",
-      learningResults: [
-        { id: "ra-etica-01", code: "RA 05", name: "Aplica criterios éticos", description: "Reconoce implicaciones éticas de sus decisiones en escenarios académicos y profesionales." },
-        { id: "ra-etica-02", code: "RA 06", name: "Comunica decisiones", description: "Comunica hallazgos y decisiones de forma clara, respetuosa y sustentada." },
-      ],
-    },
-  ],
+  seccionales: [],
+  facultades: [],
+  programas: [],
+  planes: [],
+  teachers: [],
+  competences: [],
 };
 
-const fallbackCourseIds = [
-  "psicologia-sem8-practica-profesional-i",
-  "psicologia-sem8-modalidad-de-grado-i",
-  "psicologia-sem9-practica-profesional-ii",
-  "derecho-sem7-procesal-civil-ii",
-  "derecho-sem7-arbitraje",
-  "derecho-sem8-programa-complementario-de-formacion-avanzada",
-];
-
-export const measurementCycles: MeasurementCycle[] = secubAcademicPrograms.map((program) => {
-  const synthesisCourses = fallbackCourseIds.filter((courseId) => {
-    const course = secubAcademicCourses.find((item) => item.id === courseId);
-    return course?.programId === program.id;
-  });
-
-  return {
-    id: `ciclo-${program.id}-2026-1`,
-    name: `Ciclo ${program.name} 2026-1`,
-    seccionalId: program.seccionalId,
-    facultadId: program.facultyId,
-    programaId: program.id,
-    planId: program.planId,
-    period: "2026-1",
-    startDate: "2026-01-15",
-    endDate: "2027-07-15",
-    courseIds: synthesisCourses,
-  };
-});
-
-export const courseMeasurements: CourseMeasurement[] = fallbackCourseIds.map((courseId, index) => {
-  const course = getAcademicCourseOrThrow(courseId);
-  const program = secubAcademicPrograms.find((item) => item.id === course.programId)!;
-  const cycleId = `ciclo-${program.id}-2026-1`;
-  const teacherId = DEMO_DOCENTE_SECUB.id;
-  const competenceIds = index % 2 === 0
-    ? ["comp-investigacion-contexto", "comp-etica-responsabilidad"]
-    : ["comp-intervencion-argumentacion", "comp-etica-responsabilidad"];
-  const evaluatedRa = index % 3 === 0 ? 2 : 1;
-
-  return {
-    id: course.id,
-    code: course.code,
-    name: course.name,
-    cycleId,
-    seccionalId: program.seccionalId,
-    facultadId: program.facultyId,
-    programaId: program.id,
-    planId: program.planId,
-    teacherId,
-    competenceIds,
-    totalRa: 4,
-    evaluatedRa,
-    results: [
-      {
-        competenciaId: competenceIds[0],
-        raId: competenceIds[0] === "comp-investigacion-contexto" ? "ra-investigacion-01" : "ra-intervencion-01",
-        totalStudents: course.programId === "psicologia" ? 28 : 32,
-        approvedStudents: course.programId === "psicologia" ? 22 : 25,
-        notApprovedStudents: course.programId === "psicologia" ? 6 : 7,
-        instrumentFile: `instrumento-${course.id}.docx`,
-        evidenceFile: `evidencias-${course.id}.zip`,
-        improvementPlanSummary: "Reforzar acompañamiento y retroalimentación con evidencias de aprendizaje del programa seleccionado.",
-      },
-    ],
-  };
-});
-
-const roleLabels: Record<DashboardRole, string> = {
-  admin: "Admin / Empresa",
-  vice: "Vicerrectoría de seccional",
-  decano: "Decanatura",
-  direccionPrograma: "Dirección de programa",
-  docente: "Docencia",
-};
-
-const mockUsers: Record<DashboardRole, DashboardUser> = {
-  admin: {
-    id: "usr-admin",
-    name: "Juliana Mejía",
-    role: "admin",
-    label: roleLabels.admin,
-    scope: { seccionalId: "cali" },
-  },
-  vice: {
-    id: "usr-vice",
-    name: "Ana María Restrepo",
-    role: "vice",
-    label: roleLabels.vice,
-    scope: { seccionalId: "cali" },
-  },
-  decano: {
-    id: "usr-decano",
-    name: "Carlos Medina",
-    role: "decano",
-    label: roleLabels.decano,
-    scope: { seccionalId: "cali" },
-  },
-  direccionPrograma: {
-    id: "direccion-programa-secub",
-    name: "Dirección de programa",
-    role: "direccionPrograma",
-    label: roleLabels["direccionPrograma"],
-    scope: { seccionalId: "cali", programaIds: ["psicologia", "derecho"] },
-  },
-  docente: {
-    id: DEMO_DOCENTE_SECUB.id,
-    name: DEMO_DOCENTE_SECUB.nombre,
-    role: "docente",
-    label: roleLabels.docente,
-    scope: { seccionalId: "cali", docenteId: DEMO_DOCENTE_SECUB.id },
-  },
-};
-
-export const DEFAULT_DASHBOARD_ROLE: DashboardRole = "docente";
-
-export function normalizeDashboardRole(rawRole: string | null | undefined): DashboardRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
-
-  const aliases: Record<string, DashboardRole> = {
-    admin: "admin",
-    administrador: "admin",
-    superadmin: "admin",
-    empresa: "admin",
-    vice: "vice",
-    vicerrector: "vice",
-    vicerrectoria: "vice",
-    vicerrectoría: "vice",
-    decano: "decano",
-    director: "direccionPrograma",
-    directorprograma: "direccionPrograma",
-    director_de_programa: "direccionPrograma",
-    direccionPrograma: "direccionPrograma",
-    direccionprograma: "direccionPrograma",
-    direccion_de_programa: "direccionPrograma",
-    docente: "docente",
-    docencia: "docente",
-  };
-
-  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_DASHBOARD_ROLE;
-}
+export const measurementCycles: MeasurementCycle[] = [];
+export const courseMeasurements: CourseMeasurement[] = [];
 
 export function getCurrentDashboardUser(): DashboardUser {
   const demoUser = getCurrentMockUser();
-  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
 
   return {
-    ...fallbackUser,
     id: demoUser.id,
     name: demoUser.nombre,
     email: demoUser.email,
-    role: demoUser.role as DashboardUser["role"],
-    label: demoUser.cargo || fallbackUser.label,
+    role: demoUser.role,
+    label: demoUser.cargo,
     scope: {
-      ...fallbackUser.scope,
-      seccionalId: demoUser.scope.seccionalId ?? fallbackUser.scope.seccionalId,
-      facultadId: demoUser.scope.facultadId ?? fallbackUser.scope.facultadId,
-      programaIds: demoUser.scope.programaId
-        ? [demoUser.scope.programaId]
-        : fallbackUser.scope.programaIds,
+      seccionalId: demoUser.scope.seccionalId,
+      facultadId: demoUser.scope.facultadId,
+      programaIds: demoUser.scope.programaId ? [demoUser.scope.programaId] : undefined,
       programaId: demoUser.scope.programaId,
       planId: demoUser.scope.planId,
-      docenteId: demoUser.role === "docente" ? demoUser.id : fallbackUser.scope.docenteId,
+      docenteId: demoUser.role === "docente" ? demoUser.id : undefined,
     },
   };
 }
 
 export function getDashboardData(): DashboardData {
-  const params = new URLSearchParams(window.location.search);
+  const params = getBrowserSearchParams();
   const scenario = params.get("scenario");
 
   if (scenario === "sin-ciclos") {
@@ -672,11 +487,9 @@ export function getDashboardData(): DashboardData {
     return persistedDashboardData;
   }
 
-  // Fallback demo: solo se usa cuando todavía no existe información real persistida
-  // en mockBackend desde Ciclo, Asignar RA o Medición RA.
   return {
     catalogs: dashboardCatalogs,
-    cycles: measurementCycles,
-    courses: courseMeasurements,
+    cycles: [],
+    courses: [],
   };
 }

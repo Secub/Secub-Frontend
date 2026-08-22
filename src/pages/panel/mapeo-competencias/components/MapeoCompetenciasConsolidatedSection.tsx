@@ -1,5 +1,4 @@
-import { GoPencil, GoPlus, GoTrash } from "react-icons/go";
-import { Badge, Button } from "../../../../components/ui";
+import { Badge, Button, IconButton } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
 import type {
@@ -9,17 +8,15 @@ import type {
 } from "../MapeoCompetencias.types";
 import { formatDate, getEstadoBadgeVariant } from "../MapeoCompetencias.utils";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface MapeoCompetenciasConsolidatedSectionProps {
   records: MapeoCompetenciasEnriched[];
   competenciasRa?: CompetenciaRaDemoRecord[];
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
-  canOpenEdit: boolean;
-  selectedRecord: MapeoCompetenciasEnriched | null;
-  canDelete: boolean;
   onCreate: () => void;
-  onEdit: (record: MapeoCompetenciasEnriched) => void;
-  onDelete: (record: MapeoCompetenciasEnriched) => void;
+  editableRecordId?: string;
+  onEdit?: (record: MapeoCompetenciasEnriched) => void;
   onNivelChange?: (
     recordId: string,
     cursoId: string,
@@ -32,18 +29,15 @@ export default function MapeoCompetenciasConsolidatedSection({
   records,
   hasRequiredFilters,
   canOpenCreate,
-  canOpenEdit,
-  selectedRecord,
-  canDelete,
   onCreate,
+  editableRecordId,
   onEdit,
-  onDelete,
 }: MapeoCompetenciasConsolidatedSectionProps) {
   if (!hasRequiredFilters) {
     return (
       <MapeoCompetenciasAccessState
-        title="Selecciona un programa académico y un plan de estudios"
-        description="El mapeo se consulta y se guarda por programaId y planId. Usa los filtros para visualizar la malla curricular."
+        title="No se encontró el contexto académico del mapeo"
+        description="Regresa a Competencias y RA y verifica que el programa académico y el plan de estudios estén definidos previamente."
       />
     );
   }
@@ -56,13 +50,13 @@ export default function MapeoCompetenciasConsolidatedSection({
         </h2>
 
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[var(--color-gray-3)]">
-          Cuando Dirección de programa cree el mapeo, aquí se visualizará la
-          malla curricular por semestres, cursos, núcleos y niveles I-R-A-NA.
+          Cuando se cree el mapeo, aquí se visualizará la malla curricular por
+          semestres, cursos, núcleos y niveles I-R-A-NA.
         </p>
 
         {canOpenCreate ? (
           <div className="mt-5">
-            <Button leftIcon={<GoPlus />} onClick={onCreate}>
+            <Button leftIcon={<ActionIcon name="add" />} onClick={onCreate}>
               Crear mapeo
             </Button>
           </div>
@@ -94,31 +88,19 @@ export default function MapeoCompetenciasConsolidatedSection({
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant={getEstadoBadgeVariant(record.estado)}>
                 {record.estado}
               </Badge>
 
-              {canOpenEdit && record.id === selectedRecord?.id ? (
-                <Button
-                  size="sm"
+              {editableRecordId === record.id && onEdit ? (
+                <IconButton
                   variant="outline"
-                  leftIcon={<GoPencil />}
+                  icon={<ActionIcon name="edit" />}
+                  label={`Editar mapeo de ${record.programaNombre}`}
+                  title="Editar mapeo"
                   onClick={() => onEdit(record)}
-                >
-                  Editar mapeo
-                </Button>
-              ) : null}
-
-              {canDelete ? (
-                <Button
-                  size="sm"
-                  variant="danger"
-                  leftIcon={<GoTrash />}
-                  onClick={() => onDelete(record)}
-                >
-                  Eliminar
-                </Button>
+                />
               ) : null}
             </div>
           </div>

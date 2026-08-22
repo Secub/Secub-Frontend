@@ -7,20 +7,27 @@ export interface SegmentedStepProgressItem {
 
 interface SegmentedStepProgressProps {
   items: SegmentedStepProgressItem[];
+  label?: string;
 }
 
-export default function SegmentedStepProgress({ items }: SegmentedStepProgressProps) {
+export default function SegmentedStepProgress({
+  items,
+  label = "Progreso del proceso",
+}: SegmentedStepProgressProps) {
   if (!items.length) return null;
 
   return (
-    <div className="flex w-full overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-gray-6)] bg-[var(--color-white)] shadow-[var(--shadow-sm)]">
+    <ol
+      aria-label={label}
+      className="flex w-full overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-gray-6)] bg-[var(--color-white)] shadow-[var(--shadow-sm)]"
+    >
       {items.map((item, index) => {
         const isFirst = index === 0;
         const isLast = index === items.length - 1;
         const tone = item.completed || item.active;
 
         return (
-          <div
+          <li
             key={item.id}
             className={[
               "relative flex min-h-11 flex-1 items-center justify-center px-4 text-sm font-semibold transition-colors",
@@ -38,9 +45,12 @@ export default function SegmentedStepProgress({ items }: SegmentedStepProgressPr
             aria-current={item.active ? "step" : undefined}
           >
             <span className="relative z-20 truncate">{item.label}</span>
-          </div>
+            <span className="sr-only">
+              {item.completed ? "Completado" : item.active ? "Paso actual" : "Pendiente"}
+            </span>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }

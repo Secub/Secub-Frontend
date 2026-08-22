@@ -1,10 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
-import {
-  canDeleteAsignarRA,
-  canManageAsignarRA,
-  canReadAsignarRA,
-} from "../AsignarRA.permissions";
+import { getAsignarRaPermissions } from "../../../../config/access/permissions";
 import { asignarRAAcademicCatalogs as academicCatalogs, asignarRACurrentUser as currentUser } from "./asignarRA.shared";
 import { useAsignarRAActions } from "./useAsignarRAActions";
 import { useAsignarRAComputed } from "./useAsignarRAComputed";
@@ -24,9 +20,10 @@ export function useAsignarRA() {
   const assignmentPanelRef = useRef<HTMLDivElement | null>(null);
 
   const data = useAsignarRAData();
-  const canRead = canReadAsignarRA(currentUser);
-  const canManage = canManageAsignarRA(currentUser);
-  const canDelete = canDeleteAsignarRA(currentUser);
+  const permissions = getAsignarRaPermissions(currentUser.role);
+  const canRead = permissions.canRead;
+  const canManage = permissions.canManage;
+  const canDelete = permissions.canDelete;
   const isStepLocked = isAcademicWorkflowStepLocked("asignar-ra");
 
   const filters = useAsignarRAFilters({
@@ -53,8 +50,8 @@ export function useAsignarRA() {
     canManage,
     selectedProgramId: filters.filters.selectedProgramId,
     selectedPlanId: filters.filters.selectedPlanId,
-    coursesLength: filters.courses.length,
-    isCurrentCycleAssignmentComplete: computed.isCurrentCycleAssignmentComplete,
+    courses: filters.courses,
+    pendingCourseIds: computed.pendingCourseIds,
     selectedCycle: filters.selectedCycle,
     selectedCourse: computed.selectedCourse,
     selectedCourseAssignments: computed.selectedCourseAssignments,
@@ -97,9 +94,9 @@ export function useAsignarRA() {
     showFinishAcademicFlowConfirm: actions.showFinishAcademicFlowConfirm,
     hasAnyAssignmentInCycle: computed.hasAnyAssignmentInCycle,
     isCurrentCycleAssignmentComplete: computed.isCurrentCycleAssignmentComplete,
+    pendingCourseIds: computed.pendingCourseIds,
     summaryMetrics: computed.summaryMetrics,
     setCourseSearchTerm: filters.setCourseSearchTerm,
-    setShowMeasuredConfirm: actions.setShowMeasuredConfirm,
     setShowDeleteConfirm: actions.setShowDeleteConfirm,
     setShowLeaveCourseConfirm: actions.setShowLeaveCourseConfirm,
     setShowFinishAcademicFlowConfirm: actions.setShowFinishAcademicFlowConfirm,
@@ -111,13 +108,13 @@ export function useAsignarRA() {
     handleCourseFilterChange: filters.handleCourseFilterChange,
     handleSelectCourse: actions.handleSelectCourse,
     handleBackToCourses: actions.handleBackToCourses,
-    handleSaveAssignment: actions.handleSaveAssignment,
-    handleResetDraft: actions.handleResetDraft,
+    handleSaveAndOpenNextCourse: actions.handleSaveAndOpenNextCourse,
+    handleSaveAndRequestFinish: actions.handleSaveAndRequestFinish,
+    handleConfirmMeasuredPrimaryAction: actions.handleConfirmMeasuredPrimaryAction,
+    handleCancelMeasuredPrimaryAction: actions.handleCancelMeasuredPrimaryAction,
     handleDeleteCourseAssignments: actions.handleDeleteCourseAssignments,
-    handleRequestFinishAcademicFlow: actions.handleRequestFinishAcademicFlow,
     handleConfirmFinishAcademicFlow: actions.handleConfirmFinishAcademicFlow,
     discardDraftAndReturnToCourses: actions.discardDraftAndReturnToCourses,
-    persistCourseAssignments: actions.persistCourseAssignments,
     toggleCompetenciaAccordion: actions.toggleCompetenciaAccordion,
     toggleRaSelection: actions.toggleRaSelection,
     getRaAssignment: actions.getRaAssignment,

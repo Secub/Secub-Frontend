@@ -66,10 +66,6 @@ export function useMapeoCompetenciasData() {
     const rawRecords = mockBackend.list<MapeoCompetenciasRecord>("mapeosCompetencias", currentUser);
     const dedupedRecords = deduplicateMapeoRecords(rawRecords);
 
-    if (dedupedRecords.length !== rawRecords.length) {
-      mockBackend.replaceCollection<MapeoCompetenciasRecord>("mapeosCompetencias", dedupedRecords);
-    }
-
     setRecords(dedupedRecords);
     setCompetenciasRa(mockBackend.list<CompetenciaRaDemoRecord>("competenciasRa", currentUser));
   }, [currentUser]);

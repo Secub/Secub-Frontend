@@ -21,7 +21,6 @@ export { LOCKED_TOOLTIP };
 export function useMedicionRA() {
   const {
     currentUser,
-    backendVersion,
     ignoreNextBackendChangeRef,
     availableCourses,
     hasAvailableCourses,
@@ -52,9 +51,10 @@ export function useMedicionRA() {
     improvementByCompetence: initialPersistedDemoState?.improvementByCompetence ?? {},
   });
 
-  const persistedDemoState = useMemo(
-    () => mockBackend.getById<MedicionRaDemoState>("medicionesRa", computedDraft.medicionRaDemoStateId),
-    [backendVersion, computedDraft.medicionRaDemoStateId],
+  const persistedDemoState = mockBackend.getById<MedicionRaDemoState>(
+    "medicionesRa",
+    computedDraft.medicionRaDemoStateId,
+    currentUser,
   );
 
   const normalizedPersistedDemoState = persistedDemoState ?? undefined;
@@ -99,7 +99,7 @@ export function useMedicionRA() {
     setShowValidationErrors(false);
   }, [computed.selectedCourse.id]);
 
-  useMedicionRAPersistence({
+  const { persistSelectedCourse } = useMedicionRAPersistence({
     activeCompetenceId: selection.activeCompetenceId,
     completedCompetenceIds: hydrated.completedCompetenceIds,
     currentUser,
@@ -128,8 +128,7 @@ export function useMedicionRA() {
     setShowValidationErrors,
   });
 
-  const courseSummaries = useMemo<CourseMeasurementSummary[]>(() => {
-    return availableCourses.map((course) => {
+  const courseSummaries: CourseMeasurementSummary[] = availableCourses.map((course) => {
       if (course.id === computed.selectedCourse.id) {
         return getCourseMeasurementSummary({
           course,
@@ -146,7 +145,7 @@ export function useMedicionRA() {
         cicloId: courseContext.cicloId,
         courseId: course.id,
       });
-      const courseState = mockBackend.getById<MedicionRaDemoState>("medicionesRa", courseStateId);
+      const courseState = mockBackend.getById<MedicionRaDemoState>("medicionesRa", courseStateId, currentUser);
 
       return getCourseMeasurementSummary({
         course,
@@ -156,16 +155,6 @@ export function useMedicionRA() {
         isLocked: courseState?.isEvaluationLocked ?? false,
       });
     });
-  }, [
-    availableCourses,
-    backendVersion,
-    computed.selectedCourse.id,
-    currentUser.id,
-    hydrated.evaluationsByCourse,
-    hydrated.evidenceByCompetence,
-    hydrated.instrumentsByCourse,
-    hydrated.isSelectedCourseLocked,
-  ]);
 
   const selectedCourseSummary = courseSummaries.find(
     (summary) => summary.courseId === computed.selectedCourse.id,
@@ -196,10 +185,9 @@ export function useMedicionRA() {
     course: computed.selectedCourse,
     isLastCompetence: computed.isLastCompetence,
     isSelectedCourseLocked: hydrated.isSelectedCourseLocked,
-    nextPendingCourse,
     pendingAutoScrollCompetenceIdRef,
+    persistSelectedCourse,
     setActiveCompetenceId: selection.setActiveCompetenceId,
-    setSelectedCourseId: selection.setSelectedCourseId,
     setCompletedCompetenceIds: hydrated.setCompletedCompetenceIds,
     setEvaluationsByCourse: hydrated.setEvaluationsByCourse,
     setEvidenceByCompetence: hydrated.setEvidenceByCompetence,

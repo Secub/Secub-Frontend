@@ -1,4 +1,3 @@
-import { GoDownload, GoPlus } from "react-icons/go";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import {
   FlowActionBar,
@@ -9,16 +8,17 @@ import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
 } from "../../../components/panel/academicWorkflow";
-import { Button, ConfirmDialog } from "../../../components/ui";
+import { Button } from "../../../components/ui";
 import {
   MapeoCompetenciasAccessState,
   MapeoCompetenciasFilters,
 } from "./components";
 import MapeoCompetenciasConsolidatedSection from "./components/MapeoCompetenciasConsolidatedSection";
-import { getAccessRestrictedDescription } from "./MapeoCompetencias.permissions";
+import { getMapeoAccessRestrictedDescription } from "../../../config/access/permissions";
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
 import { useMapeoCompetenciasPage } from "./hooks/useMapeoCompetenciasPage";
 
+import { ActionIcon } from "../../../components/ui/ActionIcon";
 function getNucleoCount(records: ReturnType<typeof useMapeoCompetenciasPage>["filteredRecords"], nucleo: string) {
   return records.reduce((total, record) => {
     return total + record.semestresResumen.filter((semestre) => semestre.nucleo === nucleo).length;
@@ -46,8 +46,8 @@ export default function MapeoCompetenciasPage() {
   const page = useMapeoCompetenciasPage();
   const {
     currentUser,
-    catalogs,
     permissions,
+    catalogs,
     hasRecords,
     filters,
     filteredRecords,
@@ -56,15 +56,12 @@ export default function MapeoCompetenciasPage() {
     selectedRecord,
     canOpenCreate,
     canOpenEdit,
-    recordToDelete,
     setFilters,
-    setRecordToDelete,
     handleCreate,
     handleEdit,
     handleExportExcel,
     handleDownloadpdf,
     // handleExportPdf,
-    confirmDelete,
   } = page;
 
   const workflowProgress = useAcademicWorkflowProgress();
@@ -77,13 +74,13 @@ export default function MapeoCompetenciasPage() {
   const exportActions = hasRecords ? (
     <>
       {permissions.canExportPdf ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleDownloadpdf}>
+        <Button variant="outline" leftIcon={<ActionIcon name="pdf" />} disabled={filteredRecords.length === 0} onClick={handleDownloadpdf}>
           Exportar PDF
         </Button>
       ) : null}
 
       {permissions.canExportExcel ? (
-        <Button variant="outline" leftIcon={<GoDownload />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
+        <Button variant="outline" leftIcon={<ActionIcon name="excel" />} disabled={filteredRecords.length === 0} onClick={handleExportExcel}>
           Exportar Excel
         </Button>
       ) : null}
@@ -104,16 +101,15 @@ export default function MapeoCompetenciasPage() {
     >
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
-          title="Acceso restringido"
-          description={getAccessRestrictedDescription(currentUser.role)}
+          title="Módulo no disponible"
+          description={getMapeoAccessRestrictedDescription()}
         />
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay mapeos de competencias específicas creados"
-          description="Cuando se cargue el primer mapeo de competencias específicas, se habilitará la vista completa con filtros, consolidado, acciones y exportación."
+          description="Cuando se cargue el primer mapeo de competencias específicas, se habilitará la vista consolidada con sus acciones y opciones de exportación."
           actionLabel={canOpenCreate ? "Crear mapeo" : undefined}
           onAction={canOpenCreate ? handleCreate : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
         <div className="space-y-6">
@@ -141,7 +137,7 @@ export default function MapeoCompetenciasPage() {
 
           {canOpenCreate ? (
             <div className="flex flex-wrap justify-end gap-3">
-              <Button variant="primary" leftIcon={<GoPlus />} onClick={handleCreate}>
+              <Button variant="primary" leftIcon={<ActionIcon name="add" />} onClick={handleCreate}>
                 Crear mapeo
               </Button>
             </div>
@@ -161,35 +157,16 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : null}
 
-          {currentUser.role !== "direccionPrograma" ? (
-            <div className="rounded-[var(--radius-lg)] border border-[var(--color-info)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
-              Puedes consultar la información consolidada según tu alcance. La clasificación de núcleos y el mapeo I-R-A-NA están habilitados funcionalmente solo para Dirección de programa.
-            </div>
-          ) : null}
-
           <MapeoCompetenciasConsolidatedSection
             records={filteredRecords}
             hasRequiredFilters={Boolean(filters.programaId && filters.planId)}
             canOpenCreate={canOpenCreate}
-            canOpenEdit={canOpenEdit}
-            selectedRecord={selectedRecord}
-            canDelete={permissions.canDelete}
             onCreate={handleCreate}
+            editableRecordId={canOpenEdit ? selectedRecord?.id : undefined}
             onEdit={handleEdit}
-            onDelete={setRecordToDelete}
           />
 
-          <ConfirmDialog
-            open={Boolean(recordToDelete)}
-            title="Eliminar mapeo"
-            description="Esta acción marcará el registro como eliminado en mockBackend."
-            confirmLabel="Eliminar"
-            variant="danger"
-            onCancel={() => setRecordToDelete(null)}
-            onConfirm={confirmDelete}
-          />
-
-          {isWorkflowActive && filteredRecords.length > 0 ? (
+          {isWorkflowActive && permissions.canUpdate && filteredRecords.length > 0 ? (
             <FlowActionBar
               description={
                 isMapeoComplete

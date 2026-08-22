@@ -1,6 +1,14 @@
-import { GoChevronRight, GoEye, GoMail } from "react-icons/go";
-import { Badge, Button, Table, type TableColumn } from "../../../../components/ui";
+import {
+  Badge,
+  Button,
+  IconButton,
+  InformativeProgressBar,
+  Table,
+  type TableColumn,
+} from "../../../../components/ui";
 import type { EnrichedCourse } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CoursesMeasurementTableProps {
   title?: string;
@@ -10,7 +18,33 @@ interface CoursesMeasurementTableProps {
   onMeasureCourse?: (course: EnrichedCourse) => void;
   onViewResults: (course: EnrichedCourse) => void;
   onNotifyTeacher?: (course: EnrichedCourse) => void;
+  canNotifyTeacher?: boolean;
 }
+
+// ----------- Funcion gestion de correos con mailto sin gestion interna -----------------
+
+const sendEmail = (course: EnrichedCourse) => {
+  const subject = encodeURIComponent(
+    `Medición pendiente - ${course.name}`
+  );
+
+  const body = encodeURIComponent(`
+Hola ${course.teacherName},
+
+Tiene pendiente la medición de los Resultados de Aprendizaje.
+
+Curso: ${course.name}
+Código: ${course.code}
+Periodo: ${course.period}
+
+Gracias.
+`);
+
+  window.open(
+    `mailto:${course.teacherEmail}?subject=${subject}&body=${body}`,
+    "_blank"
+  );
+};
 
 const statusVariant = {
   pendiente: "warning",
@@ -32,58 +66,56 @@ export default function CoursesMeasurementTable({
   mode,
   onMeasureCourse,
   onViewResults,
-  onNotifyTeacher,
+  // onNotifyTeacher,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
     {
-      key: "id",
-      title: "Id Curso",
+      key: "code",
+      title: "Código",
       render: (course) => (
         <span className="font-medium text-[var(--color-secondary-4)]">
           {course.code}
         </span>
       ),
-      className: `${compactCell} w-[10%] text-center`,
-      headerClassName: `${compactHeader} w-[10%] text-center`,
+      className: `${compactCell} w-[11%]`,
+      headerClassName: `${compactHeader} w-[11%]`,
     },
     {
-      key: "name",
-      title: "Nombre",
+      key: "course",
+      title: "Curso / Asignatura",
       render: (course) => (
-        <p className="font-heading font-semibold leading-snug text-[var(--color-secondary-4)]">
-          {course.name}
-        </p>
+        <div className="min-w-0">
+          <p className="panel-table-cell-wrap font-heading font-semibold leading-snug text-[var(--color-secondary-4)]">
+            {course.name}
+          </p>
+          <p className="panel-table-cell-wrap mt-1 text-xs text-[var(--color-gray-4)]">
+            {course.programaName}
+          </p>
+        </div>
       ),
-      className: `${compactCell} w-[16%]`,
-      headerClassName: `${compactHeader} w-[16%]`,
+      className: `${compactCell} w-[25%]`,
+      headerClassName: `${compactHeader} w-[25%]`,
     },
     {
       key: "cycle",
-      title: "Ciclo de Medición",
+      title: "Periodo",
       render: (course) => course.period,
-      className: `${compactCell} w-[12%]`,
-      headerClassName: `${compactHeader} w-[12%]`,
+      className: `${compactCell} w-[14%]`,
+      headerClassName: `${compactHeader} w-[14%]`,
     },
     {
-      key: "competences",
-      title: "#Competencias",
-      render: (course) => course.competenceIds.length,
-      className: `${compactCell} w-[12%] text-center`,
-      headerClassName: `${compactHeader} w-[12%] text-center`,
-    },
-    {
-      key: "ra",
-      title: "#RA a evaluar",
-      render: (course) => course.totalRa,
-      className: `${compactCell} w-[12%] text-center`,
-      headerClassName: `${compactHeader} w-[12%] text-center`,
-    },
-    {
-      key: "evaluated",
-      title: "RAs Evaluados",
-      render: (course) => `${course.evaluatedRa}/${course.totalRa}`,
-      className: `${compactCell} w-[12%] text-center`,
-      headerClassName: `${compactHeader} w-[12%] text-center`,
+      key: "progress",
+      title: "Progreso",
+      render: (course) => (
+        <div>
+          <InformativeProgressBar
+            value={course.progress}
+            label={`${course.evaluatedRa}/${course.totalRa} RA evaluados`}
+          />
+        </div>
+      ),
+      className: `${compactCell} w-[24%]`,
+      headerClassName: `${compactHeader} w-[24%]`,
     },
     {
       key: "status",
@@ -93,45 +125,27 @@ export default function CoursesMeasurementTable({
           {statusLabel[course.status]}
         </Badge>
       ),
-      className: `${compactCell} w-[10%] text-center`,
-      headerClassName: `${compactHeader} w-[10%] text-center`,
+      className: `${compactCell} w-[11%] text-center`,
+      headerClassName: `${compactHeader} w-[11%] text-center`,
     },
     {
       key: "actions",
-      title: "Acciones",
+      title: "Acción",
       render: (course) => (
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex items-center justify-center">
           <Button
-            variant="primary_soft"
+            variant="outline"
             size="sm"
-            leftIcon={<GoEye className="text-base" />}
-            onClick={() => onViewResults(course)}
-            disabled={course.results.length === 0}
-            title={
-              course.results.length === 0
-                ? "El detalle se habilita cuando exista al menos un RA medido."
-                : "Ver detalle del curso"
-            }
-            className="w-full max-w-[130px] px-3 text-center leading-tight"
+            rightIcon={<ActionIcon name="chevron-right" size="sm" />}
+            onClick={() => onMeasureCourse?.(course)}
+            className="w-full max-w-[140px] px-3 text-center leading-tight"
           >
-            Ver detalle
+            Medición RA
           </Button>
-
-          {course.status === "pendiente" ? (
-            <Button
-              variant="outline"
-              size="sm"
-              rightIcon={<GoChevronRight className="text-base" />}
-              onClick={() => onMeasureCourse?.(course)}
-              className="w-full max-w-[130px] px-3 text-center leading-tight"
-            >
-              Medir RA
-            </Button>
-          ) : null}
         </div>
       ),
-      className: `${compactCell} w-[16%] text-center`,
-      headerClassName: `${compactHeader} w-[16%] text-center`,
+      className: `${compactCell} w-[15%] text-center`,
+      headerClassName: `${compactHeader} w-[15%] text-center`,
     },
   ];
 
@@ -215,38 +229,34 @@ export default function CoursesMeasurementTable({
       key: "actions",
       title: "Acciones",
       render: (course) => (
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5">
           {course.status === "pendiente" ? (
-            <Button
+            <IconButton
               variant="outline"
               size="sm"
-              leftIcon={<GoMail className="text-base" />}
-              onClick={() => onNotifyTeacher?.(course)}
-              className="w-full max-w-[125px] px-3 text-center leading-tight"
-            >
-              Enviar correo
-            </Button>
+              icon={<ActionIcon name="email" />}
+              label={`Enviar correo a ${course.teacherName}`}
+              onClick={() => sendEmail(course)}
+            />
           ) : null}
 
-          <Button
-            variant="primary_soft"
+          <IconButton
+            variant="outline"
             size="sm"
-            leftIcon={<GoEye className="text-base" />}
+            icon={<ActionIcon name="view" />}
+            label={`Ver detalle del curso ${course.name}`}
             onClick={() => onViewResults(course)}
             disabled={course.results.length === 0}
             title={
               course.results.length === 0
                 ? "El detalle se habilita cuando exista al menos un RA medido."
-                : "Ver detalle del curso"
+                : `Ver detalle del curso ${course.name}`
             }
-            className="w-full max-w-[125px] px-3 text-center leading-tight"
-          >
-            Ver detalle
-          </Button>
+          />
         </div>
       ),
-      className: `${compactCell} w-[14%] text-center`,
-      headerClassName: `${compactHeader} w-[14%] text-center`,
+      className: `${compactCell} w-[14%] !text-center !align-middle`,
+      headerClassName: `${compactHeader} w-[14%] !text-center`,
     },
   ];
 
@@ -271,7 +281,7 @@ export default function CoursesMeasurementTable({
       <Table
         columns={mode === "teacher" ? teacherColumns : supervisorColumns}
         data={courses}
-        rowKey={(course) => course.id}
+        rowKey={(course) => `${course.cycleId}-${course.id}`}
         emptyMessage={
           mode === "teacher"
             ? "No hay cursos para los filtros seleccionados."

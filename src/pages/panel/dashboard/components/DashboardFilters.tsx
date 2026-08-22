@@ -1,4 +1,3 @@
-import { GoX } from "react-icons/go";
 import { Button, Select, type SelectOption } from "../../../../components/ui";
 import type {
   DashboardCatalogs,
@@ -6,6 +5,9 @@ import type {
   DashboardUser,
   EnrichedCycle,
 } from "../dashboard.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
+import { getFilterPermissions } from "../../../../config/access/permissions";
 
 interface DashboardFiltersProps {
   user: DashboardUser;
@@ -36,8 +38,12 @@ export default function DashboardFilters({
   onFilterChange,
   onReset,
 }: DashboardFiltersProps) {
-  const showSeccional = user.role === "admin";
-  const showFacultad = user.role === "admin" || user.role === "vice" || user.role === "decano";
+  const filterPermissions = getFilterPermissions("dashboard", user.role);
+  const showSeccional = filterPermissions.canFilterBySeccional;
+  const showFacultad = filterPermissions.canFilterByFacultad;
+  const showPrograma = filterPermissions.canFilterByPrograma;
+  const showPlan = filterPermissions.canFilterByPlan;
+  const showEstado = filterPermissions.canFilterByEstado;
 
   const scopedProgramaIds = user.scope.programaIds ?? [];
   const seccionalOptions = toOptions(catalogs.seccionales);
@@ -83,14 +89,14 @@ export default function DashboardFilters({
             Filtros
           </h2>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Ajusta la información visible según ciclo, estado y alcance del rol actual.
+            Ajusta la información visible por ciclo y estado.
           </p>
         </div>
 
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoX className="text-lg" />}
+          leftIcon={<ActionIcon name="close" />}
           onClick={onReset}
         >
           Limpiar filtros
@@ -122,35 +128,41 @@ export default function DashboardFilters({
           </div>
         ) : null}
 
-        <div className="panel-filter-item">
-          <Select
-            label="Programa académico"
-            placeholder="Todos"
-            value={filters.programaId}
-            options={programaOptions}
-            onChange={(event) => onFilterChange("programaId", event.target.value)}
-          />
-        </div>
+        {showPrograma ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Programa académico"
+              placeholder="Todos"
+              value={filters.programaId}
+              options={programaOptions}
+              onChange={(event) => onFilterChange("programaId", event.target.value)}
+            />
+          </div>
+        ) : null}
 
-        <div className="panel-filter-item">
-          <Select
-            label="Plan de estudios"
-            placeholder="Todos"
-            value={filters.planId}
-            options={planOptions}
-            onChange={(event) => onFilterChange("planId", event.target.value)}
-          />
-        </div>
+        {showPlan ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Plan de estudios"
+              placeholder="Todos"
+              value={filters.planId}
+              options={planOptions}
+              onChange={(event) => onFilterChange("planId", event.target.value)}
+            />
+          </div>
+        ) : null}
 
-        <div className="panel-filter-item">
-          <Select
-            label="Estado"
-            placeholder="Todos los estados"
-            value={filters.status}
-            options={statusOptions}
-            onChange={(event) => onFilterChange("status", event.target.value)}
-          />
-        </div>
+        {showEstado ? (
+          <div className="panel-filter-item">
+            <Select
+              label="Estado"
+              placeholder="Todos los estados"
+              value={filters.status}
+              options={statusOptions}
+              onChange={(event) => onFilterChange("status", event.target.value)}
+            />
+          </div>
+        ) : null}
 
         <div className="panel-filter-item">
           <Select

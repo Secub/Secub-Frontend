@@ -1,4 +1,4 @@
-import { GoChecklist } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Button } from "../../../../components/ui";
 
 interface DashboardEmptyStateProps {
@@ -19,7 +19,7 @@ export default function DashboardEmptyState({
   return (
     <section className="surface-card p-10 text-center">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[color:rgba(160,195,255,0.18)] text-[var(--color-secondary-1)]">
-        <GoChecklist className="text-2xl" />
+        <SecubIcon name="checklist" weight="fill" className="text-2xl" />
       </div>
       <h2 className="mt-5 font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
         {title}

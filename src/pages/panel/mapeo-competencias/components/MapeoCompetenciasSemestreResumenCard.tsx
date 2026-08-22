@@ -19,7 +19,7 @@ export default function MapeoCompetenciasSemestreResumenCard({
   semestre,
 }: MapeoCompetenciasSemestreResumenCardProps) {
   return (
-    <article className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-5">
+    <article className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h3 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">

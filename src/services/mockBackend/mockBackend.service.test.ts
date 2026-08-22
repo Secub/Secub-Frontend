@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockBackend } from "./mockBackend.service";
+import {
+  mockBackend,
+  type MockBackendRecord,
+  type MockBackendUser,
+} from "./mockBackend.service";
 
 describe("mockBackend upsert for mapeosCompetencias", () => {
   beforeEach(() => {
@@ -7,20 +11,30 @@ describe("mockBackend upsert for mapeosCompetencias", () => {
   });
 
   it("mantiene una sola instancia por programa y plan al guardar varias veces", () => {
-    const user = {
+    const user: MockBackendUser = {
       id: "user-1",
-      role: "admin",
+      role: "director",
       scope: { seccionalId: "sec-1", facultadId: "fac-1", programaId: "prog-1", planId: "plan-1" },
     };
 
-    const initialRecord = {
+    interface MapeoTestRecord extends MockBackendRecord {
+      descripcion: string;
+      lugarId: string;
+      estado: "activo";
+      competenciaRaIds: string[];
+      semestresClasificados: unknown[];
+      nivelesCompromiso: unknown[];
+      cursosMapeados: unknown[];
+    }
+
+    const initialRecord: MapeoTestRecord = {
       id: "mapeo-legacy-id",
       programaId: "prog-1",
       planId: "plan-1",
       seccionalId: "sec-1",
       facultadId: "fac-1",
       lugarId: "lugar-1",
-      estado: "activo" as const,
+      estado: "activo",
       descripcion: "Mapa inicial",
       competenciaRaIds: [],
       semestresClasificados: [],
@@ -28,26 +42,38 @@ describe("mockBackend upsert for mapeosCompetencias", () => {
       cursosMapeados: [],
     };
 
-    mockBackend.create("mapeosCompetencias", initialRecord as never, user as never);
+    mockBackend.create("mapeosCompetencias", initialRecord, user);
 
-    mockBackend.upsert("mapeosCompetencias", {
+    mockBackend.upsert<MapeoTestRecord>("mapeosCompetencias", {
       id: "mapeo-nuevo-id",
       programaId: "prog-1",
       planId: "plan-1",
       seccionalId: "sec-1",
       facultadId: "fac-1",
       lugarId: "lugar-1",
-      estado: "activo" as const,
+      estado: "activo",
       descripcion: "Mapa actualizado",
       competenciaRaIds: [],
       semestresClasificados: [],
       nivelesCompromiso: [],
       cursosMapeados: [],
-    } as never, user as never);
+    }, user);
 
-    const records = mockBackend.list("mapeosCompetencias", user as never) as Array<{ descripcion?: string }>;
+    const records = mockBackend.list<MapeoTestRecord>("mapeosCompetencias", user);
 
     expect(records).toHaveLength(1);
     expect(records[0].descripcion).toBe("Mapa actualizado");
   });
+  it("rechaza escrituras académicas de roles de consulta", () => {
+    const adminUser: MockBackendUser = { id: "admin-1", role: "administrador", scope: {} };
+
+    expect(() =>
+      mockBackend.create(
+        "perfilEgreso",
+        { id: "perfil-no-autorizado", descripcion: "No debe guardarse" },
+        adminUser,
+      ),
+    ).toThrow("La operación solicitada no está disponible");
+  });
+
 });

@@ -1,17 +1,19 @@
-import { GoEye, GoPlus } from "react-icons/go";
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
+import type { ChangeEvent } from "react";
 import { Button } from "../../../../components/ui";
 import CompetenciasRaCardGrid from "./CompetenciasRaCardGrid";
 import type {
   CompetenciasRaEnriched,
-  CompetenciasRaFormacionRole,
   ResultadoAprendizaje,
-  RolePermissions,
-} from "../CompetenciasRa.types";
+  } from "../CompetenciasRa.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface CompetenciasRaListSectionProps {
   data: CompetenciasRaEnriched[];
-  role: CompetenciasRaFormacionRole;
-  permissions: RolePermissions;
+  role: SecubRole;
+  permissions: AcademicModulePermissions;
   invalidCount: number;
   sortOrder: "asc" | "desc";
   onSortOrderChange: (value: "asc" | "desc") => void;
@@ -33,7 +35,6 @@ export default function CompetenciasRaListSection({
   onEditRa,
   onCreate,
 }: CompetenciasRaListSectionProps) {
-  console.log("permissions", permissions.canDelete);
   return (
     <div className="surface-card p-6">
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -42,11 +43,15 @@ export default function CompetenciasRaListSection({
             Competencias y Resultados de Aprendizaje
           </h3>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">
-            Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados. Expande para ver los detalles de cada resultado.
+            {permissions.canUpdate
+              ? "Cada tarjeta muestra una competencia con sus resultados de aprendizaje asociados. Expande para ver los detalles de cada resultado."
+              : "Consulta las competencias y sus Resultados de Aprendizaje asociados. Expande cada registro para revisar su información."}
           </p>
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-            <GoEye className="text-base text-[var(--color-secondary-1)]" />
-            La edición solo se habilita sobre programas activos.
+            <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
+            {permissions.canUpdate
+              ? "La edición solo se habilita sobre programas activos."
+              : "Vista de solo consulta."}
           </div>
         </div>
 
@@ -54,8 +59,8 @@ export default function CompetenciasRaListSection({
           <label className="text-sm font-medium text-[var(--color-gray-4)]">Ordenar:</label>
           <select
             value={sortOrder}
-            onChange={(event) => onSortOrderChange(event.target.value as "asc" | "desc")}
-            className="rounded border border-[var(--color-gray-6)] bg-white px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => onSortOrderChange(event.target.value as "asc" | "desc")}
+            className="rounded border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-3 py-2 text-sm text-[var(--color-gray-3)] transition-colors hover:border-[var(--color-gray-4)]"
           >
             <option value="asc">Ascendente (1-10)</option>
             <option value="desc">Descendente (10-1)</option>
@@ -63,7 +68,7 @@ export default function CompetenciasRaListSection({
         </div>
       </div>
 
-      {invalidCount > 0 ? (
+      {permissions.canUpdate && invalidCount > 0 ? (
         <div
           role="alert"
           className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]"
@@ -82,10 +87,10 @@ export default function CompetenciasRaListSection({
         onEditRa={onEditRa}
       />
       <div className="mt-4 flex flex-1 justify-center">
-        {permissions.canCreate && role === "direccionPrograma" ? (
+        {permissions.canCreate && role === "director" ? (
           <Button
             variant="primary"
-            leftIcon={<GoPlus className="text-lg" />}
+            leftIcon={<ActionIcon name="add" />}
             onClick={onCreate}
             title="Crear una nueva competencia"
           >

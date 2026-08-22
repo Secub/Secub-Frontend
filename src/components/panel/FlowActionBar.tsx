@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { GoArrowRight, GoCheckCircle, GoClock } from "react-icons/go";
 import { Button } from "../ui";
 import type { ButtonVariant } from "../ui/Button";
+
+import { ActionIcon } from "../ui/ActionIcon";
 
 interface FlowActionBarAction {
   label: string;
@@ -150,7 +151,7 @@ export default function FlowActionBar({
 
       <div
         ref={barRef}
-        className="fixed bottom-0 z-20 w-full min-w-0 border-t border-[var(--color-gray-6)] bg-[var(--color-white)] px-4 py-4 shadow-[var(--shadow-lg)] sm:px-6"
+        className="fixed bottom-0 z-20 w-full min-w-0 border-t border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-4 shadow-[var(--shadow-lg)] sm:px-6"
         style={fixedBarStyle}
       >
         <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -170,7 +171,7 @@ export default function FlowActionBar({
             {shouldShowSave ? (
               <Button
                 variant="outline"
-                leftIcon={<GoClock className="text-lg" />}
+                leftIcon={<ActionIcon name="clock" />}
                 onClick={onSaveProgress}
                 disabled={saveDisabled}
                 title={saveTitle}
@@ -183,7 +184,7 @@ export default function FlowActionBar({
             {shouldShowNext ? (
               <Button
                 variant="primary"
-                leftIcon={<GoArrowRight className="text-lg" />}
+                leftIcon={<ActionIcon name="next" />}
                 onClick={onNext}
                 disabled={nextDisabled}
                 title={nextTitle}
@@ -196,7 +197,7 @@ export default function FlowActionBar({
             {shouldShowFinish ? (
               <Button
                 variant="primary"
-                leftIcon={<GoCheckCircle className="text-lg" />}
+                leftIcon={<ActionIcon name="complete" />}
                 onClick={onFinish}
                 disabled={finishDisabled}
                 title={finishTitle}

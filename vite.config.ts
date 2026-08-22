@@ -5,6 +5,17 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   base: process.env.GITHUB_PAGES === "true" ? "/Secub-Frontend/" : "/",
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    sourcemap: false,
+  },
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
@@ -14,5 +25,7 @@ export default defineConfig({
     environment: "happy-dom",
     globals: true,
     setupFiles: "./src/test/setup.ts",
+    restoreMocks: true,
+    clearMocks: true,
   },
 });

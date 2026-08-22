@@ -1,17 +1,18 @@
-import { GoX } from "react-icons/go";
+import type { CyclePermissions } from "../../../../config/access/permissions";
 import { Button, Select, type SelectOption } from "../../../../components/ui";
 import type {
   CicloCatalogs,
   CicloEnriched,
   CicloFilters as CicloFiltersState,
-  CicloRolePermissions,
   CurrentUser,
 } from "../ciclo.types";
 import { getAvailablePeriods } from "../ciclo.utils";
 
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
+
 interface CicloFiltersProps {
   user: CurrentUser;
-  permissions: CicloRolePermissions;
+  permissions: CyclePermissions;
   catalogs: CicloCatalogs;
   filters: CicloFiltersState;
   baseCycles: CicloEnriched[];
@@ -86,14 +87,14 @@ export default function CicloFilters({
             Filtros
           </h2>
           <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Consulta ciclos por programa, periodo, estado y alcance del rol actual.
+            Consulta ciclos por programa, periodo y estado.
           </p>
         </div>
 
         <Button
           variant="ghost"
           size="sm"
-          leftIcon={<GoX className="text-lg" />}
+          leftIcon={<ActionIcon name="close" />}
           onClick={onReset}
           title={`${filteredCount} de ${totalCount} ciclos visibles`}
         >

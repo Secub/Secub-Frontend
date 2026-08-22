@@ -1,4 +1,4 @@
-export type SecubProgramId = "psicologia" | "derecho";
+export type SecubProgramId = string;
 
 export interface SecubAcademicCourse {
   id: string;
@@ -26,9 +26,9 @@ export interface SecubAcademicProgram {
   directorRoleLabel: string;
   faculty: string;
   facultyId: string;
-  seccional: "Seccional Cali";
-  seccionalId: "cali";
-  lugarId: "cali";
+  seccional: string;
+  seccionalId: string;
+  lugarId: string;
   snies: string;
   planId: string;
   planVersion: string;
@@ -40,301 +40,737 @@ export interface SecubAcademicProgram {
   semesters: SecubAcademicSemester[];
 }
 
-const SECCIONAL_CALI_ID = "cali" as const;
-const LUGAR_CALI_ID = "cali" as const;
-
-function normalizeSlug(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+export interface SecubAcademicStudent {
+  id: string;
+  code: string;
+  name: string;
+  email: string;
+  courseId: string;
 }
 
-function getCourseId(programId: SecubProgramId, semester: number, courseName: string) {
-  return `${programId}-sem${semester}-${normalizeSlug(courseName)}`;
+export interface SecubSeccionalCatalog {
+  id: string;
+  nombre: string;
 }
 
-function getCode(programId: SecubProgramId, semester: number, index: number) {
-  return `${programId === "psicologia" ? "PSI" : "DER"}-${String(semester).padStart(2, "0")}${String(index + 1).padStart(2, "0")}`;
+export interface SecubLugarCatalog {
+  id: string;
+  nombre: string;
+  seccionalId: string;
 }
 
-const psychologySemesterCredits = [17, 15, 16, 15, 16, 17, 17, 17, 16];
-const lawSemesterCredits = [19, 19, 18, 18, 20, 19, 19, 18];
+export interface SecubFacultadCatalog {
+  id: string;
+  nombre: string;
+  seccionalId: string;
+}
 
-const psychologyRawCourses: Array<Array<{ name: string; credits: number; component: string }>> = [
-  [
-    { name: "Pensamiento Lógico Investigativo", credits: 3, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Historia de la Psicología Mundial y Latinoamericana", credits: 3, component: "Historias, Trayectorias y Perspectivas De La Psicología" },
-    { name: "Paradigmas en Ciencias Sociales y Psicología", credits: 3, component: "Historias, Trayectorias y Perspectivas De La Psicología" },
-    { name: "Prácticas de Lectura y Escritura", credits: 2, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Subjetividades e Identidad", credits: 3, component: "Cultura, Desarrollo Humano y Subjetividades" },
-    { name: "Proyecto de Vida", credits: 2, component: "Institucional" },
-    { name: "Identidad Institucional y Franciscanismo", credits: 1, component: "Institucional" },
-    { name: "Inglés I", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Humanización, Evolución y Cultura", credits: 3, component: "Cultura, Desarrollo Humano y Subjetividades" },
-    { name: "Perspectivas sobre las Infancias: Constitución Subjetiva y Desarrollo", credits: 3, component: "Cultura, Desarrollo Humano y Subjetividades" },
-    { name: "Escuelas y Perspectivas de la Psicología: Humanismo", credits: 3, component: "Historias, Trayectorias y Perspectivas De La Psicología" },
-    { name: "Estéticas de la Escritura", credits: 2, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Electiva I", credits: 2, component: "Electivas" },
-    { name: "Constitución y Democracia", credits: 2, component: "Institucional" },
-    { name: "Inglés II", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Poder, Movimientos Sociales y Políticas Públicas", credits: 3, component: "Construcción de Paz, Diversidad y Mediaciones" },
-    { name: "Perspectivas sobre las Juventudes y la Adultez", credits: 3, component: "Cultura, Desarrollo Humano y Subjetividades" },
-    { name: "Práctica Investigativa: Perspectiva Cualitativa", credits: 3, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Escuelas y Perspectivas de la Psicología: Cognitivo-Conductual", credits: 3, component: "Historias, Trayectorias y Perspectivas De La Psicología" },
-    { name: "Electiva II", credits: 2, component: "Electivas" },
-    { name: "Franciscanismo y Ecología", credits: 2, component: "Institucional" },
-    { name: "Inglés III", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Escuelas y Perspectivas de la Psicología: Psicoanálisis", credits: 3, component: "Historias, Trayectorias y Perspectivas De La Psicología" },
-    { name: "Práctica Investigativa: Perspectiva Cuantitativa", credits: 3, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Trabajo y Contemporaneidad", credits: 3, component: "Trabajo, Salud y Organizaciones" },
-    { name: "Clínica y Ciencia", credits: 2, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Electiva III", credits: 2, component: "Electivas" },
-    { name: "Ética", credits: 2, component: "Institucional" },
-    { name: "Inglés IV", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Estadística para Ciencias Sociales", credits: 3, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Perspectivas Socioculturales de la Cognición", credits: 3, component: "Construcción de Paz, Diversidad y Mediaciones" },
-    { name: "Diversidad e Inclusión", credits: 3, component: "Construcción de Paz, Diversidad y Mediaciones" },
-    { name: "Clínica y Sociedad", credits: 3, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Electiva IV", credits: 2, component: "Electivas" },
-    { name: "Electiva V", credits: 2, component: "Electivas" },
-    { name: "Inglés V", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Organizaciones y Contextos", credits: 3, component: "Trabajo, Salud y Organizaciones" },
-    { name: "Práctica Investigativa: Perspectiva Mixta", credits: 3, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Psicopatología y Sociedad", credits: 3, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Neuropsicología y Cultura", credits: 3, component: "Construcción de Paz, Diversidad y Mediaciones" },
-    { name: "Electiva Profundización en Clínica I", credits: 3, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Electiva VI", credits: 2, component: "Electivas" },
-    { name: "Inglés VI", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Formulación de Proyectos", credits: 3, component: "Análisis y Expresión Científica: Investigación" },
-    { name: "Evaluación de Problemáticas Psicológicas", credits: 3, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Abordajes de Problemáticas Educativas", credits: 3, component: "Construcción de Paz, Diversidad y Mediaciones" },
-    { name: "Abordajes e Intervención Psicosocial", credits: 3, component: "Construcción de Paz, Diversidad y Mediaciones" },
-    { name: "Electiva Profundización Clínica II", credits: 3, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Electiva VII", credits: 2, component: "Electivas" },
-    { name: "Inglés VII", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Trabajo y Salud", credits: 3, component: "Trabajo, Salud y Organizaciones" },
-    { name: "Modalidad de Grado I", credits: 3, component: "Síntesis - Sujeto Ético" },
-    { name: "Clínica y Estética", credits: 2, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Práctica Profesional I", credits: 7, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Electiva VIII", credits: 2, component: "Electivas" },
-    { name: "Inglés VIII", credits: 0, component: "Electivas" },
-  ],
-  [
-    { name: "Innovación social y Emprendimiento", credits: 1, component: "Síntesis - Sujeto Ético" },
-    { name: "Modalidad de Grado II", credits: 3, component: "Síntesis - Sujeto Ético" },
-    { name: "Ética del Cuidado", credits: 3, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Práctica Profesional II", credits: 7, component: "Clínica, Salud y Ética del Cuidado" },
-    { name: "Electiva IX", credits: 2, component: "Electivas" },
-  ],
+export interface SecubProgramaCatalog {
+  id: SecubProgramId;
+  nombre: string;
+  facultadId: string;
+  seccionalId: string;
+  estado: "activo" | "inactivo";
+}
+
+export interface SecubPlanCatalog {
+  id: string;
+  nombre: string;
+  programaId: SecubProgramId;
+  estado: "activo" | "inactivo";
+  totalSemestres: number;
+}
+
+/**
+ * Catálogo temporal único para la demostración local.
+ *
+ * Todos los módulos leen este mismo conjunto pequeño de datos. Cuando el backend
+ * esté disponible, estas colecciones se reemplazan por sus respectivos repositorios
+ * sin modificar las pantallas.
+ */
+export const SIMPLE_DEMO_IDS = {
+  seccionalId: "sec-cali",
+  lugarId: "lugar-cali",
+  facultadId: "fac-ingenierias",
+  programaId: "ingenieria-multimedia",
+  planId: "plan-im-2026",
+  semester1CourseId: "curso-fundamentos-programacion",
+  semester2CourseId: "curso-programacion-orientada-objetos",
+  courseId: "curso-diseno-medios-digitales",
+} as const;
+
+type DemoCourseInput = Omit<SecubAcademicCourse, "programId" | "planId">;
+
+function createDemoCourse(course: DemoCourseInput): SecubAcademicCourse {
+  return {
+    ...course,
+    programId: SIMPLE_DEMO_IDS.programaId,
+    planId: SIMPLE_DEMO_IDS.planId,
+  };
+}
+
+// El pensum suministrado no publica códigos oficiales de asignatura.
+// Los códigos que no existían previamente en el mock son identificadores internos
+// únicamente para mantener unicidad y permitir las pruebas del frontend.
+const semester1Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-precalculo",
+    code: "IM-100",
+    name: "Precálculo",
+    credits: 3,
+    semester: 1,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: "curso-matematicas-discretas",
+    code: "IM-102",
+    name: "Matemáticas Discretas",
+    credits: 3,
+    semester: 1,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: SIMPLE_DEMO_IDS.semester1CourseId,
+    code: "IM-101",
+    name: "Fundamentos de Programación",
+    credits: 3,
+    semester: 1,
+    component: "Ciencias Básicas de Ingeniería",
+    cycle: "Fundamentación",
+  }),
+  createDemoCourse({
+    id: "curso-introduccion-ingenieria",
+    code: "IM-103",
+    name: "Introducción a la Ingeniería",
+    credits: 3,
+    semester: 1,
+    component: "Ciencias Básicas de Ingeniería",
+  }),
+  createDemoCourse({
+    id: "curso-comunicacion-oral-escrita-1",
+    code: "IM-104",
+    name: "Comunicación Oral y Escrita I",
+    credits: 1,
+    semester: 1,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-1",
+    code: "IM-105",
+    name: "Humanística I",
+    credits: 2,
+    semester: 1,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-2",
+    code: "IM-106",
+    name: "Humanística II",
+    credits: 2,
+    semester: 1,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-1",
+    code: "IM-107",
+    name: "Inglés I",
+    credits: 2,
+    semester: 1,
+    component: "Complementaria",
+  }),
 ];
 
-const lawRawCourses: Array<Array<{ name: string; credits: number; component: string }>> = [
-  [
-    { name: "Introducción al Derecho", credits: 3, component: "Cimentación" },
-    { name: "Comunicación Escrita y Oral", credits: 2, component: "Cimentación" },
-    { name: "Civil General y Personas", credits: 2, component: "Privado" },
-    { name: "Razonamiento Cuantitativo", credits: 2, component: "Cimentación" },
-    { name: "Historia de las Ideas Políticas", credits: 2, component: "Cimentación" },
-    { name: "Historia del Derecho", credits: 2, component: "Cimentación" },
-    { name: "Humanística I", credits: 2, component: "Institucional" },
-    { name: "Humanística II", credits: 2, component: "Institucional" },
-    { name: "Inglés I", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Hemanéutica y Argumentación Jurídica", credits: 3, component: "Cimentación" },
-    { name: "Derecho Patrimonial", credits: 2, component: "Privado" },
-    { name: "Teoría del Negocio Jurídico", credits: 2, component: "Privado" },
-    { name: "Teoría Constitucional", credits: 3, component: "Público" },
-    { name: "Sistemas Jurídicos y Gestión del Conflicto", credits: 2, component: "Gestión del Conflicto (énfasis)" },
-    { name: "Penal General", credits: 3, component: "Penal" },
-    { name: "Humanística III", credits: 2, component: "Institucional" },
-    { name: "Inglés II", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Sociología Jurídica", credits: 2, component: "Cimentación" },
-    { name: "Filosofía del Derecho", credits: 3, component: "Cimentación" },
-    { name: "Obligaciones", credits: 3, component: "Privado" },
-    { name: "Derecho Constitucional Colombiano", credits: 3, component: "Público" },
-    { name: "Teoría General del Proceso", credits: 2, component: "Gestión del Conflicto (énfasis)" },
-    { name: "Penal Especial", credits: 3, component: "Penal" },
-    { name: "Inglés III", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Contrato Civiles", credits: 3, component: "Privado" },
-    { name: "Derecho de Familia", credits: 2, component: "Privado" },
-    { name: "Comercial General", credits: 2, component: "Privado" },
-    { name: "Derecho Administrativo General", credits: 3, component: "Público" },
-    { name: "Derecho Internacional Público", credits: 2, component: "Público" },
-    { name: "Prácticas Restaurativas", credits: 2, component: "Gestión del Conflicto (énfasis)" },
-    { name: "Procesal Penal I", credits: 2, component: "Penal" },
-    { name: "Inglés IV", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Ética Profesional", credits: 2, component: "Cimentación" },
-    { name: "Sucesiones", credits: 2, component: "Privado" },
-    { name: "Contratos Mercantiles", credits: 2, component: "Privado" },
-    { name: "Derecho Administrativo Especial", credits: 3, component: "Público" },
-    { name: "Contratación Estatal", credits: 2, component: "Público" },
-    { name: "Mediación", credits: 2, component: "Gestión del Conflicto (énfasis)" },
-    { name: "Procesal Penal II", credits: 2, component: "Penal" },
-    { name: "Derecho Laboral General e Individual", credits: 3, component: "Laboral" },
-    { name: "Inglés V", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Procesal Civil I", credits: 2, component: "Privado" },
-    { name: "Derecho Probatorio", credits: 2, component: "Privado" },
-    { name: "Títulos Valores", credits: 2, component: "Privado" },
-    { name: "Procesal Administrativo", credits: 2, component: "Público" },
-    { name: "Derecho Humanos y Derecho Internacional Humanitario", credits: 2, component: "Público" },
-    { name: "Conciliación", credits: 2, component: "Gestión del Conflicto (énfasis)" },
-    { name: "Metodología de la Investigación", credits: 2, component: "Cimentación" },
-    { name: "Derecho Laboral Prestacional y Colectivo", credits: 3, component: "Laboral" },
-    { name: "Inglés VI", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Procesal Civil II", credits: 3, component: "Privado" },
-    { name: "Derecho Internacional Privado", credits: 2, component: "Privado" },
-    { name: "Derecho Societario", credits: 3, component: "Privado" },
-    { name: "Derecho Ambiental", credits: 2, component: "Público" },
-    { name: "Seguridad Social", credits: 3, component: "Laboral" },
-    { name: "Arbitraje", credits: 2, component: "Gestión del Conflicto (énfasis)" },
-    { name: "Procesal Laboral", credits: 2, component: "Laboral" },
-    { name: "Requisito de Grado: Consultorio Jurídico I", credits: 0, component: "Requisito de Grado" },
-    { name: "Inglés VII", credits: 2, component: "Formación Segunda Lengua" },
-  ],
-  [
-    { name: "Electiva Libre", credits: 2, component: "Componente Electivo" },
-    { name: "Electiva de Profundización I", credits: 2, component: "Componente Electivo" },
-    { name: "Electiva de Profundización II", credits: 2, component: "Componente Electivo" },
-    { name: "Programa Complementario de Formación Avanzada", credits: 10, component: "Programa Complementario de Formación Avanzada" },
-    { name: "Requisito de Grado: Consultorio Jurídico II", credits: 0, component: "Requisito de Grado" },
-    { name: "Inglés VIII", credits: 2, component: "Formación Segunda Lengua" },
-  ],
+const semester2Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-fisica-mecanica",
+    code: "IM-200",
+    name: "Física Mecánica",
+    credits: 4,
+    semester: 2,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: "curso-calculo-1",
+    code: "IM-202",
+    name: "Cálculo I",
+    credits: 4,
+    semester: 2,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: SIMPLE_DEMO_IDS.semester2CourseId,
+    code: "IM-201",
+    name: "Programación Orientada a Objetos",
+    credits: 3,
+    semester: 2,
+    component: "Ciencias Básicas de Ingeniería",
+    cycle: "Profesionalización",
+  }),
+  createDemoCourse({
+    id: "curso-taller-multimedia",
+    code: "IM-203",
+    name: "Taller Multimedia",
+    credits: 2,
+    semester: 2,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-3",
+    code: "IM-204",
+    name: "Humanística III",
+    credits: 2,
+    semester: 2,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-bienestar-institucional-1",
+    code: "IM-205",
+    name: "Bienestar Institucional I",
+    credits: 1,
+    semester: 2,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-2",
+    code: "IM-206",
+    name: "Inglés II",
+    credits: 2,
+    semester: 2,
+    component: "Complementaria",
+  }),
 ];
 
-function buildCourses(programId: SecubProgramId, planId: string, raw: typeof psychologyRawCourses) {
-  return raw.flatMap((semesterCourses, semesterIndex) => {
-    const semester = semesterIndex + 1;
-    return semesterCourses.map<SecubAcademicCourse>((course, courseIndex) => ({
-      id: getCourseId(programId, semester, course.name),
-      code: getCode(programId, semester, courseIndex),
-      name: course.name,
-      credits: course.credits,
-      semester,
-      component: course.component,
-      programId,
-      planId,
-    }));
-  });
-}
+const semester3Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-calculo-2",
+    code: "IM-300",
+    name: "Cálculo II",
+    credits: 3,
+    semester: 3,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: "curso-algebra-lineal",
+    code: "IM-302",
+    name: "Álgebra Lineal",
+    credits: 3,
+    semester: 3,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: SIMPLE_DEMO_IDS.courseId,
+    code: "IM-301",
+    name: "Diseño de Medios Digitales",
+    credits: 3,
+    semester: 3,
+    component: "Ciencias Básicas de Ingeniería",
+    cycle: "Síntesis",
+  }),
+  createDemoCourse({
+    id: "curso-guion-medios-digitales",
+    code: "IM-303",
+    name: "Guion para Medios Digitales",
+    credits: 2,
+    semester: 3,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-4",
+    code: "IM-304",
+    name: "Humanística IV",
+    credits: 2,
+    semester: 3,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-5",
+    code: "IM-305",
+    name: "Humanística V",
+    credits: 2,
+    semester: 3,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-bienestar-institucional-2",
+    code: "IM-306",
+    name: "Bienestar Institucional II",
+    credits: 1,
+    semester: 3,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-3",
+    code: "IM-307",
+    name: "Inglés III",
+    credits: 2,
+    semester: 3,
+    component: "Complementaria",
+  }),
+];
 
-function buildSemesters(programId: SecubProgramId, planId: string, courses: SecubAcademicCourse[], credits: number[]) {
-  return credits.map<SecubAcademicSemester>((totalCredits, index) => {
-    const number = index + 1;
-    return {
-      id: `${planId}-semestre-${number}`,
-      number,
-      label: `Semestre ${number}`,
-      totalCredits,
-      courses: courses.filter((course) => course.programId === programId && course.semester === number),
-    };
-  });
-}
+const semester4Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-matematicas-especiales",
+    code: "IM-401",
+    name: "Matemáticas Especiales",
+    credits: 3,
+    semester: 4,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: "curso-probabilidad-estadistica",
+    code: "IM-402",
+    name: "Probabilidad y Estadística",
+    credits: 3,
+    semester: 4,
+    component: "Ciencias Básicas",
+  }),
+  createDemoCourse({
+    id: "curso-computacion-grafica",
+    code: "IM-403",
+    name: "Computación Gráfica",
+    credits: 3,
+    semester: 4,
+    component: "Ciencias Básicas de Ingeniería",
+  }),
+  createDemoCourse({
+    id: "curso-dibujo-multimedia",
+    code: "IM-404",
+    name: "Dibujo para Multimedia",
+    credits: 2,
+    semester: 4,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-taller-video-fotografia",
+    code: "IM-405",
+    name: "Taller de Video y Fotografía",
+    credits: 2,
+    semester: 4,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-comunicacion-oral-escrita-2",
+    code: "IM-406",
+    name: "Comunicación Oral y Escrita II",
+    credits: 1,
+    semester: 4,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-6",
+    code: "IM-407",
+    name: "Humanística VI",
+    credits: 2,
+    semester: 4,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-bienestar-institucional-3",
+    code: "IM-408",
+    name: "Bienestar Institucional III",
+    credits: 1,
+    semester: 4,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-4",
+    code: "IM-409",
+    name: "Inglés IV",
+    credits: 2,
+    semester: 4,
+    component: "Complementaria",
+  }),
+];
 
-const psychologyCourses = buildCourses("psicologia", "psicologia-2021-1", psychologyRawCourses);
-const lawCourses = buildCourses("derecho", "derecho-2025-1", lawRawCourses);
+const semester5Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-base-datos",
+    code: "IM-501",
+    name: "Base de Datos",
+    credits: 4,
+    semester: 5,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-taller-animacion-2d",
+    code: "IM-502",
+    name: "Taller de Animación 2D",
+    credits: 2,
+    semester: 5,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-fundamentos-redes",
+    code: "IM-503",
+    name: "Fundamentos de Redes",
+    credits: 3,
+    semester: 5,
+    component: "Ciencias Básicas de Ingeniería",
+  }),
+  createDemoCourse({
+    id: "curso-audio-digital",
+    code: "IM-504",
+    name: "Audio Digital",
+    credits: 3,
+    semester: 5,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-electiva-ingenieria-1",
+    code: "IM-505",
+    name: "Electiva en Ingeniería I",
+    credits: 2,
+    semester: 5,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-humanistica-7",
+    code: "IM-506",
+    name: "Humanística VII",
+    credits: 2,
+    semester: 5,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-bienestar-institucional-4",
+    code: "IM-507",
+    name: "Bienestar Institucional IV",
+    credits: 1,
+    semester: 5,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-5",
+    code: "IM-508",
+    name: "Inglés V",
+    credits: 2,
+    semester: 5,
+    component: "Complementaria",
+  }),
+];
+
+const semester6Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-desarrollo-web",
+    code: "IM-601",
+    name: "Desarrollo Web",
+    credits: 2,
+    semester: 6,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-modelado-3d",
+    code: "IM-602",
+    name: "Modelado 3D",
+    credits: 3,
+    semester: 6,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-circuitos-digitales",
+    code: "IM-603",
+    name: "Circuitos Digitales",
+    credits: 3,
+    semester: 6,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-procesamiento-digital-senales",
+    code: "IM-604",
+    name: "Procesamiento Digital de Señales",
+    credits: 2,
+    semester: 6,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-electiva-ingenieria-2",
+    code: "IM-605",
+    name: "Electiva en Ingeniería II",
+    credits: 2,
+    semester: 6,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-gestion-proyectos",
+    code: "IM-606",
+    name: "Gestión en Proyectos",
+    credits: 3,
+    semester: 6,
+    component: "Complementaria",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-6",
+    code: "IM-607",
+    name: "Inglés VI",
+    credits: 2,
+    semester: 6,
+    component: "Complementaria",
+  }),
+];
+
+const semester7Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-animacion-integracion-3d",
+    code: "IM-701",
+    name: "Animación e Integración 3D",
+    credits: 3,
+    semester: 7,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-electronica-multimedia",
+    code: "IM-702",
+    name: "Electrónica para Multimedia",
+    credits: 3,
+    semester: 7,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-procesamiento-imagenes",
+    code: "IM-703",
+    name: "Procesamiento de Imágenes",
+    credits: 3,
+    semester: 7,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-edicion-postproduccion-video",
+    code: "IM-704",
+    name: "Edición y Post-producción de Video",
+    credits: 2,
+    semester: 7,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-proyecto-ingenieria",
+    code: "IM-705",
+    name: "Proyecto en Ingeniería",
+    credits: 4,
+    semester: 7,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-7",
+    code: "IM-706",
+    name: "Inglés VII",
+    credits: 2,
+    semester: 7,
+    component: "Complementaria",
+  }),
+];
+
+const semester8Courses: SecubAcademicCourse[] = [
+  createDemoCourse({
+    id: "curso-diseno-experiencias-interactivas",
+    code: "IM-801",
+    name: "Diseño de Experiencias Interactivas",
+    credits: 3,
+    semester: 8,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-electiva-ingenieria-3",
+    code: "IM-802",
+    name: "Electiva en Ingeniería III",
+    credits: 2,
+    semester: 8,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-legislacion-contenidos-digitales",
+    code: "IM-803",
+    name: "Legislación para Contenidos Digitales",
+    credits: 2,
+    semester: 8,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-practica-profesional",
+    code: "IM-804",
+    name: "Práctica Profesional",
+    credits: 6,
+    semester: 8,
+    component: "Ingeniería Aplicada",
+  }),
+  createDemoCourse({
+    id: "curso-ingles-8",
+    code: "IM-805",
+    name: "Inglés VIII",
+    credits: 2,
+    semester: 8,
+    component: "Complementaria",
+  }),
+];
+
+const multimediaSemesters: SecubAcademicSemester[] = [
+  {
+    id: "semestre-1",
+    number: 1,
+    label: "Semestre 1",
+    totalCredits: 19,
+    courses: semester1Courses,
+  },
+  {
+    id: "semestre-2",
+    number: 2,
+    label: "Semestre 2",
+    totalCredits: 18,
+    courses: semester2Courses,
+  },
+  {
+    id: "semestre-3",
+    number: 3,
+    label: "Semestre 3",
+    totalCredits: 18,
+    courses: semester3Courses,
+  },
+  {
+    id: "semestre-4",
+    number: 4,
+    label: "Semestre 4",
+    totalCredits: 19,
+    courses: semester4Courses,
+  },
+  {
+    id: "semestre-5",
+    number: 5,
+    label: "Semestre 5",
+    totalCredits: 19,
+    courses: semester5Courses,
+  },
+  {
+    id: "semestre-6",
+    number: 6,
+    label: "Semestre 6",
+    // El plan de estudios suministrado reporta 19C para este semestre.
+    // Las asignaturas visibles en el documento suman 17C; se conserva el total publicado.
+    totalCredits: 19,
+    courses: semester6Courses,
+  },
+  {
+    id: "semestre-7",
+    number: 7,
+    label: "Semestre 7",
+    totalCredits: 17,
+    courses: semester7Courses,
+  },
+  {
+    id: "semestre-8",
+    number: 8,
+    label: "Semestre 8",
+    totalCredits: 15,
+    courses: semester8Courses,
+  },
+];
 
 export const secubAcademicPrograms: SecubAcademicProgram[] = [
   {
-    id: "psicologia",
-    name: "Psicología",
-    directorRoleLabel: "Dirección del Programa de Psicología",
-    faculty: "Facultad de Ciencias Humanas y Sociales",
-    facultyId: "fac-ciencias-humanas-sociales-cali",
-    seccional: "Seccional Cali",
-    seccionalId: SECCIONAL_CALI_ID,
-    lugarId: LUGAR_CALI_ID,
-    snies: "4481",
-    planId: "psicologia-2021-1",
-    planVersion: "2021-1",
-    durationSemesters: 9,
-    totalCredits: 146,
-    degreeTitle: "Psicóloga / Psicólogo",
-    cycles: ["Fundamentación - Sujeto Epistémico", "Profesional - Sujeto Social", "Síntesis - Sujeto Ético"],
-    components: [
-      "Historias, Trayectorias y Perspectivas De La Psicología",
-      "Análisis y Expresión Científica: Investigación",
-      "Clínica, Salud y Ética del Cuidado",
-      "Construcción de Paz, Diversidad y Mediaciones",
-      "Trabajo, Salud y Organizaciones",
-      "Cultura, Desarrollo Humano y Subjetividades",
-      "Institucional",
-      "Electivas",
-    ],
-    semesters: buildSemesters("psicologia", "psicologia-2021-1", psychologyCourses, psychologySemesterCredits),
-  },
-  {
-    id: "derecho",
-    name: "Derecho",
-    directorRoleLabel: "Dirección del Programa de Derecho",
-    faculty: "Facultad de Derecho y Ciencias Políticas",
-    facultyId: "fac-derecho-ciencias-politicas-cali",
-    seccional: "Seccional Cali",
-    seccionalId: SECCIONAL_CALI_ID,
-    lugarId: LUGAR_CALI_ID,
-    snies: "53953",
-    planId: "derecho-2025-1",
-    planVersion: "2025-1",
+    id: SIMPLE_DEMO_IDS.programaId,
+    name: "Ingeniería Multimedia",
+    directorRoleLabel: "Dirección de Ingeniería Multimedia",
+    faculty: "Facultad de Ingenierías",
+    facultyId: SIMPLE_DEMO_IDS.facultadId,
+    seccional: "Cali",
+    seccionalId: SIMPLE_DEMO_IDS.seccionalId,
+    lugarId: SIMPLE_DEMO_IDS.lugarId,
+    snies: "53414",
+    planId: SIMPLE_DEMO_IDS.planId,
+    planVersion: "Plan de estudios 2026",
     durationSemesters: 8,
-    totalCredits: 150,
-    degreeTitle: "Abogada / Abogado",
-    cycles: ["Cimentación", "Privado", "Público", "Gestión del Conflicto (énfasis)", "Penal", "Institucional", "Formación Segunda Lengua", "Componente Electivo", "Laboral", "Programa Complementario de Formación Avanzada", "Requisito de Grado"],
-    components: ["Cimentación", "Privado", "Público", "Gestión del Conflicto (énfasis)", "Penal", "Institucional", "Formación Segunda Lengua", "Componente Electivo", "Laboral", "Programa Complementario de Formación Avanzada", "Requisito de Grado"],
-    semesters: buildSemesters("derecho", "derecho-2025-1", lawCourses, lawSemesterCredits),
+    // Suma de los totales por semestre publicados en el pensum suministrado.
+    totalCredits: 144,
+    degreeTitle: "Ingeniero(a) Multimedia",
+    cycles: ["Fundamentación", "Profesionalización", "Síntesis"],
+    components: [
+      "Ciencias Básicas",
+      "Ciencias Básicas de Ingeniería",
+      "Ingeniería Aplicada",
+      "Complementaria",
+    ],
+    semesters: multimediaSemesters,
   },
 ];
 
-export const secubAcademicCourses = [...psychologyCourses, ...lawCourses];
+export const secubAcademicCourses: SecubAcademicCourse[] = multimediaSemesters.flatMap(
+  (semester) => semester.courses,
+);
 
-export const secubSeccionales = [{ id: SECCIONAL_CALI_ID, nombre: "Seccional Cali" }];
-export const secubLugares = [{ id: LUGAR_CALI_ID, nombre: "Cali", seccionalId: SECCIONAL_CALI_ID }];
-export const secubFacultades = secubAcademicPrograms.map((program) => ({
-  id: program.facultyId,
-  nombre: program.faculty,
-  seccionalId: program.seccionalId,
-}));
-export const secubProgramas = secubAcademicPrograms.map((program) => ({
-  id: program.id,
-  nombre: program.name,
-  facultadId: program.facultyId,
-  seccionalId: program.seccionalId,
-  estado: "activo" as const,
-}));
-export const secubPlanes = secubAcademicPrograms.map((program) => ({
-  id: program.planId,
-  nombre: `Plan ${program.planVersion}`,
-  programaId: program.id,
-  estado: "activo" as const,
-  totalSemestres: program.durationSemesters,
-}));
+const demoStudentProfiles = [
+  {
+    id: "estudiante-demo-001",
+    code: "A001",
+    name: "Ana Martínez",
+    email: "ana.martinez@demo.edu.co",
+  },
+  {
+    id: "estudiante-demo-002",
+    code: "A002",
+    name: "Carlos Gómez",
+    email: "carlos.gomez@demo.edu.co",
+  },
+  {
+    id: "estudiante-demo-003",
+    code: "A003",
+    name: "Laura Rodríguez",
+    email: "laura.rodriguez@demo.edu.co",
+  },
+] as const;
+
+export const secubAcademicStudents: SecubAcademicStudent[] = secubAcademicCourses.flatMap(
+  (course) =>
+    demoStudentProfiles.map((student) => ({
+      ...student,
+      // Se conservan los IDs históricos del curso demo original porque las
+      // mediciones precargadas los utilizan como llave. En el resto de cursos
+      // el id incorpora el curso para evitar colisiones entre matrículas mock.
+      id:
+        course.id === SIMPLE_DEMO_IDS.courseId
+          ? student.id
+          : `${student.id}-${course.id}`,
+      courseId: course.id,
+    })),
+);
+
+export const secubSeccionales: SecubSeccionalCatalog[] = [
+  { id: SIMPLE_DEMO_IDS.seccionalId, nombre: "Seccional Cali" },
+];
+
+export const secubLugares: SecubLugarCatalog[] = [
+  {
+    id: SIMPLE_DEMO_IDS.lugarId,
+    nombre: "Campus La Umbría",
+    seccionalId: SIMPLE_DEMO_IDS.seccionalId,
+  },
+];
+
+export const secubFacultades: SecubFacultadCatalog[] = [
+  {
+    id: SIMPLE_DEMO_IDS.facultadId,
+    nombre: "Facultad de Ingenierías",
+    seccionalId: SIMPLE_DEMO_IDS.seccionalId,
+  },
+];
+
+export const secubProgramas: SecubProgramaCatalog[] = [
+  {
+    id: SIMPLE_DEMO_IDS.programaId,
+    nombre: "Ingeniería Multimedia",
+    facultadId: SIMPLE_DEMO_IDS.facultadId,
+    seccionalId: SIMPLE_DEMO_IDS.seccionalId,
+    estado: "activo",
+  },
+];
+
+export const secubPlanes: SecubPlanCatalog[] = [
+  {
+    id: SIMPLE_DEMO_IDS.planId,
+    nombre: "Plan de estudios 2026",
+    programaId: SIMPLE_DEMO_IDS.programaId,
+    estado: "activo",
+    totalSemestres: 8,
+  },
+];
 
 export function getProgramById(programId?: string | null) {
   return secubAcademicPrograms.find((program) => program.id === programId);
@@ -351,7 +787,14 @@ export function getCoursesByProgram(programId?: string | null) {
 
 export function getCoursesByProgramPlan(programId?: string | null, planId?: string | null) {
   if (!programId || !planId) return [];
-  return secubAcademicCourses.filter((course) => course.programId === programId && course.planId === planId);
+  return secubAcademicCourses.filter(
+    (course) => course.programId === programId && course.planId === planId,
+  );
+}
+
+export function getStudentsByCourse(courseId?: string | null) {
+  if (!courseId) return [];
+  return secubAcademicStudents.filter((student) => student.courseId === courseId);
 }
 
 export function getSemestersByProgram(programId?: string | null) {

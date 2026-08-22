@@ -6,7 +6,15 @@ interface ScrollToFirstValidationErrorOptions {
 const defaultErrorSelector =
   '[aria-invalid="true"], [data-validation-error="true"], [data-validation-section-error="true"]';
 
-function getFirstErrorByOrder(fieldOrder: string[]) {
+function getValidationRoot() {
+  const openDialogs = Array.from(
+    document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]'),
+  );
+
+  return openDialogs[openDialogs.length - 1] ?? document;
+}
+
+function getFirstErrorByOrder(root: ParentNode, fieldOrder: string[]) {
   for (const fieldName of fieldOrder) {
     const selector = [
       `[data-validation-field="${fieldName}"][aria-invalid="true"]`,
@@ -14,7 +22,7 @@ function getFirstErrorByOrder(fieldOrder: string[]) {
       `[data-validation-section="${fieldName}"][data-validation-section-error="true"]`,
     ].join(", ");
 
-    const element = document.querySelector<HTMLElement>(selector);
+    const element = root.querySelector<HTMLElement>(selector);
     if (element) return element;
   }
 
@@ -40,9 +48,10 @@ export function scrollToFirstValidationError({
   if (typeof window === "undefined") return;
 
   window.setTimeout(() => {
+    const validationRoot = getValidationRoot();
     const target =
-      getFirstErrorByOrder(fieldOrder) ??
-      document.querySelector<HTMLElement>(defaultErrorSelector);
+      getFirstErrorByOrder(validationRoot, fieldOrder) ??
+      validationRoot.querySelector<HTMLElement>(defaultErrorSelector);
 
     if (!target) return;
 

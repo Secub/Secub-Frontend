@@ -1,6 +1,8 @@
 import { useEffect } from "react";
-import { GoAlert, GoCheckCircle, GoInfo, GoX } from "react-icons/go";
+import { IconButton, SecubIcon } from "../../../../components/ui";
 import type { ValidationFeedback } from "../medicion-ra.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface ValidationBannerProps {
   feedback: ValidationFeedback | null;
@@ -9,10 +11,10 @@ interface ValidationBannerProps {
 
 const toastStyles = {
   success:
-    "border-[var(--color-success)] bg-[var(--color-white)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
+    "border-[var(--color-success)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
   error:
-    "border-[var(--color-error)] bg-[var(--color-white)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
-  info: "border-[var(--color-info)] bg-[var(--color-white)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
+    "border-[var(--color-error)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
+  info: "border-[var(--color-info)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
 } as const;
 
 const iconBoxStyles = {
@@ -22,9 +24,9 @@ const iconBoxStyles = {
 } as const;
 
 const iconMap = {
-  success: GoCheckCircle,
-  error: GoAlert,
-  info: GoInfo,
+  success: "complete",
+  error: "warning",
+  info: "info",
 } as const;
 
 export default function ValidationBanner({
@@ -45,7 +47,7 @@ export default function ValidationBanner({
 
   if (!feedback) return null;
 
-  const Icon = iconMap[feedback.type];
+  const iconName = iconMap[feedback.type];
 
   return (
     <div
@@ -66,7 +68,7 @@ export default function ValidationBanner({
               iconBoxStyles[feedback.type],
             ].join(" ")}
           >
-            <Icon aria-hidden="true" className="text-xl" />
+            <SecubIcon name={iconName} weight="fill" size={20} />
           </span>
 
           <div className="min-w-0 flex-1">
@@ -88,14 +90,13 @@ export default function ValidationBanner({
           </div>
 
           {onClose ? (
-            <button
-              type="button"
+            <IconButton
+              icon={<ActionIcon name="close" />}
+              label="Cerrar notificación"
+              variant="ghost"
+              size="xs"
               onClick={onClose}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-gray-4)] transition hover:bg-[var(--color-gray-7)] hover:text-[var(--color-secondary-4)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-info)]"
-              aria-label="Cerrar notificación"
-            >
-              <GoX aria-hidden="true" className="text-lg" />
-            </button>
+            />
           ) : null}
         </div>
       </div>

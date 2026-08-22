@@ -1,4 +1,4 @@
-import { GoFile } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Textarea } from "../../../../components/ui";
 import type { Competence, InstrumentByRa } from "../medicion-ra.types";
 
@@ -25,7 +25,7 @@ export default function InstrumentSection({
         <div>
           <div className="flex items-center gap-3">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
-              <GoFile className="text-xl" />
+              <SecubIcon name="file" weight="fill" className="text-xl" />
             </span>
             <div>
               <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">

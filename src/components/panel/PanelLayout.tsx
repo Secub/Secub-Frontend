@@ -3,6 +3,7 @@ import WorkflowCompletionAlert from "../WorkflowCompletionAlert";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../app/appRoutes";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
+import PanelMobileNavigation from "./sidebar/PanelMobileNavigation";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
 import {
   getAcademicWorkflowState,
@@ -10,6 +11,7 @@ import {
   useAcademicWorkflowProgress,
 } from "./academicWorkflow";
 import type { PanelStepKey } from "./panelNavigation";
+import { getBrowserSearchParams } from "../../shared/browser";
 
 interface PanelLayoutProps {
   children: ReactNode;
@@ -42,7 +44,7 @@ export default function PanelLayout({
   const [showCompletionAlert, setShowCompletionAlert] = useState(false);
 
   const handleCompletionAlertClose = () => {
-    const dashboardParams = new URLSearchParams(window.location.search);
+    const dashboardParams = getBrowserSearchParams();
     dashboardParams.set("role", currentUser.role);
     dashboardParams.delete("view");
     dashboardParams.delete("cycleId");
@@ -76,6 +78,7 @@ export default function PanelLayout({
         <PanelSidebar currentStep={currentStep} />
 
         <div className="min-w-0 flex-1">
+          <PanelMobileNavigation currentStep={currentStep} />
           <main className="px-6 py-6 lg:px-8 lg:py-8">
             <Breadcrumb items={breadcrumbItems} />
 

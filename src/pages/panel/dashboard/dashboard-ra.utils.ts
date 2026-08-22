@@ -10,6 +10,7 @@ import type {
   RaResultRecord,
   RaResultSummary,
 } from "./dashboard-ra.types";
+import { downloadFile } from "../../../shared/browser";
 
 export const INITIAL_DASHBOARD_FILTERS: DashboardFiltersState = {
   seccionalId: "",
@@ -44,7 +45,7 @@ export function getPendingRaCount(course: CourseMeasurement) {
 
 export function applyRoleScopeToCycles(cycles: MeasurementCycle[], user: DashboardUser) {
   return cycles.filter((cycle) => {
-    if (user.role === "admin") return true;
+    if (user.role === "administrador") return true;
     if (user.scope.seccionalId && cycle.seccionalId !== user.scope.seccionalId) return false;
     if (user.scope.facultadId && cycle.facultadId !== user.scope.facultadId) return false;
     if (user.scope.programaIds?.length && !user.scope.programaIds.includes(cycle.programaId)) {
@@ -60,7 +61,7 @@ export function applyRoleScopeToCourses(courses: CourseMeasurement[], user: Dash
       return course.teacherId === user.scope.teacherId;
     }
 
-    if (user.role === "admin") return true;
+    if (user.role === "administrador") return true;
     if (user.scope.seccionalId && course.seccionalId !== user.scope.seccionalId) return false;
     if (user.scope.facultadId && course.facultadId !== user.scope.facultadId) return false;
     if (user.scope.programaIds?.length && !user.scope.programaIds.includes(course.programaId)) {
@@ -250,12 +251,11 @@ export function createMockDownload(fileName: string) {
     ],
     { type: "text/plain;charset=utf-8" },
   );
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName.replace(/\.pdf$/i, ".txt").replace(/\.zip$/i, ".txt");
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadFile(
+    blob,
+    fileName.replace(/\.pdf$/i, ".txt").replace(/\.zip$/i, ".txt"),
+    "text/plain;charset=utf-8",
+  );
 }
 
 export function getProgramName(catalogs: DashboardCatalogs, programaId: string) {

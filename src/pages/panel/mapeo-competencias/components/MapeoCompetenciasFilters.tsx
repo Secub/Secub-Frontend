@@ -1,16 +1,16 @@
+import type { AcademicModulePermissions } from "../../../../config/access/permissions";
 import { Select } from "../../../../components/ui";
 import type {
   Catalogs,
   CurrentUser,
   MapeoCompetenciasFilters as FiltersState,
-  RolePermissions,
-} from "../MapeoCompetencias.types";
+  } from "../MapeoCompetencias.types";
 import { getDefaultLugarBySeccional, getLugaresBySeccional } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasFiltersProps {
   filters: FiltersState;
   catalogs: Catalogs;
-  permissions: RolePermissions;
+  permissions: AcademicModulePermissions;
   currentUser: CurrentUser;
   onChange: (filters: FiltersState) => void;
   showEstado?: boolean;
@@ -32,7 +32,7 @@ export default function MapeoCompetenciasFilters({
   showEstado = true,
 }: MapeoCompetenciasFiltersProps) {
   const scopedProgramId = currentUser.scope.programaId ?? currentUser.scope.academicProgramId;
-  const showSeccional = permissions.canFilterBySeccional && currentUser.role !== "direccionPrograma" && currentUser.role !== "decano";
+  const showSeccional = permissions.canFilterBySeccional;
   const showFacultad = permissions.canFilterByFacultad;
   const showPrograma = permissions.canFilterByPrograma;
 
@@ -107,7 +107,7 @@ export default function MapeoCompetenciasFilters({
           Filtros del mapeo
         </h2>
         <p className="text-sm leading-6 text-[var(--color-gray-3)]">
-          Selecciona el alcance académico para consultar o administrar la matriz curricular.
+          Selecciona los filtros académicos para visualizar la matriz curricular.
         </p>
       </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
-import { canManageMapeo, getManageDisabledReason, rolePermissions } from "../MapeoCompetencias.permissions";
+import { canManageMapeo, getAcademicModulePermissions } from "../../../../config/access/permissions";
+import type { SecubRole } from "../../../../config/access/roles";
 import type { MapeoCompetenciasFilters as FiltersState, MapeoCompetenciasRecord } from "../MapeoCompetencias.types";
 import {
   INITIAL_FILTERS,
@@ -14,19 +15,20 @@ import {
 } from "../MapeoCompetencias.utils";
 import { useMapeoCompetenciasData } from "./useMapeoCompetenciasData";
 import { useMapeoCompetenciasManager } from "./useMapeoCompetenciasManager";
+import { getBrowserSearchParams } from "../../../../shared/browser";
 
 function readInitialFilters() {
-  const params = new URLSearchParams(window.location.search);
+  const params = getBrowserSearchParams();
   return { id: params.get("id") ?? "", programaId: params.get("programaId") ?? "", planId: params.get("planId") ?? "" };
 }
 
-export function navigateToMapeoList(role: string) {
+export function navigateToMapeoList(role: SecubRole) {
   navigateToRoute(buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role }));
 }
 
 export function useMapeoCompetenciasCreatePage() {
   const { currentUser, catalogs, cursos, competenciasRa, records } = useMapeoCompetenciasData();
-  const permissions = rolePermissions[currentUser.role];
+  const permissions = getAcademicModulePermissions("mapeoCompetencias", currentUser.role);
   const initial = useMemo(() => readInitialFilters(), []);
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...INITIAL_FILTERS,
@@ -37,11 +39,36 @@ export function useMapeoCompetenciasCreatePage() {
   }));
 
   useEffect(() => {
+    if (filters.programaId && filters.planId) return;
+
+    const inheritedContexts = new Map<string, { programaId: string; planId: string }>();
+
+    competenciasRa.forEach((competencia) => {
+      if (!competencia.programaId || !competencia.planId) return;
+      if (filters.programaId && competencia.programaId !== filters.programaId) return;
+      inheritedContexts.set(`${competencia.programaId}::${competencia.planId}`, {
+        programaId: competencia.programaId,
+        planId: competencia.planId,
+      });
+    });
+
+    if (inheritedContexts.size === 1) {
+      const [context] = inheritedContexts.values();
+      setFilters((current) => ({
+        ...current,
+        programaId: current.programaId || context.programaId,
+        planId: current.planId || context.planId,
+      }));
+      return;
+    }
+
     if (filters.programaId && !filters.planId) {
-      const firstActivePlan = catalogs.planes.find((plan) => plan.programaId === filters.programaId && plan.estado === "activo");
+      const firstActivePlan = catalogs.planes.find(
+        (plan) => plan.programaId === filters.programaId && plan.estado === "activo",
+      );
       if (firstActivePlan) setFilters((current) => ({ ...current, planId: firstActivePlan.id }));
     }
-  }, [catalogs.planes, filters.planId, filters.programaId]);
+  }, [catalogs.planes, competenciasRa, filters.planId, filters.programaId]);
 
   const selectedPrograma = useMemo(
     () => catalogs.programas.find((programa) => programa.id === filters.programaId),
@@ -50,7 +77,6 @@ export function useMapeoCompetenciasCreatePage() {
   const selectedPlan = useMemo(() => catalogs.planes.find((plan) => plan.id === filters.planId), [catalogs.planes, filters.planId]);
   const programaEstado = getProgramaEstado(selectedPrograma, selectedPlan);
   const canManage = canManageMapeo(currentUser.role, programaEstado);
-  const disabledReason = getManageDisabledReason(currentUser.role, programaEstado);
 
   const existingRecord = useMemo<MapeoCompetenciasRecord | null>(() => {
     if (initial.id) return records.find((record) => record.id === initial.id) ?? null;
@@ -144,7 +170,6 @@ export function useMapeoCompetenciasCreatePage() {
     cursosPlan,
     competenciasPlan,
     canManage,
-    disabledReason,
     totalSemestres,
     manager,
     coursesBySemester,

@@ -1,6 +1,7 @@
-import { GoEye, GoPencil } from "react-icons/go";
-import { Button } from "../../../../components/ui";
+import { IconButton } from "../../../../components/ui";
 import type { AsignarRACourseRow } from "../AsignarRA.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface AsignarRARowActionsProps {
   row: AsignarRACourseRow;
@@ -10,13 +11,12 @@ interface AsignarRARowActionsProps {
 
 export function AsignarRARowActions({ row, canManage, onSelectCourse }: AsignarRARowActionsProps) {
   return (
-    <Button
+    <IconButton
       variant={row.isSelected ? "primary_soft" : "outline"}
-      size="sm"
-      leftIcon={canManage ? <GoPencil /> : <GoEye />}
+      selected={row.isSelected}
+      icon={canManage ? <ActionIcon name="edit" /> : <ActionIcon name="view" />}
+      label={`${canManage ? "Editar" : "Ver detalle de"} ${row.course.nombre}`}
       onClick={() => onSelectCourse(row.course.id)}
-    >
-      {row.actionLabel}
-    </Button>
+    />
   );
 }

@@ -20,6 +20,7 @@ import {
   StyleSheet,
   // Font,
 } from "@react-pdf/renderer";
+import { downloadFile } from "../shared/browser";
 
 // ─── Tipado de datos ────────────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ export interface PdfTheme {
 }
 
 const DEFAULT_THEME: PdfTheme = {
-  primary: "#1D4ED8",   // azul institucional
+  primary: "#030303",   // azul institucional
   headerBg: "#EFF6FF",
   rowAlt: "#F8FAFC",
   text: "#1E293B",
@@ -76,69 +77,71 @@ const DEFAULT_THEME: PdfTheme = {
 const buildStyles = (theme: PdfTheme) =>
   StyleSheet.create({
     page: {
-      
+      paddingTop: 25,
       paddingHorizontal: 25,
+      paddingBottom: 120,
       fontFamily: "Helvetica",
       fontSize: 9,
       color: theme.text,
     },
 
     // Encabezado del documento 
-    header: { 
+    header: {
       flexDirection: "row",
       alignItems: "center",
       // borderBottomWidth: 2,
-      },
-    logo: { 
+    },
+    logo: {
       width: 130,
       height: 130,
       marginRight: 12,
       objectFit: "contain",
-      },
-    logoUsb: { 
+    },
+    logoUsb: {
       width: 150,
       height: 150,
       marginRight: 12,
       objectFit: "contain",
-      },
-    logoFooter1: { 
-      width: 150,
-      height: 150,
-      objectFit: "contain",
-      },
-    logoFooter2: { 
+    },
+    logoFooter1: {
       width: 130,
       height: 130,
       objectFit: "contain",
-      },      
-    headerTexts: { 
-      flex: 1, 
-      },
+    },
+    logoFooter2: {
+      width: 90,
+      height: 90,
+      objectFit: "contain",
+    },
+    headerTexts: {
+      flex: 1,
+    },
     title: {
       fontSize: 16,
       fontFamily: "Helvetica-Bold",
       color: theme.primary,
-      marginBottom: 2, 
-      },
+      marginBottom: 2,
+    },
     subtitle: {
       fontSize: 9,
       color: theme.muted,
-      },
+    },
     dateText: {
       fontSize: 8,
       color: theme.muted,
       marginTop: 2,
-      },
-// Tabla 
-    table: { 
-      marginTop: 8, 
-      },
-    tableRow: { 
+    },
+    // Tabla 
+    table: {
+      marginTop: 8,
+      marginBottom: 25,
+    },
+    tableRow: {
       flexDirection: "row",
       borderBottomWidth: 0.5,
       borderBottomColor: "#CBD5E1",
-      minHeight: 22, alignItems: "center",
-      },
+      alignItems: "stretch",
+    },
     tableHeaderRow: {
       flexDirection: "row",
       backgroundColor: theme.headerBg,
@@ -152,7 +155,8 @@ const buildStyles = (theme: PdfTheme) =>
     },
     cell: {
       paddingHorizontal: 6,
-      paddingVertical: 4,
+      paddingVertical: 5,
+      justifyContent: "flex-start",
     },
     cellHeader: {
       fontFamily: "Helvetica-Bold",
@@ -179,13 +183,33 @@ const buildStyles = (theme: PdfTheme) =>
     // Pie de página
     footer: {
       position: "absolute",
-      bottom: 20,
-      left: 40,
-      right: 40,
+      bottom: 15,
+      left: 25,
+      right: 25,
+
       flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+
       borderTopWidth: 0.5,
       borderTopColor: "#CBD5E1",
-      paddingTop: 6,
+
+      paddingTop: 8,
+    },
+    footerLeft: {
+      width: "25%",
+      alignItems: "flex-start",
+    },
+
+    footerCenter: {
+      width: "50%",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    footerRight: {
+      width: "25%",
+      alignItems: "flex-end",
     },
   });
 
@@ -225,7 +249,7 @@ function PdfDocument<T>({
               : null} <Text style={styles.dateText}>Generado el {dateStr}</Text>
           </View>
           {logoUrl2 ? <Image src={logoUrl2} style={styles.logo}
-          /> : null} 
+          /> : null}
         </View>
 
         {/* ── Tabla ── */}
@@ -251,16 +275,22 @@ function PdfDocument<T>({
                 styles.tableRow,
                 rowIdx % 2 !== 0 ? styles.tableRowAlt : {},
               ]}
-              wrap={false}
             >
-              {columns.map((col) => (
-                <Text
-                  key={col.header}
-                  style={[styles.cell, { width: `${col.widthPct}%` }]}
+              {columns.map(col => (
+                <View
+                  style={[
+                    styles.cell,
+                    {
+                      width: `${col.widthPct}%`
+                    }
+                  ]}
                 >
-                  {col.accessor(row)}
-                </Text>
-              ))}
+                  <Text>
+                    {col.accessor(row)}
+                  </Text>
+                </View>
+              ))
+              }
             </View>
           ))}
         </View>
@@ -274,21 +304,29 @@ function PdfDocument<T>({
 
         {/* ── Pie de página (fijo en todas las páginas) ── */}
         <View style={styles.footer} fixed>
-          {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1}
-          /> : null}
-          {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2}
-          /> : null}
-          {/* <View>
-            <Text style={styles.footerText}>
-            {footerText ?? title}
-          </Text>
-          <Text
-            style={styles.footerText}
-            render={({ pageNumber, totalPages }) =>
-              `Página ${pageNumber} de ${totalPages}`
-            }
-          />
-          </View> */}
+
+          <View style={styles.footerLeft}>
+            <Image
+              src={logoUrlfoot1}
+              style={styles.logoFooter1}
+            />
+          </View>
+
+          <View style={styles.footerCenter}>
+            <Text
+              render={({ pageNumber, totalPages }) =>
+                `Página ${pageNumber} de ${totalPages}`
+              }
+            />
+          </View>
+
+          <View style={styles.footerRight}>
+            <Image
+              src={logoUrlfoot2}
+              style={styles.logoFooter2}
+            />
+          </View>
+
         </View>
       </Page>
     </Document>
@@ -320,13 +358,8 @@ export async function downloadPdf<T>(
   filename?: string,
 ): Promise<void> {
   const blob = await pdf(<PdfDocument {...props} />).toBlob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
   const timestamp = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = filename ?? `export-${timestamp}.pdf`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadFile(blob, filename ?? `export-${timestamp}.pdf`, "application/pdf");
 }
 
 /**
@@ -336,4 +369,107 @@ export async function buildPdfBlob<T>(
   props: PdfTemplateProps<T>,
 ): Promise<Blob> {
   return pdf(<PdfDocument {...props} />).toBlob();
+}
+
+/**
+ * Genera y descarga un PDF con estructura de carta formal que incluye
+ * encabezado con logos, título del plan y cuerpo con la descripción.
+ */
+export async function downloadLetterPdf(
+  params: {
+    title: string;
+    subtitle?: string;
+    logoUrl?: string;
+    logoUrl2?: string;
+    logoUrlfoot1?: string;
+    logoUrlfoot2?: string;
+    improvementTitle: string;
+    improvementDraft: string;
+    theme?: Partial<PdfTheme>;
+  },
+  filename?: string,
+): Promise<void> {
+  const {
+    title,
+    subtitle,
+    logoUrl,
+    logoUrl2,
+    logoUrlfoot1,
+    logoUrlfoot2,
+    improvementTitle,
+    improvementDraft,
+    theme,
+  } = params;
+
+  const LetterDocument = () => {
+    const t: PdfTheme = { ...DEFAULT_THEME, ...theme };
+    const styles = buildStyles(t);
+    const dateStr = new Date().toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const paragraphs = (improvementDraft || "").split(/\n+/).filter(Boolean);
+
+    return (
+      <Document>
+        <Page size="A4" style={styles.page} orientation="portrait">
+          <View style={styles.header} fixed>
+            {logoUrl ? <Image src={logoUrl} style={styles.logoUsb} /> : null}
+            <View style={styles.headerTexts}></View>
+            {logoUrl2 ? <Image src={logoUrl2} style={styles.logo} /> : null}
+          </View>
+
+          <View style={{ paddingHorizontal: 6, marginBottom: 20 }}>
+            <View>
+              <Text style={styles.title}>{title}</Text>
+              {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+              <Text style={styles.dateText}>Generado el {dateStr}</Text>
+            </View>
+          </View>
+
+          <View style={{ marginTop: 20, paddingHorizontal: 6 }}>
+            {improvementTitle ? (
+              <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold", marginBottom: 15 }}>
+                {improvementTitle}
+              </Text>
+            ) : null}
+
+            {paragraphs.length > 0 ? (
+              paragraphs.map((p, i) => (
+                <Text key={i} style={{ marginBottom: 3, lineHeight: 1 }}>
+                  {p}
+                </Text>
+              ))
+            ) : (
+              <Text style={{ marginBottom: 3, lineHeight: 1 }}>-</Text>
+            )}
+
+            <View style={{ marginTop: 30 }}>
+              {/* <Text>Atentamente,</Text> */}
+              <Text style={{ marginTop: 30 }}>______________________________</Text>
+              <Text>Dirección de programa</Text>
+            </View>
+          </View>
+
+          <View style={styles.footer} fixed>
+            <View style={styles.footerLeft}>
+              {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1} /> : null}
+            </View>
+            <View style={styles.footerCenter}>
+              <Text render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`} />
+            </View>
+            <View style={styles.footerRight}>
+              {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2} /> : null}
+            </View>
+          </View>
+        </Page>
+      </Document>
+    );
+  };
+
+  const blob = await pdf(<LetterDocument />).toBlob();
+  const timestamp = new Date().toISOString().slice(0, 10);
+  downloadFile(blob, filename ?? `plan-mejora-${timestamp}.pdf`, "application/pdf");
 }

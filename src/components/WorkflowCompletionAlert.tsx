@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import Button from "./ui/Button";
+import Modal from "./ui/Modal";
 
 interface WorkflowCompletionAlertProps {
   open: boolean;
@@ -6,69 +7,31 @@ interface WorkflowCompletionAlertProps {
 }
 
 export default function WorkflowCompletionAlert({ open, onClose }: WorkflowCompletionAlertProps) {
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const previousActiveElementRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-
-    const focusTimeout = window.setTimeout(() => {
-      closeButtonRef.current?.focus();
-    }, 0);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.clearTimeout(focusTimeout);
-      document.removeEventListener("keydown", handleKeyDown);
-      previousActiveElementRef.current?.focus?.();
-    };
-  }, [onClose, open]);
-
-  if (!open) return null;
-
   return (
-    <div className="completion-alert-backdrop">
-      <section
-        className="completion-alert"
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="completion-alert-title"
-        aria-describedby="completion-alert-description"
-      >
-        <div className="completion-alert-icon" aria-hidden="true">
-          ✓
-        </div>
-
-        <h2 id="completion-alert-title" className="completion-alert-title">
-          ¡Flujo completado!
-        </h2>
-
-        <p id="completion-alert-description" className="completion-alert-description">
-          Acabas de terminar el flujo de Gestión Académica. A partir de ahora, los módulos quedarán disponibles en modo visualización para consulta y seguimiento.
-        </p>
-
-        <div className="completion-alert-actions">
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="completion-alert-button"
-            onClick={onClose}
-          >
+    <Modal
+      open={open}
+      role="alertdialog"
+      title="¡Flujo completado!"
+      description="La gestión académica fue completada correctamente."
+      size="md"
+      closeOnBackdrop={false}
+      onClose={onClose}
+      footer={
+        <div className="flex justify-end">
+          <Button onClick={onClose}>
             Entendido
-          </button>
+          </Button>
         </div>
-      </section>
-    </div>
+      }
+    >
+      <div className="flex items-center gap-4 rounded-[var(--radius-lg)] border border-[var(--color-success)] bg-[var(--color-surface-soft)] p-5">
+        <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-success)] text-xl font-bold text-[var(--color-secondary-4)]" aria-hidden="true">
+          ✓
+        </span>
+        <p className="text-sm leading-6 text-[var(--color-gray-3)]">
+          Puedes continuar desde el Estado del ciclo.
+        </p>
+      </div>
+    </Modal>
   );
 }

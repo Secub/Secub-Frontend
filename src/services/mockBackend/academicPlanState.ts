@@ -1,3 +1,5 @@
+import { createClientId } from "../../shared/ids";
+import { storageClient } from "../../shared/browser";
 export type AcademicPlanStatus = "inProgress" | "completed" | "newAcademicPlan";
 
 export interface AcademicPlanInstance {
@@ -23,20 +25,16 @@ export interface AcademicPlanRenewalAvailability {
   lockedMessage?: string;
 }
 
-const ACTIVE_ACADEMIC_PLAN_KEY = "secub:active-academic-plan:v1";
-const ARCHIVED_ACADEMIC_PLANS_KEY = "secub:archived-academic-plans:v1";
+const ACTIVE_ACADEMIC_PLAN_KEY = "secub:active-academic-plan:v2";
+const ARCHIVED_ACADEMIC_PLANS_KEY = "secub:archived-academic-plans:v2";
 
-export const DEFAULT_ACADEMIC_PLAN_INSTANCE_ID = "demo-academic-plan-default";
+export const DEFAULT_ACADEMIC_PLAN_INSTANCE_ID = "academic-plan-empty-default";
 export const ACADEMIC_PLAN_RENEWAL_MONTHS = 18;
 export const NEW_ACADEMIC_PLAN_LOCKED_MESSAGE =
   "Solo puedes crear un nuevo plan académico cuando el ciclo actual haya cumplido 1.5 años.";
 
 function canUseLocalStorage() {
-  try {
-    return typeof window !== "undefined" && "localStorage" in window;
-  } catch {
-    return false;
-  }
+  return storageClient.isAvailable();
 }
 
 function dispatchAcademicPlanChange() {
@@ -97,12 +95,12 @@ function safeParseArchivedPlans(rawValue: string | null): AcademicPlanInstance[]
 
 function persistActiveAcademicPlan(plan: AcademicPlanInstance) {
   if (!canUseLocalStorage()) return;
-  window.localStorage.setItem(ACTIVE_ACADEMIC_PLAN_KEY, JSON.stringify(normalizePlan(plan)));
+  storageClient.set(ACTIVE_ACADEMIC_PLAN_KEY, JSON.stringify(normalizePlan(plan)));
 }
 
 function persistArchivedAcademicPlans(plans: AcademicPlanInstance[]) {
   if (!canUseLocalStorage()) return;
-  window.localStorage.setItem(ARCHIVED_ACADEMIC_PLANS_KEY, JSON.stringify(plans.map(normalizePlan)));
+  storageClient.set(ARCHIVED_ACADEMIC_PLANS_KEY, JSON.stringify(plans.map(normalizePlan)));
 }
 
 function getPlanStartDate(plan: AcademicPlanInstance) {
@@ -167,7 +165,7 @@ function assertCanCreateNewAcademicPlan(currentPlan: AcademicPlanInstance) {
 export function getActiveAcademicPlanInstance(): AcademicPlanInstance {
   if (!canUseLocalStorage()) return createDefaultAcademicPlan();
 
-  const storedPlan = safeParsePlan(window.localStorage.getItem(ACTIVE_ACADEMIC_PLAN_KEY));
+  const storedPlan = safeParsePlan(storageClient.get(ACTIVE_ACADEMIC_PLAN_KEY));
 
   if (storedPlan) return storedPlan;
 
@@ -182,7 +180,7 @@ export function getActiveAcademicPlanInstanceId() {
 
 export function listArchivedAcademicPlanInstances() {
   if (!canUseLocalStorage()) return [];
-  return safeParseArchivedPlans(window.localStorage.getItem(ARCHIVED_ACADEMIC_PLANS_KEY));
+  return safeParseArchivedPlans(storageClient.get(ARCHIVED_ACADEMIC_PLANS_KEY));
 }
 
 function archivePlanIfNeeded(plan: AcademicPlanInstance, metadata?: Partial<AcademicPlanInstance>) {
@@ -220,7 +218,7 @@ export function createNewAcademicPlanInstance(metadata?: Partial<AcademicPlanIns
   const now = new Date().toISOString();
   const newPlanNumber = Math.max(1, listArchivedAcademicPlanInstances().length);
   const newPlan: AcademicPlanInstance = {
-    id: `academic-plan-${Date.now()}`,
+    id: createClientId("academic-plan"),
     title: `Plan académico nuevo ${newPlanNumber}`,
     status: "newAcademicPlan",
     createdAt: now,
@@ -278,7 +276,7 @@ export function isRecordFromActiveAcademicPlan(record: { academicPlanInstanceId?
 export function resetAcademicPlanState() {
   if (!canUseLocalStorage()) return;
 
-  window.localStorage.removeItem(ACTIVE_ACADEMIC_PLAN_KEY);
-  window.localStorage.removeItem(ARCHIVED_ACADEMIC_PLANS_KEY);
+  storageClient.remove(ACTIVE_ACADEMIC_PLAN_KEY);
+  storageClient.remove(ARCHIVED_ACADEMIC_PLANS_KEY);
   dispatchAcademicPlanChange();
 }

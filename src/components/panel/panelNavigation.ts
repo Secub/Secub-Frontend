@@ -1,15 +1,5 @@
-import {
-  GoChecklist,
-  GoGoal,
-  GoBook,
-  GoRepo,
-  GoProject,
-  GoTasklist,
-  GoGraph,
-  GoHome,
-} from "react-icons/go";
-import type { IconType } from "react-icons";
 import { ROUTES } from "../../app/appRoutes";
+import type { SecubIconName } from "../ui/SecubIcon";
 
 export type PanelStepKey =
   | "dashboard"
@@ -28,7 +18,7 @@ export interface PanelNavigationItem {
   label: string;
   description: string;
   href: string;
-  icon: IconType;
+  icon: SecubIconName;
   order?: number;
 }
 
@@ -38,14 +28,14 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Dashboard",
     description: "Resumen general",
     href: ROUTES.panelDashboard,
-    icon: GoHome,
+    icon: "chart",
   },
   {
     key: "perfil-egreso",
     label: "Perfil de Egreso",
     description: "Paso 1",
     href: ROUTES.panelPerfilEgreso,
-    icon: GoGoal,
+    icon: "target",
     order: 1,
   },
   {
@@ -53,7 +43,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Propósito de Formación",
     description: "Paso 2",
     href: ROUTES.panelPropositoFormacion,
-    icon: GoChecklist,
+    icon: "checklist",
     order: 2,
   },
   {
@@ -61,7 +51,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Competencias y RA",
     description: "Paso 3",
     href: ROUTES.panelCompetenciasRa,
-    icon: GoBook,
+    icon: "book",
     order: 3,
   },
   {
@@ -69,7 +59,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Mapeo de Competencias",
     description: "Paso 4",
     href: ROUTES.panelMapeoCompetencias,
-    icon: GoRepo,
+    icon: "map",
     order: 4,
   },
   {
@@ -77,7 +67,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Creación del ciclo",
     description: "Paso 5",
     href: ROUTES.panelCiclo,
-    icon: GoProject,
+    icon: "cycle",
     order: 5,
   },
   {
@@ -85,7 +75,7 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Asignar RA",
     description: "Paso 6",
     href: ROUTES.panelAsignarRa,
-    icon: GoTasklist,
+    icon: "list",
     order: 6,
   },
   {
@@ -93,6 +83,6 @@ export const panelNavigation: PanelNavigationItem[] = [
     label: "Medición RA",
     description: "Registro de medición de RA",
     href: ROUTES.panelMedicionRa,
-    icon: GoGraph,
+    icon: "chart-up",
   },
 ];

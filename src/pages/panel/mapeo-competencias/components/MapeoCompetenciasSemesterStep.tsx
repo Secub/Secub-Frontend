@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { GoInfo, GoX } from "react-icons/go";
-import { Badge, Button, Select } from "../../../../components/ui";
+import { useEffect, useMemo, useRef } from "react";
+import { Badge, Button, InfoModalTrigger, Select } from "../../../../components/ui";
 import type {
   CompetenciaRaDemoRecord,
   CursoAsis,
@@ -32,14 +31,6 @@ interface MapeoCompetenciasSemesterStepProps {
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
 }
 
-interface CompetenciaHeaderTooltipProps {
-  competencia: CompetenciaRaDemoRecord;
-  displayName: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-}
-
 function getCompetenciaDescription(competencia: CompetenciaRaDemoRecord) {
   const description = competencia.descripcion?.trim();
   const name = competencia.nombre?.trim();
@@ -47,61 +38,6 @@ function getCompetenciaDescription(competencia: CompetenciaRaDemoRecord) {
   if (description) return description;
   if (name) return name;
   return "Esta competencia específica no tiene una descripción registrada todavía.";
-}
-
-function CompetenciaHeaderTooltip({
-  competencia,
-  displayName,
-  isOpen,
-  onToggle,
-  onClose,
-}: CompetenciaHeaderTooltipProps) {
-  const tooltipId = `competencia-tooltip-${competencia.id}`;
-  const description = getCompetenciaDescription(competencia);
-
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center justify-center gap-1.5">
-        <span className="line-clamp-2 text-center leading-4">
-          {displayName}
-        </span>
-
-        <button
-          type="button"
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--color-secondary-1)] bg-white text-[var(--color-secondary-1)] transition hover:bg-[var(--color-secondary-1)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.28)] focus-visible:ring-offset-2"
-          aria-label={`Ver descripción de ${displayName}`}
-          aria-describedby={isOpen ? tooltipId : undefined}
-          aria-expanded={isOpen}
-          onClick={onToggle}
-        >
-          <GoInfo aria-hidden="true" className="text-sm" />
-        </button>
-      </div>
-
-      {isOpen ? (
-        <div
-          id={tooltipId}
-          role="tooltip"
-          className="w-full rounded-lg border border-[var(--color-secondary-5)] bg-[var(--color-surface-soft)] p-3 text-left text-xs font-normal leading-5 text-[var(--color-gray-2)] shadow-[var(--shadow-sm)]"
-        >
-          <div className="mb-2 flex items-start justify-between gap-2">
-            <p className="font-semibold text-[var(--color-secondary-4)]">
-              Descripción de la competencia específica.
-            </p>
-            <button
-              type="button"
-              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[var(--color-gray-4)] transition hover:bg-white hover:text-[var(--color-secondary-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
-              aria-label={`Cerrar descripción de ${displayName}`}
-              onClick={onClose}
-            >
-              <GoX aria-hidden="true" className="text-sm" />
-            </button>
-          </div>
-          <p>{description}</p>
-        </div>
-      ) : null}
-    </div>
-  );
 }
 
 export default function MapeoCompetenciasSemesterStep({
@@ -118,28 +54,12 @@ export default function MapeoCompetenciasSemesterStep({
   onNivelChange,
 }: MapeoCompetenciasSemesterStepProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
-  const [openCompetenciaTooltipId, setOpenCompetenciaTooltipId] = useState<string | null>(null);
 
   useEffect(() => {
     window.requestAnimationFrame(() => {
       sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }, [semestreNumero]);
-
-  useEffect(() => {
-    setOpenCompetenciaTooltipId(null);
-  }, [semestreNumero]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpenCompetenciaTooltipId(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   const nivelOptions = useMemo(
     () =>
@@ -164,7 +84,7 @@ export default function MapeoCompetenciasSemesterStep({
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={getNucleoVariant(nucleo)}>{getNucleoLabel(nucleo)}</Badge>
-          <span className="rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
+          <span className="rounded-full border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
             {semestreNumero} de {totalSemestres}
           </span>
           
@@ -188,7 +108,7 @@ export default function MapeoCompetenciasSemesterStep({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-white">
+        <div className="overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-[var(--secub-surface)]">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] table-fixed border-separate border-spacing-0 text-sm">
               <thead>
@@ -199,24 +119,19 @@ export default function MapeoCompetenciasSemesterStep({
 
                   {competencias.map((competencia, index) => {
                     const displayName = getCompetenciaDisplayName(competencia, index);
-                    const isOpen = openCompetenciaTooltipId === competencia.id;
-
                     return (
                       <th
                         key={competencia.id}
                         className="w-[220px] border-b border-[var(--color-gray-6)] px-3 py-3 text-center font-medium align-top"
                       >
-                        <CompetenciaHeaderTooltip
-                          competencia={competencia}
-                          displayName={displayName}
-                          isOpen={isOpen}
-                          onToggle={() =>
-                            setOpenCompetenciaTooltipId((currentId) =>
-                              currentId === competencia.id ? null : competencia.id,
-                            )
-                          }
-                          onClose={() => setOpenCompetenciaTooltipId(null)}
-                        />
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="line-clamp-2 text-center leading-4">{displayName}</span>
+                          <InfoModalTrigger
+                            title={`Descripción de ${displayName}`}
+                            content={<p>{getCompetenciaDescription(competencia)}</p>}
+                            ariaLabel={`Ver descripción de ${displayName}`}
+                          />
+                        </div>
                       </th>
                     );
                   })}
@@ -226,7 +141,7 @@ export default function MapeoCompetenciasSemesterStep({
               <tbody>
                 {cursos.map((curso) => (
                   <tr key={curso.id}>
-                    <td className="sticky left-0 z-10 border-b border-[var(--color-gray-6)] bg-white px-5 py-4 align-top">
+                    <td className="sticky left-0 z-10 border-b border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-5 py-4 align-top">
                       <div className="min-w-0">
                         <p className="truncate font-medium text-[var(--color-gray-1)]">
                           {curso.nombre}

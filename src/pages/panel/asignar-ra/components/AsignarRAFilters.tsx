@@ -1,4 +1,4 @@
-import { GoSearch } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Select } from "../../../../components/ui";
 import type { FilterLocks, FilterOptions, FilterState } from "../AsignarRA.types";
 
@@ -32,7 +32,7 @@ export function AsignarRAFilters({
   return (
     <section className="surface-card p-6">
       <div className="mb-5 flex items-start gap-3">
-        <GoSearch className="mt-1 shrink-0 text-xl text-[var(--color-secondary-1)]" />
+        <SecubIcon name="search" weight="bold" className="mt-1 shrink-0 text-xl text-[var(--color-secondary-1)]" />
         <div>
           <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">Filtros de asignación</h2>
           <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
@@ -50,7 +50,6 @@ export function AsignarRAFilters({
             placeholder="Todas las seccionales"
             onChange={(event) => onSeccionalChange(event.target.value)}
             disabled={locks.isSeccionalLocked}
-            helperText={locks.isSeccionalLocked ? "Asignado a tu rol" : undefined}
           />
         ) : null}
 
@@ -62,7 +61,6 @@ export function AsignarRAFilters({
             placeholder="Todas las facultades"
             onChange={(event) => onFacultadChange(event.target.value)}
             disabled={locks.isFacultadLocked}
-            helperText={locks.isFacultadLocked ? "Asignado a tu rol" : undefined}
           />
         ) : null}
 
@@ -73,7 +71,6 @@ export function AsignarRAFilters({
           placeholder="Seleccionar programa"
           onChange={(event) => onProgramChange(event.target.value)}
           disabled={locks.isProgramLocked}
-          helperText={locks.isProgramLocked ? "Asignado a tu rol" : undefined}
         />
 
         <Select
@@ -83,7 +80,6 @@ export function AsignarRAFilters({
           placeholder="Seleccionar plan de estudio"
           onChange={(event) => onPlanChange(event.target.value)}
           disabled={locks.isPlanLocked}
-          helperText={locks.isPlanLocked ? "Asignado a tu rol" : undefined}
         />
 
         <Select

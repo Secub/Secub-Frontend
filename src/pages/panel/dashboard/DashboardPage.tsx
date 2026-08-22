@@ -1,4 +1,3 @@
-import { GoArrowLeft } from "react-icons/go";
 import { PanelLayout } from "../../../components/panel";
 import { Button } from "../../../components/ui";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
@@ -15,6 +14,8 @@ import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { simulateEvidenceDownload } from "./dashboard.utils";
 
+import { ActionIcon } from "../../../components/ui/ActionIcon";
+
 function DashboardBackButton({
   label,
   onClick,
@@ -27,7 +28,7 @@ function DashboardBackButton({
       <Button
         variant="ghost"
         size="sm"
-        leftIcon={<GoArrowLeft className="text-lg" />}
+        leftIcon={<ActionIcon name="back" />}
         onClick={onClick}
       >
         {label}
@@ -38,18 +39,16 @@ function DashboardBackButton({
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
-
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout
         currentStep="dashboard"
         title="Estado del ciclo"
-        description={`${dashboard.user.label} - Usuario`}
+        description="Seguimiento de ciclos, cursos y resultados de aprendizaje."
       >
         <DashboardEmptyState
           title="No tienes cursos asignados a ciclos de medición"
           description="Cuando tengas cursos de Síntesis vinculados a un ciclo de medición, aquí verás el avance, los pendientes y los reportes individuales disponibles."
-          helperText="Este estado cubre el escenario en el que el docente no tiene cursos de Síntesis asignados a ningún ciclo activo o finalizado."
         />
       </PanelLayout>
     );
@@ -60,12 +59,11 @@ export default function DashboardPage() {
       <PanelLayout
         currentStep="dashboard"
         title="Estado del ciclo"
-        description={`${dashboard.user.label} - Usuario`}
+        description="Seguimiento de ciclos, cursos y resultados de aprendizaje."
       >
         <DashboardEmptyState
           title="Aún no se han creado ciclos de medición"
           description="Para visualizar avances, pendientes y reportes consolidados primero se debe crear un ciclo de medición desde el módulo Creación del ciclo."
-          helperText="La creación del ciclo es exclusiva de Dirección de programa. Los demás roles solo consultan la información disponible."
         />
       </PanelLayout>
     );
@@ -88,48 +86,72 @@ export default function DashboardPage() {
             }
           />
 
-          <DashboardFilters
-            user={dashboard.user}
-            catalogs={dashboard.dashboardData.catalogs}
-            cycles={dashboard.scopedCycles}
-            filters={dashboard.filters}
-            onFilterChange={dashboard.handleFilterChange}
-            onReset={dashboard.handleResetFilters}
-          />
-
-          <section className="space-y-5">
-            <div>
-              <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-                Ciclos de Medición
-              </h2>
-            </div>
-
-            {dashboard.filteredCycles.length > 0 ? (
-              <div className="grid gap-5">
-                {dashboard.filteredCycles.map((cycle) => (
-                  <MeasurementCycleCard
-                    key={cycle.id}
-                    cycle={cycle}
-                    isTeacher={dashboard.isTeacher}
-                    isDirector={dashboard.isDirector}
-                    onViewPending={dashboard.handleViewPending}
-                    onViewResults={dashboard.handleViewResultsFromCycle}
-                    onDownloadReport={dashboard.handleDownloadCycleReport}
-                    onImprovementPlan={dashboard.handleImprovementPlan}
-                  />
-                ))}
-              </div>
-            ) : (
-              <DashboardEmptyState
-                title="No hay ciclos para los filtros seleccionados"
-                description="Ajusta los filtros para consultar otros periodos, programas o estados de medición."
+          {dashboard.isTeacher ? (
+            <>
+              <DashboardFilters
+                user={dashboard.user}
+                catalogs={dashboard.dashboardData.catalogs}
+                cycles={dashboard.scopedCycles}
+                filters={dashboard.filters}
+                onFilterChange={dashboard.handleFilterChange}
+                onReset={dashboard.handleResetFilters}
               />
-            )}
-          </section>
+
+              <CoursesMeasurementTable
+                title="Cursos asignados"
+                description="Consulta el avance de tus cursos y entra a Medición RA desde la acción de cada fila."
+                courses={dashboard.filteredCourses}
+                mode="teacher"
+                onMeasureCourse={dashboard.handleMeasureCourse}
+                onViewResults={dashboard.handleViewCourseDetail}
+              />
+            </>
+          ) : (
+            <>
+              <DashboardFilters
+                user={dashboard.user}
+                catalogs={dashboard.dashboardData.catalogs}
+                cycles={dashboard.scopedCycles}
+                filters={dashboard.filters}
+                onFilterChange={dashboard.handleFilterChange}
+                onReset={dashboard.handleResetFilters}
+              />
+
+              <section className="space-y-5">
+                <div>
+                  <h2 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
+                    Ciclos de Medición
+                  </h2>
+                </div>
+
+                {dashboard.filteredCycles.length > 0 ? (
+                  <div className="grid gap-5">
+                    {dashboard.filteredCycles.map((cycle) => (
+                      <MeasurementCycleCard
+                        key={cycle.id}
+                        cycle={cycle}
+                        isTeacher={dashboard.isTeacher}
+                        isDirector={dashboard.isDirector}
+                        onViewPending={dashboard.handleViewPending}
+                        onViewResults={dashboard.handleViewResultsFromCycle}
+                        onDownloadReport={dashboard.handleDownloadCycleReport}
+                        onImprovementPlan={dashboard.handleImprovementPlan}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <DashboardEmptyState
+                    title="No hay ciclos para los filtros seleccionados"
+                    description="Ajusta los filtros para consultar otros periodos, programas o estados de medición."
+                  />
+                )}
+              </section>
+            </>
+          )}
         </div>
       ) : null}
 
-      {dashboard.view === "courses" ? (
+      {dashboard.view === "courses" && !dashboard.isTeacher ? (
         <div className="space-y-6">
           <DashboardBackButton
             label="Volver al Estado del ciclo"
@@ -149,8 +171,9 @@ export default function DashboardPage() {
             courses={dashboard.coursesForSelectedView}
             mode={dashboard.isTeacher ? "teacher" : "supervisor"}
             onMeasureCourse={dashboard.handleMeasureCourse}
-            onViewResults={dashboard.handleViewCourseDetail}
             onNotifyTeacher={dashboard.setNotifyCourse}
+            onViewResults={dashboard.handleViewCourseDetail}
+            canNotifyTeacher={dashboard.isDirector}
           />
         </div>
       ) : null}
@@ -198,6 +221,7 @@ export default function DashboardPage() {
         selectedReportCompetences={dashboard.selectedReportCompetences}
         improvementCycle={dashboard.improvementCycle}
         improvementDraft={dashboard.improvementDraft}
+        improvementTitle={dashboard.improvementTitle}
         improvementError={dashboard.improvementError}
         onCloseSelectedRa={() => dashboard.setSelectedRa(null)}
         onCloseNotifyCourse={() => dashboard.setNotifyCourse(null)}
@@ -210,6 +234,9 @@ export default function DashboardPage() {
         onImprovementDraftChange={(value) => {
           dashboard.setImprovementDraft(value);
           dashboard.setImprovementError("");
+        }}
+        setImprovementTitle={(value) => {
+          dashboard.setImprovementTitle(value);
         }}
       />
     </PanelLayout>

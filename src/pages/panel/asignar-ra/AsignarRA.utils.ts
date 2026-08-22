@@ -144,6 +144,30 @@ export function getCourseCompetencias(
   return competencias.filter((competencia) => mappedCompetenceIds.has(competencia.id));
 }
 
+export function isCourseAssignmentComplete(
+  course: CursoSintesis,
+  cycle: CicloDemoRecord,
+  competencias: CompetenciaRaDemoRecord[],
+  mapeos: MapeoDemoRecord[],
+  records: AsignacionRaRecord[],
+) {
+  const mappedCompetenceIds = getMappedCompetenceIdsForCourse(course.id, cycle, mapeos);
+  if (mappedCompetenceIds.size === 0) return false;
+
+  const requiredCompetencias = competencias.filter((competencia) => mappedCompetenceIds.has(competencia.id));
+  if (!requiredCompetencias.length) return false;
+
+  return requiredCompetencias.every((competencia) =>
+    records.some(
+      (record) =>
+        record.cicloId === cycle.id &&
+        getAssignmentCourseId(record) === course.id &&
+        getAssignmentCompetenciaId(record) === competencia.id &&
+        Boolean(getAssignmentRaId(record)),
+    ),
+  );
+}
+
 export function buildDraftSelections(
   courseCompetencias: CompetenciaRaDemoRecord[],
   selectedCourseAssignments: AsignacionRaRecord[],

@@ -4,7 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
@@ -14,7 +14,7 @@ import CompetenciasRaFormModal from "./components/CompetenciasRaFormModal";
 import CompetenciasRaListSection from "./components/CompetenciasRaListSection";
 import CompetenciasRaModalRA from "./components/CompetenciasRaModalRA";
 import CompetenciasRaPageActions from "./components/CompetenciasRaPageActions";
-import { canEditCompetenciasRa } from "./CompetenciasRa.permissions";
+import { canEditAcademicRecord } from "../../../config/access/permissions";
 import { INITIAL_FILTERS, MAX_RA_PER_COMPETENCIA } from "./CompetenciasRa.utils";
 import { useCompetenciasRAPage } from "./hooks/useCompetenciasRAPage";
 
@@ -66,7 +66,9 @@ export default function CompetenciasRaFormacionPage() {
 
   const workflowProgress = useAcademicWorkflowProgress();
   const isCompetenciasStepComplete = Boolean(workflowProgress["competencias-ra"]) && invalidCompetencias.length === 0;
-  const showFlowActionBar = !isStepLocked && permissions.canRead && hasRecords;
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar =
+    isWorkflowActive && !isStepLocked && permissions.canUpdate && hasRecords;
   const handleNextStep = () => {
     if (!isCompetenciasStepComplete) return;
 
@@ -77,20 +79,26 @@ export default function CompetenciasRaFormacionPage() {
     raModalMode === "create" &&
     Boolean(selectedRaRecord && (selectedRaRecord.resultadosAprendizaje?.length ?? 0) >= MAX_RA_PER_COMPETENCIA);
 
-  const pageActions = (
+  const hasPageActions =
+    permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
+  const pageActions = hasPageActions ? (
     <CompetenciasRaPageActions
       permissions={permissions}
       filteredRecords={filteredRecords}
       onCreate={openCreateModal}
       onExport={setExportFormat}
     />
-  );
+  ) : undefined;
 
   return (
     <PanelLayout
       currentStep="competencias-ra"
       title="Competencias y Resultados de Aprendizaje"
-      description="Gestión, consulta y exportación de las competencias y resultados de aprendizaje según el alcance institucional del rol autenticado."
+      description={
+        permissions.canUpdate
+          ? "Consulta y gestión de competencias y Resultados de Aprendizaje."
+          : "Consulta competencias y Resultados de Aprendizaje."
+      }
       actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
       {isStepLocked ? (
@@ -103,13 +111,16 @@ export default function CompetenciasRaFormacionPage() {
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay competencias ni RA creados"
-          description="Cuando se cargue la primera competencia, se habilitará la vista completa. Agrega al menos un RA para completar el paso y habilitar Mapeo."
+          description={
+            permissions.canCreate
+              ? "Cuando se cargue la primera competencia, se habilitará la vista completa. Agrega al menos un RA para completar el paso y habilitar Mapeo."
+              : "Todavía no hay competencias ni Resultados de Aprendizaje disponibles para consulta."
+          }
           actionLabel={permissions.canCreate ? "Crear competencia" : undefined}
           onAction={permissions.canCreate ? openCreateModal : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
-        <div className="space-y-6 pb-24">
+        <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
           <CompetenciasRaFiltersPanel
             user={currentUser}
             permissions={permissions}
@@ -159,7 +170,7 @@ export default function CompetenciasRaFormacionPage() {
       <CompetenciasRaDetailModal
         open={detailOpen}
         record={selectedRecord}
-        canEdit={Boolean(selectedRecord && canEditCompetenciasRa(currentUser.role, selectedRecord) && permissions.canUpdate)}
+        canEdit={Boolean(selectedRecord && canEditAcademicRecord("competenciasRa", currentUser.role, selectedRecord.estado) && permissions.canUpdate)}
         canDelete={Boolean(selectedRecord && permissions.canDelete)}
         onClose={() => setDetailOpen(false)}
         onSaveDescription={handleSaveCompetenciaDescription}
@@ -167,60 +178,70 @@ export default function CompetenciasRaFormacionPage() {
         onEditRa={openEditRaModal}
       />
 
-      <CompetenciasRaFormModal
-        open={formOpen}
-        mode={formMode}
-        user={currentUser}
-        catalogs={catalogs}
-        initialValues={formValues}
-        record={selectedRecord}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-      />
+      {permissions.canCreate || permissions.canUpdate ? (
+        <CompetenciasRaFormModal
+          open={formOpen}
+          mode={formMode}
+          user={currentUser}
+          catalogs={catalogs}
+          initialValues={formValues}
+          record={selectedRecord}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
+      ) : null}
 
-      <CompetenciasRaModalRA
-        mode={raModalMode}
-        record={selectedRaRecord}
-        draft={raDraft}
-        error={raError}
-        onDraftChange={setRaDraft}
-        onClearError={() => setRaError("")}
-        onClose={closeRaModal}
-        onSave={handleSaveRa}
-        isCreateLimitReached={isCreateRaLimitReached}
-      />
+      {permissions.canUpdate ? (
+        <CompetenciasRaModalRA
+          mode={raModalMode}
+          record={selectedRaRecord}
+          draft={raDraft}
+          error={raError}
+          onDraftChange={setRaDraft}
+          onClearError={() => setRaError("")}
+          onClose={closeRaModal}
+          onSave={handleSaveRa}
+          isCreateLimitReached={isCreateRaLimitReached}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={Boolean(recordToDelete)}
-        title="¿Estás seguro de que deseas eliminar este registro?"
-        description={`Se eliminará la competencia de ${recordToDelete?.programaNombre ?? "este programa"}, sus RA asociados y las relaciones demo vinculadas. Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
-        variant="danger"
-        onCancel={() => setRecordToDelete(null)}
-        onConfirm={confirmDelete}
-      />
+      {permissions.canDelete ? (
+        <ConfirmDialog
+          open={Boolean(recordToDelete)}
+          title={`¿Seguro que deseas eliminar la competencia "${recordToDelete?.nombre ?? "seleccionada"}"?`}
+          description={`Se eliminará la competencia, sus RA asociados y las relaciones vinculadas en ${recordToDelete?.programaNombre ?? "este programa"}. Esta acción no se puede deshacer.`}
+          confirmLabel="Eliminar"
+          variant="danger"
+          onCancel={() => setRecordToDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
 
-      <CompetenciasRaExportModal
-        open={exportFormat === "pdf"}
-        title="Exportación de competencias y RA en PDF"
-        format="pdf"
-        permissions={permissions}
-        catalogs={catalogs}
-        baseRecords={roleScopedRecords}
-        initialFilters={filters}
-        onClose={() => setExportFormat(null)}
-      />
+      {permissions.canExportPdf ? (
+        <CompetenciasRaExportModal
+          open={exportFormat === "pdf"}
+          title="Exportación de competencias y RA en PDF"
+          format="pdf"
+          permissions={permissions}
+          catalogs={catalogs}
+          baseRecords={roleScopedRecords}
+          initialFilters={filters}
+          onClose={() => setExportFormat(null)}
+        />
+      ) : null}
 
-      <CompetenciasRaExportModal
-        open={exportFormat === "excel"}
-        title="Exportación de competencias y RA en Excel"
-        format="excel"
-        permissions={permissions}
-        catalogs={catalogs}
-        baseRecords={roleScopedRecords}
-        initialFilters={filters}
-        onClose={() => setExportFormat(null)}
-      />
+      {permissions.canExportExcel ? (
+        <CompetenciasRaExportModal
+          open={exportFormat === "excel"}
+          title="Exportación de competencias y RA en Excel"
+          format="excel"
+          permissions={permissions}
+          catalogs={catalogs}
+          baseRecords={roleScopedRecords}
+          initialFilters={filters}
+          onClose={() => setExportFormat(null)}
+        />
+      ) : null}
     </PanelLayout>
   );
 }

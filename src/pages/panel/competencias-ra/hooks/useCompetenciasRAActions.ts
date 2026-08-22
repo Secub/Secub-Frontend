@@ -2,6 +2,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
 import { getCurrentUser } from "../CompetenciasRa.mock";
+import { getAcademicModulePermissions } from "../../../../config/access/permissions";
 import {
   MAX_RA_PER_COMPETENCIA,
   canAddLearningResult,
@@ -12,8 +13,11 @@ import type {
   CompetenciasRaFormacionRecord,
   ResultadoAprendizaje,
 } from "../CompetenciasRa.types";
+import { showNotification } from "../../../../shared/feedback";
+import { createClientId } from "../../../../shared/ids";
 
 const currentUser = getCurrentUser();
+const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
 
 interface UseCompetenciasRAActionsParams {
   selectedRecord: CompetenciasRaEnriched | null;
@@ -48,8 +52,10 @@ export function useCompetenciasRAActions({
   };
 
   const openCreateRaModal = (record: CompetenciasRaEnriched) => {
+    if (!permissions.canUpdate) return;
+
     if (!canAddLearningResult(record)) {
-      window.alert("Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
+      showNotification("Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
       return;
     }
 
@@ -61,6 +67,8 @@ export function useCompetenciasRAActions({
   };
 
   const openEditRaModal = (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => {
+    if (!permissions.canUpdate) return;
+
     setSelectedRaRecord(record);
     setSelectedRa(ra);
     setRaDraft(ra.descripcion);
@@ -69,6 +77,8 @@ export function useCompetenciasRAActions({
   };
 
   const handleSaveRa = () => {
+    if (!permissions.canUpdate) return;
+
     if (!selectedRaRecord) return;
     const description = raDraft.trim();
 
@@ -90,7 +100,7 @@ export function useCompetenciasRAActions({
         ? currentRas.map((ra) => (ra.id === selectedRa.id ? { ...ra, descripcion: description } : ra))
         : [
             ...currentRas,
-            { id: `ra-${selectedRaRecord.id}-${Date.now()}`, numero: currentRas.length + 1, descripcion: description },
+            { id: createClientId(`ra-${selectedRaRecord.id}`), numero: currentRas.length + 1, descripcion: description },
           ];
 
     const nextRecord: CompetenciasRaFormacionRecord = {
@@ -117,6 +127,8 @@ export function useCompetenciasRAActions({
   };
 
   const handleSaveCompetenciaDescription = (record: CompetenciasRaEnriched, descripcion: string) => {
+    if (!permissions.canUpdate) return false;
+
     const nextRecord: CompetenciasRaFormacionRecord = {
       ...record,
       descripcion,
@@ -129,17 +141,24 @@ export function useCompetenciasRAActions({
       refreshRecordsState(nextRecords, record.id);
       return true;
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "No fue posible actualizar la competencia.");
+      showNotification(error instanceof Error ? error.message : "No fue posible actualizar la competencia.");
       return false;
     }
   };
 
   const handleDelete = (record: CompetenciasRaEnriched) => {
+    if (!permissions.canDelete) return;
+
     setRecordToDelete(record);
   };
 
   const confirmDelete = () => {
     if (!recordToDelete) return;
+
+    if (!permissions.canDelete) {
+      setRecordToDelete(null);
+      return;
+    }
 
     const nextRecords = mockBackend.remove<CompetenciasRaFormacionRecord>("competenciasRa", recordToDelete.id, currentUser);
     setRecords(nextRecords);

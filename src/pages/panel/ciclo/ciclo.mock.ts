@@ -13,11 +13,9 @@ import type {
   NivelCompromisoItem,
   NucleoFormacion,
 } from "../mapeo-competencias/MapeoCompetencias.types";
-import { cicloRoleLabels } from "./ciclo.permissions";
 import type {
   CicloCatalogs,
   CicloMedicion,
-  CicloRole,
   CurrentUser,
   CursoSintesis,
   Facultad,
@@ -25,8 +23,6 @@ import type {
   ProgramaAcademico,
   Seccional,
 } from "./ciclo.types";
-
-export const DEFAULT_CICLO_ROLE: CicloRole = "direccionPrograma";
 
 export const seccionales: Seccional[] = secubSeccionales;
 export const facultades: Facultad[] = secubFacultades;
@@ -112,89 +108,16 @@ export const cursosSintesis: CursoSintesis[] = buildCursosFromMapeos([]);
 
 export const mockCiclos: CicloMedicion[] = [];
 
-const mockUsers: Record<CicloRole, CurrentUser> = {
-  admin: {
-    id: "usr-admin-001",
-    nombre: "Juliana Mejía",
-    cargo: cicloRoleLabels.admin,
-    role: "admin",
-    scope: { seccionalId: "cali" },
-  },
-  vice: {
-    id: "usr-vice-001",
-    nombre: "Ana María Restrepo",
-    cargo: cicloRoleLabels.vice,
-    role: "vice",
-    scope: { seccionalId: "cali" },
-  },
-  decano: {
-    id: "usr-decano-001",
-    nombre: "Carlos Medina",
-    cargo: cicloRoleLabels.decano,
-    role: "decano",
-    scope: { seccionalId: "cali" },
-  },
-  direccionPrograma: {
-    id: "direccion-programa-secub",
-    nombre: "Dirección de programa",
-    cargo: cicloRoleLabels["direccionPrograma"],
-    role: "direccionPrograma",
-    scope: { seccionalId: "cali" },
-  },
-  docente: {
-    id: DEMO_DOCENTE_SECUB.id,
-    nombre: DEMO_DOCENTE_SECUB.nombre,
-    cargo: cicloRoleLabels.docente,
-    role: "docente",
-    scope: { seccionalId: "cali" },
-  },
-};
-
-export function normalizeCicloRole(rawRole: string | null | undefined): CicloRole {
-  const normalized = String(rawRole ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const compactRole = normalized.replace(/[^a-z0-9]+/g, "");
-
-  const aliases: Record<string, CicloRole> = {
-    admin: "admin",
-    administrador: "admin",
-    superadmin: "admin",
-    vice: "vice",
-    vicerrector: "vice",
-    vicerrectoria: "vice",
-    vicerrectoría: "vice",
-    decano: "decano",
-    director: "direccionPrograma",
-    directorprograma: "direccionPrograma",
-    director_de_programa: "direccionPrograma",
-    direccionPrograma: "direccionPrograma",
-    direccionprograma: "direccionPrograma",
-    direccion_de_programa: "direccionPrograma",
-    docente: "docente",
-    docencia: "docente",
-  };
-
-  return aliases[normalized] ?? aliases[compactRole] ?? DEFAULT_CICLO_ROLE;
-}
-
 export function getCurrentCicloUser(): CurrentUser {
   const demoUser = getCurrentMockUser();
-  const fallbackUser = mockUsers[demoUser.role as keyof typeof mockUsers] ?? mockUsers.admin;
 
   return {
-    ...fallbackUser,
     id: demoUser.id,
     nombre: demoUser.nombre,
     email: demoUser.email,
-    cargo: demoUser.cargo || fallbackUser.cargo,
-    role: demoUser.role as CurrentUser["role"],
-    scope: {
-      ...fallbackUser.scope,
-      ...demoUser.scope,
-    },
+    cargo: demoUser.cargo,
+    role: demoUser.role,
+    scope: { ...demoUser.scope },
   };
 }
 

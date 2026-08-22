@@ -2,7 +2,11 @@
 
 interface ImportMetaEnv {
   readonly DEV: boolean;
-  readonly VITE_SHOW_DEMO_TOOLS?: string;
+  readonly PROD: boolean;
+  readonly MODE: string;
+  readonly BASE_URL: string;
+  readonly VITE_SHOW_DEMO_TOOLS?: "true" | "false";
+  readonly VITE_API_BASE_URL?: string;
 }
 
 interface ImportMeta {

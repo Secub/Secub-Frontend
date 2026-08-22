@@ -1,4 +1,4 @@
-import { GoInfo } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../components/ui";
 import { performanceLevels, TARGET_PERCENTAGE } from "../medicion-ra.mock";
 
@@ -16,7 +16,7 @@ export default function EvaluationInstructions() {
         <div className="max-w-3xl">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
-              <GoInfo className="text-xl" />
+              <SecubIcon name="info" weight="fill" className="text-xl" />
             </span>
             <div>
               <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
@@ -49,9 +49,6 @@ export default function EvaluationInstructions() {
             <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
               {level.label}
             </h3>
-            <p className="mt-2 text-xs font-bold text-[var(--color-gray-4)]">
-              {level.gradeRange}
-            </p>
             <p className="mt-3 text-sm leading-6 text-[var(--color-gray-3)]">
               {level.descriptor}
             </p>

@@ -11,6 +11,12 @@ import type {
   ValidationFeedback,
 } from "../medicion-ra.types";
 
+interface PersistCourseMeasurementOptions {
+  completedCompetenceIds?: string[];
+  isEvaluationLocked?: boolean;
+  completed?: boolean;
+}
+
 export function useMedicionRAActions({
   activeCompetenceId,
   activeCompetenceIndex,
@@ -18,10 +24,9 @@ export function useMedicionRAActions({
   course,
   isLastCompetence,
   isSelectedCourseLocked,
-  nextPendingCourse,
   pendingAutoScrollCompetenceIdRef,
+  persistSelectedCourse,
   setActiveCompetenceId,
-  setSelectedCourseId,
   setCompletedCompetenceIds,
   setEvaluationsByCourse,
   setEvidenceByCompetence,
@@ -41,10 +46,9 @@ export function useMedicionRAActions({
   course: CourseRecord;
   isLastCompetence: boolean;
   isSelectedCourseLocked: boolean;
-  nextPendingCourse?: CourseRecord;
   pendingAutoScrollCompetenceIdRef: MutableRefObject<string | null>;
+  persistSelectedCourse: (options?: PersistCourseMeasurementOptions) => boolean;
   setActiveCompetenceId: (competenceId: string) => void;
-  setSelectedCourseId: (courseId: string) => void;
   setCompletedCompetenceIds: Dispatch<SetStateAction<string[]>>;
   setEvaluationsByCourse: Dispatch<SetStateAction<Record<string, EvaluationMatrix>>>;
   setEvidenceByCompetence: Dispatch<SetStateAction<Record<string, EvidenceState>>>;
@@ -140,12 +144,30 @@ export function useMedicionRAActions({
 
     setShowValidationErrors(false);
 
-    setFeedback({
-      type: "info",
-      title: "Progreso guardado",
-      message:
-        "El avance parcial del curso actual quedó conservado en mockBackend sin exigir completar toda la competencia, sin avanzar y sin finalizar la medición.",
-    });
+    try {
+      const didSave = persistSelectedCourse();
+
+      if (!didSave) {
+        setFeedback({
+          type: "error",
+          title: "No fue posible guardar",
+          message: "Espera un momento y vuelve a intentar guardar el progreso del curso.",
+        });
+        return;
+      }
+
+      setFeedback({
+        type: "success",
+        title: "Progreso guardado",
+        message: "El avance parcial del curso actual quedó guardado correctamente.",
+      });
+    } catch {
+      setFeedback({
+        type: "error",
+        title: "No fue posible guardar",
+        message: "Ocurrió un error al guardar el progreso del curso. Inténtalo nuevamente.",
+      });
+    }
   };
 
   const validateCourseBeforeCourseFlowAction = () => {
@@ -201,33 +223,48 @@ export function useMedicionRAActions({
     setShowFinishModal(true);
   };
 
-  const handleNextCourse = () => {
-    if (!nextPendingCourse) return;
-
-    if (!isSelectedCourseLocked && !validateCourseBeforeCourseFlowAction()) return;
-
-    pendingAutoScrollCompetenceIdRef.current = nextPendingCourse.competences[0]?.id ?? null;
-    setSelectedCourseId(nextPendingCourse.id);
-    setActiveCompetenceId(nextPendingCourse.competences[0]?.id ?? "");
-
-    setFeedback({
-      type: "success",
-      title: "Curso guardado",
-      message: `La medición de ${course.name} quedó guardada. Continúa con ${nextPendingCourse.name}.`,
-    });
-  };
-
   const handleConfirmFinishEvaluation = () => {
-    setCompletedCompetenceIds(course.competences.map((competence) => competence.id));
-    setIsSelectedCourseLocked(true);
-    setShowFinishModal(false);
+    if (isSelectedCourseLocked) return false;
 
-    setFeedback({
-      type: "success",
-      title: "Evaluación finalizada",
-      message:
-        "La evaluación del curso seleccionado quedó guardada y bloqueada. Puedes cambiar a otro curso asignado desde el selector superior.",
-    });
+    const completedIds = course.competences.map((competence) => competence.id);
+
+    try {
+      const didSave = persistSelectedCourse({
+        completedCompetenceIds: completedIds,
+        isEvaluationLocked: true,
+        completed: true,
+      });
+
+      if (!didSave) {
+        setShowFinishModal(false);
+        setFeedback({
+          type: "error",
+          title: "No fue posible finalizar",
+          message: "La medición no pudo guardarse. Inténtalo nuevamente antes de salir del curso.",
+        });
+        return false;
+      }
+
+      setCompletedCompetenceIds(completedIds);
+      setIsSelectedCourseLocked(true);
+      setShowFinishModal(false);
+
+      setFeedback({
+        type: "success",
+        title: "Curso finalizado",
+        message: "La medición del curso quedó guardada y finalizada correctamente.",
+      });
+
+      return true;
+    } catch {
+      setShowFinishModal(false);
+      setFeedback({
+        type: "error",
+        title: "No fue posible finalizar",
+        message: "Ocurrió un error al guardar la medición. Inténtalo nuevamente.",
+      });
+      return false;
+    }
   };
 
   const handleCancelFinishEvaluation = () => {
@@ -246,7 +283,6 @@ export function useMedicionRAActions({
     handleSaveProgress,
     handlePrimaryAction,
     handleRequestFinishEvaluation,
-    handleNextCourse,
     handleConfirmFinishEvaluation,
     handleCancelFinishEvaluation,
     handleCloseFeedback,

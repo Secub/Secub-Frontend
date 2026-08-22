@@ -4,7 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import { useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
+import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
 import PerfilEgresoDetailModal from "./components/PerfilEgresoDetailModal";
@@ -52,27 +52,35 @@ export default function PerfilEgresoPage() {
 
   const workflowProgress = useAcademicWorkflowProgress();
   const isPerfilStepComplete = Boolean(workflowProgress["perfil-egreso"]);
-  const showFlowActionBar = !isStepLocked && permissions.canRead && hasRecords;
+  const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
+  const showFlowActionBar =
+    isWorkflowActive && !isStepLocked && permissions.canUpdate && hasRecords;
   const handleNextStep = () => {
     if (!isPerfilStepComplete) return;
 
     navigateToRoute(buildRouteWithSearch(ROUTES.panelPropositoFormacion, { role: currentUser.role }));
   };
 
-  const pageActions = (
+  const hasPageActions =
+    permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
+  const pageActions = hasPageActions ? (
     <PerfilEgresoPageActions
       permissions={permissions}
       filteredRecords={filteredRecords}
       onCreate={openCreateModal}
       onExport={setExportFormat}
     />
-  );
+  ) : undefined;
 
   return (
     <PanelLayout
       currentStep="perfil-egreso"
       title="Perfil de Egreso"
-      description="Visualización, filtrado, creación, actualización, eliminación y exportación del perfil de egreso según el alcance institucional del rol autenticado."
+      description={
+        permissions.canUpdate
+          ? "Consulta y gestión de la información institucional del perfil de egreso."
+          : "Consulta la información institucional del perfil de egreso."
+      }
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (
@@ -85,13 +93,16 @@ export default function PerfilEgresoPage() {
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay perfiles de egreso creados"
-          description="Cuando se cargue el primer perfil de egreso, se habilitará la vista completa con filtros, tabla, acciones y exportación."
+          description={
+            permissions.canCreate
+              ? "Cuando se cargue el primer perfil de egreso, se habilitará la vista completa con filtros, tabla, acciones y exportación."
+              : "Todavía no hay perfiles de egreso disponibles para consulta."
+          }
           actionLabel={permissions.canCreate && !isInheritedBaseStep ? "Crear perfil de egreso" : undefined}
           onAction={permissions.canCreate && !isInheritedBaseStep ? openCreateModal : undefined}
-          helperText="No se muestran datos de prueba ni información precargada."
         />
       ) : (
-        <div className="space-y-6 pb-24">
+        <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
           <PerfilEgresoFilters
             user={currentUser}
             permissions={permissions}
@@ -137,48 +148,57 @@ export default function PerfilEgresoPage() {
         onClose={() => setDetailOpen(false)}
       />
 
-      <PerfilEgresoFormModal
-        open={formOpen}
-        mode={formMode}
-        user={currentUser}
-        catalogs={catalogs}
-        initialValues={formValues}
-        record={selectedRecord}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-      />
+      {permissions.canCreate || permissions.canUpdate ? (
+        <PerfilEgresoFormModal
+          open={formOpen}
+          mode={formMode}
+          user={currentUser}
+          catalogs={catalogs}
+          initialValues={formValues}
+          records={roleScopedRecords}
+          record={selectedRecord}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={Boolean(recordToDelete)}
-        title="¿Estás seguro de que deseas eliminar este registro?"
-        description={`Se eliminará el perfil de egreso de ${recordToDelete?.programaNombre ?? "este programa"}. Esta acción no se puede deshacer en los datos temporales actuales.`}
-        confirmLabel="Eliminar"
-        variant="danger"
-        onCancel={() => setRecordToDelete(null)}
-        onConfirm={confirmDelete}
-      />
+      {permissions.canDelete ? (
+        <ConfirmDialog
+          open={Boolean(recordToDelete)}
+          title={`¿Seguro que deseas eliminar el perfil de egreso de "${recordToDelete?.programaNombre ?? "este programa"}"?`}
+          description="Se eliminará el perfil de egreso seleccionado. Esta acción no se puede deshacer."
+          confirmLabel="Eliminar"
+          variant="danger"
+          onCancel={() => setRecordToDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
 
-      <PerfilEgresoExportModal
-        open={exportFormat === "pdf"}
-        title="Exportación de perfiles de egreso en PDF"
-        format="pdf"
-        permissions={permissions}
-        catalogs={catalogs}
-        baseRecords={roleScopedRecords}
-        initialFilters={filters}
-        onClose={() => setExportFormat(null)}
-      />
+      {permissions.canExportPdf ? (
+        <PerfilEgresoExportModal
+          open={exportFormat === "pdf"}
+          title="Exportación de perfiles de egreso en PDF"
+          format="pdf"
+          permissions={permissions}
+          catalogs={catalogs}
+          baseRecords={roleScopedRecords}
+          initialFilters={filters}
+          onClose={() => setExportFormat(null)}
+        />
+      ) : null}
 
-      <PerfilEgresoExportModal
-        open={exportFormat === "excel"}
-        title="Exportación de perfiles de egreso en Excel"
-        format="excel"
-        permissions={permissions}
-        catalogs={catalogs}
-        baseRecords={roleScopedRecords}
-        initialFilters={filters}
-        onClose={() => setExportFormat(null)}
-      />
+      {permissions.canExportExcel ? (
+        <PerfilEgresoExportModal
+          open={exportFormat === "excel"}
+          title="Exportación de perfiles de egreso en Excel"
+          format="excel"
+          permissions={permissions}
+          catalogs={catalogs}
+          baseRecords={roleScopedRecords}
+          initialFilters={filters}
+          onClose={() => setExportFormat(null)}
+        />
+      ) : null}
     </PanelLayout>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
-import { cicloRolePermissions } from "../ciclo.permissions";
+import { getCyclePermissions } from "../../../../config/access/permissions";
 import type { CicloCatalogs, CicloEnriched, CicloFormState, CurrentUser } from "../ciclo.types";
 import {
   getActivePlansByProgram,
@@ -61,7 +61,7 @@ export function useCicloFormModal({
     }
   }, [initialValues, open]);
 
-  const permissions = cicloRolePermissions[user.role];
+  const permissions = getCyclePermissions(user.role);
   const isReadOnly = mode === "view" || !permissions.canConfirmSelection;
   const selectedPrograma = catalogs.programas.find((programa) => programa.id === values.programaId);
   const selectedPlan = catalogs.planes.find((plan) => plan.id === values.planId);
@@ -97,7 +97,7 @@ export function useCicloFormModal({
     availableCourses.some((course) => course.id === cursoId),
   ).length;
 
-  const nombreError = submitted && values.nombre.trim().length === 0 ? "El nombre del ciclo es obligatorio." : undefined;
+  // const nombreError = submitted && values.nombre.trim().length === 0 ? "El nombre del ciclo es obligatorio." : undefined;
   const programaError =
     submitted && (!values.programaId || selectedPrograma?.estado !== "activo")
       ? "Solo se pueden crear ciclos para programas activos."
@@ -106,13 +106,18 @@ export function useCicloFormModal({
     submitted && (!values.planId || selectedPlan?.estado !== "activo")
       ? "El plan de estudios debe estar activo."
       : undefined;
+  const fechaInicioError =
+    submitted && values.fechaInicio.trim().length === 0
+      ? "Selecciona la fecha de inicio del ciclo."
+      : undefined;
   const cursosError = submitted && selectedCount === 0 ? "Selecciona al menos un curso para confirmar el ciclo." : undefined;
-  const showValidationAlert = submitted && Boolean(nombreError || programaError || planError || cursosError);
+  const showValidationAlert = submitted && Boolean(/*nombreError ||*/ programaError || planError || cursosError);
   const canSubmit =
     !isReadOnly &&
     selectedPrograma?.estado === "activo" &&
     selectedPlan?.estado === "activo" &&
-    values.nombre.trim().length > 0 &&
+    // values.nombre.trim().length > 0 &&
+    values.fechaInicio.trim().length > 0 &&
     selectedCount > 0;
 
   const handleProgramChange = (programaId: string) => {
@@ -133,7 +138,7 @@ export function useCicloFormModal({
   const handleSubmit = () => {
     setSubmitted(true);
     if (!canSubmit) {
-      scrollToFirstValidationError({ fieldOrder: ["nombre", "programaId", "planId", "cursoIds"] });
+      scrollToFirstValidationError({ fieldOrder: [/*"nombre",*/ "programaId", "planId", "fechaInicio", "cursoIds"] });
       return;
     }
     onSubmit(values);
@@ -154,9 +159,10 @@ export function useCicloFormModal({
     availableProgramas,
     availableCourses,
     selectedCount,
-    nombreError,
+    // nombreError,
     programaError,
     planError,
+    fechaInicioError,
     cursosError,
     showValidationAlert,
     canSubmit,

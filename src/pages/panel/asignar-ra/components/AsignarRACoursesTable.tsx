@@ -1,4 +1,4 @@
-import { GoCheck, GoSearch } from "react-icons/go";
+import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../components/ui";
 import type { AsignarRACourseRow } from "../AsignarRA.types";
 import { AsignarRARowActions } from "./AsignarRARowActions";
@@ -30,7 +30,7 @@ export function AsignarRACoursesTable({
         <Badge variant="info">{rows.length} de {totalCourses}</Badge>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white">
+      <div className="mt-5 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] border-separate border-spacing-0">
             <thead className="bg-[var(--color-surface-soft)]">
@@ -57,14 +57,14 @@ export function AsignarRACoursesTable({
                   <tr
                     key={row.course.id}
                     className={[
-                      "bg-white transition-colors hover:bg-[var(--color-surface-soft)]",
+                      "bg-[var(--secub-surface)] transition-colors hover:bg-[var(--color-surface-soft)]",
                       row.isSelected ? "bg-[color:rgba(14,101,217,0.05)]" : "",
                     ].join(" ")}
                   >
                     <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-top">
                       <span className="flex items-center gap-2">
                         <Badge variant="info">{row.course.codigo}</Badge>
-                        {row.isSelected ? <GoCheck aria-hidden="true" className="text-[var(--color-secondary-1)]" /> : null}
+                        {row.isSelected ? <SecubIcon name="check" weight="bold" aria-hidden="true" className="text-[var(--color-secondary-1)]" /> : null}
                       </span>
                     </td>
                     <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-top">
@@ -103,7 +103,7 @@ export function AsignarRACoursesTable({
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-sm text-[var(--color-gray-4)]">
                     <div className="mx-auto flex max-w-md flex-col items-center gap-3">
-                      <GoSearch aria-hidden="true" className="text-2xl text-[var(--color-gray-4)]" />
+                      <SecubIcon name="search" weight="bold" aria-hidden="true" className="text-2xl text-[var(--color-gray-4)]" />
                       <p>{isFiltered ? "Sin resultados para esta búsqueda." : "No hay cursos de Síntesis disponibles para este ciclo."}</p>
                     </div>
                   </td>
