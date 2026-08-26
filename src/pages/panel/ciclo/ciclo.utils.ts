@@ -127,7 +127,9 @@ export function getSynthesisCourses(catalogs: CicloCatalogs, programaId: string,
       curso.programaId === programaId &&
       curso.planId === planId &&
       curso.nucleo === "Síntesis" &&
-      curso.asignadoANucleoSintesis,
+      curso.asignadoANucleoSintesis &&
+      curso.competenciasAsignadas > 0 &&
+      curso.nivelCompromiso !== "",
   );
 }
 
