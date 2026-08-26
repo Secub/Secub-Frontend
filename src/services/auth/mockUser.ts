@@ -15,12 +15,14 @@ export interface CentralMockUser {
   cargo: string;
   role: SecubRole;
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;
   planId?: string;
   scope: {
     seccionalId?: string;
+    lugarId?: string;
     facultadId?: string;
     programaId?: string;
     academicProgramId?: string;
@@ -137,6 +139,7 @@ export function getCurrentMockUser(): CentralMockUser {
         : fallbackUser.email,
     cargo: role === "director" && selectedProgram ? programRoleLabel : fallbackUser.cargo,
     seccionalId: selectedScope.seccionalId ?? fallbackUser.seccionalId,
+    lugarId: selectedScope.lugarId ?? fallbackUser.lugarId,
     facultadId: selectedScope.facultadId ?? fallbackUser.facultadId,
     programaId: selectedScope.programaId ?? fallbackUser.programaId,
     academicProgramId: selectedScope.academicProgramId ?? fallbackUser.academicProgramId,

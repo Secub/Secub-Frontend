@@ -4,6 +4,11 @@ import {
   getDefaultLugarBySeccional,
   validateAcademicScope,
 } from "./academicScope.utils";
+import {
+  getProgramById,
+  secubLugares,
+  SIMPLE_DEMO_IDS,
+} from "../../data/secubAcademicPrograms";
 
 const catalogs = {
   planes: [
@@ -44,6 +49,33 @@ describe("academic scope utilities", () => {
       programaId: "Selecciona un programa.",
       planId: "Selecciona un plan de estudios.",
     });
-    expect(getDefaultLugarBySeccional("cali")).toBe("cali");
+  });
+
+  it("resuelve el lugar desde la relación del catálogo académico", () => {
+    const program = getProgramById(SIMPLE_DEMO_IDS.programaId);
+
+    expect(program?.lugarId).toBe(SIMPLE_DEMO_IDS.lugarId);
+    expect(
+      getDefaultLugarBySeccional(program?.seccionalId ?? "", secubLugares),
+    ).toBe(program?.lugarId);
+    expect(
+      secubLugares.find((lugar) => lugar.id === program?.lugarId)?.nombre,
+    ).toBe("Cali");
+  });
+
+  it.each([
+    ["sec-cali", "lugar-cali"],
+    ["sec-bogota", "lugar-bogota"],
+    ["sec-medellin", "lugar-medellin"],
+    ["sec-cartagena", "lugar-cartagena"],
+  ])("resuelve %s sin depender de un valor visual hardcodeado", (seccionalId, lugarId) => {
+    const lugares = [
+      { id: "lugar-cali", nombre: "Cali", seccionalId: "sec-cali" },
+      { id: "lugar-bogota", nombre: "Bogotá", seccionalId: "sec-bogota" },
+      { id: "lugar-medellin", nombre: "Medellín", seccionalId: "sec-medellin" },
+      { id: "lugar-cartagena", nombre: "Cartagena", seccionalId: "sec-cartagena" },
+    ];
+
+    expect(getDefaultLugarBySeccional(seccionalId, lugares)).toBe(lugarId);
   });
 });

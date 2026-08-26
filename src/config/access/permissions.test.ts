@@ -102,6 +102,7 @@ describe("SECUB - acceso centralizado", () => {
   it("mantiene el alcance jerárquico del programa seleccionado", () => {
     const selectedScope = {
       seccionalId: "sec-1",
+      lugarId: "lugar-1",
       facultadId: "fac-1",
       programaId: "prog-1",
       academicProgramId: "prog-1",

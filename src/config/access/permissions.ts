@@ -419,6 +419,7 @@ export function getWriteAccessDeniedMessage(_entityKey: SecubEntityKey) {
 
 export interface ProgramSelectionScope {
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;

@@ -67,7 +67,9 @@ export function useAcademicScopeForm<TForm extends AcademicScopeFormValue>({
       const next = { ...current, [key]: value } as TForm;
 
       if (key === "seccionalId") {
-        next.lugarId = getDefaultLugarBySeccional(String(value));
+        next.lugarId =
+          userScope.lugarId ??
+          getDefaultLugarBySeccional(String(value), catalogs.lugares);
         next.facultadId = userScope.facultadId ?? "";
         next.programaId = userScope.programaId ?? "";
         next.planId = "";

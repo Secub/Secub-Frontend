@@ -506,6 +506,37 @@ export const mockBackend = {
     });
   },
 
+  removeDemoSeedRecords(
+    recordIdsByEntity: Partial<Record<MockBackendEntityKey, readonly string[]>>,
+  ) {
+    const database = readDatabase();
+    let changed = false;
+    const nextDatabase = { ...database };
+
+    (Object.keys(recordIdsByEntity) as MockBackendEntityKey[]).forEach(
+      (entityKey) => {
+        const recordIds = new Set(recordIdsByEntity[entityKey] ?? []);
+        if (!recordIds.size) return;
+
+        const currentRecords = database[entityKey] ?? [];
+        const nextRecords = currentRecords.filter(
+          (record) => !recordIds.has(record.id),
+        );
+
+        if (nextRecords.length !== currentRecords.length) {
+          nextDatabase[entityKey] = nextRecords;
+          changed = true;
+        }
+      },
+    );
+
+    if (changed) {
+      writeDatabase(nextDatabase);
+    }
+
+    return changed;
+  },
+
   hasSeenIntro(userId: string, moduleKey: string) {
     // Banderas de introducción separadas del estado vacío de datos.
     // TODO: reemplazar por preferencia persistida en backend cuando exista perfil de usuario real.
