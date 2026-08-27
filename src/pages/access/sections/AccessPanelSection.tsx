@@ -55,6 +55,10 @@ export default function AccessPanelSection() {
           </button>
         ))}
       </div>
+
+      <p className="mt-6 text-center text-xs leading-5 text-[var(--color-gray-4)]">
+        La seccional quedará asociada a tu acceso actual. La autenticación institucional se integrará posteriormente.
+      </p>
     </section>
   );
 }

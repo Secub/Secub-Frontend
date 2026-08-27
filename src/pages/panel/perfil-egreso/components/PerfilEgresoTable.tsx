@@ -53,7 +53,6 @@ export function PerfilEgresoTable({
       render: (row) => (
         <span className="panel-table-cell-wrap">{row.facultadNombre}</span>
       ),
-      sortValue: (row) => row.facultadNombre,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.facultad,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.facultad,
     },
@@ -63,7 +62,6 @@ export function PerfilEgresoTable({
       render: (row) => (
         <span className="panel-table-cell-wrap">{row.programaNombre}</span>
       ),
-      sortValue: (row) => row.programaNombre,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.programa,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.programa,
     },
@@ -81,7 +79,6 @@ export function PerfilEgresoTable({
           ) : null}
         </span>
       ),
-      sortValue: (row) => row.planNombre,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.plan,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.plan,
     },
@@ -90,12 +87,9 @@ export function PerfilEgresoTable({
       title: "Descripción",
       render: (row) => (
         <p className="panel-table-cell-wrap text-sm leading-6 text-[var(--color-gray-3)]">
-          {row.descripcion.length > 150
-            ? `${row.descripcion.slice(0, 150).trimEnd()}...`
-            : row.descripcion}
+          {row.descripcion}
         </p>
       ),
-      sortValue: (row) => row.descripcion,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.descripcion,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.descripcion,
     },
@@ -107,7 +101,6 @@ export function PerfilEgresoTable({
           {row.estado === "activo" ? "Activo" : "Inactivo"}
         </Badge>
       ),
-      sortValue: (row) => row.estado === "activo" ? "Activo" : "Inactivo",
       className: `${PROFILE_PURPOSE_COLUMN_WIDTHS.estado} whitespace-nowrap`,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.estado,
     },
@@ -127,14 +120,14 @@ export function PerfilEgresoTable({
       icon: <ActionIcon name="edit" />,
       disabled: (row) => isInheritedReadonlyRecord(row) || !canEditAcademicRecord("perfilEgreso", role, row.estado),
       disabledReason: (row) => getInheritedReadonlyReason(row, getAcademicEditDisabledReason("perfilEgreso", role, row.estado, "Solo se permite actualizar perfiles asociados a programas activos.")),
-      show: () => permissions.canUpdate,
+      show: () => role !== "decano" && permissions.canUpdate,
     },
     {
       key: "delete",
       label: "Eliminar perfil",
       onClick: onDelete,
       icon: <ActionIcon name="delete" />,
-      show: () => permissions.canDelete,
+      show: () => role !== "decano" && permissions.canDelete,
       disabled: (row) => isInheritedReadonlyRecord(row),
       disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar perfil"),
       variant: "danger-hover",

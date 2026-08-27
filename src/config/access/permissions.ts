@@ -54,7 +54,7 @@ export const FILTER_POLICY: Record<
   },
   competenciasRa: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
-    vicerrector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByLugar: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     docente: { ...noFilters, canFilterByPrograma: true },
@@ -128,27 +128,36 @@ const directorAcademicActions: AcademicActionPermissions = {
   canExportExcel: true,
 };
 
+const noAcademicAccess: AcademicActionPermissions = {
+  canRead: false,
+  canCreate: false,
+  canUpdate: false,
+  canDelete: false,
+  canExportPdf: false,
+  canExportExcel: false,
+};
+
 const ACADEMIC_ACTION_POLICY: Record<
   AcademicPermissionModule,
   Record<SecubRole, AcademicActionPermissions>
 > = {
   perfilEgreso: {
     administrador: readOnlyAcademicActions,
-    vicerrector: readOnlyAcademicActions,
+    vicerrector: directorAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
     docente: readOnlyAcademicActions,
   },
   propositoFormacion: {
     administrador: readOnlyAcademicActions,
-    vicerrector: readOnlyAcademicActions,
+    vicerrector: directorAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
     docente: readOnlyAcademicActions,
   },
   competenciasRa: {
     administrador: readOnlyAcademicActions,
-    vicerrector: readOnlyAcademicActions,
+    vicerrector: directorAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
     docente: readOnlyAcademicActions,
@@ -158,7 +167,7 @@ const ACADEMIC_ACTION_POLICY: Record<
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
-    docente: readOnlyAcademicActions,
+    docente: noAcademicAccess,
   },
 };
 
@@ -312,7 +321,7 @@ export function getAsignarRaPermissions(role: SecubRole): AsignarRaPermissions {
   const canManage = role === "director";
   return {
     canRead: role !== "docente",
-    canManage,
+    canManage: canManage,
     canDelete: canManage,
     canFilterBySeccional: filters.canFilterBySeccional,
     canFilterByFacultad: filters.canFilterByFacultad,
@@ -342,7 +351,7 @@ export const PANEL_MODULE_ACCESS: Record<PanelModuleKey, readonly SecubRole[]> =
   perfilEgreso: ALL_ROLES,
   propositoFormacion: ALL_ROLES,
   competenciasRa: ALL_ROLES,
-  mapeoCompetencias: ALL_ROLES,
+  mapeoCompetencias: NON_DOCENTE_ROLES,
   mapeoCompetenciasManage: ["director"],
   ciclo: NON_DOCENTE_ROLES,
   asignarRa: NON_DOCENTE_ROLES,
@@ -410,7 +419,6 @@ export function getWriteAccessDeniedMessage(_entityKey: SecubEntityKey) {
 
 export interface ProgramSelectionScope {
   seccionalId?: string;
-  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;
