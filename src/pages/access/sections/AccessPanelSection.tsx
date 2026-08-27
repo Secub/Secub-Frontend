@@ -1,74 +1,64 @@
 import { GoChevronLeft } from "react-icons/go";
+import LogoSECUB from "../../../assets/logos/logotipo_ConUSB.png";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
-import LogoUSB from "../../../assets/logos/logo-usb.png";
-import { LinkButton } from "../../../components/ui";
-
+import {
+  SECUB_SECTIONS,
+  continueAccessAfterSectionSelection,
+  type SecubSectionId,
+} from "../../../services/sectionSelection";
 
 export default function AccessPanelSection() {
-  const microsoftLoginUrl = `${ROUTES.programSelector}?role=director`;
+  const handleSectionSelection = (sectionId: SecubSectionId) => {
+    continueAccessAfterSectionSelection(sectionId);
+  };
 
   return (
-    <section className="flex min-h-screen items-center justify-center bg-[#f7f7f8] px-6 py-8 sm:px-8 lg:px-10 lg:py-10 xl:px-12">
-      <div className="w-full max-w-[360px] sm:max-w-[390px]">
-        <button
-          type="button"
-          onClick={() => navigateToRoute(ROUTES.landing)}
-          className="mb-7 inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-4)]"
-        >
-          <GoChevronLeft aria-hidden="true" className="text-[20px]" />
-          Volver al inicio
-        </button>
+    <section
+      className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-white/55 bg-white/95 p-6 shadow-[0_30px_90px_rgba(5,18,35,0.38)] backdrop-blur-sm sm:p-9"
+      aria-labelledby="access-title"
+    >
+      <button
+        type="button"
+        onClick={() => navigateToRoute(ROUTES.landing)}
+        className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)] active:translate-y-px"
+      >
+        <GoChevronLeft aria-hidden="true" className="text-[20px]" />
+        Volver al inicio
+      </button>
 
-        <div className="mb-8">
-          <img
-            src={LogoUSB}
-            alt="Universidad de San Buenaventura"
-            className="h-auto w-[190px] max-w-full object-contain sm:w-[220px]"
-          />
-        </div>
-
-        <div>
-          <h1 className="font-heading text-[3rem] font-semibold leading-[0.95] text-[var(--color-secondary-4)] sm:text-[3.5rem]">
-            Acceder
-          </h1>
-
-          <p className="mt-4 text-[15px] leading-7 text-[var(--color-gray-3)]">
-            El acceso a SECUB se realiza con la cuenta corporativa de Microsoft.
-            No necesitas registrarte nuevamente.
-          </p>
-        </div>
-
-        <div className="mt-6">
-          <LinkButton
-            href={microsoftLoginUrl}
-            variant="accent"
-            size="lg"
-            fullWidth
-            aria-label="Acceder con Microsoft"
-            leftIcon={
-              <span className="grid grid-cols-2 gap-[2px] rounded-[4px] bg-white/15 p-[3px]">
-                <span className="h-2.5 w-2.5 bg-[#f25022]" />
-                <span className="h-2.5 w-2.5 bg-[#7fba00]" />
-                <span className="h-2.5 w-2.5 bg-[#00a4ef]" />
-                <span className="h-2.5 w-2.5 bg-[#ffb900]" />
-              </span>
-            }
-          >
-            Acceder con Microsoft
-          </LinkButton>
-        </div>
-
-        <div className="mt-6 rounded-[20px] border border-[var(--color-gray-6)] bg-white px-5 py-4 shadow-[0_10px_25px_rgba(24,34,51,0.04)]">
-          <p className="text-sm leading-7 text-[var(--color-gray-3)]">
-            Serás redirigido al inicio de sesión institucional de Microsoft para
-            validar tu correo corporativo y acceder a la plataforma.
-          </p>
-        </div>
-
-        <div className="mt-8 text-sm leading-7 text-[var(--color-gray-3)]">
-          <p>Usa tu correo corporativo para acceder a SECUB.</p>
-        </div>
+      <div className="mt-6 text-center">
+        <img
+          src={LogoSECUB}
+          alt="SECUB · Universidad de San Buenaventura"
+          className="mx-auto h-auto w-[230px] max-w-full object-contain sm:w-[280px]"
+        />
+        <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-secondary-1)]">
+          Acceso institucional
+        </p>
+        <h1 id="access-title" className="mt-2 font-heading text-3xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-4xl">
+          Selecciona tu seccional
+        </h1>
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-[var(--color-gray-3)] sm:text-base">
+          Para acceder a SECUB, selecciona la seccional en la que te encuentras registrado.
+        </p>
       </div>
+
+      <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Seccionales disponibles">
+        {SECUB_SECTIONS.map((section) => (
+          <button
+            key={section.id}
+            type="button"
+            onClick={() => handleSectionSelection(section.id)}
+            className="min-h-14 rounded-[var(--radius-lg)] border border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] px-5 py-3 font-heading text-base font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[var(--color-gray-5)] disabled:bg-[var(--color-gray-5)] disabled:shadow-none"
+          >
+            {section.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="mt-6 text-center text-xs leading-5 text-[var(--color-gray-4)]">
+        La seccional quedará asociada a tu acceso actual. La autenticación institucional se integrará posteriormente.
+      </p>
     </section>
   );
 }

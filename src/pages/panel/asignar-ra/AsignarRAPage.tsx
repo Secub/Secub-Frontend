@@ -43,6 +43,7 @@ export default function AsignarRAPage() {
     handlePlanChange,
     handleCycleChange,
     handleCourseFilterChange,
+    handleResetFilters,
     handleSelectCourse,
     handleBackToCourses,
     handleSaveAndOpenNextCourse,
@@ -136,6 +137,7 @@ export default function AsignarRAPage() {
                   onPlanChange={handlePlanChange}
                   onCycleChange={handleCycleChange}
                   onCourseFilterChange={handleCourseFilterChange}
+                  onReset={handleResetFilters}
                 />
               </div>
 

@@ -87,8 +87,6 @@ export default function InstrumentSection({
                 disabled={disabled}
                 onChange={(event) => onDescriptionChange(ra.id, event.target.value)}
                 rows={4}
-                maxLength={600}
-                helperText={`${instrument.description.length}/600 caracteres`}
                 placeholder="Ejemplo: rúbrica, taller, proyecto, prueba, informe, prototipo o actividad usada para medir este RA."
                 error={descriptionError}
               />

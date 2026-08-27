@@ -280,3 +280,18 @@ export function resetAcademicPlanState() {
   storageClient.remove(ARCHIVED_ACADEMIC_PLANS_KEY);
   dispatchAcademicPlanChange();
 }
+
+export function resetCompletedDefaultAcademicPlan() {
+  if (!canUseLocalStorage()) return;
+
+  const storedPlan = safeParsePlan(storageClient.get(ACTIVE_ACADEMIC_PLAN_KEY));
+  if (
+    storedPlan?.id !== DEFAULT_ACADEMIC_PLAN_INSTANCE_ID ||
+    storedPlan.status !== "completed"
+  ) {
+    return;
+  }
+
+  storageClient.remove(ACTIVE_ACADEMIC_PLAN_KEY);
+  dispatchAcademicPlanChange();
+}

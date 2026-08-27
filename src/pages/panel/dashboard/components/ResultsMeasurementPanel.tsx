@@ -337,6 +337,7 @@ export default function ResultsMeasurementPanel({
       render: (result) => (
         <p className="font-heading font-semibold text-[var(--color-secondary-4)]">{result.courseName}</p>
       ),
+      sortValue: (result) => result.courseName,
     },
     {
       key: "ra",
@@ -355,11 +356,13 @@ export default function ResultsMeasurementPanel({
           {result.raCode}
         </button>
       ),
+      sortValue: (result) => result.raCode,
     },
     {
       key: "students",
       title: "Estudiantes",
       render: (result) => result.totalStudents,
+      sortValue: (result) => result.totalStudents,
       className: "text-center",
       headerClassName: "text-center",
     },
@@ -367,6 +370,7 @@ export default function ResultsMeasurementPanel({
       key: "approved",
       title: "Aprobaron",
       render: (result) => result.approvedStudents,
+      sortValue: (result) => result.approvedStudents,
       className: "text-center",
       headerClassName: "text-center",
     },
@@ -374,6 +378,7 @@ export default function ResultsMeasurementPanel({
       key: "notApproved",
       title: "No aprobaron",
       render: (result) => result.notApprovedStudents,
+      sortValue: (result) => result.notApprovedStudents,
       className: "text-center",
       headerClassName: "text-center",
     },
@@ -381,6 +386,7 @@ export default function ResultsMeasurementPanel({
       key: "compliance",
       title: "Cumplimiento",
       render: (result) => `${result.compliance}%`,
+      sortValue: (result) => result.compliance,
       className: "text-center",
       headerClassName: "text-center",
     },
@@ -388,6 +394,7 @@ export default function ResultsMeasurementPanel({
       key: "status",
       title: "Estado",
       render: (result) => (result.hasMeasurement ? (result.reachedTarget ? "Aprobado" : "No aprobado") : "Pendiente"),
+      sortValue: (result) => result.hasMeasurement ? (result.reachedTarget ? "Aprobado" : "No aprobado") : "Pendiente",
       className: "text-center",
       headerClassName: "text-center",
     },

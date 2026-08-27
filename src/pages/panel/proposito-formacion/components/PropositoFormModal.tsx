@@ -228,7 +228,6 @@ export function PropositoFormModal({
           }))}
           placeholder="Selecciona un plan"
           disabled={!canEditStructure || !form.programaId}
-          helperText="Solo se listan planes activos. Los inactivos solo permanecen visibles en registros históricos."
           id="planId"
           data-validation-field="planId"
           error={errors.planId}

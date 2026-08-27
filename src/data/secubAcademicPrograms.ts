@@ -739,7 +739,7 @@ export const secubSeccionales: SecubSeccionalCatalog[] = [
 export const secubLugares: SecubLugarCatalog[] = [
   {
     id: SIMPLE_DEMO_IDS.lugarId,
-    nombre: "Campus La Umbría",
+    nombre: "Cali",
     seccionalId: SIMPLE_DEMO_IDS.seccionalId,
   },
 ];
@@ -811,6 +811,7 @@ export function getProgramScope(programId?: string | null) {
 
   return {
     seccionalId: program.seccionalId,
+    lugarId: program.lugarId,
     facultadId: program.facultyId,
     programaId: program.id,
     academicProgramId: program.id,

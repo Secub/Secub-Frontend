@@ -99,7 +99,7 @@ export default function DashboardPage() {
 
               <CoursesMeasurementTable
                 title="Cursos asignados"
-                description="Consulta el avance de tus cursos y entra a Medición RA desde la acción de cada fila."
+                description="Consulta el avance de tus cursos, mide los pendientes y abre el detalle de los completados."
                 courses={dashboard.filteredCourses}
                 mode="teacher"
                 onMeasureCourse={dashboard.handleMeasureCourse}

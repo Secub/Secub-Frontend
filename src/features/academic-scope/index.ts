@@ -1,4 +1,5 @@
 export { default as AcademicScopeFilters } from "./components/AcademicScopeFilters";
+export type { AcademicScopeFilterValues } from "./components/AcademicScopeFilters";
 export { useAcademicScopeForm } from "./hooks/useAcademicScopeForm";
 export {
   getActivePlansByProgram,

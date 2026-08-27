@@ -19,6 +19,7 @@ export function useDashboardMetrics({
   scopedCourses,
   scopedCycles,
   selectedCycleId,
+  isTeacher,
 }: {
   catalogs: DashboardCatalogs;
   detailCourseId: string;
@@ -26,6 +27,7 @@ export function useDashboardMetrics({
   scopedCourses: EnrichedCourse[];
   scopedCycles: EnrichedCycle[];
   selectedCycleId: string;
+  isTeacher: boolean;
 }) {
   const filteredCycles = useMemo(
     () => applyDashboardFiltersToCycles(scopedCycles, filters),
@@ -50,14 +52,16 @@ export function useDashboardMetrics({
 
   const detailSourceCourses = useMemo(() => {
     if (detailCourseId) return scopedCourses.filter((course) => course.id === detailCourseId);
+    if (isTeacher) return [];
     if (selectedCycle) return scopedCourses.filter((course) => course.cycleId === selectedCycle.id);
     return scopedCourses;
-  }, [detailCourseId, scopedCourses, selectedCycle]);
+  }, [detailCourseId, isTeacher, scopedCourses, selectedCycle]);
 
   const detailCoursesForSelect = useMemo(() => {
+    if (isTeacher) return scopedCourses.filter((course) => course.id === detailCourseId);
     if (selectedCycle) return scopedCourses.filter((course) => course.cycleId === selectedCycle.id);
     return scopedCourses;
-  }, [scopedCourses, selectedCycle]);
+  }, [detailCourseId, isTeacher, scopedCourses, selectedCycle]);
 
   const detailResults = useMemo(
     () => getRaResultsForCourses(detailSourceCourses, catalogs),

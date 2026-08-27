@@ -177,6 +177,16 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
     setSelectedCourseId(value);
   };
 
+  const handleResetFilters = () => {
+    resetFeedback();
+    setSelectedSeccionalId(currentUser.scope.seccionalId ?? "");
+    setSelectedFacultadId(currentUser.scope.facultadId ?? "");
+    setSelectedProgramId(scopedProgramId ?? "");
+    setSelectedPlanId(scopedPlanId ?? "");
+    setSelectedCycleId("");
+    resetCourseFilters();
+  };
+
   return {
     filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId, courseSearchTerm },
     filterOptions: { seccionalOptions, facultadOptions, programOptions, planOptions, cycleOptions, courseOptions },
@@ -201,5 +211,6 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
     handlePlanChange,
     handleCycleChange,
     handleCourseFilterChange,
+    handleResetFilters,
   };
 }

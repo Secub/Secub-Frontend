@@ -8,6 +8,7 @@ export interface AcademicScopeFormValue {
 
 export interface AcademicScopeUserScope {
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;

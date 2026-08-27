@@ -106,6 +106,7 @@ export function useAsignarRA() {
     handlePlanChange: filters.handlePlanChange,
     handleCycleChange: filters.handleCycleChange,
     handleCourseFilterChange: filters.handleCourseFilterChange,
+    handleResetFilters: filters.handleResetFilters,
     handleSelectCourse: actions.handleSelectCourse,
     handleBackToCourses: actions.handleBackToCourses,
     handleSaveAndOpenNextCourse: actions.handleSaveAndOpenNextCourse,

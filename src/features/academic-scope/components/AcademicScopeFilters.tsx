@@ -1,5 +1,6 @@
 import { SecubIcon } from "../../../components/ui/SecubIcon";
 import { Button, Select } from "../../../components/ui";
+import type { ReactNode } from "react";
 
 export interface AcademicScopeFilterValues {
   seccionalId: string;
@@ -42,6 +43,9 @@ interface AcademicScopeFiltersProps<T extends AcademicScopeFilterValues> {
     value: T[K],
   ) => void;
   onReset: () => void;
+  beforeFilters?: ReactNode;
+  afterFilters?: ReactNode;
+  disabledFields?: Partial<Record<keyof AcademicScopeFilterValues, boolean>>;
 }
 
 const statusOptions = [
@@ -71,6 +75,9 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
   permissions,
   onFilterChange,
   onReset,
+  beforeFilters,
+  afterFilters,
+  disabledFields = {},
 }: AcademicScopeFiltersProps<T>) {
   const isLugarLocked = Boolean(filters.seccionalId || scopeSeccionalId);
   const showLugar = permissions.canFilterByLugar ?? true;
@@ -96,6 +103,8 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
       </div>
 
       <div className="panel-filters-grid">
+        {beforeFilters}
+
         {showLugar ? (
           <div className="panel-filter-item">
             <Select
@@ -117,6 +126,7 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
               onChange={(event) => onFilterChange("facultadId", event.target.value as T["facultadId"])}
               options={mapCatalogOptions(filterOptions.facultades)}
               placeholder="Todas las facultades"
+              disabled={disabledFields.facultadId}
             />
           </div>
         ) : null}
@@ -129,6 +139,7 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
               onChange={(event) => onFilterChange("programaId", event.target.value as T["programaId"])}
               options={mapCatalogOptions(filterOptions.programas)}
               placeholder="Todos los programas"
+              disabled={disabledFields.programaId}
             />
           </div>
         ) : null}
@@ -141,6 +152,7 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
               onChange={(event) => onFilterChange("planId", event.target.value as T["planId"])}
               options={mapPlanOptions(filterOptions.planes)}
               placeholder="Todos los planes"
+              disabled={disabledFields.planId}
             />
           </div>
         ) : null}
@@ -153,9 +165,12 @@ export default function AcademicScopeFilters<T extends AcademicScopeFilterValues
               onChange={(event) => onFilterChange("estado", event.target.value as T["estado"])}
               options={statusOptions}
               placeholder="Todos los estados"
+              disabled={disabledFields.estado}
             />
           </div>
         ) : null}
+
+        {afterFilters}
       </div>
     </div>
   );

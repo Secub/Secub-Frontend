@@ -1,11 +1,16 @@
+import { secubLugares, type SecubLugarCatalog } from "../../data/secubAcademicPrograms";
 import type {
   AcademicScopeCatalogs,
   AcademicScopeErrors,
   AcademicScopeFormValue,
 } from "./academicScope.types";
 
-export function getDefaultLugarBySeccional(seccionalId: string) {
-  return seccionalId ? "cali" : "";
+export function getDefaultLugarBySeccional(
+  seccionalId: string,
+  lugares: readonly SecubLugarCatalog[] = secubLugares,
+) {
+  if (!seccionalId) return "";
+  return lugares.find((lugar) => lugar.seccionalId === seccionalId)?.id ?? "";
 }
 
 export function isLugarEditableForSeccional(_seccionalId: string) {
