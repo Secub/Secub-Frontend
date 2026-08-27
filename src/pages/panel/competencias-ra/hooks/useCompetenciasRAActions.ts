@@ -1,6 +1,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
+import { getCurrentUser } from "../CompetenciasRa.mock";
 import { getAcademicModulePermissions } from "../../../../config/access/permissions";
 import {
   MAX_RA_PER_COMPETENCIA,
@@ -10,15 +11,15 @@ import {
 import type {
   CompetenciasRaEnriched,
   CompetenciasRaFormacionRecord,
-  CurrentUser,
   ResultadoAprendizaje,
 } from "../CompetenciasRa.types";
 import { showNotification } from "../../../../shared/feedback";
 import { createClientId } from "../../../../shared/ids";
-import { getDescriptionLengthError } from "../../../../utils/descriptionValidation";
+
+const currentUser = getCurrentUser();
+const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
 
 interface UseCompetenciasRAActionsParams {
-  currentUser: CurrentUser;
   selectedRecord: CompetenciasRaEnriched | null;
   setRecords: Dispatch<SetStateAction<CompetenciasRaFormacionRecord[]>>;
   setSelectedRecord: Dispatch<SetStateAction<CompetenciasRaEnriched | null>>;
@@ -28,7 +29,6 @@ interface UseCompetenciasRAActionsParams {
 }
 
 export function useCompetenciasRAActions({
-  currentUser,
   selectedRecord,
   setRecords,
   setSelectedRecord,
@@ -36,7 +36,6 @@ export function useCompetenciasRAActions({
   setFormOpen,
   refreshRecordsState,
 }: UseCompetenciasRAActionsParams) {
-  const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
   const [raModalMode, setRaModalMode] = useState<"create" | "edit" | null>(null);
   const [selectedRaRecord, setSelectedRaRecord] = useState<CompetenciasRaEnriched | null>(null);
   const [selectedRa, setSelectedRa] = useState<ResultadoAprendizaje | null>(null);
@@ -89,13 +88,6 @@ export function useCompetenciasRAActions({
       return;
     }
 
-    const descriptionLengthError = getDescriptionLengthError(description);
-    if (descriptionLengthError) {
-      setRaError(descriptionLengthError);
-      scrollToFirstValidationError({ fieldOrder: ["raDescripcion"] });
-      return;
-    }
-
     const currentRas = selectedRaRecord.resultadosAprendizaje ?? [];
     if (raModalMode === "create" && currentRas.length >= MAX_RA_PER_COMPETENCIA) {
       setRaError("Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
@@ -136,12 +128,6 @@ export function useCompetenciasRAActions({
 
   const handleSaveCompetenciaDescription = (record: CompetenciasRaEnriched, descripcion: string) => {
     if (!permissions.canUpdate) return false;
-
-    const descriptionLengthError = getDescriptionLengthError(descripcion);
-    if (descriptionLengthError) {
-      showNotification({ variant: "error", message: descriptionLengthError });
-      return false;
-    }
 
     const nextRecord: CompetenciasRaFormacionRecord = {
       ...record,

@@ -10,7 +10,6 @@ import type {
   PerformanceLevel,
   ValidationFeedback,
 } from "../medicion-ra.types";
-import { getDescriptionLengthError } from "../../../../utils/descriptionValidation";
 
 interface PersistCourseMeasurementOptions {
   completedCompetenceIds?: string[];
@@ -93,12 +92,6 @@ export function useMedicionRAActions({
 
   const handleInstrumentDescriptionChange = (raId: string, value: string) => {
     if (isSelectedCourseLocked) return;
-    const lengthError = getDescriptionLengthError(value);
-    if (lengthError) {
-      setFeedback({ type: "error", title: "Descripción demasiado larga", message: lengthError });
-      return;
-    }
-
     setInstrumentsByCourse((current) => {
       const currentCourseInstruments = normalizeInstrumentState(course, current[course.id]);
 
@@ -133,12 +126,6 @@ export function useMedicionRAActions({
 
   const handleImprovementPlanChange = (key: keyof ImprovementPlanState, value: string) => {
     if (isSelectedCourseLocked) return;
-    const lengthError = getDescriptionLengthError(value);
-    if (lengthError) {
-      setFeedback({ type: "error", title: "Descripción demasiado larga", message: lengthError });
-      return;
-    }
-
     setImprovementByCompetence((current) => ({
       ...current,
       [activeCompetenceStorageKey]: {

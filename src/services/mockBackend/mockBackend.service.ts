@@ -12,7 +12,6 @@ import {
   type SecubWriteAction,
 } from "../../config/access/permissions";
 import { MAX_RA_PER_COMPETENCIA } from "../../utils/learningResultsRules";
-import { DESCRIPTION_MAX_LENGTH_MESSAGE, isDescriptionLengthValid } from "../../utils/descriptionValidation";
 import { storageClient } from "../../shared/browser";
 
 export type MockBackendEntityKey =
@@ -239,24 +238,6 @@ function assertValidRecordForWrite<T extends MockBackendRecord>(
   entityKey: MockBackendEntityKey,
   record: T,
 ) {
-  const validateDescriptions = (value: unknown): void => {
-    if (!value || typeof value !== "object") return;
-
-    Object.entries(value as Record<string, unknown>).forEach(([key, nestedValue]) => {
-      if (
-        /^(descripcion|description)$/i.test(key) &&
-        typeof nestedValue === "string" &&
-        !isDescriptionLengthValid(nestedValue)
-      ) {
-        throw new Error(DESCRIPTION_MAX_LENGTH_MESSAGE);
-      }
-
-      if (nestedValue && typeof nestedValue === "object") validateDescriptions(nestedValue);
-    });
-  };
-
-  validateDescriptions(record);
-
   if (entityKey !== "competenciasRa") return;
 
   const maybeCompetencia = record as T & { resultadosAprendizaje?: unknown[] };

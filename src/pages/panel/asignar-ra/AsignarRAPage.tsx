@@ -156,7 +156,7 @@ export default function AsignarRAPage() {
                   <AsignarRACoursesTable
                     rows={courseRows}
                     totalCourses={courses.length}
-                    isFiltered={Boolean(filters.courseFilterId)}
+                    isFiltered={Boolean(filters.courseFilterId || filters.courseSearchTerm)}
                     canManage={access.canManage}
                     onSelectCourse={handleSelectCourse}
                   />

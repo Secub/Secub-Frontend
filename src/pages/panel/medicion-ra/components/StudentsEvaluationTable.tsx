@@ -1,14 +1,17 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
-import { useMemo, type ChangeEvent } from "react";
-import { InfoModalTrigger, Table, type TableColumn } from "../../../../components/ui";
+import { useMemo, useState, type ChangeEvent } from "react";
+import { IconButton, Modal, Table, type TableColumn } from "../../../../components/ui";
 import { performanceLevels } from "../medicion-ra.mock";
 import { getLevelLabel } from "../medicion-ra.utils";
 import type {
   Competence,
   EvaluationMatrix,
+  LearningResult,
   PerformanceLevel,
   Student,
 } from "../medicion-ra.types";
+
+import { ActionIcon } from "../../../../components/ui/ActionIcon";
 
 interface StudentsEvaluationTableProps {
   activeCompetence: Competence;
@@ -45,6 +48,8 @@ export default function StudentsEvaluationTable({
   showValidationErrors = false,
   onLevelChange,
 }: StudentsEvaluationTableProps) {
+  const [selectedRa, setSelectedRa] = useState<LearningResult | null>(null);
+
   const completedCells = useMemo(() => {
     return students.reduce((total, student) => {
       const completedByStudent = activeCompetence.learningResults.filter((ra) =>
@@ -82,17 +87,7 @@ export default function StudentsEvaluationTable({
     },
     ...activeCompetence.learningResults.map<TableColumn<Student>>((ra) => ({
       key: ra.id,
-      title: (
-        <span className="inline-flex items-center gap-2">
-          <span>{ra.code} · {ra.title}</span>
-          <InfoModalTrigger
-            title={`${ra.code} · ${ra.title}`}
-            content={<p>{ra.description}</p>}
-            ariaLabel={`Ver descripción de ${ra.code}`}
-          />
-        </span>
-      ),
-      sortable: false,
+      title: `${ra.code} · ${ra.title}`,
       sortValue: (student) => evaluations[student.id]?.[ra.id] ?? "",
       searchValue: (student) => evaluations[student.id]?.[ra.id] ?? "",
       className: "min-w-[220px]",
@@ -104,6 +99,16 @@ export default function StudentsEvaluationTable({
 
         return (
           <div title={disabled ? lockedTooltip : undefined}>
+            <div className="mb-2 flex items-center justify-end">
+              <IconButton
+                icon={<ActionIcon name="info" />}
+                label={`Ver descripción de ${ra.code}`}
+                title={`Ver descripción de ${ra.code}`}
+                variant="primary_soft"
+                size="sm"
+                onClick={() => setSelectedRa(ra)}
+              />
+            </div>
             <select
               value={selectedLevel}
               disabled={disabled}
@@ -172,8 +177,20 @@ export default function StudentsEvaluationTable({
         searchPlaceholder="Buscar estudiante por nombre, correo o código…"
         emptyMessage="No hay estudiantes para evaluar."
         minWidth={980}
-        initialRowsPerPage={25}
+        initialRowsPerPage={5}
       />
+
+      <Modal
+        open={Boolean(selectedRa)}
+        title={selectedRa ? `${selectedRa.code} · ${selectedRa.title}` : ""}
+        description="Contenido descriptivo completo del Resultado de Aprendizaje."
+        size="md"
+        onClose={() => setSelectedRa(null)}
+      >
+        <p className="text-sm leading-7 text-[var(--color-gray-3)]">
+          {selectedRa?.description}
+        </p>
+      </Modal>
     </section>
   );
 }

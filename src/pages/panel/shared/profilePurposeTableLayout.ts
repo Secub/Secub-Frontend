@@ -12,7 +12,7 @@ export const PROFILE_PURPOSE_ACTIONS_LAYOUT: TableActionsLayout = {
   columnWidthClassName: "w-[15%]",
   horizontalPaddingClassName: "px-1",
   alignment: "center",
-  groupClassName: "w-full flex-wrap justify-center gap-0.5",
+  groupClassName: "flex-wrap justify-center gap-0.5",
 };
 
 export const PROFILE_PURPOSE_DELETE_ACTION_CLASSNAME = "ml-1.5";

@@ -89,6 +89,7 @@ export interface FilterState {
   selectedPlanId: string;
   selectedCycleId: string;
   courseFilterId: string;
+  courseSearchTerm: string;
 }
 
 export interface FilterOptions {

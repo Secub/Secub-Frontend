@@ -27,6 +27,7 @@ import type {
 } from "../proposito-formacion.types";
 import { showNotification } from "../../../../shared/feedback";
 
+const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 function areFiltersEqual(first: FiltersState, second: FiltersState) {
@@ -41,7 +42,6 @@ function areFiltersEqual(first: FiltersState, second: FiltersState) {
 }
 
 export function usePropositoFormacionPage() {
-  const currentUser = useMemo(() => getCurrentUser(), []);
   const [records, setRecords] = useState<PropositoFormacionRecord[]>(() =>
     mockBackend.list<PropositoFormacionRecord>("propositosFormacion", currentUser),
   );
@@ -62,10 +62,7 @@ export function usePropositoFormacionPage() {
   const hasRecords = records.length > 0;
 
   const enrichedRecords = useMemo(() => enrichPropositos(records, catalogs), [records]);
-  const roleScopedRecords = useMemo(
-    () => applyRoleScope(enrichedRecords, currentUser),
-    [currentUser, enrichedRecords],
-  );
+  const roleScopedRecords = useMemo(() => applyRoleScope(enrichedRecords, currentUser), [enrichedRecords]);
   const availableFilterOptions = useMemo(
     () => buildAvailableFilters(roleScopedRecords, catalogs, filters),
     [filters, roleScopedRecords],

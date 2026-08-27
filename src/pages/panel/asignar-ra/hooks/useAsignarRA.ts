@@ -41,6 +41,7 @@ export function useAsignarRA() {
     courses: filters.courses,
     selectedCourseId: filters.selectedCourseId,
     courseFilterId: filters.filters.courseFilterId,
+    courseSearchTerm: filters.filters.courseSearchTerm,
     canManage,
     setSelectedCourseId: filters.setSelectedCourseId,
   });
@@ -95,6 +96,7 @@ export function useAsignarRA() {
     isCurrentCycleAssignmentComplete: computed.isCurrentCycleAssignmentComplete,
     pendingCourseIds: computed.pendingCourseIds,
     summaryMetrics: computed.summaryMetrics,
+    setCourseSearchTerm: filters.setCourseSearchTerm,
     setShowDeleteConfirm: actions.setShowDeleteConfirm,
     setShowLeaveCourseConfirm: actions.setShowLeaveCourseConfirm,
     setShowFinishAcademicFlowConfirm: actions.setShowFinishAcademicFlowConfirm,

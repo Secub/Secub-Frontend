@@ -29,6 +29,7 @@ interface UseAsignarRAComputedParams {
   courses: CursoSintesis[];
   selectedCourseId: string;
   courseFilterId: string;
+  courseSearchTerm: string;
   canManage: boolean;
   setSelectedCourseId: (courseId: string) => void;
 }
@@ -43,12 +44,21 @@ export function useAsignarRAComputed({
   courses,
   selectedCourseId,
   courseFilterId,
+  courseSearchTerm,
   canManage,
   setSelectedCourseId,
 }: UseAsignarRAComputedParams) {
   const filteredCourses = useMemo(() => {
-    return courseFilterId ? courses.filter((course) => course.id === courseFilterId) : courses;
-  }, [courseFilterId, courses]);
+    const normalizedSearch = courseSearchTerm.trim().toLowerCase();
+
+    return courses.filter((course) => {
+      const matchesSelect = courseFilterId ? course.id === courseFilterId : true;
+      const matchesSearch = normalizedSearch
+        ? `${course.codigo} ${course.nombre} ${course.docente}`.toLowerCase().includes(normalizedSearch)
+        : true;
+      return matchesSelect && matchesSearch;
+    });
+  }, [courseFilterId, courseSearchTerm, courses]);
 
   const summaryMetrics = useMemo(
     () => buildSummaryMetrics(courses, records, selectedCycleId),

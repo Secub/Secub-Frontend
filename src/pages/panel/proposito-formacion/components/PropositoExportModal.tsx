@@ -108,7 +108,9 @@ export function PropositoExportModal({
       title: "Descripción",
       render: (row) => (
         <p className="max-w-[420px] text-sm leading-6 text-[var(--color-gray-3)]">
-          {row.descripcion}
+          {row.descripcion.length > 150
+            ? `${row.descripcion.slice(0, 150).trimEnd()}...`
+            : row.descripcion}
         </p>
       ),
       sortValue: (row) => row.descripcion,

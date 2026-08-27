@@ -27,6 +27,7 @@ import type {
 } from "../perfil-egreso.types";
 import { showNotification } from "../../../../shared/feedback";
 
+const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 function areFiltersEqual(first: FiltersState, second: FiltersState) {
@@ -41,7 +42,6 @@ function areFiltersEqual(first: FiltersState, second: FiltersState) {
 }
 
 export function usePerfilEgresoPage() {
-  const currentUser = useMemo(() => getCurrentUser(), []);
   const [records, setRecords] = useState<PerfilEgresoRecord[]>(() =>
     mockBackend.list<PerfilEgresoRecord>("perfilEgreso", currentUser),
   );
@@ -62,10 +62,7 @@ export function usePerfilEgresoPage() {
   const hasRecords = records.length > 0;
 
   const enrichedRecords = useMemo(() => enrichPerfilesEgreso(records, catalogs), [records]);
-  const roleScopedRecords = useMemo(
-    () => applyRoleScope(enrichedRecords, currentUser),
-    [currentUser, enrichedRecords],
-  );
+  const roleScopedRecords = useMemo(() => applyRoleScope(enrichedRecords, currentUser), [enrichedRecords]);
   const availableFilterOptions = useMemo(
     () => buildAvailableFilters(roleScopedRecords, catalogs, filters),
     [filters, roleScopedRecords],

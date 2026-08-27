@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import { mockBackend } from "../../../../services/mockBackend";
 import { getCurrentUser, getCatalogs } from "../CompetenciasRa.mock";
@@ -19,10 +19,10 @@ import { useCompetenciasRAFilters } from "./useCompetenciasRAFilters";
 import { useCompetenciasRAActions } from "./useCompetenciasRAActions";
 import { showNotification } from "../../../../shared/feedback";
 
+const currentUser = getCurrentUser();
 const catalogs = getCatalogs();
 
 export function useCompetenciasRAPage() {
-  const currentUser = useMemo(() => getCurrentUser(), []);
   const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>(() =>
     mockBackend.list<CompetenciasRaFormacionRecord>("competenciasRa", currentUser),
   );
@@ -74,7 +74,6 @@ export function useCompetenciasRAPage() {
   };
 
   const raActions = useCompetenciasRAActions({
-    currentUser,
     selectedRecord,
     setRecords,
     setSelectedRecord,

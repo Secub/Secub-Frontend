@@ -18,6 +18,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
   const [selectedPlanId, setSelectedPlanId] = useState(() => currentUser.scope.planId ?? "");
   const [selectedCycleId, setSelectedCycleId] = useState("");
   const [courseFilterId, setCourseFilterId] = useState("");
+  const [courseSearchTerm, setCourseSearchTerm] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
   const scopedProgramId = currentUser.scope.programaId ?? currentUser.scope.academicProgramId;
@@ -25,6 +26,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
 
   const resetCourseFilters = useCallback(() => {
     setCourseFilterId("");
+    setCourseSearchTerm("");
     setSelectedCourseId("");
   }, []);
 
@@ -186,7 +188,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
   };
 
   return {
-    filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId },
+    filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId, courseSearchTerm },
     filterOptions: { seccionalOptions, facultadOptions, programOptions, planOptions, cycleOptions, courseOptions },
     filterLocks: {
       isSeccionalLocked: Boolean(currentUser.scope.seccionalId),
@@ -201,6 +203,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
     courses,
     selectedCourseId,
     setSelectedCourseId,
+    setCourseSearchTerm,
     resetCourseFilters,
     handleSeccionalChange,
     handleFacultadChange,

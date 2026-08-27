@@ -134,7 +134,7 @@ export function Table<T>({
   caption,
   ariaLabel,
   searchPlaceholder = "Buscar en la tabla…",
-  initialRowsPerPage = 10,
+  initialRowsPerPage = 5,
   rowsPerPageOptions = [5, 10, 25],
   minWidth = 760,
 }: TableProps<T>) {
