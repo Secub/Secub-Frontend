@@ -139,7 +139,6 @@ export function getCurrentMockUser(): CentralMockUser {
         : fallbackUser.email,
     cargo: role === "director" && selectedProgram ? programRoleLabel : fallbackUser.cargo,
     seccionalId: selectedScope.seccionalId ?? fallbackUser.seccionalId,
-    lugarId: selectedScope.lugarId ?? fallbackUser.lugarId,
     facultadId: selectedScope.facultadId ?? fallbackUser.facultadId,
     programaId: selectedScope.programaId ?? fallbackUser.programaId,
     academicProgramId: selectedScope.academicProgramId ?? fallbackUser.academicProgramId,
