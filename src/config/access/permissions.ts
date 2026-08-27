@@ -83,7 +83,7 @@ export const FILTER_POLICY: Record<
   dashboard: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
-    decano: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     docente: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
   },
@@ -119,6 +119,11 @@ const readOnlyAcademicActions: AcademicActionPermissions = {
   canExportExcel: false,
 };
 
+const noAcademicAccess: AcademicActionPermissions = {
+  ...readOnlyAcademicActions,
+  canRead: false,
+};
+
 const directorAcademicActions: AcademicActionPermissions = {
   canRead: true,
   canCreate: true,
@@ -126,15 +131,6 @@ const directorAcademicActions: AcademicActionPermissions = {
   canDelete: true,
   canExportPdf: true,
   canExportExcel: true,
-};
-
-const noAcademicAccess: AcademicActionPermissions = {
-  canRead: false,
-  canCreate: false,
-  canUpdate: false,
-  canDelete: false,
-  canExportPdf: false,
-  canExportExcel: false,
 };
 
 const ACADEMIC_ACTION_POLICY: Record<
@@ -160,14 +156,14 @@ const ACADEMIC_ACTION_POLICY: Record<
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
-    docente: readOnlyAcademicActions,
+    docente: noAcademicAccess,
   },
   mapeoCompetencias: {
     administrador: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
-    docente: noAcademicAccess,
+    docente: readOnlyAcademicActions,
   },
 };
 
@@ -350,8 +346,8 @@ export const PANEL_MODULE_ACCESS: Record<PanelModuleKey, readonly SecubRole[]> =
   accessibility: ALL_ROLES,
   perfilEgreso: ALL_ROLES,
   propositoFormacion: ALL_ROLES,
-  competenciasRa: ALL_ROLES,
-  mapeoCompetencias: NON_DOCENTE_ROLES,
+  competenciasRa: NON_DOCENTE_ROLES,
+  mapeoCompetencias: ALL_ROLES,
   mapeoCompetenciasManage: ["director"],
   ciclo: NON_DOCENTE_ROLES,
   asignarRa: NON_DOCENTE_ROLES,
@@ -359,9 +355,9 @@ export const PANEL_MODULE_ACCESS: Record<PanelModuleKey, readonly SecubRole[]> =
 };
 
 /**
- * El Docente consulta los módulos académicos como biblioteca de referencia,
- * por fuera del bloqueo secuencial del flujo de edición. Los demás roles
- * conservan la lógica actual del workflow.
+ * El Docente consulta únicamente los módulos académicos autorizados, por fuera
+ * del bloqueo secuencial del flujo de edición. Los demás roles conservan la
+ * lógica actual del workflow.
  */
 export function shouldEnforceAcademicWorkflowLock(role: SecubRole) {
   return role !== "docente";

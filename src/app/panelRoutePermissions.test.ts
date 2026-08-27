@@ -7,8 +7,8 @@ describe("panelRoutePermissions", () => {
     expect(getPanelRouteAccessRedirect(ROUTES.panelMedicionRa, "docente")).toBeNull();
     expect(getPanelRouteAccessRedirect(ROUTES.panelPerfilEgreso, "docente")).toBeNull();
     expect(getPanelRouteAccessRedirect(ROUTES.panelPropositoFormacion, "docente")).toBeNull();
-    expect(getPanelRouteAccessRedirect(ROUTES.panelCompetenciasRa, "docente")).toBeNull();
-    expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetencias, "docente")).toBe(ROUTES.panelDashboard);
+    expect(getPanelRouteAccessRedirect(ROUTES.panelCompetenciasRa, "docente")).toBe(ROUTES.panelDashboard);
+    expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetencias, "docente")).toBeNull();
     expect(getPanelRouteAccessRedirect(ROUTES.panelAsignarRa, "docente")).toBe(ROUTES.panelDashboard);
   });
 
@@ -20,6 +20,8 @@ describe("panelRoutePermissions", () => {
   it("reserva las rutas de creación y edición del mapeo para Dirección", () => {
     expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetenciasCrear, "director")).toBeNull();
     expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetenciasCrear, "administrador")).toBe(ROUTES.panelDashboard);
+    expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetenciasCrear, "docente")).toBe(ROUTES.panelDashboard);
     expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetenciasEditar, "vicerrector")).toBe(ROUTES.panelDashboard);
+    expect(getPanelRouteAccessRedirect(ROUTES.panelMapeoCompetenciasEditar, "docente")).toBe(ROUTES.panelDashboard);
   });
 });

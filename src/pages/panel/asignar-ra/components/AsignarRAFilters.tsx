@@ -1,5 +1,5 @@
-import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Select } from "../../../../components/ui";
+import { AcademicScopeFilters, type AcademicScopeFilterValues } from "../../../../features/academic-scope";
 import type { FilterLocks, FilterOptions, FilterState } from "../AsignarRA.types";
 
 interface AsignarRAFiltersProps {
@@ -14,6 +14,11 @@ interface AsignarRAFiltersProps {
   onPlanChange: (value: string) => void;
   onCycleChange: (value: string) => void;
   onCourseFilterChange: (value: string) => void;
+  onReset: () => void;
+}
+
+function toCatalogOptions(options: FilterOptions["programOptions"]) {
+  return options.map((option) => ({ id: String(option.value), nombre: String(option.label) }));
 }
 
 export function AsignarRAFilters({
@@ -28,21 +33,41 @@ export function AsignarRAFilters({
   onPlanChange,
   onCycleChange,
   onCourseFilterChange,
+  onReset,
 }: AsignarRAFiltersProps) {
-  return (
-    <section className="surface-card p-6">
-      <div className="mb-5 flex items-start gap-3">
-        <SecubIcon name="search" weight="bold" className="mt-1 shrink-0 text-xl text-[var(--color-secondary-1)]" />
-        <div>
-          <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">Filtros de asignación</h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-            Selecciona el programa, plan, ciclo y curso de Síntesis a trabajar.
-          </p>
-        </div>
-      </div>
+  const academicFilters: AcademicScopeFilterValues = {
+    seccionalId: filters.selectedSeccionalId,
+    lugarId: "",
+    facultadId: filters.selectedFacultadId,
+    programaId: filters.selectedProgramId,
+    planId: filters.selectedPlanId,
+    estado: "",
+  };
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {locks.showSeccionalFilter ? (
+  return (
+    <AcademicScopeFilters
+      description="Selecciona el programa, plan, ciclo y curso de Síntesis a trabajar."
+      filters={academicFilters}
+      filterOptions={{
+        lugares: [],
+        facultades: toCatalogOptions(options.facultadOptions),
+        programas: toCatalogOptions(options.programOptions),
+        planes: toCatalogOptions(options.planOptions),
+      }}
+      permissions={{
+        canFilterByLugar: false,
+        canFilterByFacultad: locks.showFacultadFilter,
+        canFilterByPrograma: true,
+        canFilterByPlan: true,
+        canFilterByEstado: false,
+      }}
+      disabledFields={{
+        facultadId: locks.isFacultadLocked,
+        programaId: locks.isProgramLocked,
+        planId: locks.isPlanLocked,
+      }}
+      beforeFilters={locks.showSeccionalFilter ? (
+        <div className="panel-filter-item">
           <Select
             label="Seccional"
             value={filters.selectedSeccionalId}
@@ -51,55 +76,38 @@ export function AsignarRAFilters({
             onChange={(event) => onSeccionalChange(event.target.value)}
             disabled={locks.isSeccionalLocked}
           />
-        ) : null}
-
-        {locks.showFacultadFilter ? (
-          <Select
-            label="Facultad"
-            value={filters.selectedFacultadId}
-            options={options.facultadOptions}
-            placeholder="Todas las facultades"
-            onChange={(event) => onFacultadChange(event.target.value)}
-            disabled={locks.isFacultadLocked}
-          />
-        ) : null}
-
-        <Select
-          label="Programa académico"
-          value={filters.selectedProgramId}
-          options={options.programOptions}
-          placeholder="Seleccionar programa"
-          onChange={(event) => onProgramChange(event.target.value)}
-          disabled={locks.isProgramLocked}
-        />
-
-        <Select
-          label="Plan de estudios"
-          value={filters.selectedPlanId}
-          options={options.planOptions}
-          placeholder="Seleccionar plan de estudio"
-          onChange={(event) => onPlanChange(event.target.value)}
-          disabled={locks.isPlanLocked}
-        />
-
-        <Select
-          label="Ciclo de medición"
-          value={filters.selectedCycleId}
-          options={options.cycleOptions}
-          placeholder={cyclesLength ? "Seleccionar ciclo" : "Sin ciclo disponible"}
-          onChange={(event) => onCycleChange(event.target.value)}
-          disabled={!cyclesLength}
-        />
-
-        <Select
-          label="Curso de Síntesis"
-          value={filters.courseFilterId}
-          options={options.courseOptions}
-          placeholder={coursesLength ? "Todos los cursos" : "Sin cursos disponibles"}
-          onChange={(event) => onCourseFilterChange(event.target.value)}
-          disabled={!coursesLength}
-        />
-      </div>
-    </section>
+        </div>
+      ) : undefined}
+      afterFilters={(
+        <>
+          <div className="panel-filter-item">
+            <Select
+              label="Ciclo de medición"
+              value={filters.selectedCycleId}
+              options={options.cycleOptions}
+              placeholder={cyclesLength ? "Seleccionar ciclo" : "Sin ciclo disponible"}
+              onChange={(event) => onCycleChange(event.target.value)}
+              disabled={!cyclesLength}
+            />
+          </div>
+          <div className="panel-filter-item">
+            <Select
+              label="Curso de Síntesis"
+              value={filters.courseFilterId}
+              options={options.courseOptions}
+              placeholder={coursesLength ? "Todos los cursos" : "Sin cursos disponibles"}
+              onChange={(event) => onCourseFilterChange(event.target.value)}
+              disabled={!coursesLength}
+            />
+          </div>
+        </>
+      )}
+      onFilterChange={(key, value) => {
+        if (key === "facultadId") onFacultadChange(value);
+        if (key === "programaId") onProgramChange(value);
+        if (key === "planId") onPlanChange(value);
+      }}
+      onReset={onReset}
+    />
   );
 }

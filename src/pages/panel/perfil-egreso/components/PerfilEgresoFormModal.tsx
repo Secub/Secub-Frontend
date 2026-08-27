@@ -6,6 +6,7 @@ import {
   type AcademicScopeErrors,
 } from "../../../../features/academic-scope";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
+import { DESCRIPTION_MAX_LENGTH, getDescriptionLengthError } from "../../../../utils/descriptionValidation";
 import type {
   Catalogs,
   CurrentUser,
@@ -71,6 +72,9 @@ export function PerfilEgresoFormModal({
     const nextErrors: FormErrors = { ...validateAcademicScope(form, catalogs) };
     if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe la descripción del perfil de egreso.";
+    } else {
+      const descriptionLengthError = getDescriptionLengthError(form.descripcion);
+      if (descriptionLengthError) nextErrors.descripcion = descriptionLengthError;
     }
 
     const existePlan = records.some(
@@ -225,7 +229,6 @@ export function PerfilEgresoFormModal({
           }))}
           placeholder="Selecciona un plan"
           disabled={!canEditStructure || !form.programaId}
-          helperText="Solo se listan planes activos. Los inactivos solo permanecen visibles en registros históricos."
           id="planId"
           data-validation-field="planId"
           error={errors.planId}
@@ -244,6 +247,8 @@ export function PerfilEgresoFormModal({
           id="descripcion"
           data-validation-field="descripcion"
           error={errors.descripcion}
+          maxLength={DESCRIPTION_MAX_LENGTH}
+          helperText={`${form.descripcion.length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
         />
       </div>
     </Modal>

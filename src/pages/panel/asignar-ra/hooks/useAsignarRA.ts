@@ -41,7 +41,6 @@ export function useAsignarRA() {
     courses: filters.courses,
     selectedCourseId: filters.selectedCourseId,
     courseFilterId: filters.filters.courseFilterId,
-    courseSearchTerm: filters.filters.courseSearchTerm,
     canManage,
     setSelectedCourseId: filters.setSelectedCourseId,
   });
@@ -96,7 +95,6 @@ export function useAsignarRA() {
     isCurrentCycleAssignmentComplete: computed.isCurrentCycleAssignmentComplete,
     pendingCourseIds: computed.pendingCourseIds,
     summaryMetrics: computed.summaryMetrics,
-    setCourseSearchTerm: filters.setCourseSearchTerm,
     setShowDeleteConfirm: actions.setShowDeleteConfirm,
     setShowLeaveCourseConfirm: actions.setShowLeaveCourseConfirm,
     setShowFinishAcademicFlowConfirm: actions.setShowFinishAcademicFlowConfirm,
@@ -106,6 +104,7 @@ export function useAsignarRA() {
     handlePlanChange: filters.handlePlanChange,
     handleCycleChange: filters.handleCycleChange,
     handleCourseFilterChange: filters.handleCourseFilterChange,
+    handleResetFilters: filters.handleResetFilters,
     handleSelectCourse: actions.handleSelectCourse,
     handleBackToCourses: actions.handleBackToCourses,
     handleSaveAndOpenNextCourse: actions.handleSaveAndOpenNextCourse,

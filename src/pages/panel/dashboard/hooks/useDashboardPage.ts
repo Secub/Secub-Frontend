@@ -34,6 +34,7 @@ export function useDashboardPage() {
     scopedCourses: data.scopedCourses,
     scopedCycles: data.scopedCycles,
     selectedCycleId: navigation.selectedCycleId,
+    isTeacher: data.isTeacher,
   });
   const reports = useDashboardReports({
     catalogs: data.dashboardData.catalogs,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, IconButton, Modal, Textarea } from "../../../../components/ui";
 import { scrollToFirstValidationError } from "../../../../utils/validationScroll";
+import { DESCRIPTION_MAX_LENGTH, getDescriptionLengthError } from "../../../../utils/descriptionValidation";
 import {
   formatDate,
   getEstadoBadgeVariant,
@@ -72,6 +73,13 @@ export function CompetenciasRaDetailModal({
       return;
     }
 
+    const lengthError = getDescriptionLengthError(cleanDescription);
+    if (lengthError) {
+      setDescriptionError(lengthError);
+      scrollToFirstValidationError({ fieldOrder: ["detalleCompetenciaDescripcion"] });
+      return;
+    }
+
     const saved = onSaveDescription(record, cleanDescription);
 
     if (saved) {
@@ -133,6 +141,8 @@ export function CompetenciasRaDetailModal({
               id="detalleCompetenciaDescripcion"
               data-validation-field="detalleCompetenciaDescripcion"
               error={descriptionError}
+              maxLength={DESCRIPTION_MAX_LENGTH}
+              helperText={`${descriptionDraft.length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
             />
             {successMessage ? (
               <div

@@ -18,7 +18,6 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
   const [selectedPlanId, setSelectedPlanId] = useState(() => currentUser.scope.planId ?? "");
   const [selectedCycleId, setSelectedCycleId] = useState("");
   const [courseFilterId, setCourseFilterId] = useState("");
-  const [courseSearchTerm, setCourseSearchTerm] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
   const scopedProgramId = currentUser.scope.programaId ?? currentUser.scope.academicProgramId;
@@ -26,7 +25,6 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
 
   const resetCourseFilters = useCallback(() => {
     setCourseFilterId("");
-    setCourseSearchTerm("");
     setSelectedCourseId("");
   }, []);
 
@@ -177,8 +175,18 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
     setSelectedCourseId(value);
   };
 
+  const handleResetFilters = () => {
+    resetFeedback();
+    setSelectedSeccionalId(currentUser.scope.seccionalId ?? "");
+    setSelectedFacultadId(currentUser.scope.facultadId ?? "");
+    setSelectedProgramId(scopedProgramId ?? "");
+    setSelectedPlanId(scopedPlanId ?? "");
+    setSelectedCycleId("");
+    resetCourseFilters();
+  };
+
   return {
-    filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId, courseSearchTerm },
+    filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId },
     filterOptions: { seccionalOptions, facultadOptions, programOptions, planOptions, cycleOptions, courseOptions },
     filterLocks: {
       isSeccionalLocked: Boolean(currentUser.scope.seccionalId),
@@ -193,7 +201,6 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
     courses,
     selectedCourseId,
     setSelectedCourseId,
-    setCourseSearchTerm,
     resetCourseFilters,
     handleSeccionalChange,
     handleFacultadChange,
@@ -201,5 +208,6 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
     handlePlanChange,
     handleCycleChange,
     handleCourseFilterChange,
+    handleResetFilters,
   };
 }

@@ -51,6 +51,7 @@ export function PropositoTable({
       key: "facultad",
       title: "Facultad",
       render: (row) => <span className="panel-table-cell-wrap">{row.facultadNombre}</span>,
+      sortValue: (row) => row.facultadNombre,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.facultad,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.facultad,
     },
@@ -58,6 +59,7 @@ export function PropositoTable({
       key: "programa",
       title: "Programa académico",
       render: (row) => <span className="panel-table-cell-wrap">{row.programaNombre}</span>,
+      sortValue: (row) => row.programaNombre,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.programa,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.programa,
     },
@@ -75,6 +77,7 @@ export function PropositoTable({
           ) : null}
         </span>
       ),
+      sortValue: (row) => row.planNombre,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.plan,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.plan,
     },
@@ -86,6 +89,7 @@ export function PropositoTable({
           {row.descripcion}
         </p>
       ),
+      sortValue: (row) => row.descripcion,
       className: PROFILE_PURPOSE_COLUMN_WIDTHS.descripcion,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.descripcion,
     },
@@ -97,6 +101,7 @@ export function PropositoTable({
           {row.estado === "activo" ? "Activo" : "Inactivo"}
         </Badge>
       ),
+      sortValue: (row) => row.estado === "activo" ? "Activo" : "Inactivo",
       className: `${PROFILE_PURPOSE_COLUMN_WIDTHS.estado} whitespace-nowrap`,
       headerClassName: PROFILE_PURPOSE_COLUMN_WIDTHS.estado,
     },
@@ -109,27 +114,27 @@ export function PropositoTable({
       onClick: onView,
       icon: <ActionIcon name="view" />,
     },
-    {
+  ];
+
+  if (permissions.canUpdate) actions.push({
       key: "edit",
       label: "Editar propósito de formación",
       onClick: onEdit,
       icon: <ActionIcon name="edit" />,
       disabled: (row) => isInheritedReadonlyRecord(row) || !canEditAcademicRecord("propositoFormacion", role, row.estado),
       disabledReason: (row) => getInheritedReadonlyReason(row, getAcademicEditDisabledReason("propositoFormacion", role, row.estado, "Solo se permite editar propósitos asociados a programas activos.")),
-      show: () => permissions.canUpdate,
-    },
-    {
+    });
+
+  if (permissions.canDelete) actions.push({
       key: "delete",
       label: "Eliminar propósito de formación",
       onClick: onDelete,
       icon: <ActionIcon name="delete" />,
-      show: () => permissions.canDelete,
       disabled: (row) => isInheritedReadonlyRecord(row),
       disabledReason: (row) => getInheritedReadonlyReason(row, "Eliminar propósito de formación"),
       variant: "danger-hover",
       className: PROFILE_PURPOSE_DELETE_ACTION_CLASSNAME,
-    },
-  ];
+    });
 
   return (
     <Table

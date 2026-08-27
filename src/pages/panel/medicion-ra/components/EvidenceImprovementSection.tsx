@@ -11,6 +11,7 @@ import type {
 } from "../medicion-ra.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
+import { DESCRIPTION_MAX_LENGTH } from "../../../../utils/descriptionValidation";
 
 interface EvidenceImprovementSectionProps {
   activeCompetence: Competence;
@@ -258,8 +259,8 @@ export default function EvidenceImprovementSection({
               onImprovementPlanChange("analysis", event.target.value)
             }
             rows={5}
-            maxLength={1200}
-            helperText={`${improvementPlan.analysis.length}/1200 caracteres`}
+            maxLength={DESCRIPTION_MAX_LENGTH}
+            helperText={`${improvementPlan.analysis.length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
             placeholder="Enfóquese en los RA de la competencia seleccionada y describa los principales hallazgos del grupo."
           />
 
@@ -271,8 +272,8 @@ export default function EvidenceImprovementSection({
               onImprovementPlanChange("actions", event.target.value)
             }
             rows={5}
-            maxLength={1200}
-            helperText={`${improvementPlan.actions.length}/1200 caracteres`}
+            maxLength={DESCRIPTION_MAX_LENGTH}
+            helperText={`${improvementPlan.actions.length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
             placeholder="Describa acciones concretas, medibles y con posibilidad de seguimiento."
           />
         </div>

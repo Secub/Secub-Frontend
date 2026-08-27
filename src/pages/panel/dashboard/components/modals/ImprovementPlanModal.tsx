@@ -2,6 +2,7 @@ import { Button, Modal, Textarea, Input } from "../../../../../components/ui";
 import type { EnrichedCycle } from "../../dashboard.types";
 import { downloadLetterPdf } from "../../../../../components/PdfTemplate";
 import { SECUB_PDF_BRANDING } from "../../../../../config/pdfBranding";
+import { DESCRIPTION_MAX_LENGTH } from "../../../../../utils/descriptionValidation";
 
 interface ImprovementPlanModalProps {
   improvementCycle: EnrichedCycle | null;
@@ -90,8 +91,8 @@ export default function ImprovementPlanModal({
           label="Descripción del plan de mejora general"
           value={improvementDraft ?? ""}
           rows={6}
-          maxLength={900}
-          helperText={`${(improvementDraft ?? "").length}/900 caracteres`}
+          maxLength={DESCRIPTION_MAX_LENGTH}
+          helperText={`${(improvementDraft ?? "").length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
           placeholder="Describe las acciones generales para cerrar brechas del ciclo, responsables, tiempos y seguimiento esperado."
           data-validation-field="dashboard-improvement-plan"
           error={improvementError || undefined}

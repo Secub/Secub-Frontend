@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import type { DashboardUser, EnrichedCycle } from "../dashboard.types";
+import { getDescriptionLengthError } from "../../../../utils/descriptionValidation";
 
 interface DashboardImprovementPlanRecord {
   id: string;
@@ -62,6 +63,12 @@ export function useDashboardImprovementPlan({
           .querySelector('[data-validation-field="dashboard-improvement-plan"]')
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
+      return;
+    }
+
+    const descriptionLengthError = getDescriptionLengthError(description);
+    if (descriptionLengthError) {
+      setImprovementError(descriptionLengthError);
       return;
     }
 

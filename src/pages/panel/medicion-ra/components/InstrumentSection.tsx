@@ -1,6 +1,7 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Textarea } from "../../../../components/ui";
 import type { Competence, InstrumentByRa } from "../medicion-ra.types";
+import { DESCRIPTION_MAX_LENGTH } from "../../../../utils/descriptionValidation";
 
 interface InstrumentSectionProps {
   activeCompetence: Competence;
@@ -87,8 +88,8 @@ export default function InstrumentSection({
                 disabled={disabled}
                 onChange={(event) => onDescriptionChange(ra.id, event.target.value)}
                 rows={4}
-                maxLength={600}
-                helperText={`${instrument.description.length}/600 caracteres`}
+                maxLength={DESCRIPTION_MAX_LENGTH}
+                helperText={`${instrument.description.length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
                 placeholder="Ejemplo: rúbrica, taller, proyecto, prueba, informe, prototipo o actividad usada para medir este RA."
                 error={descriptionError}
               />

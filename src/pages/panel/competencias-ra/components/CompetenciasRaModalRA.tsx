@@ -1,5 +1,6 @@
 import { Button, Modal, Textarea } from "../../../../components/ui";
 import type { CompetenciasRaEnriched } from "../CompetenciasRa.types";
+import { DESCRIPTION_MAX_LENGTH } from "../../../../utils/descriptionValidation";
 
 interface CompetenciasRaModalRAProps {
   mode: "create" | "edit" | null;
@@ -66,6 +67,8 @@ export default function CompetenciasRaModalRA({
         id="raDescripcion"
         data-validation-field="raDescripcion"
         error={error || (isCreateLimitReached ? limitMessage : "")}
+        maxLength={DESCRIPTION_MAX_LENGTH}
+        helperText={`${draft.length}/${DESCRIPTION_MAX_LENGTH} caracteres`}
       />
     </Modal>
   );

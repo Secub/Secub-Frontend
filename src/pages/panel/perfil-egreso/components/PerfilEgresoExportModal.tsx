@@ -103,24 +103,28 @@ export function PerfilEgresoExportModal({
       key: "facultad",
       title: "Facultad",
       render: (row) => row.facultadNombre,
+      sortValue: (row) => row.facultadNombre,
       className: "min-w-[180px]",
     },
     {
       key: "programa",
       title: "Programa académico",
       render: (row) => row.programaNombre,
+      sortValue: (row) => row.programaNombre,
       className: "min-w-[220px]",
     },
     {
       key: "lugar",
       title: "Lugar de desarrollo",
       render: (row) => row.lugarNombre,
+      sortValue: (row) => row.lugarNombre,
       className: "min-w-[170px]",
     },
     {
       key: "plan",
       title: "Plan de estudio",
       render: (row) => row.planNombre,
+      sortValue: (row) => row.planNombre,
       className: "min-w-[140px]",
     },
     {
@@ -131,6 +135,7 @@ export function PerfilEgresoExportModal({
           {row.descripcion}
         </p>
       ),
+      sortValue: (row) => row.descripcion,
       className: "min-w-[340px]",
     },
     {
@@ -141,6 +146,7 @@ export function PerfilEgresoExportModal({
           {row.estado === "activo" ? "Activo" : "Inactivo"}
         </Badge>
       ),
+      sortValue: (row) => row.estado === "activo" ? "Activo" : "Inactivo",
       className: "min-w-[120px]",
     },
   ];

@@ -35,7 +35,7 @@ describe("SECUB - acceso centralizado", () => {
     expect(decano.canCreate).toBe(false);
     expect(decano.canUpdate).toBe(false);
 
-    for (const module of ["perfilEgreso", "propositoFormacion", "competenciasRa"] as const) {
+    for (const module of ["perfilEgreso", "propositoFormacion", "mapeoCompetencias"] as const) {
       const docente = getAcademicModulePermissions(module, "docente");
 
       expect(docente.canRead).toBe(true);
@@ -45,6 +45,8 @@ describe("SECUB - acceso centralizado", () => {
       expect(docente.canExportPdf).toBe(false);
       expect(docente.canExportExcel).toBe(false);
     }
+
+    expect(getAcademicModulePermissions("competenciasRa", "docente").canRead).toBe(false);
   });
 
   it("limita los filtros académicos del Docente a Programa", () => {
@@ -88,8 +90,8 @@ describe("SECUB - acceso centralizado", () => {
     expect(canAccessModule("docente", "medicionRa")).toBe(true);
     expect(canAccessModule("docente", "perfilEgreso")).toBe(true);
     expect(canAccessModule("docente", "propositoFormacion")).toBe(true);
-    expect(canAccessModule("docente", "competenciasRa")).toBe(true);
-    expect(canAccessModule("docente", "mapeoCompetencias")).toBe(false);
+    expect(canAccessModule("docente", "competenciasRa")).toBe(false);
+    expect(canAccessModule("docente", "mapeoCompetencias")).toBe(true);
 
     expect(canStartAcademicPlan("director")).toBe(true);
     expect(canStartAcademicPlan("administrador")).toBe(false);
@@ -97,6 +99,28 @@ describe("SECUB - acceso centralizado", () => {
     expect(canWriteEntity("vicerrector", "competenciasRa", "update")).toBe(false);
     expect(canWriteEntity("docente", "medicionesRa", "upsert")).toBe(true);
     expect(canWriteEntity("docente", "medicionesRa", "delete")).toBe(false);
+  });
+
+  it("reserva las escrituras de Gestión Académica exclusivamente al Director", () => {
+    const academicEntities = [
+      "perfilEgreso",
+      "propositosFormacion",
+      "competenciasRa",
+      "mapeosCompetencias",
+    ] as const;
+    const readOnlyRoles = ["administrador", "vicerrector", "decano", "docente"] as const;
+
+    academicEntities.forEach((entity) => {
+      expect(canWriteEntity("director", entity, "create")).toBe(true);
+      expect(canWriteEntity("director", entity, "update")).toBe(true);
+      expect(canWriteEntity("director", entity, "delete")).toBe(true);
+
+      readOnlyRoles.forEach((role) => {
+        expect(canWriteEntity(role, entity, "create")).toBe(false);
+        expect(canWriteEntity(role, entity, "update")).toBe(false);
+        expect(canWriteEntity(role, entity, "delete")).toBe(false);
+      });
+    });
   });
 
   it("mantiene el alcance jerárquico del programa seleccionado", () => {

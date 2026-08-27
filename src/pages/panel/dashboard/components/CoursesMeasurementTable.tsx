@@ -79,6 +79,7 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[11%]`,
       headerClassName: `${compactHeader} w-[11%]`,
+      sortValue: (course) => course.code,
     },
     {
       key: "course",
@@ -95,6 +96,8 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[25%]`,
       headerClassName: `${compactHeader} w-[25%]`,
+      sortValue: (course) => course.name,
+      searchValue: (course) => `${course.name} ${course.programaName}`,
     },
     {
       key: "cycle",
@@ -102,6 +105,7 @@ export default function CoursesMeasurementTable({
       render: (course) => course.period,
       className: `${compactCell} w-[14%]`,
       headerClassName: `${compactHeader} w-[14%]`,
+      sortValue: (course) => course.period,
     },
     {
       key: "progress",
@@ -116,6 +120,7 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[24%]`,
       headerClassName: `${compactHeader} w-[24%]`,
+      sortValue: (course) => course.progress,
     },
     {
       key: "status",
@@ -127,20 +132,28 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[11%] text-center`,
       headerClassName: `${compactHeader} w-[11%] text-center`,
+      sortValue: (course) => statusLabel[course.status],
     },
     {
       key: "actions",
       title: "Acción",
+      sortable: false,
       render: (course) => (
         <div className="flex items-center justify-center">
           <Button
             variant="outline"
             size="sm"
             rightIcon={<ActionIcon name="chevron-right" size="sm" />}
-            onClick={() => onMeasureCourse?.(course)}
+            onClick={() => {
+              if (course.progress >= 100 || course.status === "finalizado") {
+                onViewResults(course);
+                return;
+              }
+              onMeasureCourse?.(course);
+            }}
             className="w-full max-w-[140px] px-3 text-center leading-tight"
           >
-            Medición RA
+            {course.progress >= 100 || course.status === "finalizado" ? "Ver detalle" : "Medir"}
           </Button>
         </div>
       ),
@@ -160,6 +173,7 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[9%]`,
       headerClassName: `${compactHeader} w-[9%]`,
+      sortValue: (course) => course.code,
     },
     {
       key: "course",
@@ -176,6 +190,8 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[18%]`,
       headerClassName: `${compactHeader} w-[18%]`,
+      sortValue: (course) => course.name,
+      searchValue: (course) => `${course.name} ${course.programaName}`,
     },
     {
       key: "teacher",
@@ -192,6 +208,8 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[18%]`,
       headerClassName: `${compactHeader} w-[18%]`,
+      sortValue: (course) => course.teacherName,
+      searchValue: (course) => `${course.teacherName} ${course.teacherEmail}`,
     },
     {
       key: "cycle",
@@ -199,6 +217,7 @@ export default function CoursesMeasurementTable({
       render: (course) => course.period,
       className: `${compactCell} w-[9%] text-center`,
       headerClassName: `${compactHeader} w-[9%] text-center`,
+      sortValue: (course) => course.period,
     },
     {
       key: "competences",
@@ -206,6 +225,7 @@ export default function CoursesMeasurementTable({
       render: (course) => course.competenceIds.length,
       className: `${compactCell} w-[11%] text-center`,
       headerClassName: `${compactHeader} w-[11%] text-center`,
+      sortValue: (course) => course.competenceIds.length,
     },
     {
       key: "pendingRa",
@@ -213,6 +233,7 @@ export default function CoursesMeasurementTable({
       render: (course) => course.pendingRa,
       className: `${compactCell} w-[11%] text-center`,
       headerClassName: `${compactHeader} w-[11%] text-center`,
+      sortValue: (course) => course.pendingRa,
     },
     {
       key: "status",
@@ -224,10 +245,12 @@ export default function CoursesMeasurementTable({
       ),
       className: `${compactCell} w-[10%] text-center`,
       headerClassName: `${compactHeader} w-[10%] text-center`,
+      sortValue: (course) => statusLabel[course.status],
     },
     {
       key: "actions",
       title: "Acciones",
+      sortable: false,
       render: (course) => (
         <div className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5">
           {course.status === "pendiente" ? (
@@ -287,6 +310,7 @@ export default function CoursesMeasurementTable({
             ? "No hay cursos para los filtros seleccionados."
             : "No hay cursos pendientes para el ciclo seleccionado."
         }
+        searchPlaceholder="Buscar por curso, código, docente, programa o periodo…"
       />
     </section>
   );

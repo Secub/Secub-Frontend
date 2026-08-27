@@ -76,4 +76,25 @@ describe("mockBackend upsert for mapeosCompetencias", () => {
     ).toThrow("La operación solicitada no está disponible");
   });
 
+  it("rechaza descripciones superiores a 150 caracteres antes de persistir", () => {
+    const directorUser: MockBackendUser = {
+      id: "director-1",
+      role: "director",
+      scope: { programaId: "prog-1", planId: "plan-1" },
+    };
+
+    expect(() =>
+      mockBackend.create(
+        "perfilEgreso",
+        {
+          id: "perfil-descripcion-larga",
+          programaId: "prog-1",
+          planId: "plan-1",
+          descripcion: "a".repeat(151),
+        },
+        directorUser,
+      ),
+    ).toThrow("La descripción no puede superar los 150 caracteres.");
+  });
+
 });

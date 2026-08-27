@@ -3,8 +3,6 @@ import type { SecubRole } from "../../../../config/access/roles";
 import PropositoTable from "./PropositoTable";
 import type { PropositoEnriched } from "../proposito-formacion.types";
 
-import { ActionIcon } from "../../../../components/ui/ActionIcon";
-
 interface PropositoListSectionProps {
   data: PropositoEnriched[];
   role: SecubRole;
@@ -34,12 +32,6 @@ export default function PropositoListSection({
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-[var(--color-gray-3)]">
-          <ActionIcon name="view" size="sm" className="text-[var(--color-secondary-1)]" />
-          {permissions.canUpdate
-            ? "La actualización solo se habilita sobre programas activos."
-            : "Vista de solo consulta."}
-        </div>
       </div>
 
       <PropositoTable

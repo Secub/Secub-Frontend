@@ -17,7 +17,7 @@ export const academicStepKeys: PanelStepKey[] = [
 export const docenteAcademicStepKeys: PanelStepKey[] = [
   "perfil-egreso",
   "proposito-formacion",
-  "competencias-ra",
+  "mapeo-competencias",
   "medicion-ra",
 ];
 
