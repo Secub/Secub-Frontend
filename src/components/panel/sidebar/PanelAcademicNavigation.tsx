@@ -22,6 +22,8 @@ import {
 import { panelNavigation, type PanelStepKey } from "../panelNavigation";
 import {
   academicStepKeys,
+  decanoAcademicStepKeys,
+  viceAcademicStepKeys,
   docenteAcademicStepKeys,
   getDocenteMeasurementProgress,
   getStepStatusLabel,
@@ -41,12 +43,20 @@ export default function PanelAcademicNavigation({
 }: PanelAcademicNavigationProps) {
   const currentUser = getCurrentMockUser();
   const isDocente = currentUser.role === "docente";
+  const isDecano = currentUser.role === "decano";
+  const isVice = currentUser.role === "vicerrector";
   const academicMenuId = useId();
   const [isAcademicMenuOpen, setIsAcademicMenuOpen] = useState(true);
   const workflowProgress = useAcademicWorkflowProgress();
   const { activePlan } = useAcademicPlanInfo();
 
-  const academicKeys = isDocente ? docenteAcademicStepKeys : academicStepKeys;
+  const academicKeys = isDocente
+    ? docenteAcademicStepKeys
+    : isDecano
+      ? decanoAcademicStepKeys
+      : isVice
+        ? viceAcademicStepKeys
+        : academicStepKeys;
   const academicItems = academicKeys
     .map((key) => panelNavigation.find((item) => item.key === key))
     .filter((item): item is NavigationItem => Boolean(item));
