@@ -24,14 +24,42 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        // Split stable vendors into their own long-cached chunks so the app
+        // shell streams and they survive across deploys. The dynamically
+        // imported @react-pdf/renderer and exceljs are left to default
+        // splitting so they stay out of the eager path.
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id))
+            return "vendor-react";
+          if (
+            /[\\/]node_modules[\\/](motion|framer-motion|motion-dom|motion-utils)[\\/]/.test(
+              id,
+            )
+          )
+            return "vendor-motion";
+          if (/[\\/]node_modules[\\/](@emotion|@mui)[\\/]/.test(id))
+            return "vendor-mui";
+        },
+      },
+    },
   },
   optimizeDeps: {
-    // Prebundle the heavy eager deps up front instead of discovering them
-    // mid-session (which forces a full-page reload in dev).
-    include: ["react", "react-dom", "react-dom/client", "motion/react"],
-    // PDF/Excel are only reached through dynamic import() now; keep them out
-    // of the cold-start scan and let them optimize on first export instead.
-    exclude: ["@react-pdf/renderer", "exceljs"],
+    // Prebundle the heavy deps up front instead of discovering them
+    // mid-session (which forces a full-page reload in dev). @react-pdf and
+    // exceljs must stay prebundled — their CommonJS deps (base64-js, …) break
+    // when served unbundled, even though the app only reaches them via
+    // dynamic import().
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "motion/react",
+      "@react-pdf/renderer",
+      "exceljs",
+    ],
   },
   plugins: [
     react(),
