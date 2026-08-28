@@ -1,4 +1,4 @@
-import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { BackButton, FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -102,6 +102,7 @@ export default function AsignarRAPage() {
 
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
+              <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
               <AsignarRACourseDetail
                 selectedCourse={selectedCourse}
                 selectedCycle={selectedCycle}

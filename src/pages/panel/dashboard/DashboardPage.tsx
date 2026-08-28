@@ -1,5 +1,4 @@
-import { PanelLayout } from "../../../components/panel";
-import { Button } from "../../../components/ui";
+import { BackButton, PanelLayout } from "../../../components/panel";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -13,29 +12,6 @@ import MeasurementSummaryCards, {
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { simulateEvidenceDownload } from "./dashboard.utils";
-
-import { ActionIcon } from "../../../components/ui/ActionIcon";
-
-function DashboardBackButton({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <div className="mb-5">
-      <Button
-        variant="ghost"
-        size="sm"
-        leftIcon={<ActionIcon name="back" />}
-        onClick={onClick}
-      >
-        {label}
-      </Button>
-    </div>
-  );
-}
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
@@ -153,7 +129,7 @@ export default function DashboardPage() {
 
       {dashboard.view === "courses" && !dashboard.isTeacher ? (
         <div className="space-y-6">
-          <DashboardBackButton
+          <BackButton
             label="Volver al Estado del ciclo"
             onClick={dashboard.goBackToControl}
           />
@@ -180,7 +156,7 @@ export default function DashboardPage() {
 
       {dashboard.view === "detail" ? (
         <div className="space-y-6">
-          <DashboardBackButton
+          <BackButton
             label={`Volver a ${dashboard.coursesBreadcrumbLabel.toLowerCase()}`}
             onClick={dashboard.goBackToCourses}
           />
@@ -200,7 +176,7 @@ export default function DashboardPage() {
 
       {dashboard.view === "results" ? (
         <div className="space-y-6">
-          <DashboardBackButton
+          <BackButton
             label="Volver al Estado del ciclo"
             onClick={dashboard.goBackToControl}
           />
