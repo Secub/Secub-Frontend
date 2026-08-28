@@ -54,7 +54,7 @@ export const FILTER_POLICY: Record<
   },
   competenciasRa: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
-    vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    vicerrector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByLugar: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     docente: { ...noFilters, canFilterByPrograma: true },
@@ -143,21 +143,21 @@ const ACADEMIC_ACTION_POLICY: Record<
 > = {
   perfilEgreso: {
     administrador: readOnlyAcademicActions,
-    vicerrector: directorAcademicActions,
+    vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
     docente: readOnlyAcademicActions,
   },
   propositoFormacion: {
     administrador: readOnlyAcademicActions,
-    vicerrector: directorAcademicActions,
+    vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
     docente: readOnlyAcademicActions,
   },
   competenciasRa: {
     administrador: readOnlyAcademicActions,
-    vicerrector: directorAcademicActions,
+    vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
     docente: readOnlyAcademicActions,
@@ -321,7 +321,7 @@ export function getAsignarRaPermissions(role: SecubRole): AsignarRaPermissions {
   const canManage = role === "director";
   return {
     canRead: role !== "docente",
-    canManage: canManage,
+    canManage,
     canDelete: canManage,
     canFilterBySeccional: filters.canFilterBySeccional,
     canFilterByFacultad: filters.canFilterByFacultad,
