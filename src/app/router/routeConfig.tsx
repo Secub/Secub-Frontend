@@ -40,7 +40,7 @@ const lazyPages = Object.fromEntries(
     key,
     lazy(loader),
   ]),
-) as Record<PageKey, LazyPageComponent>;
+) as unknown as Record<PageKey, LazyPageComponent>;
 
 export const appRouteDefinitions: readonly AppRouteDefinition[] = [
   { paths: [ROUTES.landing], component: lazyPages.landing },
