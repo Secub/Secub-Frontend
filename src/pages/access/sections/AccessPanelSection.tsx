@@ -49,7 +49,7 @@ export default function AccessPanelSection() {
             key={section.id}
             type="button"
             onClick={() => handleSectionSelection(section.id)}
-            className="min-h-14 rounded-[var(--radius-lg)] border border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] px-5 py-3 font-heading text-base font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[var(--color-gray-5)] disabled:bg-[var(--color-gray-5)] disabled:shadow-none"
+            className="min-h-14 rounded-[var(--radius-lg)] border border-[var(--color-primary)] bg-[var(--color-primary)] px-5 py-3 font-heading text-base font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[var(--color-gray-5)] disabled:bg-[var(--color-gray-5)] disabled:shadow-none"
           >
             {section.label}
           </button>
