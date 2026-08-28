@@ -1,6 +1,5 @@
 import { Button, Modal, Textarea, Input } from "../../../../../components/ui";
 import type { EnrichedCycle } from "../../dashboard.types";
-import { downloadLetterPdf } from "../../../../../components/PdfTemplate";
 import { SECUB_PDF_BRANDING } from "../../../../../config/pdfBranding";
 
 interface ImprovementPlanModalProps {
@@ -41,6 +40,9 @@ export default function ImprovementPlanModal({
             onClick={async () => {
               if (!improvementCycle) return;
 
+              const { downloadLetterPdf } = await import(
+                "../../../../../components/PdfTemplate"
+              );
               await downloadLetterPdf(
                 {
                   title: `Plan de mejora — ${improvementCycle.name}`,

@@ -21,14 +21,8 @@ import {
   // printMapeoCompetenciasPdf,
 } from "../MapeoCompetencias.utils";
 import { useMapeoCompetenciasData } from "./useMapeoCompetenciasData";
-import {
-  downloadPdf,
-  type PdfColumn,
-} from "../../../../components/PdfTemplate";
-import {
-  downloadExcel,
-  type ExcelColumn,
-} from "../../../../components/ExcelTemplate";
+import type { PdfColumn } from "../../../../components/PdfTemplate";
+import type { ExcelColumn } from "../../../../components/ExcelTemplate";
 
 import { getExcelBranding } from "../../../../config/excelBranding";
 
@@ -134,6 +128,9 @@ export function useMapeoCompetenciasPage() {
 
     const branding = await getExcelBranding();
 
+    const { downloadExcel } = await import(
+      "../../../../components/ExcelTemplate"
+    );
     await downloadExcel(
       {
         title: "Mapeo de Competencias",
@@ -154,6 +151,9 @@ export function useMapeoCompetenciasPage() {
     const timestamp = new Date()
       .toISOString()
       .slice(0, 10);
+    const { downloadPdf } = await import(
+      "../../../../components/PdfTemplate"
+    );
     await downloadPdf(
       {
         title: "Mapeo Competencias Exportadas",

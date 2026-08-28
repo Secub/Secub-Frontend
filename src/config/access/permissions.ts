@@ -93,11 +93,14 @@ export function getFilterPermissions(module: FilterPolicyModule, role: SecubRole
   return FILTER_POLICY[module][role];
 }
 
-export type AcademicPermissionModule =
-  | "perfilEgreso"
-  | "propositoFormacion"
-  | "competenciasRa"
-  | "mapeoCompetencias";
+export const ACADEMIC_ACTION_MODULES = [
+  "perfilEgreso",
+  "propositoFormacion",
+  "competenciasRa",
+  "mapeoCompetencias",
+] as const;
+
+export type AcademicPermissionModule = (typeof ACADEMIC_ACTION_MODULES)[number];
 
 export interface AcademicActionPermissions {
   canRead: boolean;

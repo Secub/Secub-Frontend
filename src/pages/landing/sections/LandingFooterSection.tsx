@@ -93,7 +93,7 @@ export default function LandingFooterSection() {
           </p>
 
           <div className="flex items-center justify-between gap-6 md:justify-end">
-            <div className="text-left text-[0.92rem] font-bold leading-6">
+            <div className="text-left text-[0.92rem] font-semibold leading-6">
               <a
                 href={ROUTES.privacyPolicy}
                 className="transition-opacity hover:opacity-80"

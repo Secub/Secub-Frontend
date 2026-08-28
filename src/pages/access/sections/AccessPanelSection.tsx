@@ -1,6 +1,7 @@
 import { GoChevronLeft } from "react-icons/go";
 import LogoSECUB from "../../../assets/logos/logotipo_ConUSB.png";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
+import { Button } from "../../../components/ui";
 import {
   SECUB_SECTIONS,
   continueAccessAfterSectionSelection,
@@ -45,20 +46,18 @@ export default function AccessPanelSection() {
 
       <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Seccionales disponibles">
         {SECUB_SECTIONS.map((section) => (
-          <button
+          <Button
             key={section.id}
-            type="button"
+            variant="accent"
+            size="lg"
+            fullWidth
+            className="rounded-full"
             onClick={() => handleSectionSelection(section.id)}
-            className="min-h-14 rounded-[var(--radius-lg)] border border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] px-5 py-3 font-heading text-base font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[var(--color-gray-5)] disabled:bg-[var(--color-gray-5)] disabled:shadow-none"
           >
             {section.label}
-          </button>
+          </Button>
         ))}
       </div>
-
-      <p className="mt-6 text-center text-xs leading-5 text-[var(--color-gray-4)]">
-        La seccional quedará asociada a tu acceso actual. La autenticación institucional se integrará posteriormente.
-      </p>
     </section>
   );
 }

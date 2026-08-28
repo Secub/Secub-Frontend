@@ -24,14 +24,8 @@ import type {
   CompetenciasRaFilters,
   CompetenciasRaPdfRow,
 } from "../CompetenciasRa.types";
-import {
-  downloadPdf,
-  type PdfColumn,
-} from "../../../../components/PdfTemplate";
-import {
-  downloadExcel,
-  type ExcelColumn,
-} from "../../../../components/ExcelTemplate";
+import type { PdfColumn } from "../../../../components/PdfTemplate";
+import type { ExcelColumn } from "../../../../components/ExcelTemplate";
 import { getExcelBranding } from "../../../../config/excelBranding";
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CompetenciasRaExportModalProps {
@@ -248,6 +242,9 @@ export function CompetenciasRaExportModal({
       .slice(0, 10);
 
     if (format === "pdf") {
+      const { downloadPdf } = await import(
+        "../../../../components/PdfTemplate"
+      );
       await downloadPdf(
         {
           title: "Competencias RAs Exportadas",
@@ -268,6 +265,9 @@ export function CompetenciasRaExportModal({
     }else{
       const branding = await getExcelBranding();
 
+      const { downloadExcel } = await import(
+        "../../../../components/ExcelTemplate"
+      );
       await downloadExcel({
           title: "...",
           subtitle: "...",

@@ -41,6 +41,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      "no-console": ["warn", { allow: ["warn", "error"] }],
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/refs": "off",
       "react-refresh/only-export-components": "off",

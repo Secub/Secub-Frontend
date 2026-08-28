@@ -37,14 +37,8 @@ import type {
   // PerfilEgresoExcelRow,
   PerfilEgresoPdfRow,
 } from "../perfil-egreso.types";
-import {
-  downloadPdf,
-  type PdfColumn,
-} from "../../../../components/PdfTemplate";
-import {
-  downloadExcel,
-  type ExcelColumn,
-} from "../../../../components/ExcelTemplate";
+import type { PdfColumn } from "../../../../components/PdfTemplate";
+import type { ExcelColumn } from "../../../../components/ExcelTemplate";
 
 import { getExcelBranding } from "../../../../config/excelBranding";
 
@@ -240,6 +234,9 @@ export function PerfilEgresoExportModal({
       .slice(0, 10);
 
     if (format === "pdf") {
+      const { downloadPdf } = await import(
+        "../../../../components/PdfTemplate"
+      );
       await downloadPdf(
         {
           title: "Perfiles Egresos Exportados",
@@ -261,6 +258,9 @@ export function PerfilEgresoExportModal({
 
     const branding = await getExcelBranding();
 
+    const { downloadExcel } = await import(
+      "../../../../components/ExcelTemplate"
+    );
     await downloadExcel(
       {
         title: "Perfiles de Egreso",

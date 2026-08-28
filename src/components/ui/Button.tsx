@@ -12,9 +12,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   rightIcon?: ReactNode;
 }
 
+// Every button renders the same text size/weight (matches the rest of the
+// platform); `size` only changes padding and min-height.
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
-  // "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-2xl font-heading font-normal text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -32,9 +33,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "min-h-10 px-4 py-2 text-sm",
-  md: "min-h-12 px-5 py-3 text-sm",
-  lg: "min-h-14 px-6 py-4 text-base",
+  sm: "min-h-10 px-4 py-2",
+  md: "min-h-12 px-5 py-3",
+  lg: "min-h-14 px-6 py-4",
 };
 
 export function getButtonClassName({
