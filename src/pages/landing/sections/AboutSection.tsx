@@ -142,7 +142,7 @@ export default function AboutSection() {
               viewport={viewportConfig}
               transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
             >
-              <span className="inline-flex w-fit rounded-full bg-[var(--color-primary)]/10 px-3 py-1.5 text-sm font-semibold text-[var(--color-primary)]">
+              <span className="inline-flex w-fit rounded-full bg-[var(--color-primary)]/10 px-3 py-1.5 font-heading text-sm font-semibold text-[var(--color-primary)]">
                 0{activeIndex + 1}
               </span>
 

@@ -59,14 +59,19 @@ export default function HeroSection() {
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <LinkButton
               href="#modulos"
-              variant="ghost"
-              size="md"
-              className="hero-button-secondary rounded-full"
+              variant="outline"
+              size="lg"
+              className="rounded-full hover:-translate-y-px active:translate-y-0"
             >
               Ver módulos
             </LinkButton>
 
-            <LinkButton href={ROUTES.access} variant="accent" size="lg" className="rounded-full">
+            <LinkButton
+              href={ROUTES.access}
+              variant="accent"
+              size="lg"
+              className="rounded-full hover:-translate-y-px active:translate-y-0"
+            >
               Acceder
             </LinkButton>
 

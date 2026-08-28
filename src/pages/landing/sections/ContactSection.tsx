@@ -17,7 +17,7 @@ export default function ContactSection() {
             ¿Necesitas más información sobre SECUB?
           </h2>
 
-          <p className="mt-6 max-w-xl text-base leading-8 text-[var(--color-gray-3)] md:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-7 text-[var(--color-gray-3)] md:text-lg">
             Si deseas conocer más sobre la plataforma, su acceso o su propósito
             dentro del proceso académico, puedes comunicarte con el equipo de
             soporte institucional.
@@ -53,7 +53,7 @@ export default function ContactSection() {
                 <p className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
                   Acceso institucional
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[var(--color-gray-3)]">
+                <p className="mt-3 text-base leading-7 text-[var(--color-gray-3)]">
                   El ingreso a la plataforma se realizará mediante credenciales
                   institucionales.
                 </p>
@@ -63,7 +63,7 @@ export default function ContactSection() {
                 <p className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
                   Flujo académico
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[var(--color-gray-3)]">
+                <p className="mt-3 text-base leading-7 text-[var(--color-gray-3)]">
                   La experiencia organiza cada etapa del proceso académico de forma clara y progresiva.
                 </p>
               </div>
