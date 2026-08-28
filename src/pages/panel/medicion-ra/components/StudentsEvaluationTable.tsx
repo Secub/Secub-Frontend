@@ -87,7 +87,20 @@ export default function StudentsEvaluationTable({
     },
     ...activeCompetence.learningResults.map<TableColumn<Student>>((ra) => ({
       key: ra.id,
-      title: `${ra.code} · ${ra.title}`,
+      title: (
+        <span className="inline-flex items-center gap-2">
+          <span>{ra.code} · {ra.title}</span>
+          <IconButton
+            icon={<ActionIcon name="info" />}
+            label={`Ver descripción de ${ra.code}`}
+            title={`Ver descripción de ${ra.code}`}
+            variant="primary_soft"
+            size="sm"
+            onClick={() => setSelectedRa(ra)}
+          />
+        </span>
+      ),
+      sortable: false,
       sortValue: (student) => evaluations[student.id]?.[ra.id] ?? "",
       searchValue: (student) => evaluations[student.id]?.[ra.id] ?? "",
       className: "min-w-[220px]",
@@ -99,16 +112,6 @@ export default function StudentsEvaluationTable({
 
         return (
           <div title={disabled ? lockedTooltip : undefined}>
-            <div className="mb-2 flex items-center justify-end">
-              <IconButton
-                icon={<ActionIcon name="info" />}
-                label={`Ver descripción de ${ra.code}`}
-                title={`Ver descripción de ${ra.code}`}
-                variant="primary_soft"
-                size="sm"
-                onClick={() => setSelectedRa(ra)}
-              />
-            </div>
             <select
               value={selectedLevel}
               disabled={disabled}

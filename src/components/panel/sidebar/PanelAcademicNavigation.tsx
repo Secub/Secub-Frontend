@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { navigateToRoute } from "../../../app/appRoutes";
+import { getRoutePrefetchProps } from "../../../app/router/routePrefetch";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { canStartAcademicPlan } from "../../../config/access/permissions";
 import { showNotification } from "../../../shared/feedback";
@@ -22,8 +23,6 @@ import {
 import { panelNavigation, type PanelStepKey } from "../panelNavigation";
 import {
   academicStepKeys,
-  decanoAcademicStepKeys,
-  viceAcademicStepKeys,
   docenteAcademicStepKeys,
   getDocenteMeasurementProgress,
   getStepStatusLabel,
@@ -43,20 +42,12 @@ export default function PanelAcademicNavigation({
 }: PanelAcademicNavigationProps) {
   const currentUser = getCurrentMockUser();
   const isDocente = currentUser.role === "docente";
-  const isDecano = currentUser.role === "decano";
-  const isVice = currentUser.role === "vicerrector";
   const academicMenuId = useId();
   const [isAcademicMenuOpen, setIsAcademicMenuOpen] = useState(true);
   const workflowProgress = useAcademicWorkflowProgress();
   const { activePlan } = useAcademicPlanInfo();
 
-  const academicKeys = isDocente
-    ? docenteAcademicStepKeys
-    : isDecano
-      ? decanoAcademicStepKeys
-      : isVice
-        ? viceAcademicStepKeys
-        : academicStepKeys;
+  const academicKeys = isDocente ? docenteAcademicStepKeys : academicStepKeys;
   const academicItems = academicKeys
     .map((key) => panelNavigation.find((item) => item.key === key))
     .filter((item): item is NavigationItem => Boolean(item));
@@ -194,6 +185,7 @@ export default function PanelAcademicNavigation({
           <button
             type="button"
             onClick={handleClick}
+            {...getRoutePrefetchProps(item.href, !item.isLocked)}
             title={lockedDescription}
             disabled={item.isLocked}
             aria-current={item.isCurrent ? "page" : undefined}
@@ -231,6 +223,7 @@ export default function PanelAcademicNavigation({
         <button
           type="button"
           onClick={handleClick}
+          {...getRoutePrefetchProps(item.href, !item.isLocked)}
           title={lockedDescription}
           disabled={item.isLocked}
           aria-current={item.isCurrent ? "step" : undefined}

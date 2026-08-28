@@ -1,4 +1,5 @@
 import { navigateToRoute } from "../../app/appRoutes";
+import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
 import { SecubIcon } from "../ui";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
@@ -63,6 +64,7 @@ export default function PanelSidebar({
           <button
             type="button"
             onClick={() => goTo(dashboardItem.href)}
+            {...getRoutePrefetchProps(dashboardItem.href)}
             className="inline-flex rounded-[12px] p-1.5 transition-colors hover:bg-[color:rgba(255,255,255,0.055)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
             aria-label="Ir al dashboard de SECUB"
           >
@@ -80,6 +82,7 @@ export default function PanelSidebar({
                 <button
                   type="button"
                   onClick={() => goTo(dashboardItem.href)}
+                  {...getRoutePrefetchProps(dashboardItem.href)}
                   aria-current={currentStep === dashboardItem.key ? "page" : undefined}
                   className={[
                     "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",

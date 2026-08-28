@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { showNotification } from "../../../../shared/feedback";
 import { shouldNotifyCompetenceCompletion } from "../utils/competenceCompletion";
 
 export function useCompetenceCompletionAlert({
@@ -29,9 +28,5 @@ export function useCompetenceCompletionAlert({
     if (isLocked || !shouldNotifyCompetenceCompletion(previousComplete, isComplete)) return;
 
     onCompleted(competenceId);
-    showNotification({
-      variant: "success",
-      message: "Competencia completada. Ya puedes continuar con la siguiente competencia.",
-    });
   }, [competenceId, courseId, isComplete, isLocked, isReady, onCompleted]);
 }

@@ -62,10 +62,14 @@ interface TableProps<T> {
 
 type SortDirection = "asc" | "desc";
 
+// MUI's TableCell ships an unlayered `text-align: left` base style (see
+// @mui/material/TableCell), which always beats Tailwind v4 utilities
+// because those live inside `@layer utilities`. Only an `!important`
+// utility can override it, so these alignment classes must keep the `!`.
 const actionAlignmentClasses: Record<NonNullable<TableActionsLayout["alignment"]>, string> = {
-  left: "text-left",
-  center: "text-center",
-  right: "text-right",
+  left: "!text-left",
+  center: "!text-center",
+  right: "!text-right",
 };
 
 function normalizeText(value: string): string {
@@ -314,11 +318,18 @@ export function Table<T>({
                       className={[
                         actionsColumnWidthClassName,
                         actionsHorizontalPaddingClassName,
-                        "border-b border-[var(--secub-border)] py-4 align-middle",
+                        // !important: MUI's TableCell sets an unlayered
+                        // `vertical-align: inherit`, which otherwise beats
+                        // Tailwind's layered `align-middle` utility.
+                        "!text-center border-b border-[var(--secub-border)] py-4 !align-middle",
                       ].join(" ")}
                       sx={{ fontFamily: "inherit" }}
                     >
-                      <div className={["flex items-center", actionsGroupClassName].join(" ")}>
+                      {/* mx-auto + w-fit centers the icon group regardless
+                          of the cell's actual content width, instead of
+                          relying on `justify-center` inside a full-width
+                          flex container. */}
+                      <div className={["mx-auto flex w-fit items-center", actionsGroupClassName].join(" ")}>
                         {actions.map((action) => {
                           const isVisible = action.show ? action.show(row) : true;
                           if (!isVisible) return null;

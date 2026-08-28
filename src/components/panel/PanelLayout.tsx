@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import WorkflowCompletionAlert from "../WorkflowCompletionAlert";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../app/appRoutes";
+import { preloadRoutesWhenIdle } from "../../app/router/routePrefetch";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
 import PanelMobileNavigation from "./sidebar/PanelMobileNavigation";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
 import {
+  academicWorkflowSteps,
   getAcademicWorkflowState,
   isAcademicWorkflowStep,
+  isAcademicWorkflowStepLocked,
   useAcademicWorkflowProgress,
 } from "./academicWorkflow";
-import type { PanelStepKey } from "./panelNavigation";
+import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import { getBrowserSearchParams } from "../../shared/browser";
 
 interface PanelLayoutProps {
@@ -42,6 +45,24 @@ export default function PanelLayout({
   const wasCompletedRef = useRef(isWorkflowCompleted);
   const hasMountedRef = useRef(false);
   const [showCompletionAlert, setShowCompletionAlert] = useState(false);
+
+  useEffect(() => {
+    // Precarga predictiva: mientras el navegador está inactivo, adelanta la
+    // descarga del chunk del Dashboard (destino más frecuente) y, si el paso
+    // actual pertenece al flujo académico secuencial, la del siguiente paso
+    // no bloqueado. Es una optimización de percepción de velocidad: si el
+    // usuario nunca navega hacia allí, la descarga simplemente no se usa.
+    const currentIndex = academicWorkflowSteps.indexOf(currentStep);
+    const nextStepKey =
+      currentIndex >= 0 ? academicWorkflowSteps[currentIndex + 1] : undefined;
+    const isNextStepAvailable =
+      nextStepKey && !isAcademicWorkflowStepLocked(nextStepKey, workflowProgress);
+    const nextStepHref = isNextStepAvailable
+      ? panelNavigation.find((item) => item.key === nextStepKey)?.href
+      : undefined;
+
+    preloadRoutesWhenIdle([ROUTES.panelDashboard, nextStepHref]);
+  }, [currentStep, workflowProgress]);
 
   const handleCompletionAlertClose = () => {
     const dashboardParams = getBrowserSearchParams();
