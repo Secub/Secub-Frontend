@@ -74,6 +74,11 @@ a {
   text-decoration: none;
 }
 
+/* Deliberately unlayered: `font: inherit` wins over every @layer utility, so
+   every native control (buttons included) renders at the body's font size and
+   weight. This is what keeps buttons uniform platform-wide. Consequence: a
+   Tailwind `font-*` / `text-*` utility on a <button> has no effect — size and
+   weight are set on the shared Button component instead. */
 button,
 input,
 select,
