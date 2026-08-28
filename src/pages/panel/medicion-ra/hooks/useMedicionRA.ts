@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { mockBackend } from "../../../../services/mockBackend";
 import { LOCKED_TOOLTIP } from "../constants/medicionRA.constants";
 import type { CourseMeasurementSummary, ValidationFeedback } from "../medicion-ra.types";
@@ -15,6 +15,7 @@ import { useMedicionRAPersistence } from "./useMedicionRAPersistence";
 import { useMedicionRASelection } from "./useMedicionRASelection";
 import { useMedicionRASubProgress } from "./useMedicionRASubProgress";
 import { useMedicionRAValidation } from "./useMedicionRAValidation";
+import { useCompetenceCompletionAlert } from "./useCompetenceCompletionAlert";
 
 export { LOCKED_TOOLTIP };
 
@@ -91,6 +92,25 @@ export function useMedicionRA() {
     evaluations: computed.evaluations,
     evidence: computed.evidence,
     instruments: computed.instruments,
+  });
+  const activeCompetenceComplete =
+    subProgressSteps.length > 0 && subProgressSteps.every((step) => step.completed);
+  const setCompletedCompetenceIds = hydrated.setCompletedCompetenceIds;
+  const markCompletedCompetence = useCallback((competenceId: string) => {
+    setCompletedCompetenceIds((current) =>
+      current.includes(competenceId)
+        ? current
+        : [...current, competenceId],
+    );
+  }, [setCompletedCompetenceIds]);
+
+  useCompetenceCompletionAlert({
+    courseId: computed.selectedCourse.id,
+    competenceId: computed.activeCompetence.id,
+    isComplete: activeCompetenceComplete,
+    isReady: hydrated.hydratedStateId === computed.medicionRaDemoStateId,
+    isLocked: hydrated.isSelectedCourseLocked,
+    onCompleted: markCompletedCompetence,
   });
 
   useEffect(() => {

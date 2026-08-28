@@ -15,12 +15,14 @@ export interface CentralMockUser {
   cargo: string;
   role: SecubRole;
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;
   planId?: string;
   scope: {
     seccionalId?: string;
+    lugarId?: string;
     facultadId?: string;
     programaId?: string;
     academicProgramId?: string;

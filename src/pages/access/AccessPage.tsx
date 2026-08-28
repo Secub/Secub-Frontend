@@ -1,13 +1,15 @@
+import CampusMosaic from "../../components/shared/CampusMosaic";
 import AccessPanelSection from "./sections/AccessPanelSection";
-import AccessVisualSection from "./sections/AccessVisualSection";
 
 export default function AccessPage() {
   return (
-    <div className="min-h-screen bg-[#f4f4f4]">
-      <div className="mx-auto min-h-screen max-w-[1600px] lg:grid lg:grid-cols-[520px_minmax(0,1fr)] xl:grid-cols-[560px_minmax(0,1fr)]">
-        <AccessPanelSection />
-        <AccessVisualSection />
+    <main className="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-6">
+      <div className="absolute -inset-5 -z-20 scale-105 blur-[5px]" aria-hidden="true">
+        <CampusMosaic hideTitles layout="fill" className="h-full w-full" />
       </div>
-    </div>
+      <div className="absolute inset-0 -z-10 bg-black/65" />
+
+      <AccessPanelSection />
+    </main>
   );
 }

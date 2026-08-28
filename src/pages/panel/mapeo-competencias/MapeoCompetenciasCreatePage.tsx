@@ -1,6 +1,6 @@
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
-import { PanelLayout } from "../../../components/panel";
-import { Button, ConfirmDialog } from "../../../components/ui";
+import { BackButton, PanelLayout } from "../../../components/panel";
+import { ConfirmDialog } from "../../../components/ui";
 import { MapeoCompetenciasAccessState } from "./components";
 import MapeoCompetenciasCreateHeader from "./components/MapeoCompetenciasCreateHeader";
 import MapeoCompetenciasFeedback from "./components/MapeoCompetenciasFeedback";
@@ -10,7 +10,6 @@ import MapeoCompetenciasStepProgress from "./components/MapeoCompetenciasStepPro
 import { getMapeoAccessRestrictedDescription } from "../../../config/access/permissions";
 import { navigateToMapeoList, useMapeoCompetenciasCreatePage } from "./hooks/useMapeoCompetenciasCreatePage";
 
-import { ActionIcon } from "../../../components/ui/ActionIcon";
 export default function MapeoCompetenciasCreatePage() {
   const page = useMapeoCompetenciasCreatePage();
   const {
@@ -46,16 +45,7 @@ export default function MapeoCompetenciasCreatePage() {
         { label: existingRecord ? "Editar mapeo" : "Crear mapeo" },
       ]}
     >
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          leftIcon={<ActionIcon name="back" />}
-          onClick={handleGoBack}
-        >
-          Volver a Mapeo de Competencias
-        </Button>
-      </div>
+      <BackButton label="Volver a Mapeo de Competencias" onClick={handleGoBack} />
 
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState

@@ -1,4 +1,4 @@
-import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { BackButton, FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -43,6 +43,7 @@ export default function AsignarRAPage() {
     handlePlanChange,
     handleCycleChange,
     handleCourseFilterChange,
+    handleResetFilters,
     handleSelectCourse,
     handleBackToCourses,
     handleSaveAndOpenNextCourse,
@@ -101,6 +102,7 @@ export default function AsignarRAPage() {
 
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
+              <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
               <AsignarRACourseDetail
                 selectedCourse={selectedCourse}
                 selectedCycle={selectedCycle}
@@ -136,6 +138,7 @@ export default function AsignarRAPage() {
                   onPlanChange={handlePlanChange}
                   onCycleChange={handleCycleChange}
                   onCourseFilterChange={handleCourseFilterChange}
+                  onReset={handleResetFilters}
                 />
               </div>
 

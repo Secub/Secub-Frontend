@@ -226,6 +226,7 @@ function RaResultsTable({
       key: "code",
       title: "Código",
       render: (result) => result.courseCode,
+      sortValue: (result) => result.courseCode,
       className: "w-[15%] text-center",
       headerClassName: "w-[15%] text-center",
     },
@@ -233,6 +234,7 @@ function RaResultsTable({
       key: "course",
       title: "Curso",
       render: (result) => result.courseName,
+      sortValue: (result) => result.courseName,
       className: "w-[30%]",
       headerClassName: "w-[30%]",
     },
@@ -240,6 +242,7 @@ function RaResultsTable({
       key: "teacher",
       title: "Docente titular",
       render: (result) => result.teacherName,
+      sortValue: (result) => result.teacherName,
       className: "w-[25%]",
       headerClassName: "w-[25%]",
     },
@@ -247,6 +250,7 @@ function RaResultsTable({
       key: "status",
       title: "Estado",
       render: (result) => (result.hasMeasurement ? "Finalizado" : "Pendiente"),
+      sortValue: (result) => result.hasMeasurement ? "Finalizado" : "Pendiente",
       className: "w-[12%] text-center",
       headerClassName: "w-[12%] text-center",
     },
@@ -254,12 +258,14 @@ function RaResultsTable({
       key: "compliance",
       title: "Cumplimiento",
       render: (result) => (result.hasMeasurement ? `${result.compliance}%` : "—"),
+      sortValue: (result) => result.hasMeasurement ? result.compliance : -1,
       className: "w-[12%] text-center",
       headerClassName: "w-[12%] text-center",
     },
     {
       key: "detail",
       title: "Detalle",
+      sortable: false,
       render: (result) => (
         <div className="flex justify-center">
           <IconButton

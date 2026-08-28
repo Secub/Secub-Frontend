@@ -258,8 +258,6 @@ export default function EvidenceImprovementSection({
               onImprovementPlanChange("analysis", event.target.value)
             }
             rows={5}
-            maxLength={1200}
-            helperText={`${improvementPlan.analysis.length}/1200 caracteres`}
             placeholder="Enfóquese en los RA de la competencia seleccionada y describa los principales hallazgos del grupo."
           />
 
@@ -271,8 +269,6 @@ export default function EvidenceImprovementSection({
               onImprovementPlanChange("actions", event.target.value)
             }
             rows={5}
-            maxLength={1200}
-            helperText={`${improvementPlan.actions.length}/1200 caracteres`}
             placeholder="Describa acciones concretas, medibles y con posibilidad de seguimiento."
           />
         </div>

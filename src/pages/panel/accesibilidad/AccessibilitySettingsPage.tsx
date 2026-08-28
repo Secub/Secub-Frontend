@@ -1,9 +1,7 @@
 import PanelLayout from "../../../components/panel/PanelLayout";
+import { BackButton } from "../../../components/panel";
 import AccessibilitySettingsPanel from "../../../accessibility/AccessibilitySettingsPanel";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
-import { Button } from "../../../components/ui";
-
-import { ActionIcon } from "../../../components/ui/ActionIcon";
 
 export default function AccessibilitySettingsPage() {
   return (
@@ -16,15 +14,11 @@ export default function AccessibilitySettingsPage() {
         { label: "Accesibilidad" },
       ]}
     >
-      <div className="w-full space-y-5">
-        <Button
-          variant="ghost"
-          size="sm"
-          leftIcon={<ActionIcon name="back" />}
+      <div className="w-full">
+        <BackButton
+          label="Volver a Ajustes de usuario"
           onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
-        >
-          Volver a Ajustes de usuario
-        </Button>
+        />
 
         <AccessibilitySettingsPanel />
       </div>

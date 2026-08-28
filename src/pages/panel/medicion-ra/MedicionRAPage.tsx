@@ -94,6 +94,7 @@ function MedicionRAContent() {
     feedback,
     showFinishModal,
     isSelectedCourseLocked,
+    isLastCompetence,
     showValidationErrors,
     competenceContentRef,
     handleCompetenceChange,
@@ -102,6 +103,7 @@ function MedicionRAContent() {
     handleEvidenceChange,
     handleImprovementPlanChange,
     handleSaveProgress,
+    handlePrimaryAction,
     handleRequestFinishEvaluation,
     handleConfirmFinishEvaluation,
     handleCancelFinishEvaluation,
@@ -218,7 +220,10 @@ function MedicionRAContent() {
         onSaveProgress={handleSaveProgress}
         saveDisabled={isSelectedCourseLocked}
         saveTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}
-        showFinish
+        showNext={!isSelectedCourseLocked && !isLastCompetence}
+        nextLabel="Siguiente competencia"
+        onNext={handlePrimaryAction}
+        showFinish={isSelectedCourseLocked || isLastCompetence}
         finishLabel={isSelectedCourseLocked ? "Curso finalizado" : "Finalizar curso"}
         finishDisabled={isSelectedCourseLocked}
         finishTitle={isSelectedCourseLocked ? LOCKED_TOOLTIP : undefined}

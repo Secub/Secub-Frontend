@@ -1,6 +1,6 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useMemo, useState, type ChangeEvent } from "react";
-import { IconButton, Modal } from "../../../../components/ui";
+import { IconButton, Modal, Table, type TableColumn } from "../../../../components/ui";
 import { performanceLevels } from "../medicion-ra.mock";
 import { getLevelLabel } from "../medicion-ra.utils";
 import type {
@@ -61,6 +61,90 @@ export default function StudentsEvaluationTable({
   }, [activeCompetence.learningResults, evaluations, students]);
 
   const totalCells = students.length * activeCompetence.learningResults.length;
+  const columns: TableColumn<Student>[] = [
+    {
+      key: "name",
+      title: "Estudiante",
+      render: (student) => (
+        <div>
+          <p className="font-semibold text-[var(--color-secondary-4)]">{student.name}</p>
+          <p className="mt-1 text-xs text-[var(--color-gray-4)]">{student.email}</p>
+        </div>
+      ),
+      sortValue: (student) => student.name,
+      searchValue: (student) => `${student.name} ${student.email}`,
+      className: "sticky left-0 z-[1] w-[280px] bg-white",
+      headerClassName: "sticky left-0 z-10 w-[280px] bg-[var(--color-surface-soft)]",
+    },
+    {
+      key: "code",
+      title: "Código",
+      render: (student) => student.code,
+      sortValue: (student) => student.code,
+      searchValue: (student) => student.code,
+      className: "w-[170px]",
+      headerClassName: "w-[170px]",
+    },
+    ...activeCompetence.learningResults.map<TableColumn<Student>>((ra) => ({
+      key: ra.id,
+      title: (
+        <span className="inline-flex items-center gap-2">
+          <span>{ra.code} · {ra.title}</span>
+          <IconButton
+            icon={<ActionIcon name="info" />}
+            label={`Ver descripción de ${ra.code}`}
+            title={`Ver descripción de ${ra.code}`}
+            variant="primary_soft"
+            size="sm"
+            onClick={() => setSelectedRa(ra)}
+          />
+        </span>
+      ),
+      sortable: false,
+      sortValue: (student) => evaluations[student.id]?.[ra.id] ?? "",
+      searchValue: (student) => evaluations[student.id]?.[ra.id] ?? "",
+      className: "min-w-[220px]",
+      headerClassName: "min-w-[220px]",
+      render: (student) => {
+        const selectedLevel = evaluations[student.id]?.[ra.id] ?? "";
+        const hasLevelError = showValidationErrors && !selectedLevel;
+        const errorId = `evaluation-${student.id}-${ra.id}-error`;
+
+        return (
+          <div title={disabled ? lockedTooltip : undefined}>
+            <select
+              value={selectedLevel}
+              disabled={disabled}
+              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                onLevelChange(student.id, ra.id, event.target.value as PerformanceLevel)
+              }
+              aria-label={`Nivel de ${student.name} para ${ra.code}`}
+              aria-invalid={hasLevelError ? "true" : undefined}
+              aria-describedby={hasLevelError ? errorId : undefined}
+              data-validation-field={`evaluation-${student.id}-${ra.id}`}
+              className={[
+                "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed disabled:appearance-none disabled:pr-3",
+                selectTone[selectedLevel],
+                hasLevelError ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.14)]" : "",
+              ].join(" ")}
+            >
+              <option value="">Nivel de desempeño</option>
+              {performanceLevels.map((level) => (
+                <option key={level.value} value={level.value}>{level.label}</option>
+              ))}
+            </select>
+            {hasLevelError ? (
+              <p id={errorId} role="alert" className="mt-1 text-xs text-[var(--color-error)]">
+                Selecciona un nivel obligatorio.
+              </p>
+            ) : selectedLevel ? (
+              <p className="mt-1 text-xs text-[var(--color-gray-4)]">{getLevelLabel(selectedLevel)}</p>
+            ) : null}
+          </div>
+        );
+      },
+    })),
+  ];
 
   return (
     <section className="surface-card overflow-hidden">
@@ -88,118 +172,16 @@ export default function StudentsEvaluationTable({
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <table className="min-w-[980px] w-full border-separate border-spacing-0" aria-label="Tabla de evaluación de estudiantes por RA">
-          <thead className="bg-[var(--color-surface-soft)]">
-            <tr>
-              <th scope="col" className="sticky left-0 z-10 w-[280px] border-b border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
-                Estudiante
-              </th>
-              <th scope="col" className="w-[170px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
-                Código
-              </th>
-              {activeCompetence.learningResults.map((ra) => (
-                <th
-                  key={ra.id}
-                  scope="col"
-                  className="min-w-[220px] border-b border-[var(--color-gray-6)] px-5 py-4 text-left"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-gray-4)]">
-                        {ra.code}
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-[var(--color-secondary-4)]">
-                        {ra.title}
-                      </p>
-                    </div>
-                    <IconButton
-                      icon={<ActionIcon name="info" />}
-                      label={`Ver descripción de ${ra.code}`}
-                      title={`Ver descripción de ${ra.code}`}
-                      variant="primary_soft"
-                      size="sm"
-                      onClick={() => setSelectedRa(ra)}
-                    />
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {students.map((student) => (
-              <tr key={student.id} className="bg-white">
-                <td className="sticky left-0 z-[1] border-b border-[var(--color-gray-6)] bg-white px-5 py-4 align-middle">
-                  <p className="font-semibold text-[var(--color-secondary-4)]">
-                    {student.name}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--color-gray-4)]">
-                    {student.email}
-                  </p>
-                </td>
-                <td className="border-b border-[var(--color-gray-6)] px-5 py-4 align-middle text-sm text-[var(--color-gray-3)]">
-                  {student.code}
-                </td>
-
-                {activeCompetence.learningResults.map((ra) => {
-                  const selectedLevel = evaluations[student.id]?.[ra.id] ?? "";
-                  const hasLevelError = showValidationErrors && !selectedLevel;
-                  const errorId = `evaluation-${student.id}-${ra.id}-error`;
-
-                  return (
-                    <td
-                      key={ra.id}
-                      className="border-b border-[var(--color-gray-6)] px-5 py-4 align-middle"
-                      title={disabled ? lockedTooltip : undefined}
-                    >
-                      <select
-                        value={selectedLevel}
-                        disabled={disabled}
-                        onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                          onLevelChange(
-                            student.id,
-                            ra.id,
-                            event.target.value as PerformanceLevel,
-                          )
-                        }
-                        aria-label={`Nivel de ${student.name} para ${ra.code}`}
-                        aria-invalid={hasLevelError ? "true" : undefined}
-                        aria-describedby={hasLevelError ? errorId : undefined}
-                        data-validation-field={`evaluation-${student.id}-${ra.id}`}
-                        className={[
-                          "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed disabled:appearance-none disabled:pr-3",
-                          selectTone[selectedLevel],
-                          hasLevelError
-                            ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.14)]"
-                            : "",
-                        ].join(" ")}
-                      >
-                        <option value="">Nivel de desempeño</option>
-                        {performanceLevels.map((level) => (
-                          <option key={level.value} value={level.value}>
-                            {level.label}
-                          </option>
-                        ))}
-                      </select>
-
-                      {hasLevelError ? (
-                        <p id={errorId} role="alert" className="mt-1 text-xs text-[var(--color-error)]">
-                          Selecciona un nivel obligatorio.
-                        </p>
-                      ) : selectedLevel ? (
-                        <p className="mt-1 text-xs text-[var(--color-gray-4)]">
-                          {getLevelLabel(selectedLevel)}
-                        </p>
-                      ) : null}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        columns={columns}
+        data={students}
+        rowKey={(student) => student.id}
+        ariaLabel="Tabla de evaluación de estudiantes por RA"
+        searchPlaceholder="Buscar estudiante por nombre, correo o código…"
+        emptyMessage="No hay estudiantes para evaluar."
+        minWidth={980}
+        initialRowsPerPage={5}
+      />
 
       <Modal
         open={Boolean(selectedRa)}

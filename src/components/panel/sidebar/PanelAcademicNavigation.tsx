@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { navigateToRoute } from "../../../app/appRoutes";
+import { getRoutePrefetchProps } from "../../../app/router/routePrefetch";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { canStartAcademicPlan } from "../../../config/access/permissions";
 import { showNotification } from "../../../shared/feedback";
@@ -184,6 +185,7 @@ export default function PanelAcademicNavigation({
           <button
             type="button"
             onClick={handleClick}
+            {...getRoutePrefetchProps(item.href, !item.isLocked)}
             title={lockedDescription}
             disabled={item.isLocked}
             aria-current={item.isCurrent ? "page" : undefined}
@@ -221,6 +223,7 @@ export default function PanelAcademicNavigation({
         <button
           type="button"
           onClick={handleClick}
+          {...getRoutePrefetchProps(item.href, !item.isLocked)}
           title={lockedDescription}
           disabled={item.isLocked}
           aria-current={item.isCurrent ? "step" : undefined}

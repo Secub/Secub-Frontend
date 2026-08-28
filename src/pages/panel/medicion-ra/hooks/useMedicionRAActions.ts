@@ -92,7 +92,6 @@ export function useMedicionRAActions({
 
   const handleInstrumentDescriptionChange = (raId: string, value: string) => {
     if (isSelectedCourseLocked) return;
-
     setInstrumentsByCourse((current) => {
       const currentCourseInstruments = normalizeInstrumentState(course, current[course.id]);
 
@@ -127,7 +126,6 @@ export function useMedicionRAActions({
 
   const handleImprovementPlanChange = (key: keyof ImprovementPlanState, value: string) => {
     if (isSelectedCourseLocked) return;
-
     setImprovementByCompetence((current) => ({
       ...current,
       [activeCompetenceStorageKey]: {

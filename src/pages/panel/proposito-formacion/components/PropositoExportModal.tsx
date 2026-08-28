@@ -86,18 +86,21 @@ export function PropositoExportModal({
       key: "facultad",
       title: "Facultad",
       render: (row) => row.facultadNombre,
+      sortValue: (row) => row.facultadNombre,
       className: "min-w-[180px]",
     },
     {
       key: "programa",
       title: "Programa académico",
       render: (row) => row.programaNombre,
+      sortValue: (row) => row.programaNombre,
       className: "min-w-[220px]",
     },
     {
       key: "plan",
       title: "Plan de estudio",
       render: (row) => row.planNombre,
+      sortValue: (row) => row.planNombre,
       className: "min-w-[140px]",
     },
     {
@@ -105,9 +108,12 @@ export function PropositoExportModal({
       title: "Descripción",
       render: (row) => (
         <p className="max-w-[420px] text-sm leading-6 text-[var(--color-gray-3)]">
-          {row.descripcion}
+          {row.descripcion.length > 150
+            ? `${row.descripcion.slice(0, 150).trimEnd()}...`
+            : row.descripcion}
         </p>
       ),
+      sortValue: (row) => row.descripcion,
       className: "min-w-[340px]",
     },
     {
@@ -118,6 +124,7 @@ export function PropositoExportModal({
           {row.estado === "activo" ? "Activo" : "Inactivo"}
         </Badge>
       ),
+      sortValue: (row) => row.estado === "activo" ? "Activo" : "Inactivo",
       className: "min-w-[120px]",
     },
   ];

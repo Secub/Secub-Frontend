@@ -90,8 +90,6 @@ export default function ImprovementPlanModal({
           label="Descripción del plan de mejora general"
           value={improvementDraft ?? ""}
           rows={6}
-          maxLength={900}
-          helperText={`${(improvementDraft ?? "").length}/900 caracteres`}
           placeholder="Describe las acciones generales para cerrar brechas del ciclo, responsables, tiempos y seguimiento esperado."
           data-validation-field="dashboard-improvement-plan"
           error={improvementError || undefined}

@@ -41,7 +41,7 @@ export function CompetenciasRaFilters({
       filters={filters}
       filterOptions={filterOptions}
       permissions={{
-        canFilterByLugar: permissions.canFilterByLugar,
+        canFilterByLugar: false,
         canFilterByFacultad: permissions.canFilterByFacultad,
         canFilterByPrograma: permissions.canFilterByPrograma,
         canFilterByPlan: permissions.canFilterByPlan,

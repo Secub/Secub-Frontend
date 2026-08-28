@@ -30,6 +30,8 @@ export default function ResultsMeasurementSection({
           <p className="mt-1 text-xs text-[var(--color-gray-4)]">{row.courseCode} · {row.teacherName}</p>
         </div>
       ),
+      sortValue: (row) => row.courseName,
+      searchValue: (row) => `${row.courseName} ${row.courseCode} ${row.teacherName}`,
       className: "panel-table-cell-wrap",
     },
     {
@@ -49,6 +51,7 @@ export default function ResultsMeasurementSection({
           </span>
         </button>
       ),
+      sortValue: (row) => `${row.competenceCode} ${row.raCode}`,
     },
     {
       key: "students",
@@ -60,6 +63,7 @@ export default function ResultsMeasurementSection({
           <p>No aprobaron: <strong>{row.notApprovedStudents}</strong></p>
         </div>
       ),
+      sortValue: (row) => row.totalStudents,
     },
     {
       key: "status",
@@ -72,10 +76,12 @@ export default function ResultsMeasurementSection({
           <p className="text-xs font-semibold text-[var(--color-gray-4)]">{row.fulfillment}% cumplimiento</p>
         </div>
       ),
+      sortValue: (row) => row.fulfillment,
     },
     {
       key: "downloads",
       title: "Descargas",
+      sortable: false,
       render: (row) => (
         <div className="flex flex-col gap-2">
           <Button

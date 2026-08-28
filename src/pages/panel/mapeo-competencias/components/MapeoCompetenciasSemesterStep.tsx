@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Badge, Button, InfoModalTrigger, Select } from "../../../../components/ui";
+import { Badge, Button, InfoModalTrigger, Select, Table, type TableColumn } from "../../../../components/ui";
 import type {
   CompetenciaRaDemoRecord,
   CursoAsis,
@@ -69,6 +69,62 @@ export default function MapeoCompetenciasSemesterStep({
       })),
     [],
   );
+  const columns: TableColumn<CursoAsis>[] = [
+    {
+      key: "course",
+      title: "Curso",
+      render: (curso) => (
+        <div className="min-w-0">
+          <p className="truncate font-medium text-[var(--color-gray-1)]">{curso.nombre}</p>
+          <p className="mt-0.5 text-xs text-[var(--color-gray-4)]">
+            {curso.codigo} · {curso.creditos} créditos · {curso.docente ?? "Sin docente"}
+          </p>
+        </div>
+      ),
+      sortValue: (curso) => curso.nombre,
+      searchValue: (curso) => `${curso.nombre} ${curso.codigo} ${curso.docente ?? ""}`,
+      className: "sticky left-0 z-[1] w-[260px] bg-[var(--secub-surface)]",
+      headerClassName: "sticky left-0 z-10 w-[260px] bg-[var(--color-surface-soft)]",
+    },
+    ...competencias.map<TableColumn<CursoAsis>>((competencia, index) => {
+      const displayName = getCompetenciaDisplayName(competencia, index);
+      return {
+        key: competencia.id,
+        title: (
+          <span className="inline-flex items-center justify-center gap-1.5">
+            <span className="line-clamp-2 text-center leading-4">{displayName}</span>
+            <InfoModalTrigger
+              title={`Descripción de ${displayName}`}
+              content={<p>{getCompetenciaDescription(competencia)}</p>}
+              ariaLabel={`Ver descripción de ${displayName}`}
+            />
+          </span>
+        ),
+        sortable: false,
+        className: "w-[220px] text-center",
+        headerClassName: "w-[220px] text-center",
+        render: (curso) => {
+          const key = getMappingKey(curso.id, competencia.id);
+          const nivel = nivelesDraft[key] ?? "";
+          return (
+            <div>
+              <Select
+                value={nivel || "no-aplica"}
+                options={nivelOptions}
+                disabled={disabled || !nucleo}
+                onChange={(event) =>
+                  onNivelChange(curso.id, competencia.id, event.target.value as NivelCompromiso | "")
+                }
+              />
+              <div className="mt-2 flex justify-center">
+                <Badge variant={getNivelVariant(nivel || null)}>{getNivelShort(nivel || null)}</Badge>
+              </div>
+            </div>
+          );
+        },
+      };
+    }),
+  ];
 
   return (
     <section ref={sectionRef} className="surface-card scroll-mt-28 rounded-lg p-6 md:p-8">
@@ -108,84 +164,14 @@ export default function MapeoCompetenciasSemesterStep({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border-2 border-[var(--color-gray-5)] bg-[var(--secub-surface)]">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] table-fixed border-separate border-spacing-0 text-sm">
-              <thead>
-                <tr className="bg-[var(--color-surface-soft)] text-xs text-[var(--color-gray-4)]">
-                  <th className="sticky left-0 z-10 w-[260px] border-b border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-5 py-3 text-left font-medium">
-                    Curso
-                  </th>
-
-                  {competencias.map((competencia, index) => {
-                    const displayName = getCompetenciaDisplayName(competencia, index);
-                    return (
-                      <th
-                        key={competencia.id}
-                        className="w-[220px] border-b border-[var(--color-gray-6)] px-3 py-3 text-center font-medium align-top"
-                      >
-                        <div className="flex items-center justify-center gap-1.5">
-                          <span className="line-clamp-2 text-center leading-4">{displayName}</span>
-                          <InfoModalTrigger
-                            title={`Descripción de ${displayName}`}
-                            content={<p>{getCompetenciaDescription(competencia)}</p>}
-                            ariaLabel={`Ver descripción de ${displayName}`}
-                          />
-                        </div>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-
-              <tbody>
-                {cursos.map((curso) => (
-                  <tr key={curso.id}>
-                    <td className="sticky left-0 z-10 border-b border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-5 py-4 align-top">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-[var(--color-gray-1)]">
-                          {curso.nombre}
-                        </p>
-                        <p className="mt-0.5 text-xs text-[var(--color-gray-4)]">
-                          {curso.codigo} · {curso.creditos} créditos · {curso.docente ?? "Sin docente"}
-                        </p>
-                      </div>
-                    </td>
-
-                    {competencias.map((competencia) => {
-                      const key = getMappingKey(curso.id, competencia.id);
-                      const nivel = nivelesDraft[key] ?? "";
-
-                      return (
-                        <td
-                          key={`${curso.id}-${competencia.id}`}
-                          className="border-b border-[var(--color-gray-6)] px-3 py-4 align-top text-center"
-                        >
-                          <Select
-                            value={nivel || "no-aplica"}
-                            options={nivelOptions}
-                            disabled={disabled || !nucleo}
-                            onChange={(event) =>
-                              onNivelChange(
-                                curso.id,
-                                competencia.id,
-                                event.target.value as NivelCompromiso | "",
-                              )
-                            }
-                          />
-
-                          <div className="mt-2 flex justify-center">
-                            <Badge variant={getNivelVariant(nivel || null)}>{getNivelShort(nivel || null)}</Badge>
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <Table
+          columns={columns}
+          data={cursos}
+          rowKey={(curso) => curso.id}
+          minWidth={900}
+          searchPlaceholder="Buscar curso por nombre, código o docente…"
+          emptyMessage="No hay cursos cargados para este semestre."
+        />
       )}
       <div className="mt-4 flex flex-1 justify-end gap-2">
         <Button

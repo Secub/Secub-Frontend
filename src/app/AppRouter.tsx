@@ -11,6 +11,7 @@ import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
 import { getCurrentMockUser } from "../services/auth/mockUser";
 import { useInactivityLogout } from "../services/auth/useInactivityLogout";
 import { hasSelectedProgram } from "../services/programSelection";
+import ChunkErrorBoundary, { clearChunkReloadFlag } from "./router/ChunkErrorBoundary";
 import NotFoundPage from "./router/NotFoundPage";
 import PageLoadingState from "./router/PageLoadingState";
 import { resolveRoute } from "./router/routeConfig";
@@ -34,6 +35,13 @@ export default function AppRouter() {
     : null;
 
   useInactivityLogout(panelRoute);
+
+  useEffect(() => {
+    // Si llegamos hasta aquí es porque el árbol montó sin errores de chunk:
+    // se limpia la marca para que un futuro despliegue también reciba su
+    // propio intento de recarga automática.
+    clearChunkReloadFlag();
+  }, []);
 
   useEffect(() => {
     if (!needsProgramSelection) return;
@@ -64,8 +72,10 @@ export default function AppRouter() {
   const Page = route.component;
 
   return (
-    <Suspense fallback={<PageLoadingState />}>
-      <Page />
-    </Suspense>
+    <ChunkErrorBoundary key={normalizedPath}>
+      <Suspense fallback={<PageLoadingState />}>
+        <Page />
+      </Suspense>
+    </ChunkErrorBoundary>
   );
 }

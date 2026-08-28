@@ -9,20 +9,6 @@ interface ValidationBannerProps {
   onClose?: () => void;
 }
 
-const toastStyles = {
-  success:
-    "border-[var(--color-success)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
-  error:
-    "border-[var(--color-error)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
-  info: "border-[var(--color-info)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] shadow-[var(--shadow-lg)]",
-} as const;
-
-const iconBoxStyles = {
-  success: "bg-[var(--color-success)] text-[var(--color-secondary-4)]",
-  error: "bg-[var(--color-error)] text-[var(--color-white)]",
-  info: "bg-[var(--color-info)] text-[var(--color-secondary-4)]",
-} as const;
-
 const iconMap = {
   success: "complete",
   error: "warning",
@@ -51,25 +37,13 @@ export default function ValidationBanner({
 
   return (
     <div
-      className="fixed right-4 top-4 z-[90] w-[calc(100%-2rem)] max-w-xl md:right-8 md:top-6"
+      className="fixed bottom-5 right-5 z-[70] w-[min(92vw,420px)]"
       role="status"
       aria-live={feedback.type === "error" ? "assertive" : "polite"}
     >
-      <div
-        className={[
-          "rounded-[var(--radius-xl)] border p-4",
-          toastStyles[feedback.type],
-        ].join(" ")}
-      >
+      <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 shadow-[var(--shadow-lg)]">
         <div className="flex items-start gap-3">
-          <span
-            className={[
-              "mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)]",
-              iconBoxStyles[feedback.type],
-            ].join(" ")}
-          >
-            <SecubIcon name={iconName} weight="fill" size={20} />
-          </span>
+          <SecubIcon name={iconName} weight="fill" size={20} className="mt-0.5 text-[var(--color-secondary-1)]" />
 
           <div className="min-w-0 flex-1">
             <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
