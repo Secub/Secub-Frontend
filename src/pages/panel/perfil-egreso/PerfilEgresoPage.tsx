@@ -22,6 +22,10 @@ export default function PerfilEgresoPage() {
     currentUser,
     catalogs,
     permissions,
+    loading,
+    loadError,
+    submitting,
+    reload,
     isStepLocked,
     isInheritedBaseStep,
     hasRecords,
@@ -81,7 +85,7 @@ export default function PerfilEgresoPage() {
           ? "Consulta y gestión de la información institucional del perfil de egreso."
           : "Consulta la información institucional del perfil de egreso."
       }
-      actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
+      actions={!loading && !isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -89,6 +93,18 @@ export default function PerfilEgresoPage() {
           title="Este paso aún no está disponible"
           description={getAcademicWorkflowLockedDescription("perfil-egreso")}
           helperText="La restricción secuencial se valida solo en Gestión Académica."
+        />
+      ) : loading ? (
+        <WorkflowStateCard
+          title="Cargando perfiles de egreso"
+          description="Estamos consultando el programa seleccionado, sus planes de estudio y los perfiles registrados."
+        />
+      ) : loadError ? (
+        <WorkflowStateCard
+          title="No fue posible cargar los perfiles"
+          description={loadError}
+          actionLabel="Reintentar"
+          onAction={reload}
         />
       ) : !hasRecords ? (
         <WorkflowStateCard
@@ -157,6 +173,7 @@ export default function PerfilEgresoPage() {
           initialValues={formValues}
           records={roleScopedRecords}
           record={selectedRecord}
+          submitting={submitting}
           onClose={() => setFormOpen(false)}
           onSubmit={handleFormSubmit}
         />
@@ -170,7 +187,7 @@ export default function PerfilEgresoPage() {
           confirmLabel="Eliminar"
           variant="danger"
           onCancel={() => setRecordToDelete(null)}
-          onConfirm={confirmDelete}
+          onConfirm={() => void confirmDelete()}
         />
       ) : null}
 
