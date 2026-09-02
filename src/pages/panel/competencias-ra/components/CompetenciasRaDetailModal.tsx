@@ -17,9 +17,10 @@ interface CompetenciasRaDetailModalProps {
   canEdit: boolean;
   canDelete: boolean;
   onClose: () => void;
-  onSaveDescription: (record: CompetenciasRaEnriched, descripcion: string) => boolean;
+  onSaveDescription: (record: CompetenciasRaEnriched, descripcion: string) => boolean | Promise<boolean>;
   onDelete: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
+  submitting?: boolean;
 }
 
 function DetailItem({ label, value }: { label: string; value: string }) {
@@ -44,6 +45,7 @@ export function CompetenciasRaDetailModal({
   onSaveDescription,
   onDelete,
   onEditRa,
+  submitting = false,
 }: CompetenciasRaDetailModalProps) {
   const [descriptionDraft, setDescriptionDraft] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
@@ -63,7 +65,7 @@ export function CompetenciasRaDetailModal({
     resultadosAprendizaje,
   });
 
-  const handleSaveDescription = () => {
+  const handleSaveDescription = async () => {
     const cleanDescription = descriptionDraft.trim();
 
     if (!cleanDescription) {
@@ -72,7 +74,7 @@ export function CompetenciasRaDetailModal({
       return;
     }
 
-    const saved = onSaveDescription(record, cleanDescription);
+    const saved = await onSaveDescription(record, cleanDescription);
 
     if (saved) {
       setDescriptionError("");
@@ -144,8 +146,12 @@ export function CompetenciasRaDetailModal({
             ) : null}
 
             <div className="flex justify-end">
-              <Button variant="primary" onClick={handleSaveDescription}>
-                Guardar cambios
+              <Button
+                variant="primary"
+                onClick={() => void handleSaveDescription()}
+                disabled={submitting}
+              >
+                {submitting ? "Guardando…" : "Guardar cambios"}
               </Button>
             </div>
           </div>

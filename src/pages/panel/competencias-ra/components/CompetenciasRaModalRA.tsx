@@ -9,8 +9,9 @@ interface CompetenciasRaModalRAProps {
   onDraftChange: (value: string) => void;
   onClearError: () => void;
   onClose: () => void;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   isCreateLimitReached?: boolean;
+  submitting?: boolean;
 }
 
 export default function CompetenciasRaModalRA({
@@ -23,6 +24,7 @@ export default function CompetenciasRaModalRA({
   onClose,
   onSave,
   isCreateLimitReached = false,
+  submitting = false,
 }: CompetenciasRaModalRAProps) {
   const limitMessage = "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.";
   return (
@@ -38,11 +40,15 @@ export default function CompetenciasRaModalRA({
       onClose={onClose}
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={onSave} disabled={isCreateLimitReached}>
-            {mode === "edit" ? "Guardar RA" : "Agregar RA"}
+          <Button
+            variant="primary"
+            onClick={() => void onSave()}
+            disabled={isCreateLimitReached || submitting}
+          >
+            {submitting ? "Guardando…" : mode === "edit" ? "Guardar RA" : "Agregar RA"}
           </Button>
         </div>
       }
@@ -62,7 +68,7 @@ export default function CompetenciasRaModalRA({
         }}
         rows={6}
         placeholder="Escribe el Resultado de Aprendizaje"
-        disabled={isCreateLimitReached}
+        disabled={isCreateLimitReached || submitting}
         id="raDescripcion"
         data-validation-field="raDescripcion"
         error={error || (isCreateLimitReached ? limitMessage : "")}

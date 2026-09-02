@@ -19,9 +19,12 @@ interface CompetenciasRaFormModalProps {
   user: CurrentUser;
   catalogs: Catalogs;
   initialValues: FormState;
+  records: CompetenciasRaEnriched[];
   record: CompetenciasRaEnriched | null;
+  maxCompetenciesPerPlan?: number;
+  submitting?: boolean;
   onClose: () => void;
-  onSubmit: (values: FormState) => void;
+  onSubmit: (values: FormState) => void | Promise<void>;
 }
 
 interface FormErrors extends AcademicScopeErrors {
@@ -34,7 +37,10 @@ export function CompetenciasRaFormModal({
   user,
   catalogs,
   initialValues,
+  records,
   record,
+  maxCompetenciesPerPlan = 4,
+  submitting = false,
   onClose,
   onSubmit,
 }: CompetenciasRaFormModalProps) {
@@ -72,6 +78,13 @@ export function CompetenciasRaFormModal({
       nextErrors.descripcion = "Escribe tu competencia.";
     }
 
+    const competencyCount = records.filter(
+      (item) => item.planId === form.planId && item.id !== record?.id,
+    ).length;
+    if (form.planId && competencyCount >= maxCompetenciesPerPlan) {
+      nextErrors.planId = `Este plan ya tiene el máximo de ${maxCompetenciesPerPlan} competencias.`;
+    }
+
     const errorKeys = Object.keys(nextErrors);
     const hasErrors = errorKeys.length > 0;
 
@@ -98,9 +111,9 @@ export function CompetenciasRaFormModal({
     return !hasErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSubmit(form);
+    await onSubmit(form);
   };
 
   return (
@@ -116,11 +129,15 @@ export function CompetenciasRaFormModal({
       size="lg"
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            {mode === "create" ? "Crear competencia" : "Guardar cambios"}
+          <Button variant="primary" onClick={() => void handleSubmit()} disabled={submitting}>
+            {submitting
+              ? "Guardando…"
+              : mode === "create"
+                ? "Crear competencia"
+                : "Guardar cambios"}
           </Button>
         </div>
       }

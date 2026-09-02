@@ -21,8 +21,9 @@ interface PropositoFormModalProps {
   initialValues: FormState;
   records: PropositoEnriched[];
   record: PropositoEnriched | null;
+  submitting?: boolean;
   onClose: () => void;
-  onSubmit: (values: FormState) => void;
+  onSubmit: (values: FormState) => void | Promise<void>;
 }
 
 interface FormErrors extends AcademicScopeErrors {
@@ -36,6 +37,7 @@ export function PropositoFormModal({
   catalogs,
   records,
   record,
+  submitting = false,
   initialValues,
   onClose,
   onSubmit,
@@ -111,9 +113,9 @@ export function PropositoFormModal({
     return !hasErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSubmit(mode === "create" ? { ...form, estado: "activo" } : form);
+    await onSubmit(mode === "create" ? { ...form, estado: "activo" } : form);
   };
 
   return (
@@ -133,11 +135,15 @@ export function PropositoFormModal({
       size="lg"
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            {mode === "create" ? "Crear propósito" : "Guardar cambios"}
+          <Button variant="primary" onClick={() => void handleSubmit()} disabled={submitting}>
+            {submitting
+              ? "Guardando…"
+              : mode === "create"
+                ? "Crear propósito"
+                : "Guardar cambios"}
           </Button>
         </div>
       }

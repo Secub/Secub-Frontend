@@ -309,7 +309,7 @@ export function getEmptyFormState(user: CurrentUser): FormState {
   return {
     seccionalId,
     facultadId: user.scope.facultadId ?? "",
-    lugarId: getDefaultLugarBySeccional(seccionalId),
+    lugarId: user.scope.lugarId ?? getDefaultLugarBySeccional(seccionalId),
     programaId: user.scope.programaId ?? "",
     planId: "",
     estado: "activo",
