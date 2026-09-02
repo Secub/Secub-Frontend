@@ -64,6 +64,7 @@ export async function request<T>(path: string, options: HttpRequestOptions = {})
 
   const response = await fetch(createUrl(path, options.query), {
     method,
+    credentials: "include",
     headers,
     body: options.body === undefined
       ? undefined

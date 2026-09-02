@@ -1,58 +1,87 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GoArrowRight, GoBook, GoChevronLeft } from "react-icons/go";
 import LogoSECUB from "../../assets/logos/logotipo_ConUSB.png";
-import { secubAcademicPrograms, type SecubProgramId } from "../../data/secubAcademicPrograms";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
-import { SHOW_DEMO_TOOLS } from "../../config/demo.config";
-import { mockBackend } from "../../services/mockBackend";
-import { persistSelectedProgramId } from "../../services/programSelection";
 import {
   SECUB_ROLE_LABELS,
-  SECUB_ROLE_ORDER,
-  normalizeSecubRole,
+  isSecubRole,
   type SecubRole,
 } from "../../config/access/roles";
-import { requestConfirmation } from "../../shared/feedback";
-import { getBrowserSearchParams } from "../../shared/browser";
+import {
+  fetchAuthSession,
+  selectAuthContext,
+  type AuthContext,
+  type AuthSession,
+} from "../../services/auth/session";
+import { showNotification } from "../../shared/feedback";
 
-const selectableRoles = SECUB_ROLE_ORDER.map((role) => ({
-  role,
-  label: SECUB_ROLE_LABELS[role],
-}));
-
-function getInitialRole() {
-  if (typeof window === "undefined") return "director" as SecubRole;
-  const params = getBrowserSearchParams();
-  return normalizeSecubRole(params.get("role") ?? "director");
-}
-
-function buildDashboardUrl(role: SecubRole) {
-  const params = getBrowserSearchParams();
-  params.set("role", role);
-  return `${ROUTES.panelDashboard}?${params.toString()}`;
+function normalizeRole(role: string): SecubRole | null {
+  const normalized = role.trim().toLowerCase();
+  return isSecubRole(normalized) ? normalized : null;
 }
 
 export default function ProgramSelectorPage() {
-  const [selectedRole, setSelectedRole] = useState<SecubRole>(() => getInitialRole());
-  const selectedRoleLabel = selectableRoles.find((item) => item.role === selectedRole)?.label;
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [selectedRole, setSelectedRole] = useState<SecubRole | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submittingContextId, setSubmittingContextId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSelectProgram = (programId: SecubProgramId) => {
-    persistSelectedProgramId(programId);
-    navigateToRoute(buildDashboardUrl(selectedRole));
-  };
+  useEffect(() => {
+    let active = true;
+    fetchAuthSession()
+      .then((current) => {
+        if (!active) return;
+        const roles = current.roles
+          .map(normalizeRole)
+          .filter((role): role is SecubRole => role !== null);
+        setSession(current);
+        setSelectedRole(roles.includes("director") ? "director" : (roles[0] ?? null));
+      })
+      .catch((reason: unknown) => {
+        if (!active) return;
+        setError(reason instanceof Error ? reason.message : "No fue posible cargar la sesión.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const handleResetDemo = async () => {
-    const confirmed = await requestConfirmation({
-      title: "Reiniciar datos demo",
-      message: "Esta acción borrará la información persistida en este navegador.",
-      confirmLabel: "Reiniciar datos",
-      variant: "danger",
-    });
+  const roles = useMemo(
+    () =>
+      (session?.roles ?? [])
+        .map(normalizeRole)
+        .filter((role): role is SecubRole => role !== null),
+    [session],
+  );
+  const contexts = useMemo(
+    () =>
+      (session?.contexts ?? []).filter(
+        (context) => normalizeRole(context.role) === selectedRole,
+      ),
+    [selectedRole, session],
+  );
 
-    if (!confirmed) return;
-
-    mockBackend.clearDemoData();
-    navigateToRoute(`${ROUTES.programSelector}?role=${selectedRole}`, { replace: true });
+  const handleSelectProgram = async (context: AuthContext) => {
+    const role = normalizeRole(context.role);
+    if (!role) return;
+    setSubmittingContextId(context.context_id);
+    try {
+      const updated = await selectAuthContext(context.context_id);
+      setSession(updated);
+      navigateToRoute(`${ROUTES.panelDashboard}?role=${role}`);
+    } catch (reason) {
+      showNotification({
+        title: "No fue posible ingresar",
+        message: reason instanceof Error ? reason.message : "No se pudo seleccionar el programa.",
+        variant: "error",
+      });
+    } finally {
+      setSubmittingContextId(null);
+    }
   };
 
   return (
@@ -67,10 +96,7 @@ export default function ProgramSelectorPage() {
             <GoChevronLeft aria-hidden="true" />
             Volver al acceso
           </button>
-
-          <div className="flex items-center gap-4">
-            <img src={LogoSECUB} alt="SECUB" className="h-9 w-auto object-contain sm:h-20" />
-          </div>
+          <img src={LogoSECUB} alt="SECUB" className="h-9 w-auto object-contain sm:h-20" />
         </header>
 
         <section className="flex flex-1 flex-col justify-center gap-5">
@@ -78,145 +104,85 @@ export default function ProgramSelectorPage() {
             <p className="inline-flex rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-white)]">
               SECUB · Datos académicos
             </p>
-
             <h1 className="mt-4 font-heading text-3xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-4xl">
               Selecciona programa y rol
             </h1>
-
             <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)] sm:text-base">
-              Elige cómo vas a ingresar y selecciona el programa académico para continuar.
+              {session ? `Hola, ${session.full_name}. Elige cómo vas a ingresar.` : "Cargando tus asignaciones académicas…"}
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-            <section
-              className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5"
-              aria-labelledby="role-selector-title"
-            >
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">
-                    1. Rol
-                  </p>
-                  <h2 id="role-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">
-                    Selecciona tu rol
-                  </h2>
-                </div>
-                <p className="text-sm font-semibold text-[var(--color-gray-3)]">
-                  Activo: {selectedRoleLabel}
-                </p>
-              </div>
-
-              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {selectableRoles.map((item) => {
-                  const isSelected = selectedRole === item.role;
-
-                  return (
-                    <button
-                      key={item.role}
-                      type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => setSelectedRole(item.role)}
-                      className={[
-                        "group rounded-[var(--radius-lg)] border px-4 py-3 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]",
-                        isSelected
-                          ? "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.10)] shadow-[inset_4px_0_0_var(--color-success)]"
-                          : "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-white)]",
-                      ].join(" ")}
-                    >
-                      <span className="flex items-center gap-3">
-                        <span
-                          className={[
-                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-pill)] font-heading text-sm font-bold",
-                            isSelected
-                              ? "bg-[var(--color-success)] text-[var(--color-white)]"
-                              : "bg-[var(--color-white)] text-[var(--color-secondary-4)] ring-1 ring-[var(--color-gray-6)] group-hover:ring-[var(--color-secondary-2)]",
-                          ].join(" ")}
-                          aria-hidden="true"
-                        >
-                          {item.label.slice(0, 2).toUpperCase()}
-                        </span>
-
-                        <span className="min-w-0 font-heading text-sm font-bold text-[var(--color-secondary-4)]">
-                          {item.label}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section
-              className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-[var(--color-white)] p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5"
-              aria-labelledby="program-selector-title"
-            >
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">
-                  2. Programa
-                </p>
-                <h2 id="program-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">
-                  Selecciona el programa académico
-                </h2>
-              </div>
-
-              <div className="mt-4 grid gap-3">
-                {secubAcademicPrograms.length === 0 ? (
-                  <div
-                    role="status"
-                    className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5 text-center"
-                  >
-                    <p className="font-heading text-base font-bold text-[var(--color-secondary-4)]">
-                      No hay programas simulados cargados
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-                      El catálogo quedó vacío para incorporar después una única fuente de datos controlada.
-                    </p>
-                  </div>
-                ) : secubAcademicPrograms.map((program) => (
-                  <button
-                    key={program.id}
-                    type="button"
-                    className="group rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-white)] hover:shadow-[0_18px_45px_rgba(24,34,51,0.10)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.24)]"
-                    onClick={() => handleSelectProgram(program.id)}
-                  >
-                    <span className="flex items-center justify-between gap-4">
-                      <span className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-secondary-1)] text-xl text-[var(--color-white)]">
-                          <GoBook aria-hidden="true" />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block font-heading text-lg font-bold text-[var(--color-secondary-4)]">
-                            {program.name}
-                          </span>
-                          <span className="mt-1 block text-sm leading-5 text-[var(--color-gray-3)]">
-                            {program.faculty} · Plan {program.planVersion}
-                          </span>
-                        </span>
-                      </span>
-
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-pill)] border border-[var(--color-gray-6)] text-[var(--color-secondary-4)] transition-all group-hover:border-[var(--color-secondary-2)] group-hover:bg-[var(--color-secondary-1)] group-hover:text-[var(--color-white)]">
-                        <GoArrowRight aria-hidden="true" />
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {SHOW_DEMO_TOOLS ? (
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={handleResetDemo}
-                className="rounded-[var(--radius-pill)] border border-[color:rgba(235,87,87,0.30)] px-4 py-2 text-xs font-bold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.08)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(235,87,87,0.18)]"
-                title="Reiniciar datos demo persistidos solo en este navegador"
-              >
-                Reset demo
+          {loading ? (
+            <div role="status" className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-white p-8 text-center text-[var(--color-gray-3)]">
+              Consultando tu sesión de SECUB…
+            </div>
+          ) : error ? (
+            <div role="alert" className="rounded-[var(--radius-2xl)] border border-[var(--color-error)] bg-white p-8 text-center">
+              <p className="font-heading font-bold text-[var(--color-secondary-4)]">No se pudo cargar el acceso</p>
+              <p className="mt-2 text-sm text-[var(--color-gray-3)]">{error}</p>
+              <button type="button" onClick={() => navigateToRoute(ROUTES.access)} className="mt-5 rounded-full bg-[var(--color-primary-1)] px-5 py-2 font-semibold text-white">
+                Volver a iniciar sesión
               </button>
             </div>
-          ) : null}
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+              <section className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5" aria-labelledby="role-selector-title">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">1. Rol</p>
+                <h2 id="role-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">Selecciona tu rol</h2>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                  {roles.map((role) => {
+                    const selected = role === selectedRole;
+                    const label = SECUB_ROLE_LABELS[role];
+                    return (
+                      <button
+                        key={role}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => setSelectedRole(role)}
+                        className={`rounded-[var(--radius-lg)] border px-4 py-3 text-left transition-all ${selected ? "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.10)] shadow-[inset_4px_0_0_var(--color-success)]" : "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] hover:border-[var(--color-secondary-2)]"}`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${selected ? "bg-[var(--color-success)] text-white" : "bg-white text-[var(--color-secondary-4)]"}`}>{label.slice(0, 2).toUpperCase()}</span>
+                          <span className="font-heading text-sm font-bold text-[var(--color-secondary-4)]">{label}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5" aria-labelledby="program-selector-title">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">2. Programa</p>
+                <h2 id="program-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">Selecciona el programa académico</h2>
+                <div className="mt-4 grid max-h-[440px] gap-3 overflow-y-auto pr-1">
+                  {contexts.length === 0 ? (
+                    <div role="status" className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] p-5 text-center text-sm text-[var(--color-gray-3)]">
+                      No hay programas asignados para este rol.
+                    </div>
+                  ) : contexts.map((context) => (
+                    <button
+                      key={context.context_id}
+                      type="button"
+                      disabled={submittingContextId !== null}
+                      onClick={() => void handleSelectProgram(context)}
+                      className="group rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-left transition-all hover:border-[var(--color-secondary-2)] hover:bg-white disabled:opacity-60"
+                    >
+                      <span className="flex items-center justify-between gap-4">
+                        <span className="flex min-w-0 items-center gap-3">
+                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-secondary-1)] text-xl text-white"><GoBook aria-hidden="true" /></span>
+                          <span className="min-w-0">
+                            <span className="block font-heading text-lg font-bold text-[var(--color-secondary-4)]">{context.program_name}</span>
+                            <span className="mt-1 block text-sm text-[var(--color-gray-3)]">{context.faculty_name} · {context.plan_name}</span>
+                          </span>
+                        </span>
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--color-gray-6)] group-hover:bg-[var(--color-secondary-1)] group-hover:text-white"><GoArrowRight aria-hidden="true" /></span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </div>
+          )}
         </section>
       </div>
     </main>

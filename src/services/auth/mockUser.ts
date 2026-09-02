@@ -7,6 +7,7 @@ import {
   normalizeSecubRole,
   type SecubRole,
 } from "../../config/access/roles";
+import { getStoredAuthSession } from "./session";
 
 export interface CentralMockUser {
   id: string;
@@ -119,6 +120,35 @@ export function buildDemoDocenteIdFromName(nombre?: string) {
 
 
 export function getCurrentMockUser(): CentralMockUser {
+  const authenticated = getStoredAuthSession();
+  const authenticatedContext = authenticated?.contexts.find(
+    (context) => context.context_id === authenticated.selected_context_id,
+  );
+  if (authenticated && authenticatedContext) {
+    const role = normalizeSecubRole(authenticatedContext.role);
+    return {
+      id: authenticated.user_id,
+      nombre: authenticated.full_name,
+      email: authenticated.email,
+      cargo: SECUB_ROLE_LABELS[role],
+      role,
+      seccionalId: authenticatedContext.campus_codigo,
+      lugarId: authenticatedContext.location_codigo,
+      facultadId: authenticatedContext.faculty_codigo,
+      programaId: authenticatedContext.program_codigo,
+      academicProgramId: authenticatedContext.program_codigo,
+      planId: authenticatedContext.plan_codigo,
+      scope: {
+        seccionalId: authenticatedContext.campus_codigo,
+        lugarId: authenticatedContext.location_codigo,
+        facultadId: authenticatedContext.faculty_codigo,
+        programaId: authenticatedContext.program_codigo,
+        academicProgramId: authenticatedContext.program_codigo,
+        planId: authenticatedContext.plan_codigo,
+      },
+    };
+  }
+
   const params =
     typeof window !== "undefined"
       ? getBrowserSearchParams()
