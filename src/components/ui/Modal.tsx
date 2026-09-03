@@ -56,6 +56,10 @@ export function Modal({
   const descriptionId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -83,7 +87,7 @@ export function Modal({
 
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -118,7 +122,7 @@ export function Modal({
       if (appRoot) appRoot.inert = rootWasInert;
       previousActiveElementRef.current?.focus?.();
     };
-  }, [onClose, open]);
+  }, [open]);
 
   if (!open || typeof document === "undefined") return null;
 
