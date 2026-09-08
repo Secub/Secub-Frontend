@@ -22,6 +22,10 @@ export default function PropositoFormacionPage() {
     currentUser,
     catalogs,
     permissions,
+    loading,
+    loadError,
+    submitting,
+    reload,
     isStepLocked,
     isInheritedBaseStep,
     hasRecords,
@@ -81,7 +85,7 @@ export default function PropositoFormacionPage() {
           ? "Consulta y gestión del propósito de formación institucional."
           : "Consulta el propósito de formación institucional."
       }
-      actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
+      actions={!loading && !isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -89,6 +93,18 @@ export default function PropositoFormacionPage() {
           title="Este paso aún no está disponible"
           description={getAcademicWorkflowLockedDescription("proposito-formacion")}
           helperText="La restricción secuencial se valida solo en Gestión Académica."
+        />
+      ) : loading ? (
+        <WorkflowStateCard
+          title="Cargando propósitos de formación"
+          description="Estamos consultando el programa seleccionado, sus planes de estudio y los propósitos registrados."
+        />
+      ) : loadError ? (
+        <WorkflowStateCard
+          title="No fue posible cargar los propósitos"
+          description={loadError}
+          actionLabel="Reintentar"
+          onAction={reload}
         />
       ) : !hasRecords ? (
         <WorkflowStateCard
@@ -160,6 +176,7 @@ export default function PropositoFormacionPage() {
           initialValues={formValues}
           records={roleScopedRecords}
           record={selectedRecord}
+          submitting={submitting}
           onClose={() => setFormOpen(false)}
           onSubmit={handleFormSubmit}
         />
@@ -173,7 +190,7 @@ export default function PropositoFormacionPage() {
           confirmLabel="Eliminar"
           variant="danger"
           onCancel={() => setRecordToDelete(null)}
-          onConfirm={confirmDelete}
+          onConfirm={() => void confirmDelete()}
         />
       ) : null}
 

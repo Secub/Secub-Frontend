@@ -43,6 +43,7 @@ export interface Catalogs {
 
 export interface UserScope {
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;

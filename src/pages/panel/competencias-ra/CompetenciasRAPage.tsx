@@ -24,6 +24,11 @@ export default function CompetenciasRaFormacionPage() {
     currentUser,
     catalogs,
     permissions,
+    loading,
+    loadError,
+    submitting,
+    maxCompetenciesPerPlan,
+    reload,
     isStepLocked,
     hasRecords,
     filters,
@@ -99,7 +104,7 @@ export default function CompetenciasRaFormacionPage() {
           ? "Consulta y gestión de competencias y Resultados de Aprendizaje."
           : "Consulta competencias y Resultados de Aprendizaje."
       }
-      actions={!isStepLocked && hasRecords ? pageActions : undefined}
+      actions={!loading && !isStepLocked && hasRecords ? pageActions : undefined}
     >
       {isStepLocked ? (
         <WorkflowStateCard
@@ -107,6 +112,18 @@ export default function CompetenciasRaFormacionPage() {
           title="Este paso aún no está disponible"
           description={getAcademicWorkflowLockedDescription("competencias-ra")}
           helperText="La restricción secuencial se valida solo en Gestión Académica."
+        />
+      ) : loading ? (
+        <WorkflowStateCard
+          title="Cargando competencias y RA"
+          description="Estamos consultando el programa seleccionado, sus planes, competencias y resultados de aprendizaje."
+        />
+      ) : loadError ? (
+        <WorkflowStateCard
+          title="No fue posible cargar las competencias"
+          description={loadError}
+          actionLabel="Reintentar"
+          onAction={reload}
         />
       ) : !hasRecords ? (
         <WorkflowStateCard
@@ -176,6 +193,7 @@ export default function CompetenciasRaFormacionPage() {
         onSaveDescription={handleSaveCompetenciaDescription}
         onDelete={handleDelete}
         onEditRa={openEditRaModal}
+        submitting={submitting}
       />
 
       {permissions.canCreate || permissions.canUpdate ? (
@@ -185,7 +203,10 @@ export default function CompetenciasRaFormacionPage() {
           user={currentUser}
           catalogs={catalogs}
           initialValues={formValues}
+          records={roleScopedRecords}
           record={selectedRecord}
+          maxCompetenciesPerPlan={maxCompetenciesPerPlan}
+          submitting={submitting}
           onClose={() => setFormOpen(false)}
           onSubmit={handleFormSubmit}
         />
@@ -202,6 +223,7 @@ export default function CompetenciasRaFormacionPage() {
           onClose={closeRaModal}
           onSave={handleSaveRa}
           isCreateLimitReached={isCreateRaLimitReached}
+          submitting={submitting}
         />
       ) : null}
 
@@ -213,7 +235,7 @@ export default function CompetenciasRaFormacionPage() {
           confirmLabel="Eliminar"
           variant="danger"
           onCancel={() => setRecordToDelete(null)}
-          onConfirm={confirmDelete}
+          onConfirm={() => void confirmDelete()}
         />
       ) : null}
 
