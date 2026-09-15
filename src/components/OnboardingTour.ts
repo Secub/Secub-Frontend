@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { TourGuideClient } from "@sjmc11/tourguidejs/dist/tour";
 import "@sjmc11/tourguidejs/src/scss/tour.scss";
 
@@ -17,8 +17,6 @@ interface UseOnboardingTourOptions {
   enabled?: boolean;
 }
 
-// ✅ Limpieza defensiva: elimina cualquier diálogo/backdrop huérfano
-// que haya quedado en el DOM de una instancia anterior (StrictMode, HMR, etc.)
 function purgeOrphanTourDom() {
   document.querySelectorAll(".tg-dialog, .tg-backdrop").forEach((el) => el.remove());
 }
@@ -32,15 +30,8 @@ export function useOnboardingTour({
   const tourRef = useRef<TourGuideClient | null>(null);
   const autoStartedRef = useRef(false);
 
-  const destroyCurrentClient = async () => {
-    if (tourRef.current) {
-      await tourRef.current.exit(); // ✅ esperar a que termine antes de seguir
-      tourRef.current = null;
-    }
-    purgeOrphanTourDom(); // ✅ red de seguridad por si quedó algo huérfano
-  };
-
-  const buildClient = () => {
+  // ✅ useCallback: referencia estable, solo cambia si "steps" cambia
+  const buildClient = useCallback(() => {
     const hasAllTargets = steps.every((step) => Boolean(document.querySelector(step.target)));
     if (!hasAllTargets) return null;
 
@@ -57,9 +48,18 @@ export function useOnboardingTour({
 
     tourRef.current = client;
     return client;
-  };
+  }, [steps]);
 
-  const startTour = async () => {
+  // ✅ useCallback: no depende de nada externo, referencia estable
+  const destroyCurrentClient = useCallback(async () => {
+    if (tourRef.current) {
+      await tourRef.current.exit();
+      tourRef.current = null;
+    }
+    purgeOrphanTourDom();
+  }, []);
+
+  const startTour = useCallback(async () => {
     await destroyCurrentClient();
 
     return new Promise<void>((resolve) => {
@@ -69,12 +69,12 @@ export function useOnboardingTour({
           window.requestAnimationFrame(tryStart);
           return;
         }
-        client.start();
+        void client.start(); // ✅ fix error 1
         resolve();
       };
       tryStart();
     });
-  };
+  }, [buildClient, destroyCurrentClient]);
 
   useEffect(() => {
     if (!enabled || !steps.length) return;
@@ -83,7 +83,6 @@ export function useOnboardingTour({
     let rafId: number | null = null;
 
     const init = async () => {
-      // ✅ Purga cualquier residuo ANTES de empezar (cubre el doble-mount de StrictMode)
       purgeOrphanTourDom();
 
       const startWhenReady = () => {
@@ -114,7 +113,7 @@ export function useOnboardingTour({
       void destroyCurrentClient();
       autoStartedRef.current = false;
     };
-  }, [autoStart, enabled, steps, storageKey]);
+  }, [autoStart, enabled, steps, storageKey, buildClient, destroyCurrentClient]); // ✅ fix warning: dependencias completas
 
   return {
     startTour,
