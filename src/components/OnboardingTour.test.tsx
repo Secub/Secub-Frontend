@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const startMock = vi.fn();
 const exitMock = vi.fn();
 
-vi.mock("@sjmc11/tourguidejs/src/Tour", () => {
+vi.mock("@sjmc11/tourguidejs/dist/tour", () => {
   class MockTourGuideClient {
     options: Record<string, unknown>;
     start = startMock;
