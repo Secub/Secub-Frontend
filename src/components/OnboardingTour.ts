@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { TourGuideClient } from "@sjmc11/tourguidejs/dist/Tour";
+import { TourGuideClient } from "@sjmc11/tourguidejs/dist/tour";
 import "@sjmc11/tourguidejs/src/scss/tour.scss";
 
 export interface OnboardingTourStep {
