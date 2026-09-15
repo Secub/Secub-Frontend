@@ -15,6 +15,9 @@ import PropositoListSection from "./components/PropositoListSection";
 import PropositoPageActions from "./components/PropositoPageActions";
 import { usePropositoFormacionPage } from "./hooks/usePropositoFormacionPage";
 import { INITIAL_FILTERS } from "./proposito-formacion.utils";
+import { useMemo } from "react";
+// TOUR: import del hook y el tipo de pasos
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
 export default function PropositoFormacionPage() {
   const page = usePropositoFormacionPage();
@@ -61,15 +64,52 @@ export default function PropositoFormacionPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCompetenciasRa, { role: currentUser.role }));
   };
 
+  const tourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#proposito-filters-panel",
+        title: "Filtros",
+        content: "Filtra los propósitos de formación por programa, estado u otros criterios.",
+        order: 1,
+      },
+      {
+        target: "#proposito-list-section",
+        title: "Listado de propósitos",
+        content: "Aquí ves todos los propósitos de formación registrados. Puedes ver, editar o eliminar cada uno.",
+        order: 2,
+      },
+      {
+        target: "#proposito-page-actions",
+        title: "Acciones",
+        content: "Desde aquí puedes crear un nuevo propósito o exportarlos en PDF/Excel.",
+        order: 3,
+      },
+    ],
+    []
+  );
+
+  const canShowTour = !isStepLocked && hasRecords && !isInheritedBaseStep;
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_proposito_formacion_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
+
+
   const hasPageActions =
     permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
+  // TOUR: envuelto en <div id="proposito-page-actions"> para poder resaltarlo
   const pageActions = hasPageActions ? (
-    <PropositoPageActions
-      permissions={permissions}
-      filteredRecords={filteredRecords}
-      onCreate={openCreateModal}
-      onExport={setExportFormat}
-    />
+    <div id="proposito-page-actions">
+      <PropositoPageActions
+        permissions={permissions}
+        filteredRecords={filteredRecords}
+        onCreate={openCreateModal}
+        onExport={setExportFormat}
+      />
+    </div>
   ) : undefined;
 
   return (
@@ -83,6 +123,17 @@ export default function PropositoFormacionPage() {
       }
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
+      {/* TOUR: botón para relanzar el tour manualmente */}
+      {!isStepLocked && hasRecords ? (
+        <button
+          type="button"
+          onClick={startTour}
+          className="mb-3 text-sm text-blue-600 underline"
+        >
+          Ver guía de esta sección
+        </button>
+      ) : null}
+
       {isStepLocked ? (
         <WorkflowStateCard
           variant="locked"
@@ -103,26 +154,32 @@ export default function PropositoFormacionPage() {
         />
       ) : (
         <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
-          <PropositoFiltersPanel
-            user={currentUser}
-            permissions={permissions}
-            filters={filters}
-            filterOptions={availableFilterOptions}
-            filteredCount={filteredRecords.length}
-            totalCount={roleScopedRecords.length}
-            onFilterChange={handleFilterChange}
-            onReset={() => setFilters(INITIAL_FILTERS)}
-            activeRecords={filteredRecords}
-          />
+          {/* TOUR: id agregado para el paso 1 */}
+          <div id="proposito-filters-panel">
+            <PropositoFiltersPanel
+              user={currentUser}
+              permissions={permissions}
+              filters={filters}
+              filterOptions={availableFilterOptions}
+              filteredCount={filteredRecords.length}
+              totalCount={roleScopedRecords.length}
+              onFilterChange={handleFilterChange}
+              onReset={() => setFilters(INITIAL_FILTERS)}
+              activeRecords={filteredRecords}
+            />
+          </div>
 
-          <PropositoListSection
-            data={filteredRecords}
-            role={currentUser.role}
-            permissions={permissions}
-            onView={openDetailModal}
-            onEdit={openEditModal}
-            onDelete={handleDelete}
-          />
+          {/* TOUR: id agregado para el paso 2 */}
+          <div id="proposito-list-section">
+            <PropositoListSection
+              data={filteredRecords}
+              role={currentUser.role}
+              permissions={permissions}
+              onView={openDetailModal}
+              onEdit={openEditModal}
+              onDelete={handleDelete}
+            />
+          </div>
         </div>
       )}
 
