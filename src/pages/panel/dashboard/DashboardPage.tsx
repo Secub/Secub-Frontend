@@ -17,10 +17,12 @@ import { useOnboardingTour, type OnboardingTourStep } from "../../../components/
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
-  const filteredCycleIds = dashboard.filteredCycles.map((cycle) => cycle.id).join("|");
+  const tourCyclesSnapshot = JSON.stringify(
+    dashboard.filteredCycles.map(({ id, name }) => ({ id, name })),
+  );
   const tourCycles = useMemo(
-    () => dashboard.filteredCycles,
-    [filteredCycleIds],
+    () => JSON.parse(tourCyclesSnapshot) as Array<{ id: string; name: string }>,
+    [tourCyclesSnapshot],
   );
   const dashboardTourSteps = useMemo<OnboardingTourStep[]>(() => {
     if (!dashboard.isDirector || dashboard.view !== "control") return [];
