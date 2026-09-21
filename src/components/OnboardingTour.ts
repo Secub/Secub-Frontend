@@ -28,6 +28,10 @@ const MAX_TARGET_WAIT_MS = 5000;
 
 const DEFAULT_TARGET_PADDING = 30;
 
+// Objetivos mas bajos que esto son "chicos" (botones, paneles cortos): se deja
+// la ubicacion automatica de la libreria para que el dialogo no tape el foco.
+const LARGE_TARGET_MIN_HEIGHT = 200;
+
 function getActiveStepTarget(client: TourGuideClient): Element | null {
   const rawStep = (client as unknown as { tourSteps?: { target?: unknown }[]; activeStep?: number })
     .tourSteps?.[(client as unknown as { activeStep?: number }).activeStep ?? 0];
@@ -63,6 +67,7 @@ function correctSidePlacement(client: TourGuideClient) {
 
   const targetRect = correctBackdropPosition(client);
   if (!targetRect) return;
+  if (targetRect.height < LARGE_TARGET_MIN_HEIGHT) return;
 
   const dialogRect = dialog.getBoundingClientRect();
   if (dialogRect.width === 0 || dialogRect.height === 0) return;
@@ -71,26 +76,20 @@ function correctSidePlacement(client: TourGuideClient) {
   const edgePadding = 8;
   const required = dialogRect.height + gap;
 
+  // El dialogo siempre se ubica arriba del target; si no hay espacio, se sube el scroll
+  // para correr el target hacia abajo en el viewport y liberar el espacio necesario.
   let targetTop = targetRect.top;
-  let targetBottom = targetRect.bottom;
-  let spaceBelow = window.innerHeight - targetBottom;
-  let spaceAbove = targetTop;
+  const spaceAbove = targetTop;
 
-  if (spaceBelow < required && spaceAbove < required) {
-    const deficit = required - spaceBelow;
-    const maxScroll = Math.max(0, targetTop - edgePadding);
-    const scrollAmount = Math.min(deficit, maxScroll);
+  if (spaceAbove < required) {
+    const scrollAmount = Math.min(required - spaceAbove, window.scrollY);
     if (scrollAmount > 0) {
-      window.scrollBy(0, scrollAmount);
-      targetTop -= scrollAmount;
-      targetBottom -= scrollAmount;
-      spaceBelow = window.innerHeight - targetBottom;
-      spaceAbove = targetTop;
+      window.scrollBy(0, -scrollAmount);
+      targetTop += scrollAmount;
     }
   }
 
-  const placeBelow = spaceBelow >= required || spaceBelow >= spaceAbove;
-  let top = placeBelow ? targetBottom + gap : targetTop - dialogRect.height - gap;
+  let top = targetTop - dialogRect.height - gap;
   top = Math.min(Math.max(edgePadding, top), window.innerHeight - dialogRect.height - edgePadding);
 
   const maxLeft = Math.max(edgePadding, window.innerWidth - dialogRect.width - edgePadding);
@@ -109,15 +108,20 @@ function correctSidePlacement(client: TourGuideClient) {
 }
 
 function attachVerticalPlacementGuard(client: TourGuideClient) {
-  const SETTLE_MS = 80;
-  let settleTimer: ReturnType<typeof setTimeout> | null = null;
+  // La libreria posiciona el dialogo (a veces al costado) con una transicion CSS de
+  // hasta 300ms. Si corregimos con un setTimeout, el usuario alcanza a ver esa posicion
+  // "equivocada" antes de que saltemos arriba. Un microtask corre antes del siguiente
+  // pintado del navegador, asi que la correccion reemplaza el valor equivocado sin que
+  // llegue a pintarse: la transicion de la libreria anima directo hacia la posicion final.
+  let scheduled = false;
 
   const scheduleCorrection = () => {
-    if (settleTimer !== null) clearTimeout(settleTimer);
-    settleTimer = setTimeout(() => {
-      settleTimer = null;
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotask(() => {
+      scheduled = false;
       correctSidePlacement(client);
-    }, SETTLE_MS);
+    });
   };
 
   const observer = new MutationObserver((mutations) => {
@@ -136,7 +140,6 @@ function attachVerticalPlacementGuard(client: TourGuideClient) {
   scheduleCorrection();
 
   return () => {
-    if (settleTimer !== null) clearTimeout(settleTimer);
     observer.disconnect();
   };
 }
@@ -148,7 +151,7 @@ export function useOnboardingTour({
   enabled = true,
   autoScrollSmooth = true,
   allowDialogOverlap = false,
-  forceVerticalPlacement = false,
+  forceVerticalPlacement = true,
 }: UseOnboardingTourOptions) {
   const tourRef = useRef<TourGuideClient | null>(null);
   const autoStartedRef = useRef(false);
