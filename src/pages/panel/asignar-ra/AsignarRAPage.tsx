@@ -9,6 +9,9 @@ import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
 import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
+import { useMemo } from "react";
+// TOUR: import del hook y el tipo de pasos
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
 export default function AsignarRAPage() {
   const asignarRA = useAsignarRA();
@@ -70,10 +73,43 @@ export default function AsignarRAPage() {
     : false;
   const courseDetailBreadcrumbItems = isCourseDetailView
     ? [
-        { label: "Asignar RA", onClick: handleBackToCourses },
-        { label: selectedCourse?.nombre ?? "Detalle del curso" },
-      ]
+      { label: "Asignar RA", onClick: handleBackToCourses },
+      { label: selectedCourse?.nombre ?? "Detalle del curso" },
+    ]
     : undefined;
+
+  const tourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#asignar-ra-filters-panel",
+        title: "Filtros",
+        content: "Filtra los resultados de aprendizaje por programa, estado u otros criterios.",
+        order: 1,
+      },
+      {
+        target: "#asignar_ra-ciclos-panel",
+        title: "Ciclos",
+        content: "Selecciona un ciclo para ver los resultados de aprendizaje asociados.",
+        order: 2,
+      },
+      {
+        target: "#asignar_ra-detalle-curso-panel",
+        title: "Detalle del curso",
+        content: "Revisa la información del curso y los resultados de aprendizaje asignados.",
+        order: 3,
+      }
+    ],
+    []
+  );
+
+const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead;
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_asignar_ra_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
 
   return (
     <PanelLayout
@@ -100,9 +136,12 @@ export default function AsignarRAPage() {
             </div>
           ) : null}
 
+          
+          
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
+              <div id="asignar_ra-detalle-curso-panel">
               <AsignarRACourseDetail
                 selectedCourse={selectedCourse}
                 selectedCycle={selectedCycle}
@@ -122,10 +161,23 @@ export default function AsignarRAPage() {
                 getRaAssignment={getRaAssignment}
                 isRaSelected={isRaSelected}
               />
+              </div>
             </div>
           ) : (
+            
             <>
+             {/* TOUR: botón para relanzar el tour manualmente */}
+            {!access.isStepLocked ? (
+              <button
+                type="button"
+                onClick={startTour}
+                className="mb-3 text-sm text-blue-600 underline"
+              >
+                Ver guía de esta sección
+              </button>
+              ) : null}
               <div ref={refs.filtersRef}>
+                
                 <AsignarRAFilters
                   filters={filters}
                   options={filterOptions}
@@ -143,10 +195,12 @@ export default function AsignarRAPage() {
               </div>
 
               {!selectedCycle ? (
+                <div id="asignar_ra-ciclos-panel">
                 <WorkflowStateCard
                   title="Selecciona el ciclo de medición"
                   description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
                 />
+                </div>
               ) : !courses.length ? (
                 <WorkflowStateCard
                   title="No hay cursos de Síntesis disponibles"
@@ -154,6 +208,8 @@ export default function AsignarRAPage() {
                 />
               ) : (
                 <div ref={refs.coursesRef}>
+                  
+                  <div id="asignar_ra-filters-panel">
                   <AsignarRACoursesTable
                     rows={courseRows}
                     totalCourses={courses.length}
@@ -161,6 +217,7 @@ export default function AsignarRAPage() {
                     canManage={access.canManage}
                     onSelectCourse={handleSelectCourse}
                   />
+                  </div>
                 </div>
               )}
             </>
