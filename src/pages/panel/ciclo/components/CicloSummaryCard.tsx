@@ -21,6 +21,7 @@ interface CicloSummaryCardProps {
   onEdit: (ciclo: CicloEnriched) => void;
   onDelete: (ciclo: CicloEnriched) => void;
   onDuplicate: (ciclo: CicloEnriched) => void;
+  highlightId?: string;
 }
 
 const statusVariant = {
@@ -45,6 +46,7 @@ export default function CicloSummaryCard({
   onEdit,
   onDelete,
   onDuplicate,
+  highlightId,
 }: CicloSummaryCardProps) {
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
@@ -90,122 +92,124 @@ export default function CicloSummaryCard({
 
   return (
     <article className="surface-card p-6">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h3 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
-              {formatCicloTitle(ciclo)}
-            </h3>
-            <Badge variant={statusVariant[ciclo.estado]}>{statusLabel[ciclo.estado]}</Badge>
-            {ciclo.planEstado === "inactivo" ? (
-              <Badge variant="neutral">Plan inactivo</Badge>
-            ) : null}
-          </div>
-
-          <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            {ciclo.programaNombre} · {ciclo.planNombre.replace(" (Inactivo)", "")} · {ciclo.facultadNombre} ·{" "}
-            {formatDate(ciclo.fechaInicio)} — {formatDate(ciclo.fechaFin)}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-nowrap items-center gap-3">
-          <IconButton
-            variant="outline"
-            icon={<ActionIcon name="view" />}
-            label={`Ver detalle del ciclo ${formatCicloTitle(ciclo)}`}
-            onClick={() => onView(ciclo)}
-          />
-
-          {hasSecondaryActions ? (
-            <div ref={actionsMenuRef} className="relative">
-              <button
-                type="button"
-                aria-label={`Más acciones para el ciclo ${formatCicloTitle(ciclo)}`}
-                title="Más acciones"
-                aria-haspopup="menu"
-                aria-expanded={isActionsMenuOpen}
-                onClick={() => setIsActionsMenuOpen((isOpen) => !isOpen)}
-                className="inline-flex h-10 w-10 shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 text-[var(--color-gray-4)] shadow-none transition-colors hover:bg-transparent hover:text-[var(--color-secondary-1)] focus-visible:bg-transparent focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none active:bg-transparent active:text-[var(--color-secondary-1)]"
-              >
-                <ActionIcon name="more" />
-              </button>
-
-              {isActionsMenuOpen ? (
-                <div
-                  role="menu"
-                  aria-label={`Acciones del ciclo ${formatCicloTitle(ciclo)}`}
-                  className="absolute right-0 top-full z-30 mt-2 min-w-44 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-1.5 shadow-lg"
-                >
-                  {permissions.canEditCycle ? (
-                    <button
-                      type="button"
-                      role="menuitem"
-                      disabled={!canEdit}
-                      title={!canEdit ? disabledReason : `Editar ciclo ${formatCicloTitle(ciclo)}`}
-                      onClick={() => runMenuAction(() => onEdit(ciclo))}
-                      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
-                    >
-                      <ActionIcon name="edit" size="sm" />
-                      <span>Editar</span>
-                    </button>
-                  ) : null}
-
-                  {permissions.canDuplicateCycle ? (
-                    <button
-                      type="button"
-                      role="menuitem"
-                      disabled={!canDuplicate}
-                      title={!canDuplicate ? duplicateDisabledReason : "Duplicar ciclo"}
-                      onClick={() => runMenuAction(() => onDuplicate(ciclo))}
-                      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
-                    >
-                      <ActionIcon name="copy" size="sm" />
-                      <span>Duplicar</span>
-                    </button>
-                  ) : null}
-
-                  {permissions.canDeleteCycle ? (
-                    <button
-                      type="button"
-                      role="menuitem"
-                      disabled={!canEdit}
-                      title={!canEdit ? disabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
-                      onClick={() => runMenuAction(() => onDelete(ciclo))}
-                      className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-error)] transition-colors hover:bg-[var(--color-surface-soft)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
-                    >
-                      <ActionIcon name="delete" size="sm" />
-                      <span>Eliminar</span>
-                    </button>
-                  ) : null}
-                </div>
+      <div id={highlightId}>
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 className="font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
+                {formatCicloTitle(ciclo)}
+              </h3>
+              <Badge variant={statusVariant[ciclo.estado]}>{statusLabel[ciclo.estado]}</Badge>
+              {ciclo.planEstado === "inactivo" ? (
+                <Badge variant="neutral">Plan inactivo</Badge>
               ) : null}
             </div>
-          ) : null}
-        </div>
-      </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
-          <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
-            {ciclo.cursosSeleccionados.length}
-          </p>
-          <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-            Cursos de Síntesis seleccionados
-          </p>
+            <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+              {ciclo.programaNombre} · {ciclo.planNombre.replace(" (Inactivo)", "")} · {ciclo.facultadNombre} ·{" "}
+              {formatDate(ciclo.fechaInicio)} — {formatDate(ciclo.fechaFin)}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-nowrap items-center gap-3">
+            <IconButton
+              variant="outline"
+              icon={<ActionIcon name="view" />}
+              label={`Ver detalle del ciclo ${formatCicloTitle(ciclo)}`}
+              onClick={() => onView(ciclo)}
+            />
+
+            {hasSecondaryActions ? (
+              <div ref={actionsMenuRef} className="relative">
+                <button
+                  type="button"
+                  aria-label={`Más acciones para el ciclo ${formatCicloTitle(ciclo)}`}
+                  title="Más acciones"
+                  aria-haspopup="menu"
+                  aria-expanded={isActionsMenuOpen}
+                  onClick={() => setIsActionsMenuOpen((isOpen) => !isOpen)}
+                  className="inline-flex h-10 w-10 shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 text-[var(--color-gray-4)] shadow-none transition-colors hover:bg-transparent hover:text-[var(--color-secondary-1)] focus-visible:bg-transparent focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none active:bg-transparent active:text-[var(--color-secondary-1)]"
+                >
+                  <ActionIcon name="more" />
+                </button>
+
+                {isActionsMenuOpen ? (
+                  <div
+                    role="menu"
+                    aria-label={`Acciones del ciclo ${formatCicloTitle(ciclo)}`}
+                    className="absolute right-0 top-full z-30 mt-2 min-w-44 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-1.5 shadow-lg"
+                  >
+                    {permissions.canEditCycle ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        disabled={!canEdit}
+                        title={!canEdit ? disabledReason : `Editar ciclo ${formatCicloTitle(ciclo)}`}
+                        onClick={() => runMenuAction(() => onEdit(ciclo))}
+                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                      >
+                        <ActionIcon name="edit" size="sm" />
+                        <span>Editar</span>
+                      </button>
+                    ) : null}
+
+                    {permissions.canDuplicateCycle ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        disabled={!canDuplicate}
+                        title={!canDuplicate ? duplicateDisabledReason : "Duplicar ciclo"}
+                        onClick={() => runMenuAction(() => onDuplicate(ciclo))}
+                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                      >
+                        <ActionIcon name="copy" size="sm" />
+                        <span>Duplicar</span>
+                      </button>
+                    ) : null}
+
+                    {permissions.canDeleteCycle ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        disabled={!canEdit}
+                        title={!canEdit ? disabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
+                        onClick={() => runMenuAction(() => onDelete(ciclo))}
+                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-error)] transition-colors hover:bg-[var(--color-surface-soft)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                      >
+                        <ActionIcon name="delete" size="sm" />
+                        <span>Eliminar</span>
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
 
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
-          <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
-            {ciclo.duracionAnios}
-          </p>
-          <p className="mt-1 text-sm text-[var(--color-gray-3)]">Años de duración</p>
-        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
+            <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
+              {ciclo.cursosSeleccionados.length}
+            </p>
+            <p className="mt-1 text-sm text-[var(--color-gray-3)]">
+              Cursos de Síntesis seleccionados
+            </p>
+          </div>
 
-        <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
-          <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
-            {ciclo.progreso}%
-          </p>
-          <p className="mt-1 text-sm text-[var(--color-gray-3)]">Completado</p>
+          <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
+            <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
+              {ciclo.duracionAnios}
+            </p>
+            <p className="mt-1 text-sm text-[var(--color-gray-3)]">Años de duración</p>
+          </div>
+
+          <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-5 text-center shadow-sm">
+            <p className="font-heading text-4xl font-semibold text-[var(--color-secondary-4)]">
+              {ciclo.progreso}%
+            </p>
+            <p className="mt-1 text-sm text-[var(--color-gray-3)]">Completado</p>
+          </div>
         </div>
       </div>
 

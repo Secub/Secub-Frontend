@@ -169,17 +169,14 @@ export default function PropositoFormacionPage() {
             />
           </div>
 
-          {/* TOUR: id agregado para el paso 2 */}
-          <div id="proposito-list-section">
-            <PropositoListSection
-              data={filteredRecords}
-              role={currentUser.role}
-              permissions={permissions}
-              onView={openDetailModal}
-              onEdit={openEditModal}
-              onDelete={handleDelete}
-            />
-          </div>
+          <PropositoListSection
+            data={filteredRecords}
+            role={currentUser.role}
+            permissions={permissions}
+            onView={openDetailModal}
+            onEdit={openEditModal}
+            onDelete={handleDelete}
+          />
         </div>
       )}
 

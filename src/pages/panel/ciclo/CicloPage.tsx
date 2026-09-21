@@ -162,18 +162,15 @@ export default function CicloPage() {
           />
         </div>
 
-        {/* TOUR: id agregado para el paso 2 */}
-        <div id="ciclo-list-section">
-          <CicloListSection
-            cycles={filteredCycles}
-            user={user}
-            onView={handleViewDetail}
-            onEdit={openEditModal}
-            onDelete={setCycleToDelete}
-            onDuplicate={openDuplicateModal}
-            activeCycle={activeCycle}
-          />
-        </div>
+        <CicloListSection
+          cycles={filteredCycles}
+          user={user}
+          onView={handleViewDetail}
+          onEdit={openEditModal}
+          onDelete={setCycleToDelete}
+          onDuplicate={openDuplicateModal}
+          activeCycle={activeCycle}
+        />
         </div>
       )}
 
