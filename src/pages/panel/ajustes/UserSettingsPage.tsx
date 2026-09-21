@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { SecubIcon } from "../../../components/ui/SecubIcon";
 import PanelLayout from "../../../components/panel/PanelLayout";
+import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
@@ -86,13 +87,7 @@ export default function UserSettingsPage() {
       description="Consulta tu perfil activo y gestiona las opciones generales de la experiencia SECUB."
     >
       <div className="w-full space-y-6">
-        <button
-          type="button"
-          onClick={() => void startTour()}
-          className="text-sm font-semibold text-[var(--color-secondary-1)] underline"
-        >
-          Ver guía de ajustes
-        </button>
+        <TourReplayButton onClick={startTour} label="Ver guía de ajustes" />
 
         <section id="settings-profile-card" className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">

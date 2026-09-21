@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
-import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { FlowActionBar, PanelLayout, TourReplayButton, WorkflowStateCard } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { ConfirmDialog } from "../../../components/ui";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
@@ -207,13 +207,7 @@ function MedicionRAContent() {
     >
       <div className="space-y-6 pb-24">
         {canShowTour ? (
-          <button
-            type="button"
-            onClick={startTour}
-            className="text-sm text-blue-600 underline"
-          >
-            Ver guía de esta sección
-          </button>
+          <TourReplayButton onClick={startTour} />
         ) : null}
 
         <CompetenceStepper

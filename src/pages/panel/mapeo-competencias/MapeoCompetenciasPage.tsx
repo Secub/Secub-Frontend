@@ -5,6 +5,7 @@ import {
   PanelLayout,
   WorkflowStateCard,
 } from "../../../components/panel";
+import TourReplayButton from "../../../components/panel/TourReplayButton";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -94,7 +95,7 @@ export default function MapeoCompetenciasPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCiclo, { role: currentUser.role }));
   };
 
-  const canShowTour = hasRecords;
+  const canShowTour = hasRecords && permissions.canRead;
   const tourSteps = useMemo<OnboardingTourStep[]>(() => {
     const steps: OnboardingTourStep[] = [];
 
@@ -131,7 +132,8 @@ export default function MapeoCompetenciasPage() {
     storageKey: "tour_mapeo_competencias_v1",
     autoStart: canShowTour,
     enabled: canShowTour,
-    forceVerticalPlacement: true,
+    // El mapeo consolidado no se renderiza hasta que se eligen los filtros requeridos.
+    allowPartialTargets: true,
   });
 
   return (
@@ -142,13 +144,7 @@ export default function MapeoCompetenciasPage() {
       actions={exportActions}
     >
       {canShowTour ? (
-        <button
-          type="button"
-          onClick={startTour}
-          className="mb-3 text-sm text-blue-600 underline"
-        >
-          Ver guía de esta sección
-        </button>
+        <TourReplayButton onClick={startTour} className="mb-3" />
       ) : null}
 
       {!permissions.canRead ? (

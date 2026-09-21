@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
-import { BackButton, PanelLayout } from "../../../components/panel";
+import { BackButton, PanelLayout, TourReplayButton } from "../../../components/panel";
 import { ConfirmDialog } from "../../../components/ui";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { MapeoCompetenciasAccessState } from "./components";
@@ -76,7 +76,6 @@ export default function MapeoCompetenciasCreatePage() {
     storageKey: "tour_mapeo_nucleos_v1",
     autoStart: permissions.canRead && hasAcademicContext && isNucleosStep,
     enabled: permissions.canRead && hasAcademicContext && isNucleosStep,
-    forceVerticalPlacement: true,
     autoScrollSmooth: false,
   });
 
@@ -127,7 +126,6 @@ export default function MapeoCompetenciasCreatePage() {
     enabled: permissions.canRead && hasAcademicContext && !isNucleosStep,
     autoScrollSmooth: false,
     allowDialogOverlap: true,
-    forceVerticalPlacement: true,
   });
 
   return (
@@ -143,13 +141,10 @@ export default function MapeoCompetenciasCreatePage() {
       <BackButton label="Volver a Mapeo de Competencias" onClick={handleGoBack} />
 
       {permissions.canRead && filters.programaId && filters.planId ? (
-        <button
-          type="button"
+        <TourReplayButton
           onClick={isNucleosStep ? startNucleosTour : startIraTour}
-          className="mb-3 text-sm text-blue-600 underline"
-        >
-          Ver guía de esta sección
-        </button>
+          className="mb-3"
+        />
       ) : null}
 
       {!permissions.canRead ? (

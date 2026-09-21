@@ -4,6 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import TourReplayButton from "../../../components/panel/TourReplayButton";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -67,8 +68,8 @@ export default function CicloPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelAsignarRa, { role: user.role }));
   };
 
-  const tourSteps = useMemo<OnboardingTourStep[]>(
-    () => [
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
       {
         target: "#ciclo-filters-panel",
         title: "Filtros",
@@ -78,26 +79,33 @@ export default function CicloPage() {
       {
         target: "#ciclo-list-section",
         title: "Listado de ciclos",
-        content: "Aquí ves todos los ciclos de medición registrados. Puedes ver, editar o eliminar cada uno.",
+        content: "Aquí ves los ciclos de medición registrados, con su periodo, estado y cursos seleccionados.",
         order: 2,
       },
-      {
+    ];
+
+    // Las acciones solo se renderizan para quien puede crear ciclos.
+    if (permissions.canCreateCycle) {
+      steps.push({
         target: "#ciclo-page-actions",
         title: "Acciones",
         content: "Desde aquí puedes crear un nuevo ciclo de medición si no existe uno activo.",
         order: 3,
-      },
-    ],
-    []
-  );
+      });
+    }
 
-  const canShowTour = !isStepLocked && hasCycles && permissions.canCreateCycle;
+    return steps;
+  }, [permissions.canCreateCycle]);
+
+  const canShowTour = !isStepLocked && hasCycles;
 
   const { startTour } = useOnboardingTour({
     steps: tourSteps,
     storageKey: "tour_ciclo_v1",
     autoStart: canShowTour,
     enabled: canShowTour,
+    // El listado solo existe si los filtros actuales devuelven ciclos.
+    allowPartialTargets: true,
   });
 
   const pageActions = (
@@ -118,14 +126,8 @@ export default function CicloPage() {
       actions={!isStepLocked && hasCycles && permissions.canCreateCycle ? pageActions : undefined}
     >
       {/* TOUR: botón para relanzar el tour manualmente */}
-      {!isStepLocked && hasCycles ? (
-        <button
-          type="button"
-          onClick={startTour}
-          className="mb-3 text-sm text-blue-600 underline"
-        >
-          Ver guía de esta sección
-        </button>
+      {canShowTour ? (
+        <TourReplayButton onClick={startTour} className="mb-3" />
       ) : null}
 
       {isStepLocked ? (

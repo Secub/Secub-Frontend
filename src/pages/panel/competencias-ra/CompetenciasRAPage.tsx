@@ -5,6 +5,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
@@ -134,6 +135,8 @@ export default function CompetenciasRaFormacionPage() {
     storageKey: "tour_competencias_ra_v1",
     autoStart: canShowTour,
     enabled: canShowTour,
+    // Las tarjetas solo existen si los filtros actuales devuelven competencias.
+    allowPartialTargets: true,
   });
 
   return (
@@ -148,13 +151,7 @@ export default function CompetenciasRaFormacionPage() {
       actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
       {canShowTour ? (
-        <button
-          type="button"
-          onClick={startTour}
-          className="mb-3 text-sm text-blue-600 underline"
-        >
-          Ver guía de esta sección
-        </button>
+        <TourReplayButton onClick={startTour} className="mb-3" />
       ) : null}
 
       {isStepLocked ? (

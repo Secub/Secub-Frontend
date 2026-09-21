@@ -8,6 +8,7 @@ import {
   getSelectedProgram,
 } from "../../services/programSelection";
 import { getBrowserLocation } from "../../shared/browser";
+import TourReplayButton from "./TourReplayButton";
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -144,13 +145,7 @@ export default function SidebarUserProfileMenu({ tourIds, onStartTour }: Sidebar
       </div>
 
       {onStartTour ? (
-        <button
-          type="button"
-          onClick={onStartTour}
-          className="w-full rounded-[10px] px-2 py-1 text-xs font-semibold text-[var(--color-secondary-2)] underline transition-colors hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
-        >
-          Ver guía del panel
-        </button>
+        <TourReplayButton onClick={onStartTour} label="Ver guía del panel" variant="on-dark" />
       ) : null}
     </div>
   );

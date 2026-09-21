@@ -1,4 +1,10 @@
-import { BackButton, FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import {
+  BackButton,
+  FlowActionBar,
+  PanelLayout,
+  TourReplayButton,
+  WorkflowStateCard,
+} from "../../../components/panel";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -83,7 +89,7 @@ export default function AsignarRAPage() {
       {
         target: "#asignar-ra-filters-panel",
         title: "Filtros",
-        content: "Filtra los resultados de aprendizaje por programa, estado u otros criterios.",
+        content: "Filtra los cursos de Síntesis por los criterios disponibles.",
         order: 1,
       },
       {
@@ -134,6 +140,8 @@ export default function AsignarRAPage() {
     storageKey: "tour_asignar_ra_detalle_v1",
     autoStart: canShowDetailTour,
     enabled: canShowDetailTour,
+    // El selector de aplicaciones vive dentro de la competencia expandida.
+    allowPartialTargets: true,
   });
 
   return (
@@ -167,13 +175,11 @@ export default function AsignarRAPage() {
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
               {canShowDetailTour ? (
-                <button
-                  type="button"
+                <TourReplayButton
                   onClick={startDetailTour}
-                  className="mb-3 mt-3 text-sm text-blue-600 underline"
-                >
-                  Ver guía del detalle
-                </button>
+                  label="Ver guía del detalle"
+                  className="mb-3 mt-3"
+                />
               ) : null}
               <div id="asignar_ra-detalle-curso-panel">
               <AsignarRACourseDetail
@@ -202,13 +208,7 @@ export default function AsignarRAPage() {
             <>
              {/* TOUR: botón para relanzar el tour manualmente */}
             {canShowTour ? (
-              <button
-                type="button"
-                onClick={startTour}
-                className="mb-3 text-sm text-blue-600 underline"
-              >
-                Ver guía de esta sección
-              </button>
+              <TourReplayButton onClick={startTour} className="mb-3" />
               ) : null}
               <div id="asignar-ra-filters-panel" ref={refs.filtersRef}>
                 

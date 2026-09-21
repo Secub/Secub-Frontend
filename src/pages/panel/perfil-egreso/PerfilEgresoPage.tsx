@@ -5,6 +5,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
@@ -88,7 +89,7 @@ export default function PerfilEgresoPage() {
       {
         target: "#perfil-egreso-list-table",
         title: "Listado de perfiles de egreso",
-        content: "Aquí ves todos los perfiles de egreso registrados. Puedes ver, editar o eliminar cada uno.",
+        content: "Aquí ves los perfiles de egreso registrados, con su estado y detalle.",
         order: 2,
       },
     ];
@@ -124,13 +125,7 @@ export default function PerfilEgresoPage() {
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {canShowTour ? (
-        <button
-          type="button"
-          onClick={startTour}
-          className="mb-3 text-sm text-blue-600 underline"
-        >
-          Ver guía de esta sección
-        </button>
+        <TourReplayButton onClick={startTour} className="mb-3" />
       ) : null}
 
       {isStepLocked ? (

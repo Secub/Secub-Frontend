@@ -4,6 +4,7 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
+import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
@@ -64,8 +65,11 @@ export default function PropositoFormacionPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCompetenciasRa, { role: currentUser.role }));
   };
 
-  const tourSteps = useMemo<OnboardingTourStep[]>(
-    () => [
+  const hasPageActions =
+    permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
+
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
       {
         target: "#proposito-filters-panel",
         title: "Filtros",
@@ -75,18 +79,23 @@ export default function PropositoFormacionPage() {
       {
         target: "#proposito-list-section",
         title: "Listado de propósitos",
-        content: "Aquí ves todos los propósitos de formación registrados. Puedes ver, editar o eliminar cada uno.",
+        content: "Aquí ves los propósitos de formación registrados, con su estado y detalle.",
         order: 2,
       },
-      {
+    ];
+
+    // Las acciones solo se renderizan para quien puede crear o exportar.
+    if (hasPageActions) {
+      steps.push({
         target: "#proposito-page-actions",
         title: "Acciones",
         content: "Desde aquí puedes crear un nuevo propósito o exportarlos en PDF/Excel.",
         order: 3,
-      },
-    ],
-    []
-  );
+      });
+    }
+
+    return steps;
+  }, [hasPageActions]);
 
   const canShowTour = !isStepLocked && hasRecords && !isInheritedBaseStep;
 
@@ -97,9 +106,6 @@ export default function PropositoFormacionPage() {
     enabled: canShowTour,
   });
 
-
-  const hasPageActions =
-    permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
   // TOUR: envuelto en <div id="proposito-page-actions"> para poder resaltarlo
   const pageActions = hasPageActions ? (
     <div id="proposito-page-actions">
@@ -124,14 +130,8 @@ export default function PropositoFormacionPage() {
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
       {/* TOUR: botón para relanzar el tour manualmente */}
-      {!isStepLocked && hasRecords ? (
-        <button
-          type="button"
-          onClick={startTour}
-          className="mb-3 text-sm text-blue-600 underline"
-        >
-          Ver guía de esta sección
-        </button>
+      {canShowTour ? (
+        <TourReplayButton onClick={startTour} className="mb-3" />
       ) : null}
 
       {isStepLocked ? (
