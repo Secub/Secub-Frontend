@@ -158,9 +158,9 @@ export default function MapeoCompetenciasIraStep({
 
   return (
     <div className="space-y-6 pb-24">
-      <section className="surface-card rounded-lg p-6 md:p-8">
+      <section id="mapeo-ira-flujo-semestres" className="surface-card rounded-lg p-6 md:p-8">
         <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div id="mapeo-ira-flujo-semestres">
+          <div>
             <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
               Flujo por semestres
             </h2>

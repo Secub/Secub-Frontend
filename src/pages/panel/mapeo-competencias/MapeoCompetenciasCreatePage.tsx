@@ -71,7 +71,7 @@ export default function MapeoCompetenciasCreatePage() {
     return steps;
   }, [totalSemestres]);
 
-  useOnboardingTour({
+  const { startTour: startNucleosTour } = useOnboardingTour({
     steps: nucleosTourSteps,
     storageKey: "tour_mapeo_nucleos_v1",
     autoStart: permissions.canRead && hasAcademicContext && isNucleosStep,
@@ -120,7 +120,7 @@ export default function MapeoCompetenciasCreatePage() {
     return steps;
   }, [activeSemesterHasCourseNivelAnchor]);
 
-  useOnboardingTour({
+  const { startTour: startIraTour } = useOnboardingTour({
     steps: iraTourSteps,
     storageKey: "tour_mapeo_ira_v1",
     autoStart: permissions.canRead && hasAcademicContext && !isNucleosStep,
@@ -141,6 +141,16 @@ export default function MapeoCompetenciasCreatePage() {
       ]}
     >
       <BackButton label="Volver a Mapeo de Competencias" onClick={handleGoBack} />
+
+      {permissions.canRead && filters.programaId && filters.planId ? (
+        <button
+          type="button"
+          onClick={isNucleosStep ? startNucleosTour : startIraTour}
+          className="mb-3 text-sm text-blue-600 underline"
+        >
+          Ver guía de esta sección
+        </button>
+      ) : null}
 
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState

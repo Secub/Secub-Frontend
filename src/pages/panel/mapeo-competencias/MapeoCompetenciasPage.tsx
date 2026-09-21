@@ -126,7 +126,7 @@ export default function MapeoCompetenciasPage() {
     return steps;
   }, [filteredRecords.length]);
 
-  useOnboardingTour({
+  const { startTour } = useOnboardingTour({
     steps: tourSteps,
     storageKey: "tour_mapeo_competencias_v1",
     autoStart: canShowTour,
@@ -141,6 +141,16 @@ export default function MapeoCompetenciasPage() {
       description="Asignación I-R-A-NA y visualización de la malla curricular por semestres y cursos."
       actions={exportActions}
     >
+      {canShowTour ? (
+        <button
+          type="button"
+          onClick={startTour}
+          className="mb-3 text-sm text-blue-600 underline"
+        >
+          Ver guía de esta sección
+        </button>
+      ) : null}
+
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
           title="Módulo no disponible"
