@@ -57,6 +57,7 @@ export default function AccessibilitySettingsPanel() {
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
         <article
+          id="accessibility-contrast-card"
           className="rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4"
           aria-labelledby="contrast-title"
         >
@@ -98,6 +99,7 @@ export default function AccessibilitySettingsPanel() {
         </article>
 
         <article
+          id="accessibility-font-size-card"
           className="rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4"
           aria-labelledby="font-size-title"
         >
@@ -152,6 +154,7 @@ export default function AccessibilitySettingsPanel() {
         </p>
 
         <Button
+          id="accessibility-reset-button"
           variant="outline"
           size="sm"
           onClick={resetSettings}
