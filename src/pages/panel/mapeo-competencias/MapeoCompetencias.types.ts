@@ -151,6 +151,7 @@ export interface MapeoCompetenciasRecord {
   programaId: string;
   planId: string;
   estado: MapeoCompetenciasEstado;
+  finalizado?: boolean;
   descripcion: string;
   competenciaRaIds: string[];
   semestresClasificados: SemestreClasificado[];

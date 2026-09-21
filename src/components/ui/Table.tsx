@@ -57,6 +57,7 @@ interface TableProps<T> {
   searchPlaceholder?: string;
   initialRowsPerPage?: number;
   rowsPerPageOptions?: number[];
+  pagination?: boolean;
   minWidth?: number | string;
 }
 
@@ -140,6 +141,7 @@ export function Table<T>({
   searchPlaceholder = "Buscar en la tabla…",
   initialRowsPerPage = 5,
   rowsPerPageOptions = [5, 10, 25],
+  pagination = true,
   minWidth = 760,
 }: TableProps<T>) {
   const firstSortableColumn = columns.find((column) => column.sortable !== false);
@@ -194,8 +196,8 @@ export function Table<T>({
   }, [columns, filteredRows, order, orderBy]);
 
   const visibleRows = useMemo(
-    () => sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [page, rowsPerPage, sortedRows],
+    () => pagination ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : sortedRows,
+    [page, pagination, rowsPerPage, sortedRows],
   );
 
   useEffect(() => {
@@ -297,7 +299,7 @@ export function Table<T>({
             ) : (
               visibleRows.map((row, index) => (
                 <TableRow
-                  key={rowKey(row, page * rowsPerPage + index)}
+                  key={rowKey(row, pagination ? page * rowsPerPage + index : index)}
                   className="bg-[var(--secub-surface)] transition-colors hover:bg-[var(--color-surface-soft)]"
                 >
                   {columns.map((column) => (
@@ -387,7 +389,7 @@ export function Table<T>({
         </MuiTable>
       </TableContainer>
 
-      <TablePagination
+      {pagination ? <TablePagination
         component="div"
         count={filteredRows.length}
         page={page}
@@ -402,7 +404,7 @@ export function Table<T>({
         labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count}`}
         className="border-t border-[var(--secub-border)] text-[var(--color-gray-3)]"
         sx={{ fontFamily: "inherit", overflow: "visible" }}
-      />
+      /> : null}
     </div>
   );
 }

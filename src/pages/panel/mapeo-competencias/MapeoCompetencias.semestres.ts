@@ -159,6 +159,36 @@ export function areAllSemestersClassified(draft: NucleosDraft, total = SAFE_FALL
   return buildSemesterNumbers(total).every((semester) => Boolean(draft[semester]));
 }
 
+const nucleoOrder: Record<NucleoFormacion, number> = {
+  fundamentacion: 0,
+  profesionalizacion: 1,
+  sintesis: 2,
+};
+
+export function canAssignNucleo(draft: NucleosDraft, semester: number, nucleo: NucleoFormacion) {
+  const nextOrder = nucleoOrder[nucleo];
+  const earlier = Object.entries(draft).some(([number, value]) =>
+    Number(number) < semester && value !== null && nucleoOrder[value] > nextOrder,
+  );
+  const later = Object.entries(draft).some(([number, value]) =>
+    Number(number) > semester && value !== null && nucleoOrder[value] < nextOrder,
+  );
+  if (earlier || later) return false;
+
+  const previous = draft[semester - 1];
+  const next = draft[semester + 1];
+  return (!previous || nextOrder - nucleoOrder[previous] <= 1)
+    && (!next || nucleoOrder[next] - nextOrder <= 1);
+}
+
+export function isNucleoSequenceValid(draft: NucleosDraft, total = SAFE_FALLBACK_TOTAL_SEMESTERS) {
+  return buildSemesterNumbers(total).every((semester) => {
+    const nucleo = draft[semester];
+    if (!nucleo) return true;
+    return canAssignNucleo(draft, semester, nucleo);
+  });
+}
+
 export function allNucleosRepresented(draft: NucleosDraft): boolean {
   const values = Object.values(draft).filter(Boolean) as NucleoFormacion[];
   return (

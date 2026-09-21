@@ -14,6 +14,8 @@ export default function MapeoCompetenciasCreatePage() {
   const page = useMapeoCompetenciasCreatePage();
   const {
     currentUser,
+    isLoaded,
+    loadError,
     permissions,
     filters,
     selectedPrograma,
@@ -52,6 +54,10 @@ export default function MapeoCompetenciasCreatePage() {
           title="Acceso restringido"
           description={getMapeoAccessRestrictedDescription()}
         />
+      ) : !isLoaded ? (
+        <MapeoCompetenciasAccessState title="Cargando mapeo" description="Consultando planes, cursos y competencias del programa seleccionado." />
+      ) : loadError ? (
+        <MapeoCompetenciasAccessState title="No fue posible cargar el mapeo" description={loadError} />
       ) : (
         <div className="space-y-6">
           {/*
@@ -139,9 +145,9 @@ export default function MapeoCompetenciasCreatePage() {
             confirmLabel="Guardar y salir"
             cancelLabel="Salir sin guardar"
             onCancel={() => navigateToMapeoList(currentUser.role)}
-            onConfirm={() => {
-              manager.saveProgress();
-              navigateToMapeoList(currentUser.role);
+            onConfirm={async () => {
+              const saved = await manager.saveProgress();
+              if (saved) navigateToMapeoList(currentUser.role);
             }}
           />
         </div>

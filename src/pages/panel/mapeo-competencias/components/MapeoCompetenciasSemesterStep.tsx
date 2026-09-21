@@ -167,6 +167,7 @@ export default function MapeoCompetenciasSemesterStep({
         <Table
           columns={columns}
           data={cursos}
+          pagination={false}
           rowKey={(curso) => curso.id}
           minWidth={900}
           searchPlaceholder="Buscar curso por nombre, código o docente…"
