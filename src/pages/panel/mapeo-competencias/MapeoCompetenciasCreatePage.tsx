@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
 import { BackButton, PanelLayout } from "../../../components/panel";
 import { ConfirmDialog } from "../../../components/ui";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { MapeoCompetenciasAccessState } from "./components";
 import MapeoCompetenciasCreateHeader from "./components/MapeoCompetenciasCreateHeader";
 import MapeoCompetenciasFeedback from "./components/MapeoCompetenciasFeedback";
@@ -34,6 +36,99 @@ export default function MapeoCompetenciasCreatePage() {
     showFinishConfirm,
     setShowFinishConfirm,
   } = page;
+
+  const isNucleosStep = manager.activeStep === "nucleos";
+  const hasAcademicContext = Boolean(filters.programaId && filters.planId);
+
+  const nucleosTourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#mapeo-progreso-flujo",
+        title: "Progreso del flujo de clasificación",
+        content:
+          "Este proceso tiene dos etapas: primero clasificas los Núcleos de Formación y luego defines los Niveles de Compromiso.",
+        order: 1,
+      },
+      {
+        target: "#mapeo-nucleos-step",
+        title: "Núcleos de Formación",
+        content:
+          "Consulta la descripción de cada núcleo (fundamentación, profesionalización o síntesis) antes de clasificar los semestres.",
+        order: 2,
+      },
+    ];
+
+    if (totalSemestres > 0) {
+      steps.push({
+        target: "#mapeo-nucleos-semestre-1",
+        title: "Semestre 1",
+        content:
+          "Para cada semestre selecciona una de las tres opciones: indica la etapa de formación a la que pertenece dentro del plan de estudios.",
+        order: 3,
+      });
+    }
+
+    return steps;
+  }, [totalSemestres]);
+
+  useOnboardingTour({
+    steps: nucleosTourSteps,
+    storageKey: "tour_mapeo_nucleos_v1",
+    autoStart: permissions.canRead && hasAcademicContext && isNucleosStep,
+    enabled: permissions.canRead && hasAcademicContext && isNucleosStep,
+    forceVerticalPlacement: true,
+    autoScrollSmooth: false,
+  });
+
+  const activeSemesterHasCourseNivelAnchor =
+    (coursesBySemester[manager.activeSemester]?.length ?? 0) > 0 && competenciasPlan.length > 0;
+
+  const iraTourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#mapeo-ira-flujo-semestres",
+        title: "Flujo por semestres",
+        content: "Aquí ves el flujo organizado por semestres: avanza entre ellos para definir sus niveles de compromiso.",
+        order: 1,
+      },
+      {
+        target: "#mapeo-ira-step",
+        title: "Indicaciones de Niveles de Compromiso",
+        content: "Consulta qué significa cada nivel (Introduce, Refuerza, Afianza, No aplica) antes de asignarlos.",
+        order: 2,
+      },
+    ];
+
+    if (activeSemesterHasCourseNivelAnchor) {
+      steps.push({
+        target: "#mapeo-ira-first-course-nivel",
+        title: "Nivel de compromiso por curso",
+        content:
+          "Selecciona el nivel de compromiso correspondiente para cada curso, según qué tanto requiere trabajar esa competencia específica.",
+        order: 3,
+      });
+    }
+
+    steps.push({
+      target: "#mapeo-ira-confirmar-semestre",
+      title: "Confirmar semestre",
+      content:
+        "Después de asignar los niveles de compromiso del semestre, baja hasta aquí y haz clic en \"Confirmar semestre\" para poder continuar.",
+      order: 4,
+    });
+
+    return steps;
+  }, [activeSemesterHasCourseNivelAnchor]);
+
+  useOnboardingTour({
+    steps: iraTourSteps,
+    storageKey: "tour_mapeo_ira_v1",
+    autoStart: permissions.canRead && hasAcademicContext && !isNucleosStep,
+    enabled: permissions.canRead && hasAcademicContext && !isNucleosStep,
+    autoScrollSmooth: false,
+    allowDialogOverlap: true,
+    forceVerticalPlacement: true,
+  });
 
   return (
     <PanelLayout

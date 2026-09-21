@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   FlowActionBar,
   PanelLayout,
@@ -7,6 +8,7 @@ import {
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import CompetenciasRaDetailModal from "./components/CompetenciasRaDetailModal";
 import CompetenciasRaExportModal from "./components/CompetenciasRaExportModal";
 import CompetenciasRaFiltersPanel from "./components/CompetenciasRaFilters";
@@ -82,13 +84,57 @@ export default function CompetenciasRaFormacionPage() {
   const hasPageActions =
     permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
   const pageActions = hasPageActions ? (
-    <CompetenciasRaPageActions
-      permissions={permissions}
-      filteredRecords={filteredRecords}
-      onCreate={openCreateModal}
-      onExport={setExportFormat}
-    />
+    <div id="competencias-ra-page-actions">
+      <CompetenciasRaPageActions
+        permissions={permissions}
+        filteredRecords={filteredRecords}
+        onCreate={openCreateModal}
+        onExport={setExportFormat}
+      />
+    </div>
   ) : undefined;
+
+  const canShowTour = !isStepLocked && hasRecords;
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#competencias-ra-filters-panel",
+        title: "Filtros",
+        content: "Filtra las competencias y sus Resultados de Aprendizaje por programa u otros criterios.",
+        order: 1,
+      },
+      {
+        target: "#competencias-ra-card",
+        title: "Competencia",
+        content: "Cada tarjeta representa una competencia registrada, con su estado, programa y descripción.",
+        order: 2,
+      },
+      {
+        target: "#competencias-ra-card-ra-toggle",
+        title: "Resultados de Aprendizaje",
+        content: "Haz clic aquí para expandir y gestionar los Resultados de Aprendizaje (RA) de la competencia.",
+        order: 3,
+      },
+    ];
+
+    if (hasPageActions) {
+      steps.push({
+        target: "#competencias-ra-page-actions",
+        title: "Acciones",
+        content: "Desde aquí puedes crear una nueva competencia o exportar el listado en PDF/Excel.",
+        order: 4,
+      });
+    }
+
+    return steps;
+  }, [hasPageActions]);
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_competencias_ra_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
 
   return (
     <PanelLayout
@@ -101,6 +147,16 @@ export default function CompetenciasRaFormacionPage() {
       }
       actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
+      {canShowTour ? (
+        <button
+          type="button"
+          onClick={startTour}
+          className="mb-3 text-sm text-blue-600 underline"
+        >
+          Ver guía de esta sección
+        </button>
+      ) : null}
+
       {isStepLocked ? (
         <WorkflowStateCard
           variant="locked"
@@ -121,17 +177,19 @@ export default function CompetenciasRaFormacionPage() {
         />
       ) : (
         <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
-          <CompetenciasRaFiltersPanel
-            user={currentUser}
-            permissions={permissions}
-            filters={filters}
-            filterOptions={availableFilterOptions}
-            filteredCount={filteredRecords.length}
-            totalCount={roleScopedRecords.length}
-            onFilterChange={handleFilterChange}
-            onReset={() => setFilters(INITIAL_FILTERS)}
-            activeRecords={filteredRecords}
-          />
+          <div id="competencias-ra-filters-panel">
+            <CompetenciasRaFiltersPanel
+              user={currentUser}
+              permissions={permissions}
+              filters={filters}
+              filterOptions={availableFilterOptions}
+              filteredCount={filteredRecords.length}
+              totalCount={roleScopedRecords.length}
+              onFilterChange={handleFilterChange}
+              onReset={() => setFilters(INITIAL_FILTERS)}
+              activeRecords={filteredRecords}
+            />
+          </div>
 
           <CompetenciasRaListSection
             data={filteredRecords}

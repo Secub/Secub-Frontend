@@ -34,14 +34,16 @@ export default function PerfilEgresoListSection({
 
       </div>
 
-      <PerfilEgresoTable
-        data={data}
-        role={role}
-        permissions={permissions}
-        onView={onView}
-        onEdit={onEdit}
-        onDelete={onDelete}
-      />
+      <div id="perfil-egreso-list-table">
+        <PerfilEgresoTable
+          data={data}
+          role={role}
+          permissions={permissions}
+          onView={onView}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
     </div>
   );
 }

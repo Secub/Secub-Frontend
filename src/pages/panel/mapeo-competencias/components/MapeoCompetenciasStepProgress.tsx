@@ -15,7 +15,7 @@ export default function MapeoCompetenciasStepProgress({
   onChange,
 }: MapeoCompetenciasStepProgressProps) {
   return (
-    <section className="surface-card rounded-lg p-6 md:p-8">
+    <section id="mapeo-progreso-flujo" className="surface-card rounded-lg p-6 md:p-8">
       <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">

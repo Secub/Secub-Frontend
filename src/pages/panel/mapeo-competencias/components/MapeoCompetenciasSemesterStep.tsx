@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { Badge, Button, InfoModalTrigger, Select, Table, type TableColumn } from "../../../../components/ui";
 import type {
   CompetenciaRaDemoRecord,
@@ -53,14 +53,6 @@ export default function MapeoCompetenciasSemesterStep({
   onConfirm,
   onNivelChange,
 }: MapeoCompetenciasSemesterStepProps) {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    window.requestAnimationFrame(() => {
-      sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }, [semestreNumero]);
-
   const nivelOptions = useMemo(
     () =>
       NIVELES_COMPROMISO.map((nivel) => ({
@@ -68,6 +60,11 @@ export default function MapeoCompetenciasSemesterStep({
         value: nivel.value,
       })),
     [],
+  );
+
+  const firstDisplayedCursoId = useMemo(
+    () => [...cursos].sort((a, b) => a.nombre.localeCompare(b.nombre))[0]?.id,
+    [cursos],
   );
   const columns: TableColumn<CursoAsis>[] = [
     {
@@ -106,8 +103,9 @@ export default function MapeoCompetenciasSemesterStep({
         render: (curso) => {
           const key = getMappingKey(curso.id, competencia.id);
           const nivel = nivelesDraft[key] ?? "";
+          const isFirstCourseAnchor = index === 0 && curso.id === firstDisplayedCursoId;
           return (
-            <div>
+            <div id={isFirstCourseAnchor ? "mapeo-ira-first-course-nivel" : undefined}>
               <Select
                 value={nivel || "no-aplica"}
                 options={nivelOptions}
@@ -127,7 +125,7 @@ export default function MapeoCompetenciasSemesterStep({
   ];
 
   return (
-    <section ref={sectionRef} className="surface-card scroll-mt-28 rounded-lg p-6 md:p-8">
+    <section className="surface-card scroll-mt-28 rounded-lg p-6 md:p-8">
       <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
@@ -175,6 +173,7 @@ export default function MapeoCompetenciasSemesterStep({
       )}
       <div className="mt-4 flex flex-1 justify-end gap-2">
         <Button
+            id="mapeo-ira-confirmar-semestre"
             variant={isConfirmed ? "outline" : "primary"}
             size="sm"
             onClick={onConfirm}
