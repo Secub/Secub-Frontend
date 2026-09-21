@@ -30,6 +30,13 @@ export interface CentralMockUser {
   };
 }
 
+export interface MockUserProfile {
+  id: string;
+  role: SecubRole;
+  label: string;
+  userId: string;
+}
+
 export const DEFAULT_DEMO_ROLE: SecubRole = DEFAULT_SECUB_ROLE;
 
 export const DEMO_DOCENTE_SECUB = {
@@ -82,6 +89,19 @@ export const centralMockUsers: Record<SecubRole, CentralMockUser> = {
     scope: {},
   },
 };
+
+export function getAvailableMockProfiles(user: Pick<CentralMockUser, "role" | "id">): MockUserProfile[] {
+  const roles: SecubRole[] = user.role === "director" || user.role === "docente"
+    ? ["director", "docente"]
+    : [user.role];
+
+  return roles.map((role) => ({
+    id: `${user.id}:${role}`,
+    role,
+    label: SECUB_ROLE_LABELS[role],
+    userId: centralMockUsers[role].id,
+  }));
+}
 
 export interface DemoDocenteInstitucional {
   id: string;

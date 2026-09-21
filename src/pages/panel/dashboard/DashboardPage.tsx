@@ -18,7 +18,7 @@ import { simulateEvidenceDownload } from "./dashboard.utils";
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
 
-  const tourSteps = useMemo<OnboardingTourStep[]>(
+  const teacherTourSteps = useMemo<OnboardingTourStep[]>(
     () => [
       {
         target: "#dashboard-summary-cards",
@@ -48,14 +48,97 @@ export default function DashboardPage() {
     []
   );
 
-  const canShowTour = dashboard.isTeacher && dashboard.view === "control";
+  const canShowTeacherTour = dashboard.isTeacher && dashboard.view === "control";
 
-  const { startTour } = useOnboardingTour({
-    steps: tourSteps,
+  const { startTour: startTeacherTour } = useOnboardingTour({
+    steps: teacherTourSteps,
     storageKey: "tour_dashboard_docente_v1",
-    autoStart: canShowTour,
-    enabled: canShowTour,
+    autoStart: canShowTeacherTour,
+    enabled: canShowTeacherTour,
   });
+
+  const tourCyclesSnapshot = JSON.stringify(
+    dashboard.filteredCycles.map(({ id, name }) => ({ id, name })),
+  );
+  const tourCycles = useMemo(
+    () => JSON.parse(tourCyclesSnapshot) as Array<{ id: string; name: string }>,
+    [tourCyclesSnapshot],
+  );
+  const dashboardTourSteps = useMemo<OnboardingTourStep[]>(() => {
+    if (!dashboard.isDirector || dashboard.view !== "control") return [];
+
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#dashboard-summary-card-1",
+        title: "Ciclo activo",
+        content: "Consulta cuántos ciclos tienen mediciones pendientes.",
+        order: 1,
+      },
+      {
+        target: "#dashboard-summary-card-2",
+        title: "Ciclos finalizados",
+        content: "Consulta cuántos ciclos completaron la medición y el plan de mejora.",
+        order: 2,
+      },
+      {
+        target: "#dashboard-summary-card-3",
+        title: "Cursos pendientes",
+        content: "Consulta cuántos cursos todavía tienen resultados de aprendizaje por medir.",
+        order: 3,
+      },
+      {
+        target: "#dashboard-summary-card-4",
+        title: "Cursos finalizados",
+        content: "Consulta cuántos cursos completaron su medición.",
+        order: 4,
+      },
+      {
+        target: "#dashboard-filters",
+        title: "Filtros",
+        content: "Filtra la información visible por ciclo, programa, plan, estado y los criterios disponibles para tu perfil.",
+        order: 5,
+      },
+      ...tourCycles.map((cycle, index) => ({
+        target: `#dashboard-cycle-card-${index}`,
+        title: cycle.name,
+        content: "Consulta el avance, el estado y las acciones disponibles para este ciclo de medición.",
+        order: index + 6,
+      })),
+    ];
+
+    const lastCycleIndex = tourCycles.length - 1;
+    if (lastCycleIndex >= 0) {
+      const actionSteps = [
+        ["pending", "Ver pendientes", "Revisa los cursos que aún tienen mediciones de RA pendientes."],
+        ["results", "Ver resultados", "Consulta los resultados consolidados por competencia y resultado de aprendizaje."],
+        ["improvement", "Plan de mejora", "Carga o actualiza el plan de mejora del ciclo cuando la medición esté completa."],
+        ["report", "Descargar reporte", "Descarga el reporte consolidado cuando el ciclo y su plan de mejora estén completos."],
+      ] as const;
+
+      actionSteps.forEach(([action, title, content], index) => {
+        steps.push({
+          target: `#dashboard-last-cycle-${action}`,
+          title,
+          content,
+          order: lastCycleIndex + index + 7,
+        });
+      });
+    }
+
+    return steps;
+  }, [dashboard.isDirector, dashboard.view, tourCycles]);
+
+  const canShowDashboardTour =
+    dashboard.isDirector && dashboard.view === "control" && dashboard.filteredCycles.length > 0;
+
+  const { startTour: startDirectorTour } = useOnboardingTour({
+    steps: dashboardTourSteps,
+    storageKey: "tour_dashboard_director_v2",
+    autoStart: canShowDashboardTour,
+    enabled: canShowDashboardTour,
+    allowPartialTargets: true,
+  });
+
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout
@@ -95,10 +178,12 @@ export default function DashboardPage() {
     >
       {dashboard.view === "control" ? (
         <div className="space-y-6">
-          {canShowTour ? (
+          {canShowTeacherTour || canShowDashboardTour ? (
             <button
               type="button"
-              onClick={startTour}
+              onClick={() => {
+                void (dashboard.isTeacher ? startTeacherTour() : startDirectorTour());
+              }}
               className="text-sm text-blue-600 underline"
             >
               Ver guía de esta sección
@@ -107,6 +192,7 @@ export default function DashboardPage() {
 
           <div id="dashboard-summary-cards">
             <MeasurementSummaryCards
+              tourId={canShowDashboardTour ? "dashboard-summary" : undefined}
               items={
                 dashboard.isTeacher
                   ? buildTeacherSummaryItems(dashboard.metrics)
@@ -122,6 +208,7 @@ export default function DashboardPage() {
                   user={dashboard.user}
                   catalogs={dashboard.dashboardData.catalogs}
                   cycles={dashboard.scopedCycles}
+                  tourId={canShowDashboardTour ? "dashboard-filters" : undefined}
                   filters={dashboard.filters}
                   onFilterChange={dashboard.handleFilterChange}
                   onReset={dashboard.handleResetFilters}
@@ -145,6 +232,7 @@ export default function DashboardPage() {
                 user={dashboard.user}
                 catalogs={dashboard.dashboardData.catalogs}
                 cycles={dashboard.scopedCycles}
+                tourId={canShowDashboardTour ? "dashboard-filters" : undefined}
                 filters={dashboard.filters}
                 onFilterChange={dashboard.handleFilterChange}
                 onReset={dashboard.handleResetFilters}
@@ -165,6 +253,17 @@ export default function DashboardPage() {
                         cycle={cycle}
                         isTeacher={dashboard.isTeacher}
                         isDirector={dashboard.isDirector}
+                        tourCardId={`dashboard-cycle-card-${dashboard.filteredCycles.indexOf(cycle)}`}
+                        tourActionIds={
+                          dashboard.filteredCycles.indexOf(cycle) === dashboard.filteredCycles.length - 1
+                            ? {
+                                pending: "dashboard-last-cycle-pending",
+                                results: "dashboard-last-cycle-results",
+                                improvement: "dashboard-last-cycle-improvement",
+                                report: "dashboard-last-cycle-report",
+                              }
+                            : undefined
+                        }
                         onViewPending={dashboard.handleViewPending}
                         onViewResults={dashboard.handleViewResultsFromCycle}
                         onDownloadReport={dashboard.handleDownloadCycleReport}

@@ -29,8 +29,16 @@ export function useDashboardReports({
       const availableIds = new Set(availableReportCompetences.map((competence) => competence.id));
       const filtered = current.filter((competenceId) => availableIds.has(competenceId));
 
-      if (filtered.length > 0) return filtered;
-      return availableReportCompetences[0] ? [availableReportCompetences[0].id] : [];
+      if (filtered.length > 0) {
+        return filtered.length === current.length ? current : filtered;
+      }
+
+      if (!availableReportCompetences[0]) return current.length === 0 ? current : [];
+
+      const defaultCompetenceId = availableReportCompetences[0].id;
+      return current.length === 1 && current[0] === defaultCompetenceId
+        ? current
+        : [defaultCompetenceId];
     });
   }, [availableReportCompetences]);
 

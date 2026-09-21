@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import { SecubIcon } from "../../../components/ui/SecubIcon";
 import PanelLayout from "../../../components/panel/PanelLayout";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { clearSelectedProgramId, getSelectedProgram } from "../../../services/programSelection";
 import { SECUB_ROLE_LABELS } from "../../../config/access/roles";
@@ -12,6 +14,65 @@ export default function UserSettingsPage() {
   const displayEmail = currentUser.email;
   const roleLabel = SECUB_ROLE_LABELS[currentUser.role];
   const activeCargoLabel = currentUser.cargo;
+
+  const settingsTourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#settings-profile-card",
+        title: "Perfil activo",
+        content: "Consulta la identidad y el rol con los que estás usando el panel.",
+        order: 1,
+      },
+      {
+        target: "#settings-email-card",
+        title: "Correo institucional",
+        content: "Aquí puedes verificar el correo institucional asociado a tu sesión.",
+        order: 2,
+      },
+      {
+        target: "#settings-role-card",
+        title: "Rol activo",
+        content: "Este dato indica los permisos y la vista que tienes disponibles en SECUB.",
+        order: 3,
+      },
+      ...(selectedProgram
+        ? [
+            {
+              target: "#settings-program-card",
+              title: "Programa seleccionado",
+              content: "Consulta el programa y la facultad sobre los que estás trabajando.",
+              order: 4,
+            },
+          ]
+        : []),
+      {
+        target: "#settings-options-card",
+        title: "Preferencias del panel",
+        content: "En esta sección encuentras las opciones generales de configuración.",
+        order: selectedProgram ? 5 : 4,
+      },
+      {
+        target: "#settings-accessibility-card",
+        title: "Accesibilidad",
+        content: "Configura contraste, tamaño de texto y opciones de lectura.",
+        order: selectedProgram ? 6 : 5,
+      },
+      {
+        target: "#settings-program-option-card",
+        title: "Cambiar programa",
+        content: "Vuelve a seleccionar el programa académico y el rol de ingreso.",
+        order: selectedProgram ? 7 : 6,
+      },
+    ],
+    [selectedProgram],
+  );
+
+  const { startTour } = useOnboardingTour({
+    steps: settingsTourSteps,
+    storageKey: "tour_user_settings_v1",
+    autoStart: true,
+    enabled: true,
+  });
 
   const handleChangeProgram = () => {
     clearSelectedProgramId();
@@ -25,7 +86,15 @@ export default function UserSettingsPage() {
       description="Consulta tu perfil activo y gestiona las opciones generales de la experiencia SECUB."
     >
       <div className="w-full space-y-6">
-        <section className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]">
+        <button
+          type="button"
+          onClick={() => void startTour()}
+          className="text-sm font-semibold text-[var(--color-secondary-1)] underline"
+        >
+          Ver guía de ajustes
+        </button>
+
+        <section id="settings-profile-card" className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             <div
               className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] font-heading text-xl font-bold text-[var(--color-white)]"
@@ -54,7 +123,7 @@ export default function UserSettingsPage() {
           </div>
 
           <dl className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4">
+            <div id="settings-email-card" className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4">
               <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--secub-muted-text)]">
                 Correo institucional
               </dt>
@@ -63,7 +132,7 @@ export default function UserSettingsPage() {
               </dd>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4">
+            <div id="settings-role-card" className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4">
               <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--secub-muted-text)]">
                 Rol activo
               </dt>
@@ -73,7 +142,7 @@ export default function UserSettingsPage() {
             </div>
 
             {selectedProgram ? (
-              <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4 md:col-span-2 xl:col-span-1">
+              <div id="settings-program-card" className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-4 md:col-span-2 xl:col-span-1">
                 <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--secub-muted-text)]">
                   Programa seleccionado
                 </dt>
@@ -86,6 +155,7 @@ export default function UserSettingsPage() {
         </section>
 
         <section
+          id="settings-options-card"
           className="rounded-[var(--radius-2xl)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-6 shadow-[var(--shadow-sm)]"
           aria-labelledby="settings-options-title"
         >
@@ -105,6 +175,7 @@ export default function UserSettingsPage() {
             <button
               type="button"
               onClick={() => navigateToRoute(ROUTES.panelAccessibility, { preserveSearch: true })}
+              id="settings-accessibility-card"
               className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(14,101,217,0.10)] text-xl text-[var(--color-secondary-1)]" aria-hidden="true">
@@ -124,6 +195,7 @@ export default function UserSettingsPage() {
             <button
               type="button"
               onClick={handleChangeProgram}
+              id="settings-program-option-card"
               className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(118,202,102,0.14)] text-xl text-[var(--color-success)]" aria-hidden="true">

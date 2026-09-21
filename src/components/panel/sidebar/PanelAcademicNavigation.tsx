@@ -34,11 +34,13 @@ type NavigationItem = (typeof panelNavigation)[number];
 interface PanelAcademicNavigationProps {
   currentStep: PanelStepKey;
   onNavigate?: () => void;
+  tourId?: string;
 }
 
 export default function PanelAcademicNavigation({
   currentStep,
   onNavigate,
+  tourId,
 }: PanelAcademicNavigationProps) {
   const currentUser = getCurrentMockUser();
   const isDocente = currentUser.role === "docente";
@@ -287,6 +289,7 @@ export default function PanelAcademicNavigation({
     <li>
       <button
         type="button"
+        id={tourId}
         aria-expanded={isAcademicMenuOpen}
         aria-controls={academicMenuId}
         onClick={() => setIsAcademicMenuOpen((value) => !value)}

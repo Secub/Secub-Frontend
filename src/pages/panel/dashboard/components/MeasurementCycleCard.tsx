@@ -8,6 +8,13 @@ interface MeasurementCycleCardProps {
   cycle: EnrichedCycle;
   isTeacher: boolean;
   isDirector: boolean;
+  tourCardId?: string;
+  tourActionIds?: {
+    pending: string;
+    results: string;
+    improvement: string;
+    report: string;
+  };
   onViewPending: (cycle: EnrichedCycle) => void;
   onViewResults: (cycle: EnrichedCycle) => void;
   onDownloadReport: (cycle: EnrichedCycle) => void;
@@ -18,6 +25,8 @@ export default function MeasurementCycleCard({
   cycle,
   isTeacher,
   isDirector,
+  tourCardId,
+  tourActionIds,
   onViewPending,
   onViewResults,
   onDownloadReport,
@@ -74,7 +83,7 @@ export default function MeasurementCycleCard({
   };
 
   return (
-    <article className="surface-card rounded-[24px] p-6">
+    <article id={tourCardId} className="surface-card rounded-[24px] p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
@@ -147,6 +156,7 @@ export default function MeasurementCycleCard({
       <div className="mt-6 flex flex-wrap justify-end gap-3">
         {!isTeacher ? (
           <Button
+            id={tourActionIds?.pending}
             variant="outline"
             size="sm"
             leftIcon={<ActionIcon name="list" />}
@@ -163,6 +173,7 @@ export default function MeasurementCycleCard({
         ) : null}
 
         <Button
+          id={tourActionIds?.results}
           variant="outline"
           size="sm"
           leftIcon={<ActionIcon name="view" />}
@@ -179,6 +190,7 @@ export default function MeasurementCycleCard({
 
         {isDirector ? (
           <Button
+            id={tourActionIds?.improvement}
             variant={canLoadImprovementPlan ? "primary" : "outline"}
             size="sm"
             leftIcon={<ActionIcon name="upload" />}
@@ -196,6 +208,7 @@ export default function MeasurementCycleCard({
 
         {isTeacher || isDirector ? (
           <Button
+            id={tourActionIds?.report}
             variant="primary_soft"
             size="sm"
             leftIcon={<ActionIcon name="pdf" />}

@@ -9,15 +9,17 @@ interface SummaryCardItem {
 
 interface MeasurementSummaryCardsProps {
   items: SummaryCardItem[];
+  tourId?: string;
 }
 
-export default function MeasurementSummaryCards({ items }: MeasurementSummaryCardsProps) {
+export default function MeasurementSummaryCards({ items, tourId }: MeasurementSummaryCardsProps) {
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {items.map((item) => {
+    <section id={tourId} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {items.map((item, index) => {
         return (
           <article
             key={item.label}
+            id={tourId ? `${tourId}-card-${index + 1}` : undefined}
             className="surface-card flex min-h-[132px] items-center gap-4 rounded-[22px] p-5"
           >
             <div
