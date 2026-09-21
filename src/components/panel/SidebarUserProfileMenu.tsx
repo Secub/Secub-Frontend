@@ -1,12 +1,13 @@
-import { useMemo } from "react";
-import { ROUTES, navigateToRoute } from "../../app/appRoutes";
+import { useState } from "react";
+import { buildRouteWithSearch, ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import { SecubIcon } from "../ui";
-import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { getAvailableMockProfiles, getCurrentMockUser } from "../../services/auth/mockUser";
 import {
   clearSelectedProgramId,
   getSelectedProgram,
 } from "../../services/programSelection";
+import { getBrowserLocation } from "../../shared/browser";
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -31,24 +32,35 @@ function logoutCurrentUser() {
 
 export default function SidebarUserProfileMenu({ tourIds, onStartTour }: SidebarUserProfileMenuProps) {
   const currentUser = getCurrentMockUser();
+  const availableProfiles = getAvailableMockProfiles(currentUser);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const selectedProgram = getSelectedProgram();
   const roleLabel = currentUser.cargo;
   const profileSubtitle = selectedProgram
     ? `${selectedProgram.name} · ${selectedProgram.faculty}`
     : currentUser.email;
-  const initials = useMemo(
-    () => getInitials(currentUser.nombre),
-    [currentUser.nombre],
-  );
+  const initials = getInitials(currentUser.nombre);
 
   const handleLogout = () => {
     logoutCurrentUser();
   };
 
+  const handleProfileChange = (role: typeof availableProfiles[number]["role"]) => {
+    const location = getBrowserLocation();
+    const params = new URLSearchParams(location.search);
+    params.set("role", role);
+    navigateToRoute(buildRouteWithSearch(location.pathname, params), { replace: true });
+    setIsProfileMenuOpen(false);
+  };
+
   return (
     <div className="space-y-2.5">
-      <div
+      <button
+        type="button"
         id={tourIds?.profile}
+        aria-expanded={availableProfiles.length > 1 ? isProfileMenuOpen : undefined}
+        aria-haspopup={availableProfiles.length > 1 ? "listbox" : undefined}
+        onClick={availableProfiles.length > 1 ? () => setIsProfileMenuOpen((value) => !value) : undefined}
         className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.055)] px-3 py-2.5 text-left"
         aria-label={`Perfil activo: ${roleLabel}. ${profileSubtitle}`}
       >
@@ -67,7 +79,42 @@ export default function SidebarUserProfileMenu({ tourIds, onStartTour }: Sidebar
             {profileSubtitle}
           </span>
         </span>
-      </div>
+        {availableProfiles.length > 1 ? (
+          <SecubIcon
+            name="chevron-down"
+            size={16}
+            weight="bold"
+            className={isProfileMenuOpen ? "rotate-180 text-[var(--color-white)]" : "text-[var(--color-secondary-2)]"}
+          />
+        ) : null}
+      </button>
+
+      {isProfileMenuOpen ? (
+        <div
+          className="rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.045)] p-1.5"
+          role="listbox"
+          aria-label="Perfiles disponibles"
+        >
+          <p className="px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[var(--color-secondary-2)]">
+            Cambiar perfil
+          </p>
+          {availableProfiles.map((profile) => (
+            <button
+              key={profile.id}
+              type="button"
+              role="option"
+              aria-selected={profile.role === currentUser.role}
+              onClick={() => handleProfileChange(profile.role)}
+              className="flex w-full items-center justify-between rounded-[10px] px-2.5 py-2 text-left text-sm font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.07)] hover:text-[var(--color-white)]"
+            >
+              <span>{profile.label}</span>
+              {profile.role === currentUser.role ? (
+                <SecubIcon name="check" size={16} weight="bold" className="text-[var(--color-success)]" />
+              ) : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <div
         className="grid grid-cols-2 gap-2"
