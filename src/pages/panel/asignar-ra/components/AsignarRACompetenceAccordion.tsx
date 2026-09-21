@@ -86,6 +86,7 @@ export function AsignarRACompetenceAccordion({
             return (
               <label
                 key={ra.id}
+                id={competenciaIndex === 0 && raIndex === 0 ? "asignar-ra-application-selector" : undefined}
                 className={[
                   "flex cursor-pointer items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-all",
                   selected

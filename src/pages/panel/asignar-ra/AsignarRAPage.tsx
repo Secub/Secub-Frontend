@@ -87,28 +87,53 @@ export default function AsignarRAPage() {
         order: 1,
       },
       {
-        target: "#asignar_ra-ciclos-panel",
-        title: "Ciclos",
-        content: "Selecciona un ciclo para ver los resultados de aprendizaje asociados.",
+        target: "#asignar-ra-courses-panel",
+        title: "Cursos de Síntesis",
+        content: "Selecciona un curso para revisar y asignar sus resultados de aprendizaje.",
         order: 2,
       },
-      {
-        target: "#asignar_ra-detalle-curso-panel",
-        title: "Detalle del curso",
-        content: "Revisa la información del curso y los resultados de aprendizaje asignados.",
-        order: 3,
-      }
     ],
     []
   );
 
-const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead;
+  const canShowTour = !isCourseDetailView && !access.isStepLocked && access.canRead;
 
   const { startTour } = useOnboardingTour({
     steps: tourSteps,
     storageKey: "tour_asignar_ra_v1",
     autoStart: canShowTour,
     enabled: canShowTour,
+  });
+
+  const detailTourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#asignar-ra-competencias-section",
+        title: "Competencias del curso",
+        content: "Aquí encontrarás las competencias asociadas al curso. Abre cada una para revisar sus Resultados de Aprendizaje.",
+        order: 1,
+      },
+      {
+        target: "#asignar-ra-application-selector",
+        title: "Aplicaciones de RA",
+        content: "Estas casillas representan las aplicaciones de los Resultados de Aprendizaje. Selecciona entre 1 y 4 RA para asignarlos a la competencia.",
+        order: 2,
+      },
+    ],
+    []
+  );
+
+  const canShowDetailTour =
+    isCourseDetailView &&
+    !access.isStepLocked &&
+    access.canRead &&
+    courseCompetencias.length > 0;
+
+  const { startTour: startDetailTour } = useOnboardingTour({
+    steps: detailTourSteps,
+    storageKey: "tour_asignar_ra_detalle_v1",
+    autoStart: canShowDetailTour,
+    enabled: canShowDetailTour,
   });
 
   return (
@@ -141,6 +166,15 @@ const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
+              {canShowDetailTour ? (
+                <button
+                  type="button"
+                  onClick={startDetailTour}
+                  className="mb-3 mt-3 text-sm text-blue-600 underline"
+                >
+                  Ver guía del detalle
+                </button>
+              ) : null}
               <div id="asignar_ra-detalle-curso-panel">
               <AsignarRACourseDetail
                 selectedCourse={selectedCourse}
@@ -167,7 +201,7 @@ const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead
             
             <>
              {/* TOUR: botón para relanzar el tour manualmente */}
-            {!access.isStepLocked ? (
+            {canShowTour ? (
               <button
                 type="button"
                 onClick={startTour}
@@ -176,7 +210,7 @@ const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead
                 Ver guía de esta sección
               </button>
               ) : null}
-              <div ref={refs.filtersRef}>
+              <div id="asignar-ra-filters-panel" ref={refs.filtersRef}>
                 
                 <AsignarRAFilters
                   filters={filters}
@@ -194,22 +228,18 @@ const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead
                 />
               </div>
 
-              {!selectedCycle ? (
-                <div id="asignar_ra-ciclos-panel">
-                <WorkflowStateCard
-                  title="Selecciona el ciclo de medición"
-                  description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
-                />
-                </div>
-              ) : !courses.length ? (
-                <WorkflowStateCard
-                  title="No hay cursos de Síntesis disponibles"
-                  description="El ciclo seleccionado no tiene cursos de Síntesis asociados. Revisa Creación del ciclo antes de asignar RA."
-                />
-              ) : (
-                <div ref={refs.coursesRef}>
-                  
-                  <div id="asignar_ra-filters-panel">
+              <div id="asignar-ra-courses-panel" ref={refs.coursesRef}>
+                {!selectedCycle ? (
+                  <WorkflowStateCard
+                    title="Selecciona el ciclo de medición"
+                    description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
+                  />
+                ) : !courses.length ? (
+                  <WorkflowStateCard
+                    title="No hay cursos de Síntesis disponibles"
+                    description="El ciclo seleccionado no tiene cursos de Síntesis asociados. Revisa Creación del ciclo antes de asignar RA."
+                  />
+                ) : (
                   <AsignarRACoursesTable
                     rows={courseRows}
                     totalCourses={courses.length}
@@ -217,9 +247,8 @@ const canShowTour = isCourseDetailView && !access.isStepLocked && access.canRead
                     canManage={access.canManage}
                     onSelectCourse={handleSelectCourse}
                   />
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
 
