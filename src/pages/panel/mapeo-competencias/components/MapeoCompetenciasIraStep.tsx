@@ -1,7 +1,8 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../../../../components/ui";
 import { FlowActionBar } from "../../../../components/panel";
+import { showNotification } from "../../../../shared/feedback";
 import MapeoCompetenciasCardInfoCompromiso from "./MapeoCompetenciasCardInfoCompromiso";
 import MapeoCompetenciasSemesterStep from "./MapeoCompetenciasSemesterStep";
 import type { CompetenciaRaDemoRecord, CursoAsis, NivelCompromiso, NivelesDraft, NucleoFormacion } from "../MapeoCompetencias.types";
@@ -132,6 +133,7 @@ export default function MapeoCompetenciasIraStep({
 }: MapeoCompetenciasIraStepProps) {
   const semesters = buildSemesterNumbers(totalSemestres);
   const [confirmedSemesterIds, setConfirmedSemesterIds] = useState<number[]>([]);
+  const semesterFlowRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setConfirmedSemesterIds((current) =>
@@ -151,14 +153,30 @@ export default function MapeoCompetenciasIraStep({
     .map((semester) => `semestre-${semester}`);
 
   const handleConfirmCurrentSemester = () => {
+    if (isCurrentSemesterConfirmed) return;
+
     setConfirmedSemesterIds((current) =>
       current.includes(activeSemester) ? current : [...current, activeSemester].sort((a, b) => a - b),
     );
+    showNotification({
+      title: "Semestre confirmado",
+      message: `El semestre ${activeSemester} fue confirmado correctamente.`,
+      variant: "success",
+    });
+  };
+
+  const handleNextSemester = () => {
+    onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1));
+    semesterFlowRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
     <div className="space-y-6 pb-24">
-      <section id="mapeo-ira-flujo-semestres" className="surface-card rounded-lg p-6 md:p-8">
+      <section
+        ref={semesterFlowRef}
+        id="mapeo-ira-flujo-semestres"
+        className="surface-card scroll-mt-28 rounded-lg p-6 md:p-8"
+      >
         <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
@@ -222,7 +240,7 @@ export default function MapeoCompetenciasIraStep({
         saveDisabled={!canManage}
         showNext={activeSemester < totalSemestres}
         nextLabel="Siguiente semestre"
-        onNext={() => onActiveSemesterChange(Math.min(totalSemestres, activeSemester + 1))}
+        onNext={handleNextSemester}
         nextDisabled={confirmRequired || !canManage}
         showFinish={activeSemester >= totalSemestres}
         finishLabel="Finalizar mapeo"
