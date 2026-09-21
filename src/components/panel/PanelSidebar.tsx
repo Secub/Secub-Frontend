@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
@@ -5,6 +6,7 @@ import { SecubIcon } from "../ui";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import SidebarUserProfileMenu from "./SidebarUserProfileMenu";
 import PanelAcademicNavigation from "./sidebar/PanelAcademicNavigation";
+import { useOnboardingTour, type OnboardingTourStep } from "../OnboardingTour";
 import {
   SIDEBAR_MAX_WIDTH,
   SIDEBAR_MIN_WIDTH,
@@ -32,6 +34,54 @@ export default function PanelSidebar({
   } = useResizableSidebar(isDesktop);
   const dashboardItem =
     panelNavigation.find((item) => item.key === "dashboard") ?? panelNavigation[0];
+  const sidebarTourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#panel-sidebar-logo",
+        title: "Inicio SECUB",
+        content: "Regresa al Estado del ciclo desde el logo de SECUB.",
+        order: 1,
+      },
+      {
+        target: "#panel-sidebar-dashboard",
+        title: "Estado del ciclo",
+        content: "Consulta el avance de los ciclos, cursos, mediciones y resultados.",
+        order: 2,
+      },
+      {
+        target: "#panel-sidebar-academic",
+        title: "Gestión Académica",
+        content: "Accede a los módulos del flujo académico y revisa su progreso.",
+        order: 3,
+      },
+      {
+        target: "#panel-sidebar-profile",
+        title: "Perfil activo",
+        content: "Aquí identificas el rol y el programa académico con los que estás trabajando.",
+        order: 4,
+      },
+      {
+        target: "#panel-sidebar-settings",
+        title: "Ajustes",
+        content: "Abre las preferencias de usuario, accesibilidad y cambio de programa.",
+        order: 5,
+      },
+      {
+        target: "#panel-sidebar-logout",
+        title: "Salir",
+        content: "Cierra la sesión actual y vuelve a la pantalla de acceso.",
+        order: 6,
+      },
+    ],
+    [],
+  );
+
+  const { startTour } = useOnboardingTour({
+    steps: sidebarTourSteps,
+    storageKey: "tour_panel_sidebar_v1",
+    autoStart: isDesktop,
+    enabled: isDesktop,
+  });
 
   const goTo = (href: string) => {
     navigateToRoute(href, { preserveSearch: true });
@@ -65,6 +115,7 @@ export default function PanelSidebar({
             type="button"
             onClick={() => goTo(dashboardItem.href)}
             {...getRoutePrefetchProps(dashboardItem.href)}
+            id="panel-sidebar-logo"
             className="inline-flex rounded-[12px] p-1.5 transition-colors hover:bg-[color:rgba(255,255,255,0.055)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
             aria-label="Ir al dashboard de SECUB"
           >
@@ -83,6 +134,7 @@ export default function PanelSidebar({
                   type="button"
                   onClick={() => goTo(dashboardItem.href)}
                   {...getRoutePrefetchProps(dashboardItem.href)}
+                  id="panel-sidebar-dashboard"
                   aria-current={currentStep === dashboardItem.key ? "page" : undefined}
                   className={[
                     "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
@@ -98,13 +150,21 @@ export default function PanelSidebar({
               <PanelAcademicNavigation
                 currentStep={currentStep}
                 onNavigate={onNavigate}
+                tourId="panel-sidebar-academic"
               />
             </ul>
           </nav>
         </div>
 
         <div className="shrink-0 space-y-3 border-t border-[color:rgba(217,221,231,0.10)] px-3 py-3">
-          <SidebarUserProfileMenu />
+          <SidebarUserProfileMenu
+            tourIds={{
+              profile: "panel-sidebar-profile",
+              settings: "panel-sidebar-settings",
+              logout: "panel-sidebar-logout",
+            }}
+            onStartTour={startTour}
+          />
         </div>
 
         {isDesktop ? (

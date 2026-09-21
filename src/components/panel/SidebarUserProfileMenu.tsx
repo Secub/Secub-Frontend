@@ -15,12 +15,21 @@ function getInitials(name: string) {
   return `${firstInitial}${secondInitial}`.toUpperCase();
 }
 
+interface SidebarUserProfileMenuProps {
+  tourIds?: {
+    profile: string;
+    settings: string;
+    logout: string;
+  };
+  onStartTour?: () => void;
+}
+
 function logoutCurrentUser() {
   clearSelectedProgramId();
   navigateToRoute(ROUTES.access);
 }
 
-export default function SidebarUserProfileMenu() {
+export default function SidebarUserProfileMenu({ tourIds, onStartTour }: SidebarUserProfileMenuProps) {
   const currentUser = getCurrentMockUser();
   const selectedProgram = getSelectedProgram();
   const roleLabel = currentUser.cargo;
@@ -39,6 +48,7 @@ export default function SidebarUserProfileMenu() {
   return (
     <div className="space-y-2.5">
       <div
+        id={tourIds?.profile}
         className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.055)] px-3 py-2.5 text-left"
         aria-label={`Perfil activo: ${roleLabel}. ${profileSubtitle}`}
       >
@@ -66,6 +76,7 @@ export default function SidebarUserProfileMenu() {
       >
         <button
           type="button"
+          id={tourIds?.settings}
           onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
           {...getRoutePrefetchProps(ROUTES.panelSettings)}
           className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
@@ -76,6 +87,7 @@ export default function SidebarUserProfileMenu() {
 
         <button
           type="button"
+          id={tourIds?.logout}
           onClick={handleLogout}
           className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.12)] hover:text-[color:rgba(255,137,137,1)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(235,87,87,0.26)]"
         >
@@ -83,6 +95,16 @@ export default function SidebarUserProfileMenu() {
           <span>Salir</span>
         </button>
       </div>
+
+      {onStartTour ? (
+        <button
+          type="button"
+          onClick={onStartTour}
+          className="w-full rounded-[10px] px-2 py-1 text-xs font-semibold text-[var(--color-secondary-2)] underline transition-colors hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+        >
+          Ver guía del panel
+        </button>
+      ) : null}
     </div>
   );
 }
