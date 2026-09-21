@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TourGuideClient } from "@sjmc11/tourguidejs/dist/tour";
 import "@sjmc11/tourguidejs/src/scss/tour.scss";
 
@@ -31,6 +31,47 @@ function purgeOrphanTourDom() {
 const MAX_TARGET_WAIT_MS = 5000;
 
 const DEFAULT_TARGET_PADDING = 30;
+
+const AUTO_SCROLL_OFFSET = 140;
+
+const TARGET_SCROLL_MARGIN_PX = AUTO_SCROLL_OFFSET + DEFAULT_TARGET_PADDING;
+
+// Aire entre el destino y una barra fija inferior.
+const BOTTOM_BAR_CLEARANCE_PX = 24;
+
+// Alto de la barra fija pegada al borde inferior del viewport (p. ej. FlowActionBar), si
+// hay una. Se detecta mirando que elemento fijo/sticky queda realmente arriba en la
+// parte baja de la pantalla, sin depender de clases ni ids concretos.
+function getBottomBarHeight(): number {
+  if (typeof document.elementsFromPoint !== "function") return 0;
+
+  const y = window.innerHeight - 2;
+  let height = 0;
+
+  [0.3, 0.5, 0.7, 0.9].forEach((ratio) => {
+    const stack = document.elementsFromPoint(window.innerWidth * ratio, y);
+    const bar = stack.find((element) => {
+      if (element === document.documentElement || element === document.body) return false;
+      if (element.closest(".tg-dialog, .tg-backdrop")) return false;
+      const { position } = window.getComputedStyle(element);
+      return position === "fixed" || position === "sticky";
+    });
+    if (!bar) return;
+
+    const { top } = bar.getBoundingClientRect();
+    if (top > window.innerHeight / 2) height = Math.max(height, window.innerHeight - top);
+  });
+
+  return height;
+}
+
+// La libreria solo aplica el scroll-margin a los destinos que recibe como selector (string).
+// Como aqui se le pasan elementos ya resueltos, se aplica a mano: sin el, scrollIntoView
+// deja el destino pegado al borde del viewport, tapado por barras fijas como FlowActionBar.
+function getTargetScrollMargin(): string {
+  const bottom = Math.max(TARGET_SCROLL_MARGIN_PX, getBottomBarHeight() + BOTTOM_BAR_CLEARANCE_PX);
+  return `${TARGET_SCROLL_MARGIN_PX}px 0 ${bottom}px`;
+}
 
 // Objetivos mas bajos que esto son "chicos" (botones, paneles cortos): se deja
 // la ubicacion automatica de la libreria para que el dialogo no tape el foco.
@@ -152,6 +193,85 @@ function attachVerticalPlacementGuard(client: TourGuideClient) {
   };
 }
 
+// localStorage puede lanzar (modo privado, datos bloqueados). Solo en ese caso se
+// recurre a la memoria para no repetir el tour dentro de la misma sesion.
+const seenInMemory = new Set<string>();
+
+function readSeen(storageKey: string): boolean {
+  try {
+    return localStorage.getItem(storageKey) === "true";
+  } catch {
+    return seenInMemory.has(storageKey);
+  }
+}
+
+function markSeen(storageKey: string) {
+  try {
+    localStorage.setItem(storageKey, "true");
+  } catch {
+    seenInMemory.add(storageKey);
+  }
+}
+
+// La libreria dibuja un unico dialogo/backdrop global, asi que solo puede haber un
+// tour activo a la vez. Los tours automaticos que llegan mientras otro corre esperan
+// a que termine (p. ej. el del sidebar antes que el de la pagina).
+let activeTourId: symbol | null = null;
+const tourSlotListeners = new Set<() => void>();
+
+function isTourSlotFree() {
+  return activeTourId === null;
+}
+
+function acquireTourSlot(id: symbol) {
+  if (activeTourId !== null && activeTourId !== id) return false;
+  activeTourId = id;
+  return true;
+}
+
+function releaseTourSlot(id: symbol) {
+  if (activeTourId !== id) return;
+  activeTourId = null;
+  [...tourSlotListeners].forEach((listener) => listener());
+}
+
+function onTourSlotFree(listener: () => void) {
+  tourSlotListeners.add(listener);
+  return () => {
+    tourSlotListeners.delete(listener);
+  };
+}
+
+// Un mismo id puede existir varias veces (p. ej. sidebar de escritorio y drawer movil):
+// se toma el primero que realmente se renderiza, no el primero del DOM.
+function isRendered(element: Element) {
+  for (let node: Element | null = element; node; node = node.parentElement) {
+    if (window.getComputedStyle(node).display === "none") return false;
+  }
+  return true;
+}
+
+function resolveTarget(selector: string): Element | null {
+  return Array.from(document.querySelectorAll(selector)).find(isRendered) ?? null;
+}
+
+const EXIT_RETRY_DELAY_MS = 50;
+const EXIT_MAX_ATTEMPTS = 10;
+
+// exit() rechaza ("Promise waiting") mientras la libreria esta en plena transicion de
+// paso. Se reintenta en vez de propagar el error: un rechazo dejaria a startTour sin
+// arrancar (boton "Ver guia" inerte) y al tour viejo abierto.
+async function exitClient(client: TourGuideClient) {
+  for (let attempt = 0; attempt < EXIT_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      await client.exit();
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, EXIT_RETRY_DELAY_MS));
+    }
+  }
+}
+
 export function useOnboardingTour({
   steps,
   storageKey,
@@ -162,121 +282,172 @@ export function useOnboardingTour({
   forceVerticalPlacement = true,
   allowPartialTargets = false,
 }: UseOnboardingTourOptions) {
+  const [tourId] = useState(() => Symbol("onboarding-tour"));
   const tourRef = useRef<TourGuideClient | null>(null);
-  const autoStartedRef = useRef(false);
   const verticalGuardCleanupRef = useRef<(() => void) | null>(null);
+  const manualStartCancelRef = useRef<(() => void) | null>(null);
+
+  // Los pasos son datos planos: se compara por contenido para que un consumidor que
+  // pase un array nuevo en cada render no reinicie el tour en curso.
+  const stepsKey = JSON.stringify(steps);
+  const stableSteps = useMemo(() => JSON.parse(stepsKey) as OnboardingTourStep[], [stepsKey]);
 
   const buildClient = useCallback(() => {
-    const availableSteps = steps.filter((step) => Boolean(document.querySelector(step.target)));
-    if (!availableSteps.length || (!allowPartialTargets && availableSteps.length !== steps.length)) {
+    const scrollMargin = getTargetScrollMargin();
+    const availableSteps = stableSteps.flatMap((step) => {
+      const target = resolveTarget(step.target);
+      if (!target) return [];
+      if (target instanceof HTMLElement) target.style.scrollMargin = scrollMargin;
+      return [{ ...step, target }];
+    });
+    if (
+      !availableSteps.length ||
+      (!allowPartialTargets && availableSteps.length !== stableSteps.length)
+    ) {
       return null;
     }
 
-    const client = new TourGuideClient({
-      steps: availableSteps.map((step) => ({ ...step })),
+    return new TourGuideClient({
+      steps: availableSteps,
       exitOnEscape: true,
       exitOnClickOutside: true,
+      keyboardControls: true,
       showStepProgress: true,
       showButtons: true,
       nextLabel: "Siguiente",
       prevLabel: "Atrás",
       finishLabel: "Finalizar",
-      autoScrollOffset: 140,
+      autoScrollOffset: AUTO_SCROLL_OFFSET,
       autoScrollSmooth,
       allowDialogOverlap,
     });
+  }, [allowPartialTargets, stableSteps, autoScrollSmooth, allowDialogOverlap]);
 
-    tourRef.current = client;
-    return client;
-  }, [allowPartialTargets, steps, autoScrollSmooth, allowDialogOverlap]);
-
-  const destroyCurrentClient = useCallback(async () => {
+  const releaseClient = useCallback(() => {
     verticalGuardCleanupRef.current?.();
     verticalGuardCleanupRef.current = null;
-    if (tourRef.current) {
-      await tourRef.current.exit();
-      tourRef.current = null;
-    }
-    purgeOrphanTourDom();
+    tourRef.current = null;
     document.documentElement.style.scrollBehavior = "";
   }, []);
 
-  const startTour = useCallback(async () => {
-    await destroyCurrentClient();
+  const destroyCurrentClient = useCallback(async () => {
+    const client = tourRef.current;
+    releaseClient();
+    try {
+      if (client) await exitClient(client);
+    } finally {
+      releaseTourSlot(tourId);
+      if (isTourSlotFree()) purgeOrphanTourDom();
+    }
+  }, [releaseClient, tourId]);
 
-    return new Promise<void>((resolve) => {
-      const startedAt = performance.now();
-      const tryStart = () => {
-        const client = buildClient();
-        if (!client) {
-          if (performance.now() - startedAt < MAX_TARGET_WAIT_MS) {
-            window.requestAnimationFrame(tryStart);
-          } else {
-            resolve();
-          }
-          return;
+  const launchClient = useCallback(
+    (client: TourGuideClient) => {
+      tourRef.current = client;
+      // Finalizar/Esc/click afuera: la libreria sale sola, hay que soltar lo nuestro.
+      client.onAfterExit(() => {
+        if (tourRef.current !== client) return;
+        releaseClient();
+        releaseTourSlot(tourId);
+      });
+
+      document.documentElement.style.scrollBehavior = "auto";
+      const started = Promise.resolve(client.start());
+      if (forceVerticalPlacement) {
+        verticalGuardCleanupRef.current = attachVerticalPlacementGuard(client);
+      }
+
+      return started.catch((error: unknown) => {
+        if (tourRef.current === client) {
+          releaseClient();
+          releaseTourSlot(tourId);
         }
-        document.documentElement.style.scrollBehavior = "auto";
-        void client.start();
-        if (forceVerticalPlacement) {
-          verticalGuardCleanupRef.current = attachVerticalPlacementGuard(client);
-        }
-        resolve();
-      };
-      tryStart();
-    });
-  }, [buildClient, destroyCurrentClient, forceVerticalPlacement]);
+        throw error;
+      });
+    },
+    [forceVerticalPlacement, releaseClient, tourId],
+  );
 
-  useEffect(() => {
-    if (!enabled || !steps.length) return;
+  // Espera a que los targets existan y a que no haya otro tour activo; devuelve la
+  // funcion que cancela la espera.
+  const scheduleStart = useCallback(
+    (onStarted?: () => void) => {
+      let cancelled = false;
+      let rafId: number | null = null;
+      let unsubscribe: (() => void) | null = null;
+      let deadline = performance.now() + MAX_TARGET_WAIT_MS;
 
-    let cancelled = false;
-    let rafId: number | null = null;
-    const startedAt = performance.now();
-
-    const init = async () => {
-      purgeOrphanTourDom();
-
-      const startWhenReady = () => {
+      const attempt = () => {
+        rafId = null;
         if (cancelled) return;
 
-        const alreadySeen = localStorage.getItem(storageKey) === "true";
-        if (!autoStart || alreadySeen) return;
-
         const client = buildClient();
         if (!client) {
-          if (performance.now() - startedAt < MAX_TARGET_WAIT_MS) {
-            rafId = window.requestAnimationFrame(startWhenReady);
-          }
+          if (performance.now() < deadline) rafId = window.requestAnimationFrame(attempt);
           return;
         }
 
-        if (autoStart && !alreadySeen && !autoStartedRef.current) {
-          autoStartedRef.current = true;
-          document.documentElement.style.scrollBehavior = "auto";
-          void client.start();
-          if (forceVerticalPlacement) {
-            verticalGuardCleanupRef.current = attachVerticalPlacementGuard(client);
-          }
-          localStorage.setItem(storageKey, "true");
+        if (!acquireTourSlot(tourId)) {
+          unsubscribe = onTourSlotFree(() => {
+            unsubscribe?.();
+            unsubscribe = null;
+            deadline = performance.now() + MAX_TARGET_WAIT_MS;
+            rafId = window.requestAnimationFrame(attempt);
+          });
+          return;
         }
+
+        launchClient(client)
+          .then(() => {
+            if (!cancelled) onStarted?.();
+          })
+          .catch(() => undefined);
       };
 
-      rafId = window.requestAnimationFrame(startWhenReady);
-    };
+      rafId = window.requestAnimationFrame(attempt);
 
-    void init();
+      return () => {
+        cancelled = true;
+        if (rafId !== null) window.cancelAnimationFrame(rafId);
+        unsubscribe?.();
+        unsubscribe = null;
+      };
+    },
+    [buildClient, launchClient, tourId],
+  );
+
+  const startTour = useCallback(() => {
+    manualStartCancelRef.current?.();
+    manualStartCancelRef.current = null;
+
+    void destroyCurrentClient().then(() => {
+      manualStartCancelRef.current = scheduleStart();
+    });
+  }, [destroyCurrentClient, scheduleStart]);
+
+  const exitTour = useCallback(() => tourRef.current?.exit(), []);
+
+  useEffect(() => {
+    if (!enabled || !stableSteps.length) return;
+
+    if (isTourSlotFree()) purgeOrphanTourDom();
+
+    const cancelAutoStart =
+      autoStart && !readSeen(storageKey) ? scheduleStart(() => markSeen(storageKey)) : null;
 
     return () => {
-      cancelled = true;
-      if (rafId !== null) window.cancelAnimationFrame(rafId);
+      cancelAutoStart?.();
       void destroyCurrentClient();
-      autoStartedRef.current = false;
     };
-  }, [autoStart, enabled, steps, storageKey, buildClient, destroyCurrentClient, forceVerticalPlacement]);
+  }, [autoStart, enabled, stableSteps, storageKey, scheduleStart, destroyCurrentClient]);
 
-  return {
-    startTour,
-    exitTour: () => tourRef.current?.exit(),
-  };
+  useEffect(
+    () => () => {
+      manualStartCancelRef.current?.();
+      manualStartCancelRef.current = null;
+    },
+    [],
+  );
+
+  return { startTour, exitTour };
 }
