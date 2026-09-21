@@ -18,6 +18,7 @@ interface UseOnboardingTourOptions {
   autoScrollSmooth?: boolean;
   allowDialogOverlap?: boolean;
   forceVerticalPlacement?: boolean;
+  allowPartialTargets?: boolean;
 }
 
 function purgeOrphanTourDom() {
@@ -152,17 +153,20 @@ export function useOnboardingTour({
   autoScrollSmooth = true,
   allowDialogOverlap = false,
   forceVerticalPlacement = true,
+  allowPartialTargets = false,
 }: UseOnboardingTourOptions) {
   const tourRef = useRef<TourGuideClient | null>(null);
   const autoStartedRef = useRef(false);
   const verticalGuardCleanupRef = useRef<(() => void) | null>(null);
 
   const buildClient = useCallback(() => {
-    const hasAllTargets = steps.every((step) => Boolean(document.querySelector(step.target)));
-    if (!hasAllTargets) return null;
+    const availableSteps = steps.filter((step) => Boolean(document.querySelector(step.target)));
+    if (!availableSteps.length || (!allowPartialTargets && availableSteps.length !== steps.length)) {
+      return null;
+    }
 
     const client = new TourGuideClient({
-      steps: steps.map((step) => ({ ...step })),
+      steps: availableSteps.map((step) => ({ ...step })),
       exitOnEscape: true,
       exitOnClickOutside: true,
       showStepProgress: true,
@@ -177,7 +181,7 @@ export function useOnboardingTour({
 
     tourRef.current = client;
     return client;
-  }, [steps, autoScrollSmooth, allowDialogOverlap]);
+  }, [allowPartialTargets, steps, autoScrollSmooth, allowDialogOverlap]);
 
   const destroyCurrentClient = useCallback(async () => {
     verticalGuardCleanupRef.current?.();
@@ -229,6 +233,9 @@ export function useOnboardingTour({
       const startWhenReady = () => {
         if (cancelled) return;
 
+        const alreadySeen = localStorage.getItem(storageKey) === "true";
+        if (!autoStart || alreadySeen) return;
+
         const client = buildClient();
         if (!client) {
           if (performance.now() - startedAt < MAX_TARGET_WAIT_MS) {
@@ -237,7 +244,6 @@ export function useOnboardingTour({
           return;
         }
 
-        const alreadySeen = localStorage.getItem(storageKey) === "true";
         if (autoStart && !alreadySeen && !autoStartedRef.current) {
           autoStartedRef.current = true;
           document.documentElement.style.scrollBehavior = "auto";
