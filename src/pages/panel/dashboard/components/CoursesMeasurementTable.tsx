@@ -19,6 +19,8 @@ interface CoursesMeasurementTableProps {
   onViewResults: (course: EnrichedCourse) => void;
   onNotifyTeacher?: (course: EnrichedCourse) => void;
   canNotifyTeacher?: boolean;
+  tableId?: string;
+  firstRowActionId?: string;
 }
 
 // ----------- Funcion gestion de correos con mailto sin gestion interna -----------------
@@ -67,6 +69,8 @@ export default function CoursesMeasurementTable({
   onMeasureCourse,
   onViewResults,
   // onNotifyTeacher,
+  tableId,
+  firstRowActionId,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
     {
@@ -139,7 +143,10 @@ export default function CoursesMeasurementTable({
       title: "Acción",
       sortable: false,
       render: (course) => (
-        <div className="flex items-center justify-center">
+        <div
+          id={course === courses[0] ? firstRowActionId : undefined}
+          className="flex items-center justify-center"
+        >
           <Button
             variant="outline"
             size="sm"
@@ -301,17 +308,19 @@ export default function CoursesMeasurementTable({
         </div>
       ) : null}
 
-      <Table
-        columns={mode === "teacher" ? teacherColumns : supervisorColumns}
-        data={courses}
-        rowKey={(course) => `${course.cycleId}-${course.id}`}
-        emptyMessage={
-          mode === "teacher"
-            ? "No hay cursos para los filtros seleccionados."
-            : "No hay cursos pendientes para el ciclo seleccionado."
-        }
-        searchPlaceholder="Buscar por curso, código, docente, programa o periodo…"
-      />
+      <div id={tableId}>
+        <Table
+          columns={mode === "teacher" ? teacherColumns : supervisorColumns}
+          data={courses}
+          rowKey={(course) => `${course.cycleId}-${course.id}`}
+          emptyMessage={
+            mode === "teacher"
+              ? "No hay cursos para los filtros seleccionados."
+              : "No hay cursos pendientes para el ciclo seleccionado."
+          }
+          searchPlaceholder="Buscar por curso, código, docente, programa o periodo…"
+        />
+      </div>
     </section>
   );
 }

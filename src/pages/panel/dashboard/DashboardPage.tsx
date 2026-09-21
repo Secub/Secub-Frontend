@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { BackButton, PanelLayout } from "../../../components/panel";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -15,6 +17,45 @@ import { simulateEvidenceDownload } from "./dashboard.utils";
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
+
+  const tourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#dashboard-summary-cards",
+        title: "Resumen del ciclo",
+        content: "Aquí ves el resumen de tus cursos: totales, completados, pendientes y tu avance general.",
+        order: 1,
+      },
+      {
+        target: "#dashboard-filters-panel",
+        title: "Filtros",
+        content: "Ajusta la información visible por ciclo y estado.",
+        order: 2,
+      },
+      {
+        target: "#dashboard-courses-table",
+        title: "Cursos asignados",
+        content: "Consulta el avance de tus cursos, mide los pendientes y abre el detalle de los completados.",
+        order: 3,
+      },
+      {
+        target: "#dashboard-course-first-action",
+        title: "Medir resultados",
+        content: "Haz clic en Medir para registrar los Resultados de Aprendizaje pendientes de este curso.",
+        order: 4,
+      },
+    ],
+    []
+  );
+
+  const canShowTour = dashboard.isTeacher && dashboard.view === "control";
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_dashboard_docente_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout
@@ -54,24 +95,38 @@ export default function DashboardPage() {
     >
       {dashboard.view === "control" ? (
         <div className="space-y-6">
-          <MeasurementSummaryCards
-            items={
-              dashboard.isTeacher
-                ? buildTeacherSummaryItems(dashboard.metrics)
-                : buildSupervisorSummaryItems(dashboard.metrics)
-            }
-          />
+          {canShowTour ? (
+            <button
+              type="button"
+              onClick={startTour}
+              className="text-sm text-blue-600 underline"
+            >
+              Ver guía de esta sección
+            </button>
+          ) : null}
+
+          <div id="dashboard-summary-cards">
+            <MeasurementSummaryCards
+              items={
+                dashboard.isTeacher
+                  ? buildTeacherSummaryItems(dashboard.metrics)
+                  : buildSupervisorSummaryItems(dashboard.metrics)
+              }
+            />
+          </div>
 
           {dashboard.isTeacher ? (
             <>
-              <DashboardFilters
-                user={dashboard.user}
-                catalogs={dashboard.dashboardData.catalogs}
-                cycles={dashboard.scopedCycles}
-                filters={dashboard.filters}
-                onFilterChange={dashboard.handleFilterChange}
-                onReset={dashboard.handleResetFilters}
-              />
+              <div id="dashboard-filters-panel">
+                <DashboardFilters
+                  user={dashboard.user}
+                  catalogs={dashboard.dashboardData.catalogs}
+                  cycles={dashboard.scopedCycles}
+                  filters={dashboard.filters}
+                  onFilterChange={dashboard.handleFilterChange}
+                  onReset={dashboard.handleResetFilters}
+                />
+              </div>
 
               <CoursesMeasurementTable
                 title="Cursos asignados"
@@ -80,6 +135,8 @@ export default function DashboardPage() {
                 mode="teacher"
                 onMeasureCourse={dashboard.handleMeasureCourse}
                 onViewResults={dashboard.handleViewCourseDetail}
+                tableId="dashboard-courses-table"
+                firstRowActionId="dashboard-course-first-action"
               />
             </>
           ) : (
