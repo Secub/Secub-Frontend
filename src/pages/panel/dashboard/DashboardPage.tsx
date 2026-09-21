@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BackButton, PanelLayout } from "../../../components/panel";
+import { BackButton, PanelLayout, TourReplayButton } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
@@ -14,6 +14,8 @@ import MeasurementSummaryCards, {
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { simulateEvidenceDownload } from "./dashboard.utils";
+import { DASHBOARD_TOUR_IDS, DASHBOARD_TOUR_MARKERS, tourMarkerSelector } from "./dashboard.tour";
+import { useDashboardViewTours } from "./hooks/useDashboardViewTours";
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
@@ -39,9 +41,10 @@ export default function DashboardPage() {
         order: 3,
       },
       {
-        target: "#dashboard-course-first-action",
-        title: "Medir resultados",
-        content: "Haz clic en Medir para registrar los Resultados de Aprendizaje pendientes de este curso.",
+        target: `#dashboard-courses-table ${tourMarkerSelector(DASHBOARD_TOUR_MARKERS.courseAction)}`,
+        title: "Acción del curso",
+        content:
+          "Usa este botón para medir los Resultados de Aprendizaje pendientes de un curso o abrir su detalle si ya está completo.",
         order: 4,
       },
     ],
@@ -55,6 +58,8 @@ export default function DashboardPage() {
     storageKey: "tour_dashboard_docente_v1",
     autoStart: canShowTeacherTour,
     enabled: canShowTeacherTour,
+    // Sin cursos para los filtros actuales no hay tabla ni acciones: el tour sigue con lo visible.
+    allowPartialTargets: true,
   });
 
   const tourCyclesSnapshot = JSON.stringify(
@@ -64,8 +69,8 @@ export default function DashboardPage() {
     () => JSON.parse(tourCyclesSnapshot) as Array<{ id: string; name: string }>,
     [tourCyclesSnapshot],
   );
-  const dashboardTourSteps = useMemo<OnboardingTourStep[]>(() => {
-    if (!dashboard.isDirector || dashboard.view !== "control") return [];
+  const supervisorTourSteps = useMemo<OnboardingTourStep[]>(() => {
+    if (dashboard.isTeacher || dashboard.view !== "control") return [];
 
     const steps: OnboardingTourStep[] = [
       {
@@ -111,8 +116,13 @@ export default function DashboardPage() {
       const actionSteps = [
         ["pending", "Ver pendientes", "Revisa los cursos que aún tienen mediciones de RA pendientes."],
         ["results", "Ver resultados", "Consulta los resultados consolidados por competencia y resultado de aprendizaje."],
-        ["improvement", "Plan de mejora", "Carga o actualiza el plan de mejora del ciclo cuando la medición esté completa."],
-        ["report", "Descargar reporte", "Descarga el reporte consolidado cuando el ciclo y su plan de mejora estén completos."],
+        // El plan de mejora y el reporte consolidado solo existen para el director.
+        ...(dashboard.isDirector
+          ? ([
+              ["improvement", "Plan de mejora", "Carga o actualiza el plan de mejora del ciclo cuando la medición esté completa."],
+              ["report", "Descargar reporte", "Descarga el reporte consolidado cuando el ciclo y su plan de mejora estén completos."],
+            ] as const)
+          : []),
       ] as const;
 
       actionSteps.forEach(([action, title, content], index) => {
@@ -126,17 +136,23 @@ export default function DashboardPage() {
     }
 
     return steps;
-  }, [dashboard.isDirector, dashboard.view, tourCycles]);
+  }, [dashboard.isTeacher, dashboard.isDirector, dashboard.view, tourCycles]);
 
-  const canShowDashboardTour =
-    dashboard.isDirector && dashboard.view === "control" && dashboard.filteredCycles.length > 0;
+  const canShowSupervisorTour =
+    !dashboard.isTeacher && dashboard.view === "control" && dashboard.filteredCycles.length > 0;
 
-  const { startTour: startDirectorTour } = useOnboardingTour({
-    steps: dashboardTourSteps,
-    storageKey: "tour_dashboard_director_v2",
-    autoStart: canShowDashboardTour,
-    enabled: canShowDashboardTour,
+  const { startTour: startSupervisorTour } = useOnboardingTour({
+    steps: supervisorTourSteps,
+    storageKey: dashboard.isDirector ? "tour_dashboard_director_v2" : "tour_dashboard_supervisor_v1",
+    autoStart: canShowSupervisorTour,
+    enabled: canShowSupervisorTour,
     allowPartialTargets: true,
+  });
+
+  const { canShowViewTour, startViewTour } = useDashboardViewTours({
+    view: dashboard.view,
+    isTeacher: dashboard.isTeacher,
+    hasConsolidatedResults: dashboard.consolidatedResults.length > 0,
   });
 
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
@@ -178,21 +194,13 @@ export default function DashboardPage() {
     >
       {dashboard.view === "control" ? (
         <div className="space-y-6">
-          {canShowTeacherTour || canShowDashboardTour ? (
-            <button
-              type="button"
-              onClick={() => {
-                void (dashboard.isTeacher ? startTeacherTour() : startDirectorTour());
-              }}
-              className="text-sm text-blue-600 underline"
-            >
-              Ver guía de esta sección
-            </button>
+          {canShowTeacherTour || canShowSupervisorTour ? (
+            <TourReplayButton onClick={dashboard.isTeacher ? startTeacherTour : startSupervisorTour} />
           ) : null}
 
           <div id="dashboard-summary-cards">
             <MeasurementSummaryCards
-              tourId={canShowDashboardTour ? "dashboard-summary" : undefined}
+              tourId={canShowSupervisorTour ? "dashboard-summary" : undefined}
               items={
                 dashboard.isTeacher
                   ? buildTeacherSummaryItems(dashboard.metrics)
@@ -208,7 +216,7 @@ export default function DashboardPage() {
                   user={dashboard.user}
                   catalogs={dashboard.dashboardData.catalogs}
                   cycles={dashboard.scopedCycles}
-                  tourId={canShowDashboardTour ? "dashboard-filters" : undefined}
+                  tourId={canShowSupervisorTour ? "dashboard-filters" : undefined}
                   filters={dashboard.filters}
                   onFilterChange={dashboard.handleFilterChange}
                   onReset={dashboard.handleResetFilters}
@@ -223,7 +231,6 @@ export default function DashboardPage() {
                 onMeasureCourse={dashboard.handleMeasureCourse}
                 onViewResults={dashboard.handleViewCourseDetail}
                 tableId="dashboard-courses-table"
-                firstRowActionId="dashboard-course-first-action"
               />
             </>
           ) : (
@@ -232,7 +239,7 @@ export default function DashboardPage() {
                 user={dashboard.user}
                 catalogs={dashboard.dashboardData.catalogs}
                 cycles={dashboard.scopedCycles}
-                tourId={canShowDashboardTour ? "dashboard-filters" : undefined}
+                tourId={canShowSupervisorTour ? "dashboard-filters" : undefined}
                 filters={dashboard.filters}
                 onFilterChange={dashboard.handleFilterChange}
                 onReset={dashboard.handleResetFilters}
@@ -290,10 +297,13 @@ export default function DashboardPage() {
             onClick={dashboard.goBackToControl}
           />
 
+          {canShowViewTour ? <TourReplayButton onClick={startViewTour} className="block" /> : null}
+
           <DashboardFilters
             user={dashboard.user}
             catalogs={dashboard.dashboardData.catalogs}
             cycles={dashboard.scopedCycles}
+            tourId={DASHBOARD_TOUR_IDS.coursesFilters}
             filters={dashboard.filters}
             onFilterChange={dashboard.handleFilterChange}
             onReset={dashboard.handleResetFilters}
@@ -301,6 +311,7 @@ export default function DashboardPage() {
 
           <CoursesMeasurementTable
             courses={dashboard.coursesForSelectedView}
+            tableId={DASHBOARD_TOUR_IDS.coursesTable}
             mode={dashboard.isTeacher ? "teacher" : "supervisor"}
             onMeasureCourse={dashboard.handleMeasureCourse}
             onNotifyTeacher={dashboard.setNotifyCourse}
@@ -316,6 +327,8 @@ export default function DashboardPage() {
             label={`Volver a ${dashboard.coursesBreadcrumbLabel.toLowerCase()}`}
             onClick={dashboard.goBackToCourses}
           />
+
+          {canShowViewTour ? <TourReplayButton onClick={startViewTour} className="block" /> : null}
 
           <ResultsMeasurementPanel
             results={dashboard.detailResults}
@@ -336,6 +349,8 @@ export default function DashboardPage() {
             label="Volver al Estado del ciclo"
             onClick={dashboard.goBackToControl}
           />
+
+          {canShowViewTour ? <TourReplayButton onClick={startViewTour} className="block" /> : null}
 
           <CompetenceResultsPanel
             results={dashboard.consolidatedResults}

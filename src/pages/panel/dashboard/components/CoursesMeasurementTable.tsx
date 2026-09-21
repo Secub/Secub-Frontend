@@ -6,6 +6,7 @@ import {
   Table,
   type TableColumn,
 } from "../../../../components/ui";
+import { DASHBOARD_TOUR_MARKERS, tourMarker } from "../dashboard.tour";
 import type { EnrichedCourse } from "../dashboard.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
@@ -20,7 +21,6 @@ interface CoursesMeasurementTableProps {
   onNotifyTeacher?: (course: EnrichedCourse) => void;
   canNotifyTeacher?: boolean;
   tableId?: string;
-  firstRowActionId?: string;
 }
 
 // ----------- Funcion gestion de correos con mailto sin gestion interna -----------------
@@ -70,7 +70,6 @@ export default function CoursesMeasurementTable({
   onViewResults,
   // onNotifyTeacher,
   tableId,
-  firstRowActionId,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
     {
@@ -143,10 +142,7 @@ export default function CoursesMeasurementTable({
       title: "Acción",
       sortable: false,
       render: (course) => (
-        <div
-          id={course === courses[0] ? firstRowActionId : undefined}
-          className="flex items-center justify-center"
-        >
+        <div {...tourMarker(DASHBOARD_TOUR_MARKERS.courseAction)} className="flex items-center justify-center">
           <Button
             variant="outline"
             size="sm"
@@ -259,7 +255,10 @@ export default function CoursesMeasurementTable({
       title: "Acciones",
       sortable: false,
       render: (course) => (
-        <div className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5">
+        <div
+          {...tourMarker(DASHBOARD_TOUR_MARKERS.courseAction)}
+          className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5"
+        >
           {course.status === "pendiente" ? (
             <IconButton
               variant="outline"
