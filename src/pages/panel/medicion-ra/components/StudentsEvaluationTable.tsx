@@ -172,16 +172,18 @@ export default function StudentsEvaluationTable({
         </div>
       </div>
 
-      <Table
-        columns={columns}
-        data={students}
-        rowKey={(student) => student.id}
-        ariaLabel="Tabla de evaluación de estudiantes por RA"
-        searchPlaceholder="Buscar estudiante por nombre, correo o código…"
-        emptyMessage="No hay estudiantes para evaluar."
-        minWidth={980}
-        initialRowsPerPage={5}
-      />
+      <div id="medicion-students-table">
+        <Table
+          columns={columns}
+          data={students}
+          rowKey={(student) => student.id}
+          ariaLabel="Tabla de evaluación de estudiantes por RA"
+          searchPlaceholder="Buscar estudiante por nombre, correo o código…"
+          emptyMessage="No hay estudiantes para evaluar."
+          minWidth={980}
+          initialRowsPerPage={5}
+        />
+      </div>
 
       <Modal
         open={Boolean(selectedRa)}

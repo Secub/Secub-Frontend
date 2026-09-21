@@ -31,7 +31,7 @@ export default function CompetenceStepper({
   }
 
   return (
-    <section className="surface-card p-6">
+    <section id="medicion-competence-stepper" className="surface-card p-6">
       <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">

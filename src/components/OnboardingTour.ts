@@ -8,6 +8,9 @@ export interface OnboardingTourStep {
   content: string;
   order?: number;
   group?: string;
+  // false = este paso conserva la ubicacion automatica de la libreria (puede
+  // quedar a un lado) en vez del "siempre arriba" que aplica al resto.
+  forceTop?: boolean;
 }
 
 interface UseOnboardingTourOptions {
@@ -32,10 +35,13 @@ const DEFAULT_TARGET_PADDING = 30;
 // la ubicacion automatica de la libreria para que el dialogo no tape el foco.
 const LARGE_TARGET_MIN_HEIGHT = 200;
 
-function getActiveStepTarget(client: TourGuideClient): Element | null {
-  const rawStep = (client as unknown as { tourSteps?: { target?: unknown }[]; activeStep?: number })
+function getActiveStep(client: TourGuideClient): { target?: unknown; forceTop?: boolean } | undefined {
+  return (client as unknown as { tourSteps?: { target?: unknown; forceTop?: boolean }[]; activeStep?: number })
     .tourSteps?.[(client as unknown as { activeStep?: number }).activeStep ?? 0];
-  const target = rawStep?.target;
+}
+
+function getActiveStepTarget(client: TourGuideClient): Element | null {
+  const target = getActiveStep(client)?.target;
   return target instanceof Element ? target : null;
 }
 
@@ -67,6 +73,7 @@ function correctSidePlacement(client: TourGuideClient) {
 
   const targetRect = correctBackdropPosition(client);
   if (!targetRect) return;
+  if (getActiveStep(client)?.forceTop === false) return;
   if (targetRect.height < LARGE_TARGET_MIN_HEIGHT) return;
 
   const dialogRect = dialog.getBoundingClientRect();
