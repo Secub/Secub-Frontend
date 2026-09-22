@@ -87,7 +87,7 @@ export default function MapeoCompetenciasCreatePage() {
                 classificationComplete={manager.classificationComplete}
                 onChange={(step) => {
                   if (step === "mapeo") {
-                    manager.tryContinueToMapeo();
+                    void manager.tryContinueToMapeo();
                     return;
                   }
                   manager.setActiveStep("nucleos");
