@@ -4,9 +4,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 interface MockClient {
   options: {
     keyboardControls?: boolean;
+    exitOnEscape?: boolean;
+    exitOnClickOutside?: boolean;
+    closeButton?: boolean;
     steps: Array<{ target: unknown; title?: string }>;
   };
   afterExit?: () => void;
+  afterStepChange?: () => void;
 }
 
 const { startMock, exitMock, instances } = vi.hoisted(() => ({
@@ -19,6 +23,7 @@ vi.mock("@sjmc11/tourguidejs/dist/tour", () => {
   class MockTourGuideClient {
     options: Record<string, unknown>;
     afterExit?: () => void;
+    afterStepChange?: () => void;
     start = startMock;
     exit = exitMock;
 
@@ -29,6 +34,10 @@ vi.mock("@sjmc11/tourguidejs/dist/tour", () => {
 
     onAfterExit(callback: () => void) {
       this.afterExit = callback;
+    }
+
+    onAfterStepChange(callback: () => void) {
+      this.afterStepChange = callback;
     }
   }
 
@@ -102,12 +111,49 @@ describe("useOnboardingTour", () => {
       expect(startMock).not.toHaveBeenCalled();
     });
 
-    it("enables keyboard navigation in the tour client", async () => {
+    it("locks keyboard and close controls during the first tour", async () => {
       mountTarget("filters");
       renderHook(() => useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }));
 
       await waitFor(() => expect(startMock).toHaveBeenCalled());
+      expect(startedInstance().options.keyboardControls).toBe(false);
+      expect(startedInstance().options.exitOnEscape).toBe(false);
+      expect(startedInstance().options.exitOnClickOutside).toBe(false);
+      expect(startedInstance().options.closeButton).toBe(false);
+    });
+
+    it("keeps next disabled until the configured first-run delay expires", async () => {
+      mountTarget("filters");
+      const nextButton = document.createElement("button");
+      nextButton.id = "tg-dialog-next-btn";
+      document.body.appendChild(nextButton);
+
+      renderHook(() =>
+        useOnboardingTour({
+          steps: stepsFor("filters"),
+          storageKey: "tour_a",
+          minimumFirstRunStepDurationMs: 40,
+        }),
+      );
+
+      await waitFor(() => expect(nextButton.disabled).toBe(true));
+      await pause(60);
+      expect(nextButton.disabled).toBe(false);
+    });
+
+    it("keeps normal controls when the tour has already been seen", async () => {
+      localStorage.setItem("tour_a", "true");
+      mountTarget("filters");
+      const { result } = renderHook(() =>
+        useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a", autoStart: false }),
+      );
+
+      result.current.startTour();
+      await waitFor(() => expect(startMock).toHaveBeenCalled());
       expect(startedInstance().options.keyboardControls).toBe(true);
+      expect(startedInstance().options.exitOnEscape).toBe(true);
+      expect(startedInstance().options.exitOnClickOutside).toBe(true);
+      expect(startedInstance().options.closeButton).toBe(true);
     });
   });
 

@@ -74,40 +74,23 @@ export default function DashboardPage() {
 
     const steps: OnboardingTourStep[] = [
       {
-        target: "#dashboard-summary-card-1",
-        title: "Ciclo activo",
-        content: "Consulta cuántos ciclos tienen mediciones pendientes.",
+        target: "#dashboard-summary-cards",
+        title: "Resumen del ciclo",
+        content:
+          "Consulta el resumen de los ciclos activos y finalizados, junto con los cursos pendientes y finalizados.",
         order: 1,
-      },
-      {
-        target: "#dashboard-summary-card-2",
-        title: "Ciclos finalizados",
-        content: "Consulta cuántos ciclos completaron la medición y el plan de mejora.",
-        order: 2,
-      },
-      {
-        target: "#dashboard-summary-card-3",
-        title: "Cursos pendientes",
-        content: "Consulta cuántos cursos todavía tienen resultados de aprendizaje por medir.",
-        order: 3,
-      },
-      {
-        target: "#dashboard-summary-card-4",
-        title: "Cursos finalizados",
-        content: "Consulta cuántos cursos completaron su medición.",
-        order: 4,
       },
       {
         target: "#dashboard-filters",
         title: "Filtros",
         content: "Filtra la información visible por ciclo, programa, plan, estado y los criterios disponibles para tu perfil.",
-        order: 5,
+        order: 2,
       },
       ...tourCycles.map((cycle, index) => ({
         target: `#dashboard-cycle-card-${index}`,
         title: cycle.name,
         content: "Consulta el avance, el estado y las acciones disponibles para este ciclo de medición.",
-        order: index + 6,
+        order: index + 3,
       })),
     ];
 
@@ -130,7 +113,7 @@ export default function DashboardPage() {
           target: `#dashboard-last-cycle-${action}`,
           title,
           content,
-          order: lastCycleIndex + index + 7,
+          order: lastCycleIndex + index + 4,
         });
       });
     }

@@ -22,6 +22,7 @@ interface UseOnboardingTourOptions {
   allowDialogOverlap?: boolean;
   forceVerticalPlacement?: boolean;
   allowPartialTargets?: boolean;
+  minimumFirstRunStepDurationMs?: number;
 }
 
 function purgeOrphanTourDom() {
@@ -272,6 +273,37 @@ async function exitClient(client: TourGuideClient) {
   }
 }
 
+function attachFirstRunStepGuard(client: TourGuideClient, durationMs: number) {
+  let timer: number | null = null;
+
+  const allowNextStep = () => {
+    const nextButton = document.querySelector<HTMLButtonElement>("#tg-dialog-next-btn");
+    if (!nextButton) return;
+    nextButton.disabled = false;
+    nextButton.classList.remove("disabled");
+  };
+
+  const startStepTimer = () => {
+    if (timer !== null) window.clearTimeout(timer);
+
+    const nextButton = document.querySelector<HTMLButtonElement>("#tg-dialog-next-btn");
+    if (!nextButton) return;
+    nextButton.disabled = true;
+    nextButton.classList.add("disabled");
+    timer = window.setTimeout(allowNextStep, durationMs);
+  };
+
+  client.onAfterStepChange(startStepTimer);
+
+  return {
+    startInitialTimer: startStepTimer,
+    cleanup: () => {
+      if (timer !== null) window.clearTimeout(timer);
+      allowNextStep();
+    },
+  };
+}
+
 export function useOnboardingTour({
   steps,
   storageKey,
@@ -281,10 +313,12 @@ export function useOnboardingTour({
   allowDialogOverlap = false,
   forceVerticalPlacement = true,
   allowPartialTargets = false,
+  minimumFirstRunStepDurationMs = 3000,
 }: UseOnboardingTourOptions) {
   const [tourId] = useState(() => Symbol("onboarding-tour"));
   const tourRef = useRef<TourGuideClient | null>(null);
   const verticalGuardCleanupRef = useRef<(() => void) | null>(null);
+  const stepGuardCleanupRef = useRef<(() => void) | null>(null);
   const manualStartCancelRef = useRef<(() => void) | null>(null);
 
   // Los pasos son datos planos: se compara por contenido para que un consumidor que
@@ -292,7 +326,7 @@ export function useOnboardingTour({
   const stepsKey = JSON.stringify(steps);
   const stableSteps = useMemo(() => JSON.parse(stepsKey) as OnboardingTourStep[], [stepsKey]);
 
-  const buildClient = useCallback(() => {
+  const buildClient = useCallback((isFirstRun: boolean) => {
     const scrollMargin = getTargetScrollMargin();
     const availableSteps = stableSteps.flatMap((step) => {
       const target = resolveTarget(step.target);
@@ -309,14 +343,15 @@ export function useOnboardingTour({
 
     return new TourGuideClient({
       steps: availableSteps,
-      exitOnEscape: true,
-      exitOnClickOutside: true,
-      keyboardControls: true,
       showStepProgress: true,
       showButtons: true,
       nextLabel: "Siguiente",
       prevLabel: "Atrás",
       finishLabel: "Finalizar",
+      exitOnEscape: !isFirstRun,
+      exitOnClickOutside: !isFirstRun,
+      closeButton: !isFirstRun,
+      keyboardControls: !isFirstRun,
       autoScrollOffset: AUTO_SCROLL_OFFSET,
       autoScrollSmooth,
       allowDialogOverlap,
@@ -326,6 +361,8 @@ export function useOnboardingTour({
   const releaseClient = useCallback(() => {
     verticalGuardCleanupRef.current?.();
     verticalGuardCleanupRef.current = null;
+    stepGuardCleanupRef.current?.();
+    stepGuardCleanupRef.current = null;
     tourRef.current = null;
     document.documentElement.style.scrollBehavior = "";
   }, []);
@@ -342,8 +379,9 @@ export function useOnboardingTour({
   }, [releaseClient, tourId]);
 
   const launchClient = useCallback(
-    (client: TourGuideClient) => {
+    (client: TourGuideClient, isFirstRun: boolean) => {
       tourRef.current = client;
+      let startInitialStepTimer: (() => void) | null = null;
       // Finalizar/Esc/click afuera: la libreria sale sola, hay que soltar lo nuestro.
       client.onAfterExit(() => {
         if (tourRef.current !== client) return;
@@ -351,8 +389,17 @@ export function useOnboardingTour({
         releaseTourSlot(tourId);
       });
 
+      if (isFirstRun) {
+        const stepGuard = attachFirstRunStepGuard(client, minimumFirstRunStepDurationMs);
+        stepGuardCleanupRef.current = stepGuard.cleanup;
+        startInitialStepTimer = stepGuard.startInitialTimer;
+      }
+
       document.documentElement.style.scrollBehavior = "auto";
-      const started = Promise.resolve(client.start());
+      const started = Promise.resolve(client.start()).then((result) => {
+        startInitialStepTimer?.();
+        return result;
+      });
       if (forceVerticalPlacement) {
         verticalGuardCleanupRef.current = attachVerticalPlacementGuard(client);
       }
@@ -365,7 +412,7 @@ export function useOnboardingTour({
         throw error;
       });
     },
-    [forceVerticalPlacement, releaseClient, tourId],
+    [forceVerticalPlacement, minimumFirstRunStepDurationMs, releaseClient, tourId],
   );
 
   // Espera a que los targets existan y a que no haya otro tour activo; devuelve la
@@ -381,7 +428,8 @@ export function useOnboardingTour({
         rafId = null;
         if (cancelled) return;
 
-        const client = buildClient();
+        const isFirstRun = !readSeen(storageKey);
+        const client = buildClient(isFirstRun);
         if (!client) {
           if (performance.now() < deadline) rafId = window.requestAnimationFrame(attempt);
           return;
@@ -397,8 +445,9 @@ export function useOnboardingTour({
           return;
         }
 
-        launchClient(client)
+        launchClient(client, isFirstRun)
           .then(() => {
+            if (isFirstRun) markSeen(storageKey);
             if (!cancelled) onStarted?.();
           })
           .catch(() => undefined);
@@ -413,7 +462,7 @@ export function useOnboardingTour({
         unsubscribe = null;
       };
     },
-    [buildClient, launchClient, tourId],
+    [buildClient, launchClient, storageKey, tourId],
   );
 
   const startTour = useCallback(() => {
@@ -432,8 +481,7 @@ export function useOnboardingTour({
 
     if (isTourSlotFree()) purgeOrphanTourDom();
 
-    const cancelAutoStart =
-      autoStart && !readSeen(storageKey) ? scheduleStart(() => markSeen(storageKey)) : null;
+    const cancelAutoStart = autoStart && !readSeen(storageKey) ? scheduleStart() : null;
 
     return () => {
       cancelAutoStart?.();

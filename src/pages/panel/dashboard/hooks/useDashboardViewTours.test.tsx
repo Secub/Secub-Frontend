@@ -25,6 +25,8 @@ vi.mock("@sjmc11/tourguidejs/dist/tour", () => {
     }
 
     onAfterExit() {}
+
+    onAfterStepChange() {}
   }
 
   return { TourGuideClient: MockTourGuideClient };
