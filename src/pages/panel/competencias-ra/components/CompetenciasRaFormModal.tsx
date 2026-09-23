@@ -54,7 +54,7 @@ export function CompetenciasRaFormModal({
     setFormAlert("");
   }, [initialValues, open]);
 
-  const canEditStructure = true;
+  const canEditStructure = mode === "create" || !record?.mapeada;
   const {
     lugaresDisponibles,
     facultadesDisponibles,

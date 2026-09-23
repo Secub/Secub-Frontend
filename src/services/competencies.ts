@@ -35,6 +35,7 @@ export interface CompetencyRecord {
   descripcion: string;
   nombre: string;
   numero: number;
+  mapeada: boolean;
   resultadosAprendizaje: LearningOutcomeRecord[];
   createdAt: string;
   updatedAt: string;

@@ -226,6 +226,15 @@ export function CompetenciasRaDetailModal({
         />
       </div>
 
+      {record.mapeada ? (
+        <div
+          role="status"
+          className="mt-8 rounded-[var(--radius-md)] border border-[var(--color-primary)]/30 bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]"
+        >
+          Esta competencia ya está incluida en el mapeo. Puedes editar su información y sus RA, pero no eliminarla.
+        </div>
+      ) : null}
+
       {canDelete ? (
         <div className="mt-8 flex justify-end">
           <IconButton

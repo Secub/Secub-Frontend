@@ -365,6 +365,7 @@ export function buildRecordFromForm(
     estado: form.estado,
     nombre: `Competencia ${numero}`,
     numero,
+    mapeada: original?.mapeada ?? false,
     descripcion: form.descripcion.trim(),
     resultadosAprendizaje: original?.resultadosAprendizaje ?? [],
     createdAt: original?.createdAt ?? now,

@@ -188,7 +188,7 @@ export default function CompetenciasRaFormacionPage() {
         open={detailOpen}
         record={selectedRecord}
         canEdit={Boolean(selectedRecord && canEditAcademicRecord("competenciasRa", currentUser.role, selectedRecord.estado) && permissions.canUpdate)}
-        canDelete={Boolean(selectedRecord && permissions.canDelete)}
+        canDelete={Boolean(selectedRecord && permissions.canDelete && !selectedRecord.mapeada)}
         onClose={() => setDetailOpen(false)}
         onSaveDescription={handleSaveCompetenciaDescription}
         onDelete={handleDelete}

@@ -150,6 +150,14 @@ export function useCompetenciasRAActions({
 
   const handleDelete = (record: CompetenciasRaEnriched) => {
     if (!permissions.canDelete) return;
+    if (record.mapeada) {
+      showNotification({
+        title: 'Competencia incluida en el mapeo',
+        message: 'Puedes editar su información y sus RA, pero no eliminarla.',
+        variant: 'warning',
+      });
+      return;
+    }
     setRecordToDelete(record);
   };
 

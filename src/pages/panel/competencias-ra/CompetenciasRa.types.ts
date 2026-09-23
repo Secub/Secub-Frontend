@@ -77,6 +77,7 @@ export interface CompetenciasRaFormacionRecord {
   descripcion: string;
   nombre: string;
   numero: number;
+  mapeada: boolean;
   resultadosAprendizaje: ResultadoAprendizaje[];
   createdAt: string;
   updatedAt: string;
