@@ -23,6 +23,9 @@ export default function CicloPage() {
   const page = useCicloPage();
   const {
     user,
+    loading,
+    loadError,
+    refresh,
     catalogs,
     permissions,
     isStepLocked,
@@ -79,7 +82,19 @@ export default function CicloPage() {
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles && permissions.canCreateCycle ? pageActions : undefined}
     >
-      {isStepLocked ? (
+      {loading ? (
+        <WorkflowStateCard
+          title="Cargando creación del ciclo"
+          description="Consultando el programa, los planes y los cursos de Síntesis con nivel Afianza."
+        />
+      ) : loadError ? (
+        <WorkflowStateCard
+          title="No fue posible cargar la creación del ciclo"
+          description={loadError}
+          actionLabel="Reintentar"
+          onAction={() => void refresh()}
+        />
+      ) : isStepLocked ? (
         <WorkflowStateCard
           variant="locked"
           title="Este paso aún no está disponible"

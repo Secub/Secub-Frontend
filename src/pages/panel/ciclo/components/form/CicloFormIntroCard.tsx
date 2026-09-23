@@ -11,7 +11,7 @@ export default function CicloFormIntroCard() {
             Cursos disponibles
           </h3>
           <p className="mt-1 text-sm leading-6 text-[var(--color-gray-3)]">
-            El listado muestra únicamente cursos del núcleo de Síntesis. El periodo corresponde a la selección de estos cursos durante 1.5 años.
+            El listado muestra únicamente cursos de semestres clasificados como Síntesis que tienen al menos una competencia en nivel Afianza. El periodo corresponde a la selección de estos cursos durante 1.5 años.
           </p>
         </div>
       </div>
