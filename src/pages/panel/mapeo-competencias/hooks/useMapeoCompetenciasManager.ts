@@ -75,18 +75,14 @@ export function useMapeoCompetenciasManager({
       return;
     }
 
-    setNucleosDraft(
-      existingRecord
-        ? readNucleosFromRecord(existingRecord, totalSemestres)
-        : buildEmptyNucleosDraft(totalSemestres)
-    );
-
-    setNivelesDraft(
-      existingRecord
-        ? readNivelesFromRecord(existingRecord)
-        : {}
-    );
-
+    const nextNucleosDraft = existingRecord
+      ? readNucleosFromRecord(existingRecord, totalSemestres)
+      : buildEmptyNucleosDraft(totalSemestres);
+    const nextNivelesDraft = existingRecord
+      ? readNivelesFromRecord(existingRecord)
+      : {};
+    setNucleosDraft(nextNucleosDraft);
+    setNivelesDraft(nextNivelesDraft);
     setActiveStep("nucleos");
     setActiveSemester(1);
     setFeedback(null);
