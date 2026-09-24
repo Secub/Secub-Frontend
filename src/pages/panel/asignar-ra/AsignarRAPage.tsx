@@ -15,7 +15,7 @@ import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
 import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 // TOUR: import del hook y el tipo de pasos
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
@@ -135,11 +135,35 @@ export default function AsignarRAPage() {
     access.canRead &&
     courseCompetencias.length > 0;
 
+  // TOUR: el paso de "Aplicaciones de RA" apunta a un elemento que solo existe en el DOM
+  // cuando la primera competencia esta expandida. Sin esto, la primera vez que se muestra
+  // el tour ese paso no encuentra su target y se descarta en silencio (allowPartialTargets),
+  // dejando visible solo el paso de Competencias. Se fuerza la expansion una sola vez por
+  // competencia para que el paso exista antes de que el tour arranque.
+  const detailTourExpandedForRef = useRef<string | null>(null);
+  const firstCompetenciaId = courseCompetencias[0]?.id;
+  useEffect(() => {
+    if (!canShowDetailTour) return;
+    if (!firstCompetenciaId || detailTourExpandedForRef.current === firstCompetenciaId) return;
+    detailTourExpandedForRef.current = firstCompetenciaId;
+    if (!expandedCompetenciaIds.includes(firstCompetenciaId)) {
+      toggleCompetenciaAccordion(firstCompetenciaId);
+    }
+  }, [canShowDetailTour, firstCompetenciaId, expandedCompetenciaIds, toggleCompetenciaAccordion]);
+
+  // El autoStart del tour no puede arrancar antes de que el acordeon ya este
+  // expandido: si arranca en la misma pasada de efectos que la expansion, puede
+  // ganar la carrera y construir el tour con la competencia aun colapsada
+  // (card sin el paso de RA, o sin mostrarse). Se gatea con el estado ya
+  // confirmado en el DOM, no con el orden de los efectos.
+  const isDetailTourTargetReady =
+    Boolean(firstCompetenciaId) && expandedCompetenciaIds.includes(firstCompetenciaId ?? "");
+
   const { startTour: startDetailTour } = useOnboardingTour({
     steps: detailTourSteps,
     storageKey: "tour_asignar_ra_detalle_v1",
-    autoStart: canShowDetailTour,
-    enabled: canShowDetailTour,
+    autoStart: canShowDetailTour && isDetailTourTargetReady,
+    enabled: canShowDetailTour && isDetailTourTargetReady,
     // El selector de aplicaciones vive dentro de la competencia expandida.
     allowPartialTargets: true,
   });
