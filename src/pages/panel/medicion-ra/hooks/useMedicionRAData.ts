@@ -8,16 +8,24 @@ import { useMockBackendVersion } from "./useMockBackendVersion";
 
 export function useMedicionRAData() {
   const currentUser = useMemo(() => getCurrentMockUser(), []);
-  const { ignoreNextBackendChangeRef } = useMockBackendVersion();
+  const { backendVersion, ignoreNextBackendChangeRef } = useMockBackendVersion();
 
-  const realAssignments = mockBackend.list<AsignacionRaDemoRecord>(
-    "asignacionesRa",
-    currentUser,
-  );
+  // `mockBackend.list`/`buildCoursesFromRealAssignments` releen y parsean el storage,
+  // devolviendo arrays y objetos nuevos en cada llamada. Sin memoizar, `availableCourses`
+  // cambia de referencia en cada render y arrastra esa inestabilidad a todo lo que se
+  // deriva de el (selectedCourse, etc.), lo que dispara de mas el efecto de hidratacion
+  // de la medicion y pisa cambios locales aun no guardados (p. ej. al avanzar de
+  // competencia). Se memoiza igual que persistedDemoState: solo se relee cuando cambia
+  // el usuario o cuando el backend realmente cambio (backendVersion).
+  const availableCourses = useMemo(() => {
+    const realAssignments = mockBackend.list<AsignacionRaDemoRecord>(
+      "asignacionesRa",
+      currentUser,
+    );
 
-  const availableCourses = realAssignments.length
-    ? buildCoursesFromRealAssignments(currentUser)
-    : [];
+    return realAssignments.length ? buildCoursesFromRealAssignments(currentUser) : [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser, backendVersion]);
 
   const requestedCourseId = getSearchCourseId();
   const requestedCycleId = getSearchCycleId();
@@ -44,6 +52,7 @@ export function useMedicionRAData() {
 
   return {
     currentUser,
+    backendVersion,
     ignoreNextBackendChangeRef,
     availableCourses,
     hasAvailableCourses: availableCourses.length > 0,

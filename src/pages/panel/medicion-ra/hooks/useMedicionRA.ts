@@ -22,6 +22,7 @@ export { LOCKED_TOOLTIP };
 export function useMedicionRA() {
   const {
     currentUser,
+    backendVersion,
     ignoreNextBackendChangeRef,
     availableCourses,
     hasAvailableCourses,
@@ -52,10 +53,23 @@ export function useMedicionRA() {
     improvementByCompetence: initialPersistedDemoState?.improvementByCompetence ?? {},
   });
 
-  const persistedDemoState = mockBackend.getById<MedicionRaDemoState>(
-    "medicionesRa",
-    computedDraft.medicionRaDemoStateId,
-    currentUser,
+  // `mockBackend.getById` relee y parsea el storage en cada llamada, asi que sin
+  // memoizar devuelve un objeto nuevo en cada render. Eso hacia que el efecto de
+  // hidratacion (que depende de esta referencia) se disparara todo el tiempo,
+  // pisando cambios locales aun no guardados como el avance a la siguiente
+  // competencia. Se memoiza para que solo se relea cuando cambia el registro
+  // objetivo o cuando el backend realmente cambio (backendVersion).
+  const persistedDemoState = useMemo(
+    () =>
+      mockBackend.getById<MedicionRaDemoState>(
+        "medicionesRa",
+        computedDraft.medicionRaDemoStateId,
+        currentUser,
+      ),
+    // backendVersion no se usa dentro del calculo: solo invalida el memo cuando el
+    // backend cambio de verdad (ver subscribeToMockBackendChanges / useMockBackendVersion).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [computedDraft.medicionRaDemoStateId, currentUser, backendVersion],
   );
 
   const normalizedPersistedDemoState = persistedDemoState ?? undefined;
