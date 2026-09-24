@@ -45,7 +45,7 @@ export default function PanelSidebar({
       {
         target: "#panel-sidebar-dashboard",
         title: "Estado del ciclo",
-        content: "Consulta el avance de los ciclos, cursos, mediciones y resultados.",
+        content: "Consulta el estado del ciclo, cursos, mediciones, resultados e históricos.",
         order: 2,
       },
       {
