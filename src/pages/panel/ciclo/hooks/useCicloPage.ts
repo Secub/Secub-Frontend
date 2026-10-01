@@ -19,7 +19,7 @@ const user = getCurrentCicloUser();
 export function useCicloPage() {
   const [catalogs, setCatalogs] = useState(() => getCicloCatalogs(user));
   const [cycles, setCycles] = useState<CicloMedicion[]>(() =>
-    mockBackend.list<CicloMedicion>("ciclosMedicion", user),
+    mockBackend.listCycleHistory<CicloMedicion>(user),
   );
   const [filters, setFilters] = useState<CicloFiltersState>(INITIAL_CICLO_FILTERS);
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">("create");
@@ -59,7 +59,7 @@ export function useCicloPage() {
   useEffect(() => {
     const refreshData = () => {
       setCatalogs(getCicloCatalogs(user));
-      setCycles(mockBackend.list<CicloMedicion>("ciclosMedicion", user));
+      setCycles(mockBackend.listCycleHistory<CicloMedicion>(user));
     };
 
     refreshData();
@@ -113,7 +113,8 @@ export function useCicloPage() {
     const formValues = mapCycleToForm(cycle);
     setFormValues({
       ...formValues,
-      // nombre: `${cycle.nombre} - Copia`,
+      nombre: "",
+      fechaInicio: "",
     });
     setFormOpen(true);
   };

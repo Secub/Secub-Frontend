@@ -18,7 +18,7 @@ import CicloPageActions from "./components/CicloPageActions";
 import CicloSavedMessage from "./components/CicloSavedMessage";
 import { useCicloPage } from "./hooks/useCicloPage";
 import { INITIAL_CICLO_FILTERS } from "./ciclo.utils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 // TOUR: import del hook y el tipo de pasos
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
@@ -56,6 +56,18 @@ export default function CicloPage() {
   } = page;
 
   const workflowProgress = useAcademicWorkflowProgress();
+  const tourCycleId = useMemo(
+    () =>
+      roleScopedCycles.reduce<(typeof roleScopedCycles)[number] | null>(
+        (latest, cycle) =>
+          !latest || new Date(cycle.createdAt).getTime() > new Date(latest.createdAt).getTime()
+            ? cycle
+            : latest,
+        null,
+      )?.id ?? null,
+    [roleScopedCycles],
+  );
+  const [initialTourCycleId] = useState(tourCycleId);
   const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
   const showFlowActionBar =
     isWorkflowActive &&
@@ -100,7 +112,10 @@ export default function CicloPage() {
 
   const { startTour } = useOnboardingTour({
     steps: tourSteps,
-    storageKey: "tour_ciclo_v1",
+    storageKey:
+      tourCycleId === initialTourCycleId
+        ? "tour_ciclo_v1"
+        : `tour_ciclo_v1_${tourCycleId ?? "nuevo"}`,
     autoStart: canShowTour,
     enabled: canShowTour,
     // El listado solo existe si los filtros actuales devuelven ciclos.

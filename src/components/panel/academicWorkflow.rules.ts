@@ -54,6 +54,9 @@ export type AcademicRecord = {
   cursosMapeados?: Array<{ cursoId?: string; competenciaRaId?: string; nivel?: string }>;
   createdAt?: string;
   updatedAt?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  periodo?: string;
   deletedAt?: string;
   completed?: boolean;
   isEvaluationLocked?: boolean;
@@ -318,7 +321,10 @@ export function hasCompleteAsignarRaWorkflow(
   // Regla RF07 centrada en curso de Síntesis: un ciclo queda completo cuando cada curso
   // del ciclo tiene al menos 1 RA asignado por cada competencia asociada al curso.
   // TODO: cuando exista backend real, mover esta validación al servicio de workflow.
-  return ciclosCompletos.some((cycle) =>
+  const activeCycles = ciclosCompletos.filter((cycle) => cycle.estado === "activo");
+  const cyclesToValidate = activeCycles.length ? activeCycles : ciclosCompletos;
+
+  return cyclesToValidate.length > 0 && cyclesToValidate.every((cycle) =>
     isAsignarRaCycleComplete(
       cycle,
       mapeosCompletos,

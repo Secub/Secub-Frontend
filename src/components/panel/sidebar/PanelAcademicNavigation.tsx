@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from "react";
 import { navigateToRoute } from "../../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../../app/router/routePrefetch";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import { mockBackend } from "../../../services/mockBackend";
 import { canStartAcademicPlan } from "../../../config/access/permissions";
 import { showNotification } from "../../../shared/feedback";
 import { SecubIcon } from "../../ui";
@@ -16,6 +17,7 @@ import {
   isAcademicWorkflowStepCompleted,
   isAcademicWorkflowStepLocked,
   newAcademicPlanStartStep,
+  simulateAcademicCycleCompletion,
   startNewAcademicPlanFromCurrentProgress,
   useAcademicPlanInfo,
   useAcademicWorkflowProgress,
@@ -68,9 +70,17 @@ export default function PanelAcademicNavigation({
   const renewalAvailability = getNewAcademicPlanRenewalAvailability(workflowProgress);
   const canStartNewAcademicPlan = renewalAvailability.isAvailable;
   const canManageNewAcademicPlan = canStartAcademicPlan(currentUser.role);
+  const hasActiveCycle = mockBackend
+    .list<{ id: string; estado?: string }>("ciclosMedicion", currentUser)
+    .some((cycle) => cycle.estado === "activo");
+  const canShowNewAcademicPlanAction = isWorkflowCompleted || hasActiveCycle;
   const newAcademicPlanLockedMessage =
     renewalAvailability.lockedMessage ??
     "El nuevo plan académico estará disponible cuando el ciclo actual cumpla 1.5 años.";
+  const canSimulateCycleCompletion =
+    import.meta.env.DEV &&
+    !canStartNewAcademicPlan &&
+    (hasActiveCycle || renewalAvailability.isCompleted);
   const newAcademicPlanTarget =
     academicItems.find((item) => item.key === newAcademicPlanStartStep) ??
     academicItems[2] ??
@@ -97,6 +107,17 @@ export default function PanelAcademicNavigation({
         error instanceof Error ? error.message : newAcademicPlanLockedMessage,
       );
     }
+  };
+
+  const handleSimulateCycleCompletion = () => {
+    if (!canManageNewAcademicPlan || !canSimulateCycleCompletion) return;
+
+    simulateAcademicCycleCompletion();
+    showNotification({
+      title: "Simulación completada",
+      message: "El ciclo quedó finalizado y ya puedes duplicarlo o iniciar un nuevo ciclo.",
+      variant: "success",
+    });
   };
 
   const academicProgress = useMemo(
@@ -344,54 +365,77 @@ export default function PanelAcademicNavigation({
             </ol>
           </nav>
 
-          {canManageNewAcademicPlan && isWorkflowCompleted ? (
-            <button
-              type="button"
-              onClick={handleStartNewAcademicPlan}
-              aria-disabled={!canStartNewAcademicPlan}
-              title={
-                canStartNewAcademicPlan
-                  ? "Crear un nuevo plan académico desde el paso 3"
-                  : newAcademicPlanLockedMessage
-              }
-              className={[
-                "group mt-2 flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
-                canStartNewAcademicPlan
-                  ? "cursor-pointer bg-[color:rgba(248,129,29,0.10)] hover:bg-[color:rgba(248,129,29,0.16)]"
-                  : "cursor-not-allowed bg-[color:rgba(255,255,255,0.045)] opacity-65",
-              ].join(" ")}
-            >
-              <span
-                className={[
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)]",
+          {canManageNewAcademicPlan && canShowNewAcademicPlanAction ? (
+            <>
+              <button
+                type="button"
+                onClick={handleStartNewAcademicPlan}
+                aria-disabled={!canStartNewAcademicPlan}
+                title={
                   canStartNewAcademicPlan
-                    ? "bg-[color:rgba(248,129,29,0.16)] text-[var(--color-primary)]"
-                    : "text-[var(--color-secondary-3)]",
+                    ? "Crear un nuevo plan académico desde el paso 3"
+                    : newAcademicPlanLockedMessage
+                }
+                className={[
+                  "group mt-2 flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+                  canStartNewAcademicPlan
+                    ? "cursor-pointer bg-[color:rgba(248,129,29,0.10)] hover:bg-[color:rgba(248,129,29,0.16)]"
+                    : "cursor-not-allowed bg-[color:rgba(255,255,255,0.045)] opacity-65",
                 ].join(" ")}
-                aria-hidden="true"
               >
-                {canStartNewAcademicPlan ? (
-                  <SecubIcon name="add" size={18} weight="regular" />
-                ) : (
-                  <SecubIcon name="lock" size={18} weight="regular" />
-                )}
-              </span>
-              <span className="min-w-0 flex-1">
                 <span
                   className={[
-                    "block text-[0.75rem] font-bold uppercase tracking-[0.12em]",
+                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)]",
                     canStartNewAcademicPlan
-                      ? "text-[var(--color-warning)]"
-                      : "text-[var(--color-secondary-2)]",
+                      ? "bg-[color:rgba(248,129,29,0.16)] text-[var(--color-primary)]"
+                      : "text-[var(--color-secondary-3)]",
                   ].join(" ")}
+                  aria-hidden="true"
                 >
-                  {canStartNewAcademicPlan ? "Nuevo ciclo" : "Bloqueado"}
+                  {canStartNewAcademicPlan ? (
+                    <SecubIcon name="add" size={18} weight="regular" />
+                  ) : (
+                    <SecubIcon name="lock" size={18} weight="regular" />
+                  )}
                 </span>
-                <span className="block truncate font-heading text-[0.82rem] font-medium leading-4 text-[var(--color-white)]">
-                  Ciclo nuevo
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={[
+                      "block text-[0.75rem] font-bold uppercase tracking-[0.12em]",
+                      canStartNewAcademicPlan
+                        ? "text-[var(--color-warning)]"
+                        : "text-[var(--color-secondary-2)]",
+                    ].join(" ")}
+                  >
+                    {canStartNewAcademicPlan ? "Nuevo ciclo" : "Bloqueado"}
+                  </span>
+                  <span className="block truncate font-heading text-[0.82rem] font-medium leading-4 text-[var(--color-white)]">
+                    Ciclo nuevo
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+
+              {canSimulateCycleCompletion ? (
+                <button
+                  type="button"
+                  onClick={handleSimulateCycleCompletion}
+                  title="Simulación solo para pruebas de desarrollo"
+                  className="group mt-1.5 flex w-full items-center gap-2.5 rounded-[14px] border border-dashed border-[color:rgba(179,206,226,0.24)] px-2.5 py-2 text-left transition-colors hover:bg-[color:rgba(255,255,255,0.055)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-info)]" aria-hidden="true">
+                    <SecubIcon name="cycle" size={18} weight="regular" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[0.75rem] font-bold uppercase tracking-[0.12em] text-[var(--color-info)]">
+                      Simular fin del ciclo
+                    </span>
+                    <span className="block truncate font-heading text-[0.82rem] font-medium leading-4 text-[var(--color-white)]">
+                      Desarrollo · 1.5 años
+                    </span>
+                  </span>
+                </button>
+              ) : null}
+            </>
           ) : null}
         </div>
       ) : null}

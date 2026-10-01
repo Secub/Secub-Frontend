@@ -252,6 +252,32 @@ export function markActiveAcademicPlanCompleted(metadata?: Partial<AcademicPlanI
   return completedPlan;
 }
 
+export function simulateAcademicPlanRenewalWindow() {
+  const currentPlan = getActiveAcademicPlanInstance();
+  const simulatedStartDate = new Date();
+  const originalDay = simulatedStartDate.getDate();
+  simulatedStartDate.setDate(1);
+  simulatedStartDate.setMonth(simulatedStartDate.getMonth() - ACADEMIC_PLAN_RENEWAL_MONTHS);
+  const lastDayOfMonth = new Date(
+    simulatedStartDate.getFullYear(),
+    simulatedStartDate.getMonth() + 1,
+    0,
+  ).getDate();
+  simulatedStartDate.setDate(Math.min(originalDay, lastDayOfMonth));
+
+  const completedPlan = normalizePlan({
+    ...currentPlan,
+    status: "completed",
+    cycleStartDate: simulatedStartDate.toISOString(),
+    completedAt: currentPlan.completedAt ?? new Date().toISOString(),
+  });
+
+  persistActiveAcademicPlan(completedPlan);
+  dispatchAcademicPlanChange();
+
+  return completedPlan;
+}
+
 export function markActiveAcademicPlanInProgress() {
   const currentPlan = getActiveAcademicPlanInstance();
 

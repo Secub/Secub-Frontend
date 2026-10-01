@@ -6,9 +6,11 @@ import {
   getActiveAcademicPlanInstance,
   markActiveAcademicPlanCompleted,
   mockBackend,
+  simulateAcademicPlanRenewalWindow,
   type AcademicPlanInstance,
 } from "../../services/mockBackend";
 import { getCicloCatalogs } from "../../pages/panel/ciclo/ciclo.mock";
+import { buildPeriodFromStartDate } from "../../pages/panel/ciclo/ciclo.utils";
 import { isCompetenciaRaValidByLearningResults } from "../../utils/learningResultsRules";
 import type { PanelStepKey } from "./panelNavigation";
 import {
@@ -227,6 +229,42 @@ export function getNewAcademicPlanRenewalAvailability(
   };
 
   return getAcademicPlanRenewalAvailability(planForValidation);
+}
+
+export function simulateAcademicCycleCompletion() {
+  const user = getCurrentMockUser();
+  const now = new Date();
+  const simulatedStartDate = new Date(now);
+  const originalDay = simulatedStartDate.getDate();
+  simulatedStartDate.setDate(1);
+  simulatedStartDate.setMonth(simulatedStartDate.getMonth() - 18);
+  const lastDayOfMonth = new Date(
+    simulatedStartDate.getFullYear(),
+    simulatedStartDate.getMonth() + 1,
+    0,
+  ).getDate();
+  simulatedStartDate.setDate(Math.min(originalDay, lastDayOfMonth));
+  const startDate = simulatedStartDate.toISOString().slice(0, 10);
+  const endDate = now.toISOString().slice(0, 10);
+
+  mockBackend
+    .list<AcademicRecord>("ciclosMedicion", user)
+    .filter((cycle) => cycle.estado === "activo")
+    .forEach((cycle) => {
+      mockBackend.update(
+        "ciclosMedicion",
+        {
+          ...cycle,
+          fechaInicio: startDate,
+          fechaFin: endDate,
+          periodo: buildPeriodFromStartDate(startDate),
+          estado: "finalizado",
+        },
+        user,
+      );
+    });
+
+  simulateAcademicPlanRenewalWindow();
 }
 
 export function isAcademicWorkflowBaseStepInherited(

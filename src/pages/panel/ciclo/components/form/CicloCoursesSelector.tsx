@@ -23,6 +23,7 @@ export default function CicloCoursesSelector({
 }: CicloCoursesSelectorProps) {
   return (
     <section
+      id="ciclo-courses-selector"
       data-validation-field="cursoIds"
       data-validation-error={error ? "true" : undefined}
       className={[error ? "rounded-[var(--radius-lg)] border border-[var(--color-error)] p-3 ring-4 ring-[color:rgba(235,87,87,0.10)]" : ""].join(" ")}

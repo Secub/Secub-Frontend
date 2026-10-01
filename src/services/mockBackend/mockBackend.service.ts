@@ -127,8 +127,13 @@ function isVisibleForUser<T extends MockBackendRecord>(
   entityKey: MockBackendEntityKey,
   record: T,
   user?: MockBackendUser | null,
+  includeArchivedAcademicPlans = false,
 ) {
-  if (isAcademicWorkflowEntity(entityKey) && !isRecordFromActiveAcademicPlan(record)) {
+  if (
+    isAcademicWorkflowEntity(entityKey) &&
+    !includeArchivedAcademicPlans &&
+    !isRecordFromActiveAcademicPlan(record)
+  ) {
     return false;
   }
 
@@ -355,6 +360,15 @@ export const mockBackend = {
     return records.filter((record) => !record.deletedAt && isVisibleForUser(entityKey, record, user));
   },
 
+  listCycleHistory<T extends MockBackendRecord>(user?: MockBackendUser | null): T[] {
+    const records = readDatabase().ciclosMedicion as T[];
+    return records.filter(
+      (record) =>
+        !record.deletedAt &&
+        isVisibleForUser("ciclosMedicion", record, user, true),
+    );
+  },
+
   getById<T extends MockBackendRecord>(
     entityKey: MockBackendEntityKey,
     id: string,
@@ -410,7 +424,7 @@ export const mockBackend = {
     if (entityKey === "mapeosCompetencias") {
       const database = readDatabase();
       const matchingRecords = (database[entityKey] ?? []).filter((item) => {
-        if (item.deletedAt) return false;
+        if (item.deletedAt || !isRecordFromActiveAcademicPlan(item)) return false;
         if (item.id === record.id) return true;
 
         const itemProgramId = item.programaId ?? item.academicProgramId;

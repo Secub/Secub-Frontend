@@ -1,4 +1,5 @@
 import { isCompetenciaRaValidByLearningResults } from "../../../utils/learningResultsRules";
+import { getActiveAcademicPlanInstanceId } from "../../../services/mockBackend";
 import type {
   Catalogs,
   CompetenciaRaDemoRecord,
@@ -24,7 +25,7 @@ import {
 } from "./MapeoCompetencias.semestres";
 
 export function getMapeoRecordId(programaId: string, planId: string) {
-  return `mapeo-${programaId}__${planId}`;
+  return `mapeo-${programaId}__${planId}__${getActiveAcademicPlanInstanceId()}`;
 }
 
 export function normalizeCursoAsis(course: CursoAsis): CursoAsis {
