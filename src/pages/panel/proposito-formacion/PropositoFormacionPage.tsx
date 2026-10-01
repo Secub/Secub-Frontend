@@ -4,7 +4,6 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
@@ -121,6 +120,7 @@ export default function PropositoFormacionPage() {
   return (
     <PanelLayout
       currentStep="proposito-formacion"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Propósito de Formación"
       description={
         permissions.canUpdate
@@ -129,11 +129,6 @@ export default function PropositoFormacionPage() {
       }
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
-      {/* TOUR: botón para relanzar el tour manualmente */}
-      {canShowTour ? (
-        <TourReplayButton onClick={startTour} className="mb-3" />
-      ) : null}
-
       {isStepLocked ? (
         <WorkflowStateCard
           variant="locked"

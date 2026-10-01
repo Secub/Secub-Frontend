@@ -5,7 +5,6 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
@@ -142,6 +141,7 @@ export default function CompetenciasRaFormacionPage() {
   return (
     <PanelLayout
       currentStep="competencias-ra"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Competencias y Resultados de Aprendizaje"
       description={
         permissions.canUpdate
@@ -150,10 +150,6 @@ export default function CompetenciasRaFormacionPage() {
       }
       actions={!isStepLocked && hasRecords ? pageActions : undefined}
     >
-      {canShowTour ? (
-        <TourReplayButton onClick={startTour} className="mb-3" />
-      ) : null}
-
       {isStepLocked ? (
         <WorkflowStateCard
           variant="locked"

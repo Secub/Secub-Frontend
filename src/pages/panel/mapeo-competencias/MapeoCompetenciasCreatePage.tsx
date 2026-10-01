@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { ROUTES, buildRouteWithSearch } from "../../../app/appRoutes";
-import { BackButton, PanelLayout, TourReplayButton } from "../../../components/panel";
+import { BackButton, PanelLayout } from "../../../components/panel";
 import { ConfirmDialog } from "../../../components/ui";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { MapeoCompetenciasAccessState } from "./components";
@@ -137,15 +137,15 @@ export default function MapeoCompetenciasCreatePage() {
         { label: "Mapeo de Competencias", href: buildRouteWithSearch(ROUTES.panelMapeoCompetencias, { role: currentUser.role }) },
         { label: existingRecord ? "Editar mapeo" : "Crear mapeo" },
       ]}
+      onReplayTour={
+        permissions.canRead && filters.programaId && filters.planId
+          ? isNucleosStep
+            ? startNucleosTour
+            : startIraTour
+          : undefined
+      }
     >
       <BackButton label="Volver a Mapeo de Competencias" onClick={handleGoBack} />
-
-      {permissions.canRead && filters.programaId && filters.planId ? (
-        <TourReplayButton
-          onClick={isNucleosStep ? startNucleosTour : startIraTour}
-          className="mb-3"
-        />
-      ) : null}
 
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState

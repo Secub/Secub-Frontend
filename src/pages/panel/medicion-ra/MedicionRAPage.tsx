@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
-import { FlowActionBar, PanelLayout, TourReplayButton, WorkflowStateCard } from "../../../components/panel";
+import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { ConfirmDialog } from "../../../components/ui";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
@@ -204,12 +204,9 @@ function MedicionRAContent() {
       currentStep="medicion-ra"
       title="Medición RA"
       description="Calificación de Resultados de Aprendizaje, instrumentos, evidencias y planes de mejora por competencia."
+      onReplayTour={canShowTour ? startTour : undefined}
     >
       <div className="space-y-6 pb-24">
-        {canShowTour ? (
-          <TourReplayButton onClick={startTour} />
-        ) : null}
-
         <CompetenceStepper
           competences={selectedCourse.competences}
           activeCompetenceId={activeCompetence.id}

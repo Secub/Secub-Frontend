@@ -2,7 +2,6 @@ import {
   BackButton,
   FlowActionBar,
   PanelLayout,
-  TourReplayButton,
   WorkflowStateCard,
 } from "../../../components/panel";
 import {
@@ -174,6 +173,8 @@ export default function AsignarRAPage() {
       title="Asignar Resultados de Aprendizaje"
       description="Seleccione un curso de Síntesis y asigne los RA que serán medidos."
       breadcrumbItems={courseDetailBreadcrumbItems}
+      onReplayTour={canShowDetailTour ? startDetailTour : canShowTour ? startTour : undefined}
+      tourLabel={canShowDetailTour ? "Ver guía del detalle" : undefined}
     >
       {access.isStepLocked ? (
         <AsignarRAAccessState variant="locked-step" />
@@ -198,14 +199,7 @@ export default function AsignarRAPage() {
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
-              {canShowDetailTour ? (
-                <TourReplayButton
-                  onClick={startDetailTour}
-                  label="Ver guía del detalle"
-                  className="mb-3 mt-3"
-                />
-              ) : null}
-              <div id="asignar_ra-detalle-curso-panel">
+              <div id="asignar_ra-detalle-curso-panel" className="mt-3">
               <AsignarRACourseDetail
                 selectedCourse={selectedCourse}
                 selectedCycle={selectedCycle}
@@ -230,10 +224,6 @@ export default function AsignarRAPage() {
           ) : (
             
             <>
-             {/* TOUR: botón para relanzar el tour manualmente */}
-            {canShowTour ? (
-              <TourReplayButton onClick={startTour} className="mb-3" />
-              ) : null}
               <div id="asignar-ra-filters-panel" ref={refs.filtersRef}>
                 
                 <AsignarRAFilters

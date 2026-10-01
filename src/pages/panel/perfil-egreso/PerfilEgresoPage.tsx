@@ -5,7 +5,6 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import TourReplayButton from "../../../components/panel/TourReplayButton";
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
@@ -116,6 +115,7 @@ export default function PerfilEgresoPage() {
   return (
     <PanelLayout
       currentStep="perfil-egreso"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Perfil de Egreso"
       description={
         permissions.canUpdate
@@ -124,10 +124,6 @@ export default function PerfilEgresoPage() {
       }
       actions={!isStepLocked && hasRecords && !isInheritedBaseStep ? pageActions : undefined}
     >
-      {canShowTour ? (
-        <TourReplayButton onClick={startTour} className="mb-3" />
-      ) : null}
-
       {isStepLocked ? (
         <WorkflowStateCard
           variant="locked"

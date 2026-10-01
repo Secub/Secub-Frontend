@@ -4,14 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 import TourReplayButton from "./TourReplayButton";
 
 describe("TourReplayButton", () => {
-  it("renders a button with the default label", () => {
+  it("renders an icon-only button with the default accessible label", () => {
     render(<TourReplayButton onClick={vi.fn()} />);
 
     const button = screen.getByRole("button", { name: "Ver guía de esta sección" });
     expect(button).toHaveAttribute("type", "button");
+    expect(button).toHaveAttribute("title", "Ver guía de esta sección");
+    expect(button).not.toHaveTextContent("Ver guía de esta sección");
+    expect(button.querySelector("svg")).toBeInTheDocument();
   });
 
-  it("renders a custom label", () => {
+  it("renders a custom accessible label", () => {
     render(<TourReplayButton onClick={vi.fn()} label="Ver guía de ajustes" />);
 
     expect(screen.getByRole("button", { name: "Ver guía de ajustes" })).toBeInTheDocument();
@@ -27,18 +30,9 @@ describe("TourReplayButton", () => {
     expect(onClick).toHaveBeenCalledWith();
   });
 
-  it("applies the extra className on top of the variant styles", () => {
+  it("applies the extra className", () => {
     render(<TourReplayButton onClick={vi.fn()} className="mb-3" />);
 
-    expect(screen.getByRole("button")).toHaveClass("mb-3", "underline");
-  });
-
-  it("uses a different style on dark surfaces", () => {
-    const { rerender } = render(<TourReplayButton onClick={vi.fn()} />);
-    const defaultClass = screen.getByRole("button").className;
-
-    rerender(<TourReplayButton onClick={vi.fn()} variant="on-dark" />);
-
-    expect(screen.getByRole("button").className).not.toBe(defaultClass);
+    expect(screen.getByRole("button")).toHaveClass("mb-3");
   });
 });

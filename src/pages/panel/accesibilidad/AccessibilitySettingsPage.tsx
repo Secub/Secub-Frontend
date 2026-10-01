@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import PanelLayout from "../../../components/panel/PanelLayout";
-import { BackButton, TourReplayButton } from "../../../components/panel";
+import { BackButton } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import AccessibilitySettingsPanel from "../../../accessibility/AccessibilitySettingsPanel";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
@@ -45,6 +45,8 @@ export default function AccessibilitySettingsPage() {
         { label: "Ajustes de usuario", href: ROUTES.panelSettings },
         { label: "Accesibilidad" },
       ]}
+      onReplayTour={startTour}
+      tourLabel="Ver guía de accesibilidad"
     >
       <div className="w-full">
         <BackButton
@@ -52,9 +54,9 @@ export default function AccessibilitySettingsPage() {
           onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
         />
 
-        <TourReplayButton onClick={startTour} label="Ver guía de accesibilidad" className="my-3" />
-
-        <AccessibilitySettingsPanel />
+        <div className="mt-3">
+          <AccessibilitySettingsPanel />
+        </div>
       </div>
     </PanelLayout>
   );

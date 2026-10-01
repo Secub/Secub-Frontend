@@ -8,7 +8,6 @@ import {
   getSelectedProgram,
 } from "../../services/programSelection";
 import { getBrowserLocation } from "../../shared/browser";
-import TourReplayButton from "./TourReplayButton";
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -23,7 +22,6 @@ interface SidebarUserProfileMenuProps {
     settings: string;
     logout: string;
   };
-  onStartTour?: () => void;
 }
 
 function logoutCurrentUser() {
@@ -31,7 +29,7 @@ function logoutCurrentUser() {
   navigateToRoute(ROUTES.access);
 }
 
-export default function SidebarUserProfileMenu({ tourIds, onStartTour }: SidebarUserProfileMenuProps) {
+export default function SidebarUserProfileMenu({ tourIds }:SidebarUserProfileMenuProps) {
   const currentUser = getCurrentMockUser();
   const availableProfiles = getAvailableMockProfiles(currentUser);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -143,10 +141,6 @@ export default function SidebarUserProfileMenu({ tourIds, onStartTour }: Sidebar
           <span>Salir</span>
         </button>
       </div>
-
-      {onStartTour ? (
-        <TourReplayButton onClick={onStartTour} label="Ver guía del panel" variant="on-dark" />
-      ) : null}
     </div>
   );
 }

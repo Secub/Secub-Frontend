@@ -5,6 +5,7 @@ import { preloadRoutesWhenIdle } from "../../app/router/routePrefetch";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
 import PanelMobileNavigation from "./sidebar/PanelMobileNavigation";
+import TourReplayButton from "./TourReplayButton";
 import { getCurrentMockUser } from "../../services/auth/mockUser";
 import {
   academicWorkflowSteps,
@@ -23,6 +24,8 @@ interface PanelLayoutProps {
   description?: string;
   actions?: ReactNode;
   breadcrumbItems?: BreadcrumbItem[];
+  onReplayTour?: () => void;
+  tourLabel?: string;
 }
 
 export default function PanelLayout({
@@ -32,6 +35,8 @@ export default function PanelLayout({
   description,
   actions,
   breadcrumbItems,
+  onReplayTour,
+  tourLabel,
 }: PanelLayoutProps) {
   const currentUser = getCurrentMockUser();
   const shouldHideActionsForDocente =
@@ -106,9 +111,15 @@ export default function PanelLayout({
 
             <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div>
-                <h1 className="font-heading text-3xl font-semibold tracking-tight text-[var(--color-secondary-4)] md:text-[2rem]">
-                  {title}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-heading text-3xl font-semibold tracking-tight text-[var(--color-secondary-4)] md:text-[2rem]">
+                    {title}
+                  </h1>
+
+                  {onReplayTour ? (
+                    <TourReplayButton onClick={onReplayTour} label={tourLabel} />
+                  ) : null}
+                </div>
 
                 {description ? (
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">

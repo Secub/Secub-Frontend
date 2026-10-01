@@ -26,6 +26,7 @@ import {
   GearSixIcon,
   HouseIcon,
   InfoIcon,
+  LightbulbIcon,
   LinkSimpleIcon,
   ListBulletsIcon,
   ListChecksIcon,
@@ -77,6 +78,7 @@ export type SecubIconName =
   | "chart"
   | "chart-up"
   | "info"
+  | "lightbulb"
   | "search"
   | "settings"
   | "sign-out"
@@ -135,6 +137,7 @@ const secubIcons: Record<SecubIconName, Icon> = {
   chart: ChartBarIcon,
   "chart-up": ChartLineUpIcon,
   info: InfoIcon,
+  lightbulb: LightbulbIcon,
   search: MagnifyingGlassIcon,
   settings: GearSixIcon,
   "sign-out": SignOutIcon,

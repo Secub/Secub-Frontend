@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BackButton, PanelLayout, TourReplayButton } from "../../../components/panel";
+import { BackButton, PanelLayout } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
@@ -138,6 +138,14 @@ export default function DashboardPage() {
     hasConsolidatedResults: dashboard.consolidatedResults.length > 0,
   });
 
+  const replayTour = canShowTeacherTour
+    ? startTeacherTour
+    : canShowSupervisorTour
+      ? startSupervisorTour
+      : canShowViewTour
+        ? startViewTour
+        : undefined;
+
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout
@@ -174,13 +182,10 @@ export default function DashboardPage() {
       title={dashboard.layoutTitle}
       description={dashboard.layoutDescription}
       breadcrumbItems={dashboard.breadcrumbItems}
+      onReplayTour={replayTour}
     >
       {dashboard.view === "control" ? (
         <div className="space-y-6">
-          {canShowTeacherTour || canShowSupervisorTour ? (
-            <TourReplayButton onClick={dashboard.isTeacher ? startTeacherTour : startSupervisorTour} />
-          ) : null}
-
           <div id="dashboard-summary-cards">
             <MeasurementSummaryCards
               tourId={canShowSupervisorTour ? "dashboard-summary" : undefined}
@@ -280,7 +285,6 @@ export default function DashboardPage() {
             onClick={dashboard.goBackToControl}
           />
 
-          {canShowViewTour ? <TourReplayButton onClick={startViewTour} className="block" /> : null}
 
           <DashboardFilters
             user={dashboard.user}
@@ -311,7 +315,6 @@ export default function DashboardPage() {
             onClick={dashboard.goBackToCourses}
           />
 
-          {canShowViewTour ? <TourReplayButton onClick={startViewTour} className="block" /> : null}
 
           <ResultsMeasurementPanel
             results={dashboard.detailResults}
@@ -333,7 +336,6 @@ export default function DashboardPage() {
             onClick={dashboard.goBackToControl}
           />
 
-          {canShowViewTour ? <TourReplayButton onClick={startViewTour} className="block" /> : null}
 
           <CompetenceResultsPanel
             results={dashboard.consolidatedResults}

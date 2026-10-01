@@ -76,7 +76,7 @@ export default function PanelSidebar({
     [],
   );
 
-  const { startTour } = useOnboardingTour({
+  useOnboardingTour({
     steps: sidebarTourSteps,
     storageKey: "tour_panel_sidebar_v1",
     autoStart: isDesktop,
@@ -163,7 +163,6 @@ export default function PanelSidebar({
               settings: "panel-sidebar-settings",
               logout: "panel-sidebar-logout",
             }}
-            onStartTour={startTour}
           />
         </div>
 

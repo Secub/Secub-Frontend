@@ -5,7 +5,6 @@ import {
   PanelLayout,
   WorkflowStateCard,
 } from "../../../components/panel";
-import TourReplayButton from "../../../components/panel/TourReplayButton";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -139,14 +138,11 @@ export default function MapeoCompetenciasPage() {
   return (
     <PanelLayout
       currentStep="mapeo-competencias"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Mapeo de Competencias"
       description="Asignación I-R-A-NA y visualización de la malla curricular por semestres y cursos."
       actions={exportActions}
     >
-      {canShowTour ? (
-        <TourReplayButton onClick={startTour} className="mb-3" />
-      ) : null}
-
       {!permissions.canRead ? (
         <MapeoCompetenciasAccessState
           title="Módulo no disponible"

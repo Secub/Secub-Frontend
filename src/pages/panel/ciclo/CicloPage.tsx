@@ -4,7 +4,6 @@ import {
   WorkflowStateCard,
   getAcademicWorkflowLockedDescription,
 } from "../../../components/panel";
-import TourReplayButton from "../../../components/panel/TourReplayButton";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -121,15 +120,11 @@ export default function CicloPage() {
   return (
     <PanelLayout
       currentStep="ciclo"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Creación del ciclo"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles && permissions.canCreateCycle ? pageActions : undefined}
     >
-      {/* TOUR: botón para relanzar el tour manualmente */}
-      {canShowTour ? (
-        <TourReplayButton onClick={startTour} className="mb-3" />
-      ) : null}
-
       {isStepLocked ? (
         <WorkflowStateCard
           variant="locked"
