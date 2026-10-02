@@ -23,11 +23,14 @@ export default function CompetenciasRaFormacionPage() {
   const {
     currentUser,
     catalogs,
+    formCatalogs,
     permissions,
     loading,
     loadError,
     submitting,
     maxCompetenciesPerPlan,
+    canCreateCompetency,
+    createCompetencyDisabledReason,
     reload,
     isStepLocked,
     hasRecords,
@@ -42,12 +45,15 @@ export default function CompetenciasRaFormacionPage() {
     raModalMode,
     selectedRaRecord,
     recordToDelete,
+    raToDelete,
     raDraft,
     raError,
     roleScopedRecords,
     filteredRecords,
     availableFilterOptions,
     invalidCompetencias,
+    hasCycleLockedPlanInView,
+    hasAssignedRaInView,
     openCreateModal,
     openViewModal,
     openCreateRaModal,
@@ -55,7 +61,9 @@ export default function CompetenciasRaFormacionPage() {
     handleSaveRa,
     handleSaveCompetenciaDescription,
     handleDelete,
+    handleDeleteRa,
     confirmDelete,
+    confirmDeleteRa,
     handleFilterChange,
     handleFormSubmit,
     closeRaModal,
@@ -65,6 +73,7 @@ export default function CompetenciasRaFormacionPage() {
     setFormOpen,
     setExportFormat,
     setRecordToDelete,
+    setRaToDelete,
     setRaDraft,
     setRaError,
   } = page;
@@ -89,6 +98,8 @@ export default function CompetenciasRaFormacionPage() {
   const pageActions = hasPageActions ? (
     <CompetenciasRaPageActions
       permissions={permissions}
+      canCreate={canCreateCompetency}
+      createDisabledReason={createCompetencyDisabledReason}
       filteredRecords={filteredRecords}
       onCreate={openCreateModal}
       onExport={setExportFormat}
@@ -129,12 +140,14 @@ export default function CompetenciasRaFormacionPage() {
         <WorkflowStateCard
           title="Aún no hay competencias ni RA creados"
           description={
-            permissions.canCreate
+            canCreateCompetency
               ? "Cuando se cargue la primera competencia, se habilitará la vista completa. Agrega al menos un RA para completar el paso y habilitar Mapeo."
-              : "Todavía no hay competencias ni Resultados de Aprendizaje disponibles para consulta."
+              : permissions.canCreate
+                ? createCompetencyDisabledReason
+                : "Todavía no hay competencias ni Resultados de Aprendizaje disponibles para consulta."
           }
-          actionLabel={permissions.canCreate ? "Crear competencia" : undefined}
-          onAction={permissions.canCreate ? openCreateModal : undefined}
+          actionLabel={canCreateCompetency ? "Crear competencia" : undefined}
+          onAction={canCreateCompetency ? openCreateModal : undefined}
         />
       ) : (
         <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
@@ -150,16 +163,37 @@ export default function CompetenciasRaFormacionPage() {
             activeRecords={filteredRecords}
           />
 
+          {hasCycleLockedPlanInView ? (
+            <div
+              role="status"
+              className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]"
+            >
+              Este plan ya tiene un ciclo de medición asociado. Puedes consultar y editar sus competencias, pero no crear nuevas.
+            </div>
+          ) : null}
+
+          {hasAssignedRaInView ? (
+            <div
+              role="status"
+              className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]"
+            >
+              Algunos RA ya están asignados a cursos del ciclo. Puedes consultarlos y editarlos, pero no eliminarlos.
+            </div>
+          ) : null}
+
           <CompetenciasRaListSection
             data={filteredRecords}
             role={currentUser.role}
             permissions={permissions}
+            canCreate={canCreateCompetency}
+            createDisabledReason={createCompetencyDisabledReason}
             invalidCount={invalidCompetencias.length}
             sortOrder={sortOrder}
             onSortOrderChange={setSortOrder}
             onView={openViewModal}
             onAddRa={openCreateRaModal}
             onEditRa={openEditRaModal}
+            onDeleteRa={handleDeleteRa}
             onCreate={openCreateModal}
           />
         </div>
@@ -193,6 +227,7 @@ export default function CompetenciasRaFormacionPage() {
         onSaveDescription={handleSaveCompetenciaDescription}
         onDelete={handleDelete}
         onEditRa={openEditRaModal}
+        onDeleteRa={handleDeleteRa}
         submitting={submitting}
       />
 
@@ -201,7 +236,7 @@ export default function CompetenciasRaFormacionPage() {
           open={formOpen}
           mode={formMode}
           user={currentUser}
-          catalogs={catalogs}
+          catalogs={formCatalogs}
           initialValues={formValues}
           records={roleScopedRecords}
           record={selectedRecord}
@@ -236,6 +271,18 @@ export default function CompetenciasRaFormacionPage() {
           variant="danger"
           onCancel={() => setRecordToDelete(null)}
           onConfirm={() => void confirmDelete()}
+        />
+      ) : null}
+
+      {permissions.canUpdate ? (
+        <ConfirmDialog
+          open={Boolean(raToDelete)}
+          title={`¿Eliminar ${raToDelete ? `RA ${String(raToDelete.ra.numero).padStart(2, "0")}` : "el RA"}?`}
+          description="El resultado de aprendizaje se eliminará de la competencia. Esta acción no se puede deshacer."
+          confirmLabel="Eliminar RA"
+          variant="danger"
+          onCancel={() => setRaToDelete(null)}
+          onConfirm={() => void confirmDeleteRa()}
         />
       ) : null}
 

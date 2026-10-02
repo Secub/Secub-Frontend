@@ -1,4 +1,4 @@
-import { BackButton, PanelLayout } from "../../../components/panel";
+import { BackButton, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -15,6 +15,21 @@ import { simulateEvidenceDownload } from "./dashboard.utils";
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
+  if (dashboard.isLoading) {
+    return (
+      <PanelLayout currentStep="dashboard" title="Estado del ciclo" description="Seguimiento de ciclos, cursos y resultados de aprendizaje.">
+        <WorkflowStateCard title="Cargando estado del ciclo" description="Estamos consultando los ciclos y cursos registrados." />
+      </PanelLayout>
+    );
+  }
+
+  if (dashboard.loadError) {
+    return (
+      <PanelLayout currentStep="dashboard" title="Estado del ciclo" description="Seguimiento de ciclos, cursos y resultados de aprendizaje.">
+        <WorkflowStateCard variant="locked" title="No fue posible cargar el estado del ciclo" description={dashboard.loadError} />
+      </PanelLayout>
+    );
+  }
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout

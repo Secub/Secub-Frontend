@@ -127,14 +127,20 @@ export function useAsignarRAComputed({
   const getCourseStatus = useCallback(
     (courseId: string) => {
       const courseAssignments = getCourseAssignments(courseId);
-      if (!courseAssignments.length) return { label: "Pendiente" as const, variant: "warning" as const };
+      const course = courses.find((item) => item.id === courseId);
+      const isComplete = Boolean(
+        course &&
+        selectedCycle &&
+        isCourseAssignmentComplete(course, selectedCycle, allCompetencias, mapeosSource, records),
+      );
+      if (!isComplete) return { label: "Pendiente" as const, variant: "warning" as const };
 
       const allMeasured = courseAssignments.every((record) => hasMeasurementForAssignment(measurements, record.id));
       return allMeasured
         ? { label: "Medido" as const, variant: "success" as const }
-        : { label: "Pendiente" as const, variant: "warning" as const };
+        : { label: "Asignado" as const, variant: "success" as const };
     },
-    [getCourseAssignments, measurements],
+    [allCompetencias, courses, getCourseAssignments, mapeosSource, measurements, records, selectedCycle],
   );
 
   const getCourseCompetenceCount = useCallback(

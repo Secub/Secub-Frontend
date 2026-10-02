@@ -211,6 +211,15 @@ export function useCicloPage() {
       setCycleToDelete(null);
       return;
     }
+    if (cycleToDelete.tieneAsignacionesRa) {
+      showNotification({
+        title: "El ciclo no se puede eliminar",
+        message: "Este ciclo ya tiene RA asignados. Puedes editarlo, pero no eliminarlo.",
+        variant: "warning",
+      });
+      setCycleToDelete(null);
+      return;
+    }
     try {
       await deleteCycle(cycleToDelete.id);
       setCycles((current) => current.filter((cycle) => cycle.id !== cycleToDelete.id));

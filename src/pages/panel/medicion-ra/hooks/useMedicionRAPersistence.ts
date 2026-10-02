@@ -10,6 +10,7 @@ import type {
   InstrumentByRa,
 } from "../medicion-ra.types";
 import type { MedicionRaDemoState } from "../types/medicionRA.persistence.types";
+import { saveCourseMeasurement } from "../../../../services/measurements";
 import type { resolveMedicionRaContextForCourse } from "../utils/medicionRA.assignments";
 import {
   pickCourseCompetenceState,
@@ -79,7 +80,7 @@ export function useMedicionRAPersistence({
   selectedCourseId: string;
 }) {
   const persistSelectedCourse = useCallback(
-    (options: PersistSelectedCourseOptions = {}) => {
+    async (options: PersistSelectedCourseOptions = {}) => {
       if (hydratedStateId !== medicionRaDemoStateId) return false;
 
       const courseEvaluations = pickCourseEvaluationState(
@@ -105,10 +106,8 @@ export function useMedicionRAPersistence({
         options.isEvaluationLocked ?? isSelectedCourseLocked;
       const nextCompleted = options.completed ?? nextIsEvaluationLocked;
 
-      ignoreNextBackendChangeRef.current = true;
-      mockBackend.upsert<MedicionRaDemoState>(
-        "medicionesRa",
-        {
+      const measurement: MedicionRaDemoState =
+      {
           id: medicionRaDemoStateId,
           cicloId,
           asignacionRaId: asignacionRaIds[0],
@@ -127,7 +126,14 @@ export function useMedicionRAPersistence({
           facultadId: selectedCourse.facultadId ?? relatedCiclo?.facultadId,
           programaId: selectedCourse.programaId ?? relatedCiclo?.programaId,
           planId: selectedCourse.planId ?? relatedCiclo?.planId,
-        },
+        };
+      if (!cicloId) return false;
+      const saved = await saveCourseMeasurement(cicloId, selectedCourse.id, measurement);
+
+      ignoreNextBackendChangeRef.current = true;
+      mockBackend.upsert<MedicionRaDemoState>(
+        "medicionesRa",
+        saved,
         currentUser,
       );
 
@@ -179,7 +185,9 @@ export function useMedicionRAPersistence({
     if (!hasProgress || hydratedStateId !== medicionRaDemoStateId) return;
 
     const timeoutId = window.setTimeout(
-      () => persistSelectedCourse(),
+      () => {
+        void persistSelectedCourse().catch(() => undefined);
+      },
       isSelectedCourseLocked ? 0 : 500,
     );
 

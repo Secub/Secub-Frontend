@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from "react";
-import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
 import { getAsignarRaPermissions } from "../../../../config/access/permissions";
 import { asignarRAAcademicCatalogs as academicCatalogs, asignarRACurrentUser as currentUser } from "./asignarRA.shared";
 import { useAsignarRAActions } from "./useAsignarRAActions";
@@ -24,7 +23,7 @@ export function useAsignarRA() {
   const canRead = permissions.canRead;
   const canManage = permissions.canManage;
   const canDelete = permissions.canDelete;
-  const isStepLocked = isAcademicWorkflowStepLocked("asignar-ra");
+  const isStepLocked = !data.loading && data.cyclesSource.length === 0;
 
   const filters = useAsignarRAFilters({
     cyclesSource: data.cyclesSource,
@@ -76,6 +75,9 @@ export function useAsignarRA() {
     refs: { filtersRef, coursesRef, assignmentPanelRef },
     records: data.records,
     measurements: data.measurements,
+    loading: data.loading,
+    loadError: data.loadError,
+    refresh: data.refreshBackendState,
     cycles: filters.cycles,
     courses: filters.courses,
     filteredCourses: computed.filteredCourses,

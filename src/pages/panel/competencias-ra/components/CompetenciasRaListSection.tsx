@@ -14,12 +14,15 @@ interface CompetenciasRaListSectionProps {
   data: CompetenciasRaEnriched[];
   role: SecubRole;
   permissions: AcademicModulePermissions;
+  canCreate: boolean;
+  createDisabledReason: string;
   invalidCount: number;
   sortOrder: "asc" | "desc";
   onSortOrderChange: (value: "asc" | "desc") => void;
   onView: (record: CompetenciasRaEnriched) => void;
   onAddRa: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
+  onDeleteRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
   onCreate: () => void;
 }
 
@@ -27,12 +30,15 @@ export default function CompetenciasRaListSection({
   data,
   role,
   permissions,
+  canCreate,
+  createDisabledReason,
   invalidCount,
   sortOrder,
   onSortOrderChange,
   onView,
   onAddRa,
   onEditRa,
+  onDeleteRa,
   onCreate,
 }: CompetenciasRaListSectionProps) {
   return (
@@ -79,6 +85,7 @@ export default function CompetenciasRaListSection({
         onView={onView}
         onAddRa={onAddRa}
         onEditRa={onEditRa}
+        onDeleteRa={onDeleteRa}
       />
       <div className="mt-4 flex flex-1 justify-center">
         {permissions.canCreate && role === "director" ? (
@@ -86,7 +93,8 @@ export default function CompetenciasRaListSection({
             variant="primary"
             leftIcon={<ActionIcon name="add" />}
             onClick={onCreate}
-            title="Crear una nueva competencia"
+            disabled={!canCreate}
+            title={canCreate ? "Crear una nueva competencia" : createDisabledReason}
           >
             Nueva competencia
           </Button>

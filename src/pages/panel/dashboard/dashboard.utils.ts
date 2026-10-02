@@ -124,8 +124,8 @@ export function enrichCourses(
       programaName: catalogs.programas.find((item) => item.id === course.programaId)?.name ?? "Sin programa",
       planName: formatPlanName(catalogs.planes.find((item) => item.id === course.planId)),
       planEstado: catalogs.planes.find((item) => item.id === course.planId)?.estado ?? "inactivo",
-      teacherName: teacher?.name ?? "Sin docente",
-      teacherEmail: teacher?.email ?? "",
+      teacherName: course.teacherName ?? teacher?.name ?? "Sin docente",
+      teacherEmail: course.teacherEmail ?? teacher?.email ?? "",
       competences: course.competenceIds
         .map((competenceId) => catalogs.competences.find((item) => item.id === competenceId))
         .filter((item): item is CompetenceCatalog => Boolean(item)),
@@ -162,7 +162,10 @@ export function applyUserScopeToCourses(courses: EnrichedCourse[], user: Dashboa
 
   if (user.role === "docente") {
     const normalizedUserName = normalizeTextForScope(user.name);
+    const normalizedUserEmail = normalizeTextForScope(user.email);
     return courses.filter((course) => {
+      if (course.canGrade) return true;
+      if (normalizedUserEmail && normalizeTextForScope(course.teacherEmail) === normalizedUserEmail) return true;
       if (user.scope.docenteId && course.teacherId === user.scope.docenteId) return true;
       return Boolean(normalizedUserName && normalizeTextForScope(course.teacherName) === normalizedUserName);
     });

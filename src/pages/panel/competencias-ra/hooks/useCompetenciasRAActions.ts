@@ -3,6 +3,7 @@ import type { AcademicModulePermissions } from '../../../../config/access/permis
 import {
   createLearningOutcome,
   deleteCompetency,
+  deleteLearningOutcome,
   updateCompetency,
   updateLearningOutcome,
 } from '../../../../services/competencies';
@@ -45,6 +46,10 @@ export function useCompetenciasRAActions({
   const [selectedRaRecord, setSelectedRaRecord] = useState<CompetenciasRaEnriched | null>(null);
   const [selectedRa, setSelectedRa] = useState<ResultadoAprendizaje | null>(null);
   const [recordToDelete, setRecordToDelete] = useState<CompetenciasRaEnriched | null>(null);
+  const [raToDelete, setRaToDelete] = useState<{
+    record: CompetenciasRaEnriched;
+    ra: ResultadoAprendizaje;
+  } | null>(null);
   const [raDraft, setRaDraft] = useState('');
   const [raError, setRaError] = useState('');
 
@@ -152,8 +157,8 @@ export function useCompetenciasRAActions({
     if (!permissions.canDelete) return;
     if (record.mapeada) {
       showNotification({
-        title: 'Competencia incluida en el mapeo',
-        message: 'Puedes editar su información y sus RA, pero no eliminarla.',
+        title: 'El plan ya tiene un mapeo',
+        message: 'Las competencias de un plan mapeado se pueden editar, pero no eliminar.',
         variant: 'warning',
       });
       return;
@@ -187,10 +192,49 @@ export function useCompetenciasRAActions({
     }
   };
 
+  const handleDeleteRa = (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => {
+    if (!permissions.canUpdate) return;
+    if (ra.asignado) {
+      showNotification({
+        title: 'RA asignado en un ciclo',
+        message: 'Este resultado de aprendizaje ya fue asignado y no se puede eliminar.',
+        variant: 'warning',
+      });
+      return;
+    }
+    setRaToDelete({ record, ra });
+  };
+
+  const confirmDeleteRa = async () => {
+    if (!raToDelete || !permissions.canUpdate || submitting) return;
+    const { record, ra } = raToDelete;
+    setSubmitting(true);
+    try {
+      await deleteLearningOutcome(record.id, ra.id);
+      updateRecordState({
+        ...record,
+        resultadosAprendizaje: record.resultadosAprendizaje.filter((item) => item.id !== ra.id),
+        updatedAt: new Date().toISOString(),
+      });
+      setRaToDelete(null);
+      showNotification({ message: 'El resultado de aprendizaje fue eliminado.', variant: 'success' });
+    } catch (error) {
+      setRaToDelete(null);
+      showNotification({
+        title: 'No fue posible eliminar el RA',
+        message: error instanceof Error ? error.message : 'Intenta nuevamente.',
+        variant: 'error',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return {
     raModalMode,
     selectedRaRecord,
     recordToDelete,
+    raToDelete,
     raDraft,
     raError,
     openCreateRaModal,
@@ -199,8 +243,11 @@ export function useCompetenciasRAActions({
     handleSaveRa,
     handleSaveCompetenciaDescription,
     handleDelete,
+    handleDeleteRa,
     confirmDelete,
+    confirmDeleteRa,
     setRecordToDelete,
+    setRaToDelete,
     setRaDraft,
     setRaError,
   };

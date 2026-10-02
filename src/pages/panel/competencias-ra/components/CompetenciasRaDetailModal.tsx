@@ -20,6 +20,7 @@ interface CompetenciasRaDetailModalProps {
   onSaveDescription: (record: CompetenciasRaEnriched, descripcion: string) => boolean | Promise<boolean>;
   onDelete: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
+  onDeleteRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
   submitting?: boolean;
 }
 
@@ -45,6 +46,7 @@ export function CompetenciasRaDetailModal({
   onSaveDescription,
   onDelete,
   onEditRa,
+  onDeleteRa,
   submitting = false,
 }: CompetenciasRaDetailModalProps) {
   const [descriptionDraft, setDescriptionDraft] = useState("");
@@ -201,12 +203,22 @@ export function CompetenciasRaDetailModal({
 
               <div className="flex shrink-0 gap-2">
                 {canEdit ? (
-                  <IconButton
-                    variant="outline"
-                    icon={<ActionIcon name="edit" />}
-                    label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
-                    onClick={() => onEditRa(record, ra)}
-                  />
+                  <>
+                    <IconButton
+                      variant="outline"
+                      icon={<ActionIcon name="edit" />}
+                      label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
+                      onClick={() => onEditRa(record, ra)}
+                    />
+                    <IconButton
+                      variant="danger"
+                      icon={<ActionIcon name="delete" />}
+                      label={`Eliminar ${getRaLabel(ra.numero)} de ${record.nombre}`}
+                      title={ra.asignado ? "Este RA ya fue asignado en un ciclo y no se puede eliminar." : "Eliminar RA"}
+                      disabled={ra.asignado}
+                      onClick={() => onDeleteRa(record, ra)}
+                    />
+                  </>
                 ) : null}
               </div>
             </div>
@@ -231,7 +243,7 @@ export function CompetenciasRaDetailModal({
           role="status"
           className="mt-8 rounded-[var(--radius-md)] border border-[var(--color-primary)]/30 bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]"
         >
-          Esta competencia ya está incluida en el mapeo. Puedes editar su información y sus RA, pero no eliminarla.
+          El plan de esta competencia ya tiene un mapeo. Puedes editar su información y sus RA, pero no eliminar la competencia.
         </div>
       ) : null}
 

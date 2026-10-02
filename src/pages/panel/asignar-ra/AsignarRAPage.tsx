@@ -16,6 +16,9 @@ export default function AsignarRAPage() {
   const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
   const {
     access,
+    loading,
+    loadError,
+    refresh,
     filters,
     filterOptions,
     filterLocks,
@@ -82,7 +85,19 @@ export default function AsignarRAPage() {
       description="Seleccione un curso de Síntesis y asigne los RA que serán medidos."
       breadcrumbItems={courseDetailBreadcrumbItems}
     >
-      {access.isStepLocked ? (
+      {loading ? (
+        <WorkflowStateCard
+          title="Cargando asignación de RA"
+          description="Estamos consultando los ciclos, cursos, competencias y resultados de aprendizaje guardados."
+        />
+      ) : loadError ? (
+        <WorkflowStateCard
+          title="No fue posible cargar la asignación de RA"
+          description={loadError}
+          actionLabel="Reintentar"
+          onAction={() => void refresh()}
+        />
+      ) : access.isStepLocked ? (
         <AsignarRAAccessState variant="locked-step" />
       ) : !access.canRead ? (
         <AsignarRAAccessState variant="docente" />

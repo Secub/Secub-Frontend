@@ -51,6 +51,10 @@ export default function CicloSummaryCard({
   const permissions = getCyclePermissions(user.role);
   const canEdit = canManageCycle(user, ciclo);
   const disabledReason = getCycleActionDisabledReason(user, ciclo);
+  const canDelete = canEdit && !ciclo.tieneAsignacionesRa;
+  const deleteDisabledReason = ciclo.tieneAsignacionesRa
+    ? "Este ciclo ya tiene RA asignados. Puedes editarlo, pero no eliminarlo."
+    : disabledReason;
   const activeCycleDuplicateReason = activeCycle
     ? `Ya existe un ciclo en curso: "${activeCycle.nombre}". No se podrá duplicar un ciclo existente hasta que su estado sea diferente a "En curso".`
     : "";
@@ -168,8 +172,8 @@ export default function CicloSummaryCard({
                     <button
                       type="button"
                       role="menuitem"
-                      disabled={!canEdit}
-                      title={!canEdit ? disabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
+                      disabled={!canDelete}
+                      title={!canDelete ? deleteDisabledReason : `Eliminar ciclo ${formatCicloTitle(ciclo)}`}
                       onClick={() => runMenuAction(() => onDelete(ciclo))}
                       className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-error)] transition-colors hover:bg-[var(--color-surface-soft)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
                     >

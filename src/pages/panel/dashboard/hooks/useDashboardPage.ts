@@ -74,7 +74,7 @@ export function useDashboardPage() {
   const handleMeasureCourse = (course: EnrichedCourse) => {
     navigateToRoute(
       buildRouteWithSearch(ROUTES.panelMedicionRa, {
-        role: "docente",
+        role: data.user.role,
         cycleId: course.cycleId,
         courseId: course.id,
       }),

@@ -47,7 +47,7 @@ export function useMedicionRAActions({
   isLastCompetence: boolean;
   isSelectedCourseLocked: boolean;
   pendingAutoScrollCompetenceIdRef: MutableRefObject<string | null>;
-  persistSelectedCourse: (options?: PersistCourseMeasurementOptions) => boolean;
+  persistSelectedCourse: (options?: PersistCourseMeasurementOptions) => Promise<boolean>;
   setActiveCompetenceId: (competenceId: string) => void;
   setCompletedCompetenceIds: Dispatch<SetStateAction<string[]>>;
   setEvaluationsByCourse: Dispatch<SetStateAction<Record<string, EvaluationMatrix>>>;
@@ -137,13 +137,13 @@ export function useMedicionRAActions({
     setFeedback(null);
   };
 
-  const handleSaveProgress = () => {
+  const handleSaveProgress = async () => {
     if (isSelectedCourseLocked) return;
 
     setShowValidationErrors(false);
 
     try {
-      const didSave = persistSelectedCourse();
+      const didSave = await persistSelectedCourse();
 
       if (!didSave) {
         setFeedback({
@@ -221,13 +221,13 @@ export function useMedicionRAActions({
     setShowFinishModal(true);
   };
 
-  const handleConfirmFinishEvaluation = () => {
+  const handleConfirmFinishEvaluation = async () => {
     if (isSelectedCourseLocked) return false;
 
     const completedIds = course.competences.map((competence) => competence.id);
 
     try {
-      const didSave = persistSelectedCourse({
+      const didSave = await persistSelectedCourse({
         completedCompetenceIds: completedIds,
         isEvaluationLocked: true,
         completed: true,

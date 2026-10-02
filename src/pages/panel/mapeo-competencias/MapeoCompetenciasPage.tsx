@@ -166,6 +166,12 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : null}
 
+          {selectedRecord?.bloqueadoPorCiclo ? (
+            <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
+              Este mapeo ya tiene un ciclo de medición asociado. Puedes consultarlo, pero no editarlo.
+            </div>
+          ) : null}
+
           <MapeoCompetenciasConsolidatedSection
             records={filteredRecords}
             hasRequiredFilters={Boolean(filters.programaId && filters.planId)}

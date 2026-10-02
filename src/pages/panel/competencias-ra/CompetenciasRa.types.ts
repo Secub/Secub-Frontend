@@ -6,6 +6,7 @@ export interface ResultadoAprendizaje {
   id: string;
   numero: number;
   descripcion: string;
+  asignado?: boolean;
 }
 
 export interface Seccional {

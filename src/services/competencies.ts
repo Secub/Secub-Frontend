@@ -22,6 +22,7 @@ export interface LearningOutcomeRecord {
   id: string;
   numero: number;
   descripcion: string;
+  asignado: boolean;
 }
 
 export interface CompetencyRecord {
@@ -46,6 +47,7 @@ export interface CompetencyContext {
   planes: CompetencyPlan[];
   maxCompetenciasPorPlan: number;
   maxResultadosPorCompetencia: number;
+  planesConCiclo: string[];
 }
 
 export function getCompetencyContext(signal?: AbortSignal) {

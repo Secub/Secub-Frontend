@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
 import { completeAcademicWorkflowFromCurrentProgress } from "../../../../components/panel";
+import { deleteCourseRAAssignments, saveCourseRAAssignments } from "../../../../services/raAssignments";
 import type { CursoSintesis } from "../../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
@@ -16,7 +17,6 @@ import {
   getCompetenciaLabel,
   hasMeasurementForAssignment,
 } from "../AsignarRA.utils";
-import { persistCourseAssignmentsForCourse, removeAssignmentAndMeasurements } from "./asignarRA.persistence";
 
 interface UseAsignarRAActionsParams {
   canManage: boolean;
@@ -32,7 +32,7 @@ interface UseAsignarRAActionsParams {
   coursesRef: RefObject<HTMLDivElement | null>;
   assignmentPanelRef: RefObject<HTMLDivElement | null>;
   setSelectedCourseId: (courseId: string) => void;
-  refreshBackendState: () => void;
+  refreshBackendState: () => Promise<void>;
   resetFeedback: () => void;
   setFeedback: (message: string) => void;
   setErrorMessage: (message: string) => void;
@@ -175,22 +175,26 @@ export function useAsignarRAActions({
     });
   };
 
-  const persistCourseAssignments = () => {
+  const persistCourseAssignments = async () => {
     if (!canManage) return false;
 
     if (!selectedCycle || !selectedCourse) return false;
-
-    persistCourseAssignmentsForCourse({
-      selectedCycle,
-      selectedCourse,
-      courseCompetencias,
-      draftSelections,
-      measurements,
-    });
-
-    refreshBackendState();
-    setShowMeasuredConfirm(false);
-    return true;
+    try {
+      await saveCourseRAAssignments(
+        selectedCycle.id,
+        selectedCourse.id,
+        courseCompetencias.map((competencia) => ({
+          competenciaId: competencia.id,
+          resultadoAprendizajeIds: draftSelections[competencia.id] ?? [],
+        })),
+      );
+      await refreshBackendState();
+      setShowMeasuredConfirm(false);
+      return true;
+    } catch (reason) {
+      setErrorMessage(reason instanceof Error ? reason.message : "No fue posible guardar la asignación de RA.");
+      return false;
+    }
   };
 
   const getNextPendingCourseId = () => {
@@ -206,8 +210,8 @@ export function useAsignarRAActions({
     return orderedCandidates.find((course) => otherPendingIds.has(course.id))?.id;
   };
 
-  const continueAfterValidatedSave = (action: "next" | "finish") => {
-    if (!persistCourseAssignments()) return;
+  const continueAfterValidatedSave = async (action: "next" | "finish") => {
+    if (!await persistCourseAssignments()) return;
 
     if (action === "next") {
       const nextCourseId = getNextPendingCourseId();
@@ -228,7 +232,7 @@ export function useAsignarRAActions({
     setShowFinishAcademicFlowConfirm(true);
   };
 
-  const requestPrimaryAction = (action: "next" | "finish") => {
+  const requestPrimaryAction = async (action: "next" | "finish") => {
     resetFeedback();
     const validationMessage = validateDraftSelections();
 
@@ -256,17 +260,21 @@ export function useAsignarRAActions({
       return;
     }
 
-    continueAfterValidatedSave(action);
+    await continueAfterValidatedSave(action);
   };
 
-  const handleSaveAndOpenNextCourse = () => requestPrimaryAction("next");
-  const handleSaveAndRequestFinish = () => requestPrimaryAction("finish");
+  const handleSaveAndOpenNextCourse = () => {
+    void requestPrimaryAction("next");
+  };
+  const handleSaveAndRequestFinish = () => {
+    void requestPrimaryAction("finish");
+  };
 
   const handleConfirmMeasuredPrimaryAction = () => {
     const action = pendingPrimaryAction;
     setPendingPrimaryAction(null);
     setShowMeasuredConfirm(false);
-    if (action) continueAfterValidatedSave(action);
+    if (action) void continueAfterValidatedSave(action);
   };
 
   const handleCancelMeasuredPrimaryAction = () => {
@@ -280,17 +288,22 @@ export function useAsignarRAActions({
     window.requestAnimationFrame(() => assignmentPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
-  const handleDeleteCourseAssignments = () => {
+  const handleDeleteCourseAssignments = async () => {
     if (!canManage) {
       setShowDeleteConfirm(false);
       return;
     }
 
     if (!selectedCourse || !selectedCycle) return;
-    selectedCourseAssignments.forEach((record) => removeAssignmentAndMeasurements(record.id));
-    refreshBackendState();
-    setShowDeleteConfirm(false);
-    setFeedback("Asignación del curso eliminada correctamente. El workflow se recalculó con los datos actuales.");
+    try {
+      await deleteCourseRAAssignments(selectedCycle.id, selectedCourse.id);
+      await refreshBackendState();
+      setShowDeleteConfirm(false);
+      setFeedback("Asignación del curso eliminada correctamente.");
+    } catch (reason) {
+      setShowDeleteConfirm(false);
+      setErrorMessage(reason instanceof Error ? reason.message : "No fue posible eliminar la asignación del curso.");
+    }
   };
 
   const handleConfirmFinishAcademicFlow = () => {
@@ -308,7 +321,7 @@ export function useAsignarRAActions({
     }
 
     setShowFinishAcademicFlowConfirm(false);
-    refreshBackendState();
+    void refreshBackendState();
     setSelectedCourseId("");
     setFeedback("Flujo académico finalizado correctamente.");
     scrollToCourses();

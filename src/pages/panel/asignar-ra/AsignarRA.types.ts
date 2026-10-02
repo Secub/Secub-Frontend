@@ -15,6 +15,7 @@ export interface CicloDemoRecord {
   programaId?: string;
   planId?: string;
   cursoIds?: string[];
+  cursos?: CursoSintesis[];
   estado?: string;
 }
 
@@ -30,6 +31,7 @@ export interface CompetenciaRaDemoRecord {
   facultadId?: string;
   programaId?: string;
   planId?: string;
+  estado?: "activo" | "inactivo";
   nombre?: string;
   descripcion?: string;
   resultadosAprendizaje?: ResultadoAprendizajeDemoRecord[];
@@ -66,6 +68,7 @@ export interface AsignacionRaRecord {
   docenteNombre?: string;
   docenteId?: string;
   docenteEmail?: string;
+  tipoVinculacion?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -118,7 +121,7 @@ export interface SummaryMetrics {
 }
 
 export interface CourseAssignmentStatus {
-  label: "Pendiente" | "Medido";
+  label: "Pendiente" | "Asignado" | "Medido";
   variant: Extract<BadgeVariant, "warning" | "success">;
 }
 

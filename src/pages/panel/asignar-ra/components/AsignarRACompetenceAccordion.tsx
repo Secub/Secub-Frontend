@@ -107,8 +107,13 @@ export function AsignarRACompetenceAccordion({
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
                     <Badge variant={selected ? "info" : "neutral"}>{getRaLabel(ra, raIndex)}</Badge>
-                    {selected ? <Badge variant="success">Asignado</Badge> : null}
-                    {isMeasured ? <Badge variant="success">Medido</Badge> : <Badge variant="warning">Pendiente</Badge>}
+                    {isMeasured ? (
+                      <Badge variant="success">Medido</Badge>
+                    ) : selected ? (
+                      <Badge variant="success">Asignado</Badge>
+                    ) : (
+                      <Badge variant="warning">Pendiente</Badge>
+                    )}
                     {isMeasured ? <SecubIcon name="lock" weight="fill" aria-hidden="true" className="text-sm text-[var(--color-gray-4)]" /> : null}
                   </span>
                   <span className="mt-2 block text-sm leading-6 text-[var(--color-gray-3)]">

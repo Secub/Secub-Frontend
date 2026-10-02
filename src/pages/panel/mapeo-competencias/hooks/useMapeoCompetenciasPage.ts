@@ -90,7 +90,8 @@ export function useMapeoCompetenciasPage() {
     permissions.canUpdate &&
     currentUser.role === "director" &&
     selectedRecord?.programaEstado === "activo" &&
-    selectedRecord?.planEstado === "activo";
+    selectedRecord?.planEstado === "activo" &&
+    !selectedRecord.bloqueadoPorCiclo;
 
   const summaryMetrics = useMemo<SummaryMetric[]>(() => {
     const activeRecord = selectedRecord ?? filteredRecords[0];

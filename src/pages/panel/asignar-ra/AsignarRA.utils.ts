@@ -36,6 +36,8 @@ export function resolveCourseDocente(course: CursoSintesis) {
 export function getCycleCourses(cycle?: CicloDemoRecord) {
   if (!cycle) return [];
 
+  if (cycle.cursos) return cycle.cursos;
+
   const courseIds = new Set(cycle.cursoIds ?? []);
   const cicloCatalogs = getCicloCatalogs();
 

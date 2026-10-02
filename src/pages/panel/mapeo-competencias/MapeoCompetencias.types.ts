@@ -152,6 +152,7 @@ export interface MapeoCompetenciasRecord {
   planId: string;
   estado: MapeoCompetenciasEstado;
   finalizado?: boolean;
+  bloqueadoPorCiclo?: boolean;
   descripcion: string;
   competenciaRaIds: string[];
   semestresClasificados: SemestreClasificado[];

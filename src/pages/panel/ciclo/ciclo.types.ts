@@ -79,6 +79,7 @@ export interface CicloMedicion {
   estado: CicloEstado;
   cursoIds: string[];
   progreso: number;
+  tieneAsignacionesRa?: boolean;
   responsableId: string;
   responsableNombre: string;
   createdAt: string;

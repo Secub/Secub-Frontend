@@ -13,6 +13,7 @@ interface CompetenciasRaCardGridProps {
   onView: (record: CompetenciasRaEnriched) => void;
   onAddRa: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
+  onDeleteRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
 }
 
 export default function CompetenciasRaCardGrid({
@@ -22,6 +23,7 @@ export default function CompetenciasRaCardGrid({
   onView,
   onAddRa,
   onEditRa,
+  onDeleteRa,
 }: CompetenciasRaCardGridProps) {
   if (data.length === 0) {
     return (
@@ -45,6 +47,7 @@ export default function CompetenciasRaCardGrid({
             onView={onView}
             onAddRa={onAddRa}
             onEditRa={onEditRa}
+            onDeleteRa={onDeleteRa}
             canEdit={canEditRecord}
           />
         );

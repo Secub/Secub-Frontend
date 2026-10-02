@@ -70,6 +70,7 @@ export function useCompetenciasRAPage() {
   const currentUser = useMemo(() => getCurrentUser(), []);
   const [catalogs, setCatalogs] = useState<Catalogs>(EMPTY_CATALOGS);
   const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>([]);
+  const [cyclePlanIds, setCyclePlanIds] = useState<Set<string>>(() => new Set());
   const [maxCompetenciesPerPlan, setMaxCompetenciesPerPlan] = useState(MAX_COMPETENCIES_PER_PLAN);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -104,6 +105,7 @@ export function useCompetenciasRAPage() {
       .then(([context, competencyRecords]) => {
         setCatalogs(buildCatalogs(context));
         setMaxCompetenciesPerPlan(context.maxCompetenciasPorPlan);
+        setCyclePlanIds(new Set(context.planesConCiclo));
         setRecords(competencyRecords);
         competencyRecords.forEach((record) => syncWorkflowRecord(record, currentUser));
       })
@@ -126,6 +128,23 @@ export function useCompetenciasRAPage() {
     shouldEnforceAcademicWorkflowLock(currentUser.role) &&
     isAcademicWorkflowStepLocked('competencias-ra');
   const hasRecords = records.length > 0;
+  const creatablePlans = useMemo(() => catalogs.planes.filter((plan) =>
+    plan.estado === 'activo' &&
+    !cyclePlanIds.has(plan.id) &&
+    records.filter((record) => record.planId === plan.id).length < maxCompetenciesPerPlan,
+  ), [catalogs.planes, cyclePlanIds, maxCompetenciesPerPlan, records]);
+  const canCreateCompetency = permissions.canCreate && creatablePlans.length > 0;
+  const createCompetencyDisabledReason = useMemo(() => {
+    const activePlans = catalogs.planes.filter((plan) => plan.estado === 'activo');
+    if (activePlans.length > 0 && activePlans.every((plan) => cyclePlanIds.has(plan.id))) {
+      return 'No puedes crear competencias porque el plan ya tiene un ciclo de medición.';
+    }
+    return 'Todos los planes disponibles ya tienen el máximo de 4 competencias.';
+  }, [catalogs.planes, cyclePlanIds]);
+  const formCatalogs = useMemo<Catalogs>(() => formMode === 'create'
+    ? { ...catalogs, planes: creatablePlans }
+    : catalogs,
+  [catalogs, creatablePlans, formMode]);
   const filtersState = useCompetenciasRAFilters({ records, catalogs, currentUser });
   const {
     filters,
@@ -138,6 +157,12 @@ export function useCompetenciasRAPage() {
     invalidCompetencias,
     handleFilterChange,
   } = filtersState;
+  const hasCycleLockedPlanInView = filters.planId
+    ? cyclePlanIds.has(filters.planId)
+    : cyclePlanIds.size > 0;
+  const hasAssignedRaInView = filteredRecords.some((record) =>
+    record.resultadosAprendizaje.some((ra) => ra.asignado),
+  );
 
   const updateRecordState = useCallback((record: CompetenciasRaFormacionRecord) => {
     setRecords((current) => {
@@ -164,11 +189,12 @@ export function useCompetenciasRAPage() {
 
   const openCreateModal = () => {
     if (!permissions.canCreate || loading) return;
-    const hasAvailablePlan = catalogs.planes.some((plan) =>
-      records.filter((record) => record.planId === plan.id).length < maxCompetenciesPerPlan,
-    );
-    if (!hasAvailablePlan) {
-      showNotification('Todos los planes disponibles ya tienen el máximo de 4 competencias.');
+    if (!canCreateCompetency) {
+      showNotification({
+        title: 'No se puede crear la competencia',
+        message: createCompetencyDisabledReason,
+        variant: 'warning',
+      });
       return;
     }
     setFormMode('create');
@@ -197,6 +223,19 @@ export function useCompetenciasRAPage() {
   const handleFormSubmit = async (values: FormState) => {
     const canSubmit = formMode === 'create' ? permissions.canCreate : permissions.canUpdate;
     if (!canSubmit || submitting) return;
+    if (
+      cyclePlanIds.has(values.planId) &&
+      (formMode === 'create' || selectedRecord?.planId !== values.planId)
+    ) {
+      showNotification({
+        title: 'Plan bloqueado por ciclo',
+        message: formMode === 'create'
+          ? 'No puedes crear competencias porque este plan ya tiene un ciclo de medición.'
+          : 'No puedes mover la competencia a un plan que ya tiene un ciclo de medición.',
+        variant: 'warning',
+      });
+      return;
+    }
     const recordsForPlan = records.filter((record) =>
       record.planId === values.planId && record.id !== selectedRecord?.id,
     );
@@ -254,11 +293,14 @@ export function useCompetenciasRAPage() {
   return {
     currentUser,
     catalogs,
+    formCatalogs,
     permissions,
     loading,
     loadError,
     submitting,
     maxCompetenciesPerPlan,
+    canCreateCompetency,
+    createCompetencyDisabledReason,
     reload,
     isStepLocked,
     hasRecords,
@@ -273,12 +315,15 @@ export function useCompetenciasRAPage() {
     raModalMode: raActions.raModalMode,
     selectedRaRecord: raActions.selectedRaRecord,
     recordToDelete: raActions.recordToDelete,
+    raToDelete: raActions.raToDelete,
     raDraft: raActions.raDraft,
     raError: raActions.raError,
     roleScopedRecords,
     filteredRecords,
     availableFilterOptions,
     invalidCompetencias,
+    hasCycleLockedPlanInView,
+    hasAssignedRaInView,
     openCreateModal,
     openViewModal,
     openCreateRaModal: raActions.openCreateRaModal,
@@ -286,7 +331,9 @@ export function useCompetenciasRAPage() {
     handleSaveRa: raActions.handleSaveRa,
     handleSaveCompetenciaDescription: raActions.handleSaveCompetenciaDescription,
     handleDelete: raActions.handleDelete,
+    handleDeleteRa: raActions.handleDeleteRa,
     confirmDelete: raActions.confirmDelete,
+    confirmDeleteRa: raActions.confirmDeleteRa,
     handleFilterChange,
     handleFormSubmit,
     closeRaModal: raActions.closeRaModal,
@@ -296,6 +343,7 @@ export function useCompetenciasRAPage() {
     setFormOpen,
     setExportFormat,
     setRecordToDelete: raActions.setRecordToDelete,
+    setRaToDelete: raActions.setRaToDelete,
     setRaDraft: raActions.setRaDraft,
     setRaError: raActions.setRaError,
   };

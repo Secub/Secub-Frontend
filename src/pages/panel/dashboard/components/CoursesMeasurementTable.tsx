@@ -151,6 +151,10 @@ export default function CoursesMeasurementTable({
               }
               onMeasureCourse?.(course);
             }}
+            disabled={course.status === "pendiente" && course.canGrade === false}
+            title={course.status === "pendiente" && course.canGrade === false
+              ? course.gradeBlockedReason ?? "Solo los docentes de tiempo completo pueden registrar la medición."
+              : undefined}
             className="w-full max-w-[140px] px-3 text-center leading-tight"
           >
             {course.progress >= 100 || course.status === "finalizado" ? "Ver detalle" : "Medir"}
@@ -203,6 +207,9 @@ export default function CoursesMeasurementTable({
           </p>
           <p className="mt-1 break-words text-xs text-[var(--color-gray-4)]">
             {course.teacherEmail}
+          </p>
+          <p className="mt-1 text-xs text-[var(--color-gray-4)]">
+            {course.teacherContractType ?? "Sin contratación"}
           </p>
         </div>
       ),

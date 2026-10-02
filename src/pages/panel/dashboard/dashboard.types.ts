@@ -105,6 +105,13 @@ export interface CourseMeasurement {
   programaId: string;
   planId: string;
   teacherId: string;
+  teacherName?: string;
+  teacherEmail?: string;
+  teacherContractType?: string;
+  teacherCanGrade?: boolean;
+  canGrade?: boolean;
+  gradeBlockedReason?: string | null;
+  semester?: number;
   competenceIds: string[];
   assignedRaIds?: string[];
   totalRa: number;

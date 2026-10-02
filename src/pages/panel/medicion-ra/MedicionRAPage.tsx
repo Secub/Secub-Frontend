@@ -1,8 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { ConfirmDialog } from "../../../components/ui";
 import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import { getMeasurementAccess, type MeasurementAccess } from "../../../services/measurements";
+import { mockBackend } from "../../../services/mockBackend";
+import type { MedicionRaDemoState } from "./types/medicionRA.persistence.types";
 import CompetenceStepper from "./components/CompetenceStepper";
 import EvaluationInstructions from "./components/EvaluationInstructions";
 import EvidenceImprovementSection from "./components/EvidenceImprovementSection";
@@ -40,7 +43,7 @@ export default function MedicionRAPage() {
 }
 
 function MedicionRAContextGate() {
-  const currentUser = getCurrentMockUser();
+  const [currentUser] = useState(() => getCurrentMockUser());
   const availableCourses = buildCoursesFromRealAssignments(currentUser);
   const requestedCourseId = getSearchCourseId();
   const requestedCycleId = getSearchCycleId();
@@ -51,16 +54,63 @@ function MedicionRAContextGate() {
         (course) => course.id === requestedCourseId && course.cycleId === requestedCycleId,
       ),
   );
+  const [access, setAccess] = useState<MeasurementAccess | null>(null);
+  const [accessError, setAccessError] = useState("");
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
   useEffect(() => {
-    if (hasValidCourseContext) return;
+    if (!requestedCourseId || !requestedCycleId) {
+      setIsCheckingAccess(false);
+      return;
+    }
+    const controller = new AbortController();
+    setIsCheckingAccess(true);
+    setAccessError("");
+    void getMeasurementAccess(requestedCycleId, requestedCourseId, controller.signal)
+      .then((result) => {
+        if (result.measurement) {
+          mockBackend.upsert<MedicionRaDemoState>("medicionesRa", result.measurement, currentUser);
+        }
+        setAccess(result);
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setAccessError(error instanceof Error ? error.message : "No fue posible validar el acceso a la medición.");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsCheckingAccess(false);
+      });
+    return () => controller.abort();
+  }, [currentUser, requestedCourseId, requestedCycleId]);
 
-    navigateToRoute(
-      buildRouteWithSearch(ROUTES.panelDashboard, {
-        role: "docente",
-      }),
+  if (isCheckingAccess) {
+    return (
+      <PanelLayout currentStep="medicion-ra" title="Medición RA" description="Registro y seguimiento de Resultados de Aprendizaje asignados.">
+        <WorkflowStateCard title="Validando acceso" description="Estamos verificando la asignación docente y el tipo de contratación en ITIS." />
+      </PanelLayout>
     );
-  }, [hasValidCourseContext]);
+  }
+
+  if (accessError) {
+    return (
+      <PanelLayout currentStep="medicion-ra" title="Medición RA" description="Registro y seguimiento de Resultados de Aprendizaje asignados.">
+        <WorkflowStateCard variant="locked" title="No fue posible validar el acceso" description={accessError} />
+      </PanelLayout>
+    );
+  }
+
+  if (access && !access.canGrade) {
+    return (
+      <PanelLayout currentStep="medicion-ra" title="Medición RA" description="Registro y seguimiento de Resultados de Aprendizaje asignados.">
+        <WorkflowStateCard
+          variant="locked"
+          title="No tienes permiso para calificar este curso"
+          description={`${access.reason ?? "Solo los docentes de tiempo completo pueden registrar la medición."} Docente registrado: ${access.teacherName}. Contratación: ${access.contractType}.`}
+        />
+      </PanelLayout>
+    );
+  }
 
   if (!hasValidCourseContext) {
     return (
@@ -111,8 +161,8 @@ function MedicionRAContent() {
     hasAvailableCourses,
   } = useMedicionRA();
 
-  const handleFinishCourse = () => {
-    const didFinish = handleConfirmFinishEvaluation();
+  const handleFinishCourse = async () => {
+    const didFinish = await handleConfirmFinishEvaluation();
     if (!didFinish) return;
 
     navigateToRoute(

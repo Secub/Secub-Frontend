@@ -58,6 +58,11 @@ export default function MapeoCompetenciasCreatePage() {
         <MapeoCompetenciasAccessState title="Cargando mapeo" description="Consultando planes, cursos y competencias del programa seleccionado." />
       ) : loadError ? (
         <MapeoCompetenciasAccessState title="No fue posible cargar el mapeo" description={loadError} />
+      ) : existingRecord?.bloqueadoPorCiclo ? (
+        <MapeoCompetenciasAccessState
+          title="Este mapeo ya no se puede editar"
+          description="El plan ya tiene un ciclo de medición asociado. Regresa al mapeo para consultar la información guardada."
+        />
       ) : (
         <div className="space-y-6">
           {/*
