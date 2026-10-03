@@ -2,7 +2,7 @@ import { Badge, Button, IconButton } from "../../../../components/ui";
 import MapeoCompetenciasAccessState from "./MapeoCompetenciasAccessState";
 import MapeoCompetenciasSemestreResumenCard from "./MapeoCompetenciasSemestreResumenCard";
 import type {
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   MapeoCompetenciasEnriched,
   NivelCompromiso,
 } from "../MapeoCompetencias.types";
@@ -11,7 +11,7 @@ import { formatDate, getEstadoBadgeVariant } from "../MapeoCompetencias.utils";
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface MapeoCompetenciasConsolidatedSectionProps {
   records: MapeoCompetenciasEnriched[];
-  competenciasRa?: CompetenciaRaDemoRecord[];
+  competenciasRa?: CompetenceRaRecord[];
   hasRequiredFilters: boolean;
   canOpenCreate: boolean;
   onCreate: () => void;

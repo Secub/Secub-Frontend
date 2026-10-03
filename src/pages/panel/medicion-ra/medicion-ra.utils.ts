@@ -1,4 +1,4 @@
-import { ACCEPTED_FILE_FORMATS, performanceLevels, TARGET_PERCENTAGE } from "./medicion-ra.mock";
+import { ACCEPTED_FILE_FORMATS, performanceLevels, TARGET_PERCENTAGE } from "./constants/medicionRA.constants";
 import type {
   Competence,
   CourseMeasurementSummary,

@@ -43,7 +43,6 @@ export function useDashboardPage() {
   });
   const improvementPlan = useDashboardImprovementPlan({
     isDirector: data.isDirector,
-    user: data.user,
   });
   const notifications = useDashboardNotifications();
   const breadcrumbs = useDashboardBreadcrumbs({

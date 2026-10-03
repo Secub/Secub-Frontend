@@ -1,5 +1,3 @@
-import { getCurrentMockUser } from "../../../../services/auth/mockUser";
-import { getCatalogs } from "../../competencias-ra/CompetenciasRa.mock";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
 
-export const asignarRACurrentUser = getCurrentMockUser();
-export const asignarRAAcademicCatalogs = getCatalogs();
+export const asignarRACurrentUser = getCurrentUser();

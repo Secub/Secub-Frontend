@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { mockBackend } from "../../../../services/mockBackend";
 import { LOCKED_TOOLTIP } from "../constants/medicionRA.constants";
 import type { CourseMeasurementSummary, ValidationFeedback } from "../medicion-ra.types";
 import { getCourseMeasurementSummary } from "../medicion-ra.utils";
-import type { MedicionRaDemoState } from "../types/medicionRA.persistence.types";
-import { resolveMedicionRaContextForCourse } from "../utils/medicionRA.assignments";
-import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
 import { useMedicionRAActions } from "./useMedicionRAActions";
 import { useMedicionRAAutoScroll } from "./useMedicionRAAutoScroll";
 import { useMedicionRAComputedState } from "./useMedicionRAComputedState";
@@ -22,19 +18,21 @@ export { LOCKED_TOOLTIP };
 export function useMedicionRA() {
   const {
     currentUser,
-    ignoreNextBackendChangeRef,
     availableCourses,
+    measurementsByCourse,
     hasAvailableCourses,
     initialCourseId,
-    initialPersistedDemoState,
+    initialPersistedState,
+    isLoading,
+    loadError,
   } = useMedicionRAData();
 
-  const normalizedInitialPersistedDemoState = initialPersistedDemoState ?? undefined;
+  const normalizedInitialPersistedState = initialPersistedState ?? undefined;
 
   const selection = useMedicionRASelection({
     availableCourses,
     initialCourseId,
-    initialPersistedDemoState: normalizedInitialPersistedDemoState,
+    initialPersistedState: normalizedInitialPersistedState,
   });
 
   const [feedback, setFeedback] = useState<ValidationFeedback | null>(null);
@@ -46,27 +44,25 @@ export function useMedicionRA() {
     availableCourses,
     selectedCourseId: selection.selectedCourseId,
     activeCompetenceId: selection.activeCompetenceId,
-    evaluationsByCourse: initialPersistedDemoState?.evaluationsByCourse ?? {},
-    instrumentsByCourse: initialPersistedDemoState?.instrumentsByCourse ?? {},
-    evidenceByCompetence: initialPersistedDemoState?.evidenceByCompetence ?? {},
-    improvementByCompetence: initialPersistedDemoState?.improvementByCompetence ?? {},
+    evaluationsByCourse: initialPersistedState?.evaluationsByCourse ?? {},
+    instrumentsByCourse: initialPersistedState?.instrumentsByCourse ?? {},
+    evidenceByCompetence: initialPersistedState?.evidenceByCompetence ?? {},
+    improvementByCompetence: initialPersistedState?.improvementByCompetence ?? {},
   });
 
-  const persistedDemoState = mockBackend.getById<MedicionRaDemoState>(
-    "medicionesRa",
-    computedDraft.medicionRaDemoStateId,
-    currentUser,
-  );
+  const persistedState = measurementsByCourse[
+    `${computedDraft.selectedCourse.cycleId}::${computedDraft.selectedCourse.id}`
+  ];
 
-  const normalizedPersistedDemoState = persistedDemoState ?? undefined;
+  const normalizedPersistedState = persistedState ?? undefined;
 
   const hydrated = useMedicionRAHydration({
     availableCourses,
     selectedCourseId: selection.selectedCourseId,
     selectedCourse: computedDraft.selectedCourse,
-    persistedDemoState: normalizedPersistedDemoState,
-    medicionRaDemoStateId: computedDraft.medicionRaDemoStateId,
-    initialPersistedDemoState: normalizedInitialPersistedDemoState,
+    persistedState: normalizedPersistedState,
+    courseMeasurementStateId: computedDraft.courseMeasurementStateId,
+    initialPersistedState: normalizedInitialPersistedState,
     setSelectedCourseId: selection.setSelectedCourseId,
     setActiveCompetenceId: selection.setActiveCompetenceId,
   });
@@ -108,7 +104,7 @@ export function useMedicionRA() {
     courseId: computed.selectedCourse.id,
     competenceId: computed.activeCompetence.id,
     isComplete: activeCompetenceComplete,
-    isReady: hydrated.hydratedStateId === computed.medicionRaDemoStateId,
+    isReady: hydrated.hydratedStateId === computed.courseMeasurementStateId,
     isLocked: hydrated.isSelectedCourseLocked,
     onCompleted: markCompletedCompetence,
   });
@@ -126,12 +122,11 @@ export function useMedicionRA() {
     evaluationsByCourse: hydrated.evaluationsByCourse,
     evidenceByCompetence: hydrated.evidenceByCompetence,
     hydratedStateId: hydrated.hydratedStateId,
-    ignoreNextBackendChangeRef,
     improvementByCompetence: hydrated.improvementByCompetence,
     instrumentsByCourse: hydrated.instrumentsByCourse,
     isSelectedCourseLocked: hydrated.isSelectedCourseLocked,
     medicionRaContext: computed.medicionRaContext,
-    medicionRaDemoStateId: computed.medicionRaDemoStateId,
+    courseMeasurementStateId: computed.courseMeasurementStateId,
     selectedCourse: computed.selectedCourse,
     selectedCourseId: selection.selectedCourseId,
   });
@@ -159,13 +154,7 @@ export function useMedicionRA() {
         });
       }
 
-      const courseContext = resolveMedicionRaContextForCourse(course);
-      const courseStateId = buildMedicionRaDemoStateId({
-        userId: currentUser.id,
-        cicloId: courseContext.cicloId,
-        courseId: course.id,
-      });
-      const courseState = mockBackend.getById<MedicionRaDemoState>("medicionesRa", courseStateId, currentUser);
+      const courseState = measurementsByCourse[`${course.cycleId}::${course.id}`];
 
       return getCourseMeasurementSummary({
         course,
@@ -247,6 +236,8 @@ export function useMedicionRA() {
     handleCourseChange: selection.handleCourseChange,
     handleCompetenceChange: selection.handleCompetenceChange,
     hasAvailableCourses,
+    isLoading,
+    loadError,
     ...actions,
   };
 }

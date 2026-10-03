@@ -3,11 +3,7 @@ import type { DashboardData } from "./dashboard.types";
 
 export function buildDashboardDataFromApi(
   context: MeasurementContext,
-  localData: DashboardData,
 ): DashboardData {
-  const localCourses = new Map(
-    localData.courses.map((course) => [`${course.cycleId}::${course.id}`, course]),
-  );
   const teachers = new Map<string, { id: string; name: string; email: string }>();
   context.courses.forEach((course) => {
     if (!course.teacherId) return;
@@ -67,16 +63,8 @@ export function buildDashboardDataFromApi(
       startDate: cycle.fechaInicio,
       endDate: cycle.fechaFin,
       courseIds: cycle.cursoIds,
-      hasImprovementPlan: localData.cycles.find((item) => item.id === cycle.id)?.hasImprovementPlan,
+      hasImprovementPlan: cycle.hasImprovementPlan ?? false,
     })),
-    courses: context.courses.map((course) => {
-      const local = localCourses.get(`${course.cycleId}::${course.id}`);
-      return {
-        ...course,
-        evaluatedRa: Math.max(local?.evaluatedRa ?? 0, course.evaluatedRa),
-        measurementCompleted: Boolean(local?.measurementCompleted || course.measurementCompleted),
-        results: local?.results ?? course.results,
-      };
-    }),
+    courses: context.courses,
   };
 }

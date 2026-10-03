@@ -1,11 +1,11 @@
 import { httpClient } from "../infrastructure/api";
 import type {
   AsignacionRaRecord,
-  CicloDemoRecord,
-  CompetenciaRaDemoRecord,
-  MapeoDemoRecord,
+  MeasurementCycleRecord,
+  CompetenceRaRecord,
+  CompetencyMappingRecord,
 } from "../pages/panel/asignar-ra/AsignarRA.types";
-import type { PlanEstudio } from "../pages/panel/ciclo/ciclo.types";
+import type { PlanEstudio, CursoSintesis } from "../pages/panel/ciclo/ciclo.types";
 
 export interface RAAssignmentContext {
   scope: {
@@ -17,9 +17,9 @@ export interface RAAssignmentContext {
     programaNombre: string;
   };
   planes: Array<PlanEstudio & { totalSemestres?: number }>;
-  ciclos: CicloDemoRecord[];
-  competencias: CompetenciaRaDemoRecord[];
-  mapeos: MapeoDemoRecord[];
+  ciclos: Array<MeasurementCycleRecord & { cursos?: CursoSintesis[] }>;
+  competencias: CompetenceRaRecord[];
+  mapeos: CompetencyMappingRecord[];
   asignaciones: AsignacionRaRecord[];
 }
 

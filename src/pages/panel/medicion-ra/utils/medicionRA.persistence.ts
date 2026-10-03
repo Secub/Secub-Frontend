@@ -1,6 +1,6 @@
 import type { EvidenceState, EvaluationMatrix, ImprovementPlanState, InstrumentByRa } from "../medicion-ra.types";
 
-export function buildMedicionRaDemoStateId({
+export function buildCourseMeasurementStateId({
   userId,
   cicloId,
   courseId,
@@ -9,7 +9,7 @@ export function buildMedicionRaDemoStateId({
   cicloId?: string;
   courseId?: string;
 }) {
-  return ["medicion-ra-demo-state", userId, cicloId, courseId]
+  return ["medicion-ra-state", userId, cicloId, courseId]
     .filter(Boolean)
     .join("-");
 }

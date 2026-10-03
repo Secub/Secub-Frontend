@@ -3,9 +3,9 @@ import type { CursoSintesis } from "../../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
   AsignarRACourseRow,
-  CicloDemoRecord,
-  CompetenciaRaDemoRecord,
-  MapeoDemoRecord,
+  MeasurementCycleRecord,
+  CompetenceRaRecord,
+  CompetencyMappingRecord,
   MedicionRaRecord,
 } from "../AsignarRA.types";
 import {
@@ -22,9 +22,9 @@ import {
 interface UseAsignarRAComputedParams {
   records: AsignacionRaRecord[];
   measurements: MedicionRaRecord[];
-  competenciasSource: CompetenciaRaDemoRecord[];
-  mapeosSource: MapeoDemoRecord[];
-  selectedCycle?: CicloDemoRecord;
+  competenciasSource: CompetenceRaRecord[];
+  mapeosSource: CompetencyMappingRecord[];
+  selectedCycle?: MeasurementCycleRecord;
   selectedCycleId: string;
   courses: CursoSintesis[];
   selectedCourseId: string;

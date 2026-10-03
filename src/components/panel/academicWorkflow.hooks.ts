@@ -1,49 +1,33 @@
 import { useEffect, useState } from "react";
-import {
-  getActiveAcademicPlanInstance,
-  listArchivedAcademicPlanInstances,
-  subscribeToMockBackendChanges,
-  type AcademicPlanInstance,
-} from "../../services/mockBackend";
-import {
-  readAcademicWorkflowProgress,
-  type AcademicWorkflowProgress,
-} from "./academicWorkflow.data";
+import { getWorkflowStatus } from "../../services/workflow";
+import type { AcademicWorkflowProgress } from "./academicWorkflow.rules";
+import { rememberAcademicWorkflowProgress } from "./academicWorkflow.repository";
 
-export function useAcademicPlanInfo() {
-  const [activePlan, setActivePlan] = useState<AcademicPlanInstance>(() => getActiveAcademicPlanInstance());
-  const [archivedPlans, setArchivedPlans] = useState<AcademicPlanInstance[]>(() =>
-    listArchivedAcademicPlanInstances(),
-  );
-
-  useEffect(() => {
-    const refreshPlanInfo = () => {
-      setActivePlan(getActiveAcademicPlanInstance());
-      setArchivedPlans(listArchivedAcademicPlanInstances());
-    };
-
-    refreshPlanInfo();
-    return subscribeToMockBackendChanges(refreshPlanInfo);
-  }, []);
-
-  return { activePlan, archivedPlans };
-}
-
+const EMPTY_PROGRESS: AcademicWorkflowProgress = {};
 
 export function useAcademicWorkflowProgress() {
-  const [progress, setProgress] = useState<AcademicWorkflowProgress>(() =>
-    readAcademicWorkflowProgress(),
-  );
+  const [progress, setProgress] = useState<AcademicWorkflowProgress>(EMPTY_PROGRESS);
 
   useEffect(() => {
-    const refreshProgress = () => {
-      const nextProgress = readAcademicWorkflowProgress();
-      setProgress(nextProgress);
-
+    let controller = new AbortController();
+    const refresh = () => {
+      controller.abort();
+      controller = new AbortController();
+      void getWorkflowStatus(controller.signal)
+        .then((nextProgress) => {
+          rememberAcademicWorkflowProgress(nextProgress);
+          setProgress(nextProgress);
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) setProgress(EMPTY_PROGRESS);
+        });
     };
-
-    refreshProgress();
-    return subscribeToMockBackendChanges(refreshProgress);
+    refresh();
+    window.addEventListener("secub:workflow-changed", refresh);
+    return () => {
+      controller.abort();
+      window.removeEventListener("secub:workflow-changed", refresh);
+    };
   }, []);
 
   return progress;

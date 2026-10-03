@@ -15,9 +15,8 @@ import {
   updateFormationPurpose,
   type FormationPurposeContext,
 } from '../../../../services/formationPurposes';
-import { mockBackend } from '../../../../services/mockBackend';
+import { getCurrentUser } from '../../../../services/auth/currentUser';
 import { showNotification } from '../../../../shared/feedback';
-import { getCurrentUser } from '../proposito-formacion.mock';
 import type {
   Catalogs,
   FormState,
@@ -62,18 +61,6 @@ function buildCatalogs(context: FormationPurposeContext): Catalogs {
   };
 }
 
-function syncWorkflowRecord(
-  record: PropositoFormacionRecord,
-  user: ReturnType<typeof getCurrentUser>,
-) {
-  try {
-    mockBackend.upsert<PropositoFormacionRecord>('propositosFormacion', record, user);
-  } catch {
-    // El backend es la fuente de verdad. Este espejo mantiene compatible
-    // el progreso mientras los siguientes módulos continúan en datos locales.
-  }
-}
-
 function areFiltersEqual(first: FiltersState, second: FiltersState) {
   return (
     first.seccionalId === second.seccionalId &&
@@ -113,7 +100,6 @@ export function usePropositoFormacionPage() {
       .then(([context, purposeRecords]) => {
         setCatalogs(buildCatalogs(context));
         setRecords(purposeRecords);
-        purposeRecords.forEach((record) => syncWorkflowRecord(record, currentUser));
       })
       .catch((reason: unknown) => {
         if (controller.signal.aborted) return;
@@ -209,11 +195,6 @@ export function usePropositoFormacionPage() {
     try {
       await deleteFormationPurpose(recordToDelete.id);
       setRecords((current) => current.filter((record) => record.id !== recordToDelete.id));
-      try {
-        mockBackend.remove<PropositoFormacionRecord>('propositosFormacion', recordToDelete.id, currentUser);
-      } catch {
-        // El registro ya fue eliminado en la fuente de verdad.
-      }
       if (selectedRecord?.id === recordToDelete.id) {
         setSelectedRecord(null);
         setDetailOpen(false);
@@ -282,7 +263,6 @@ export function usePropositoFormacionPage() {
           ? [record, ...current]
           : current.map((item) => (item.id === record.id ? record : item)),
       );
-      syncWorkflowRecord(record, currentUser);
       setFormOpen(false);
       setSelectedRecord(null);
       showNotification({

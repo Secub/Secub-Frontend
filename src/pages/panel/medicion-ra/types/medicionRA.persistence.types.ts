@@ -5,7 +5,7 @@ import type {
   InstrumentByRa,
 } from "../medicion-ra.types";
 
-export interface MedicionRaDemoState {
+export interface CourseMeasurementState {
   id: string;
   cicloId?: string;
   asignacionRaId?: string;
@@ -28,7 +28,7 @@ export interface MedicionRaDemoState {
   updatedAt?: string;
 }
 
-export interface AsignacionRaDemoRecord {
+export interface RaAssignmentRecord {
   id: string;
   cicloId?: string;
   cursoId?: string;
@@ -46,7 +46,7 @@ export interface AsignacionRaDemoRecord {
   docenteEmail?: string;
 }
 
-export interface CicloDemoRecord {
+export interface MeasurementCycleRecord {
   id: string;
   nombre?: string;
   periodo?: string;
@@ -56,7 +56,7 @@ export interface CicloDemoRecord {
   planId?: string;
 }
 
-export interface CompetenciaDemoRecord {
+export interface CompetenceRecord {
   id: string;
   nombre?: string;
   descripcion?: string;

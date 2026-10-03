@@ -2,7 +2,7 @@ import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useState, type ChangeEvent } from "react";
 import { showNotification } from "../../../../shared/feedback";
 import { ConfirmDialog, IconButton, Input, Textarea } from "../../../../components/ui";
-import { ACCEPTED_FILE_FORMATS } from "../medicion-ra.mock";
+import { ACCEPTED_FILE_FORMATS } from "../constants/medicionRA.constants";
 import type {
   Competence,
   EvidenceState,

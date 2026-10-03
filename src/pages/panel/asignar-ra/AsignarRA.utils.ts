@@ -1,21 +1,16 @@
 import {
-  buildDemoDocenteIdFromName,
-  resolveDemoDocenteByName,
-} from "../../../services/auth/mockUser";
-import {
   getDescribedLearningResults,
   isCompetenciaRaValidByLearningResults,
 } from "../../../utils/learningResultsRules";
-import { getCicloCatalogs } from "../ciclo/ciclo.mock";
 import type { CursoSintesis } from "../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
-  CicloDemoRecord,
-  CompetenciaRaDemoRecord,
+  MeasurementCycleRecord,
+  CompetenceRaRecord,
   DraftSelections,
-  MapeoDemoRecord,
+  CompetencyMappingRecord,
   MedicionRaRecord,
-  ResultadoAprendizajeDemoRecord,
+  LearningOutcomeRecord,
   SummaryMetrics,
 } from "./AsignarRA.types";
 
@@ -24,30 +19,22 @@ export function getAssignmentId(cicloId: string, cursoId: string, competenciaId:
 }
 
 export function resolveCourseDocente(course: CursoSintesis) {
-  const docente = resolveDemoDocenteByName(course.docente);
-
   return {
-    id: docente?.id ?? buildDemoDocenteIdFromName(course.docente),
-    nombre: docente?.nombre ?? course.docente,
-    email: docente?.email ?? "",
+    id: "docenteId" in course ? String(course.docenteId ?? "") : "",
+    nombre: course.docente,
+    email: "docenteEmail" in course ? String(course.docenteEmail ?? "") : "",
   };
 }
 
-export function getCycleCourses(cycle?: CicloDemoRecord) {
+export function getCycleCourses(cycle?: MeasurementCycleRecord) {
   if (!cycle) return [];
 
   if (cycle.cursos) return cycle.cursos;
 
-  const courseIds = new Set(cycle.cursoIds ?? []);
-  const cicloCatalogs = getCicloCatalogs();
-
-  return cicloCatalogs.cursos.filter((course) => {
-    if (!courseIds.has(course.id)) return false;
-    return course.nucleo === "Síntesis" && course.asignadoANucleoSintesis !== false;
-  });
+  return [];
 }
 
-export function getRelatedMapeo(cycle?: CicloDemoRecord, mapeos: MapeoDemoRecord[] = []) {
+export function getRelatedMapeo(cycle?: MeasurementCycleRecord, mapeos: CompetencyMappingRecord[] = []) {
   if (!cycle) return undefined;
 
   return mapeos.find((mapeo) => {
@@ -60,8 +47,8 @@ export function getRelatedMapeo(cycle?: CicloDemoRecord, mapeos: MapeoDemoRecord
 
 export function getMappedCompetenceIdsForCourse(
   courseId: string,
-  cycle?: CicloDemoRecord,
-  mapeos?: MapeoDemoRecord[],
+  cycle?: MeasurementCycleRecord,
+  mapeos?: CompetencyMappingRecord[],
 ) {
   const relatedMapeo = getRelatedMapeo(cycle, mapeos ?? []);
 
@@ -72,16 +59,16 @@ export function getMappedCompetenceIdsForCourse(
   );
 }
 
-export function getLearningResults(competencia?: CompetenciaRaDemoRecord) {
+export function getLearningResults(competencia?: CompetenceRaRecord) {
   return getDescribedLearningResults(competencia ?? {}).slice(0, 4).filter((ra) => Boolean(ra.id));
 }
 
-export function getCompetenciaLabel(competencia: CompetenciaRaDemoRecord, index: number) {
+export function getCompetenciaLabel(competencia: CompetenceRaRecord, index: number) {
   const explicitCode = competencia.nombre?.match(/C\d{1,2}/i)?.[0];
   return explicitCode?.toUpperCase() ?? `C${String(index + 1).padStart(2, "0")}`;
 }
 
-export function getRaLabel(ra: ResultadoAprendizajeDemoRecord, index: number) {
+export function getRaLabel(ra: LearningOutcomeRecord, index: number) {
   return `RA ${String(ra.numero ?? index + 1).padStart(2, "0")}`;
 }
 
@@ -121,7 +108,7 @@ export function areArraysEqual(first: string[], second: string[]) {
   return normalizedFirst.every((value, index) => value === normalizedSecond[index]);
 }
 
-export function getCompetenciasForCycle(competencias: CompetenciaRaDemoRecord[], selectedCycle?: CicloDemoRecord) {
+export function getCompetenciasForCycle(competencias: CompetenceRaRecord[], selectedCycle?: MeasurementCycleRecord) {
   if (!selectedCycle) return [];
 
   return competencias.filter((competencia) => {
@@ -133,9 +120,9 @@ export function getCompetenciasForCycle(competencias: CompetenciaRaDemoRecord[],
 
 export function getCourseCompetencias(
   course: CursoSintesis | undefined,
-  cycle: CicloDemoRecord | undefined,
-  competencias: CompetenciaRaDemoRecord[],
-  mapeos: MapeoDemoRecord[],
+  cycle: MeasurementCycleRecord | undefined,
+  competencias: CompetenceRaRecord[],
+  mapeos: CompetencyMappingRecord[],
 ) {
   if (!course || !cycle) return [];
 
@@ -148,9 +135,9 @@ export function getCourseCompetencias(
 
 export function isCourseAssignmentComplete(
   course: CursoSintesis,
-  cycle: CicloDemoRecord,
-  competencias: CompetenciaRaDemoRecord[],
-  mapeos: MapeoDemoRecord[],
+  cycle: MeasurementCycleRecord,
+  competencias: CompetenceRaRecord[],
+  mapeos: CompetencyMappingRecord[],
   records: AsignacionRaRecord[],
 ) {
   const mappedCompetenceIds = getMappedCompetenceIdsForCourse(course.id, cycle, mapeos);
@@ -171,7 +158,7 @@ export function isCourseAssignmentComplete(
 }
 
 export function buildDraftSelections(
-  courseCompetencias: CompetenciaRaDemoRecord[],
+  courseCompetencias: CompetenceRaRecord[],
   selectedCourseAssignments: AsignacionRaRecord[],
 ): DraftSelections {
   const nextDraft: DraftSelections = {};

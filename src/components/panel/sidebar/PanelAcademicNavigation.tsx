@@ -1,8 +1,7 @@
 import { useId, useMemo, useState } from "react";
 import { navigateToRoute } from "../../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../../app/router/routePrefetch";
-import { getCurrentMockUser } from "../../../services/auth/mockUser";
-import { canStartAcademicPlan } from "../../../config/access/permissions";
+import { getCurrentUser } from "../../../services/auth/currentUser";
 import { showNotification } from "../../../shared/feedback";
 import { SecubIcon } from "../../ui";
 import {
@@ -10,14 +9,10 @@ import {
   getAcademicWorkflowLockedDescription,
   getAcademicWorkflowState,
   getCompletedAcademicWorkflowStepsCount,
-  getNewAcademicPlanRenewalAvailability,
   isAcademicWorkflowBaseStepInherited,
   isAcademicWorkflowStep,
   isAcademicWorkflowStepCompleted,
   isAcademicWorkflowStepLocked,
-  newAcademicPlanStartStep,
-  startNewAcademicPlanFromCurrentProgress,
-  useAcademicPlanInfo,
   useAcademicWorkflowProgress,
 } from "../academicWorkflow";
 import { panelNavigation, type PanelStepKey } from "../panelNavigation";
@@ -40,12 +35,11 @@ export default function PanelAcademicNavigation({
   currentStep,
   onNavigate,
 }: PanelAcademicNavigationProps) {
-  const currentUser = getCurrentMockUser();
+  const currentUser = getCurrentUser();
   const isDocente = currentUser.role === "docente";
   const academicMenuId = useId();
   const [isAcademicMenuOpen, setIsAcademicMenuOpen] = useState(true);
   const workflowProgress = useAcademicWorkflowProgress();
-  const { activePlan } = useAcademicPlanInfo();
 
   const academicKeys = isDocente ? docenteAcademicStepKeys : academicStepKeys;
   const academicItems = academicKeys
@@ -54,7 +48,7 @@ export default function PanelAcademicNavigation({
   const isCurrentInsideAcademicWorkflow = academicItems.some(
     (item) => item.key === currentStep,
   );
-  const docenteMeasurementProgress = getDocenteMeasurementProgress(currentUser);
+  const docenteMeasurementProgress = getDocenteMeasurementProgress(workflowProgress);
   const workflowState = getAcademicWorkflowState(workflowProgress);
   const completedStepsCount = isDocente
     ? docenteMeasurementProgress.completed
@@ -63,38 +57,10 @@ export default function PanelAcademicNavigation({
     ? docenteMeasurementProgress.total
     : academicItems.length;
   const isWorkflowCompleted = !isDocente && workflowState === "completed";
-  const renewalAvailability = getNewAcademicPlanRenewalAvailability(workflowProgress);
-  const canStartNewAcademicPlan = renewalAvailability.isAvailable;
-  const canManageNewAcademicPlan = canStartAcademicPlan(currentUser.role);
-  const newAcademicPlanLockedMessage =
-    renewalAvailability.lockedMessage ??
-    "El nuevo plan académico estará disponible cuando el ciclo actual cumpla 1.5 años.";
-  const newAcademicPlanTarget =
-    academicItems.find((item) => item.key === newAcademicPlanStartStep) ??
-    academicItems[2] ??
-    academicItems[0];
 
   const goTo = (href: string) => {
     navigateToRoute(href, { preserveSearch: true });
     onNavigate?.();
-  };
-
-  const handleStartNewAcademicPlan = () => {
-    if (!canManageNewAcademicPlan) return;
-
-    if (!canStartNewAcademicPlan) {
-      showNotification(newAcademicPlanLockedMessage);
-      return;
-    }
-
-    try {
-      startNewAcademicPlanFromCurrentProgress(workflowProgress);
-      if (newAcademicPlanTarget) goTo(newAcademicPlanTarget.href);
-    } catch (error) {
-      showNotification(
-        error instanceof Error ? error.message : newAcademicPlanLockedMessage,
-      );
-    }
   };
 
   const academicProgress = useMemo(
@@ -115,7 +81,7 @@ export default function PanelAcademicNavigation({
             : false;
         const isInherited =
           !isDocente && isWorkflowStep
-            ? isAcademicWorkflowBaseStepInherited(item.key, activePlan)
+            ? isAcademicWorkflowBaseStepInherited(item.key)
             : false;
 
         return {
@@ -136,7 +102,6 @@ export default function PanelAcademicNavigation({
       }),
     [
       academicItems,
-      activePlan,
       currentStep,
       docenteMeasurementProgress.isCompleted,
       isDocente,
@@ -341,55 +306,6 @@ export default function PanelAcademicNavigation({
             </ol>
           </nav>
 
-          {canManageNewAcademicPlan && isWorkflowCompleted ? (
-            <button
-              type="button"
-              onClick={handleStartNewAcademicPlan}
-              aria-disabled={!canStartNewAcademicPlan}
-              title={
-                canStartNewAcademicPlan
-                  ? "Crear un nuevo plan académico desde el paso 3"
-                  : newAcademicPlanLockedMessage
-              }
-              className={[
-                "group mt-2 flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
-                canStartNewAcademicPlan
-                  ? "cursor-pointer bg-[color:rgba(248,129,29,0.10)] hover:bg-[color:rgba(248,129,29,0.16)]"
-                  : "cursor-not-allowed bg-[color:rgba(255,255,255,0.045)] opacity-65",
-              ].join(" ")}
-            >
-              <span
-                className={[
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)]",
-                  canStartNewAcademicPlan
-                    ? "bg-[color:rgba(248,129,29,0.16)] text-[var(--color-primary)]"
-                    : "text-[var(--color-secondary-3)]",
-                ].join(" ")}
-                aria-hidden="true"
-              >
-                {canStartNewAcademicPlan ? (
-                  <SecubIcon name="add" size={18} weight="regular" />
-                ) : (
-                  <SecubIcon name="lock" size={18} weight="regular" />
-                )}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span
-                  className={[
-                    "block text-[0.75rem] font-bold uppercase tracking-[0.12em]",
-                    canStartNewAcademicPlan
-                      ? "text-[var(--color-warning)]"
-                      : "text-[var(--color-secondary-2)]",
-                  ].join(" ")}
-                >
-                  {canStartNewAcademicPlan ? "Nuevo ciclo" : "Bloqueado"}
-                </span>
-                <span className="block truncate font-heading text-[0.82rem] font-medium leading-4 text-[var(--color-white)]">
-                  Ciclo nuevo
-                </span>
-              </span>
-            </button>
-          ) : null}
         </div>
       ) : null}
     </li>

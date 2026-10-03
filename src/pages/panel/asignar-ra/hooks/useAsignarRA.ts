@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { getAsignarRaPermissions } from "../../../../config/access/permissions";
-import { asignarRAAcademicCatalogs as academicCatalogs, asignarRACurrentUser as currentUser } from "./asignarRA.shared";
+import { asignarRACurrentUser as currentUser } from "./asignarRA.shared";
 import { useAsignarRAActions } from "./useAsignarRAActions";
 import { useAsignarRAComputed } from "./useAsignarRAComputed";
 import { useAsignarRAData } from "./useAsignarRAData";
@@ -27,6 +27,7 @@ export function useAsignarRA() {
 
   const filters = useAsignarRAFilters({
     cyclesSource: data.cyclesSource,
+    academicCatalogs: data.academicCatalogs,
     resetFeedback,
   });
 
@@ -67,7 +68,7 @@ export function useAsignarRA() {
 
   return {
     currentUser,
-    academicCatalogs,
+    academicCatalogs: data.academicCatalogs,
     access: { currentUser, canRead, canManage, canDelete, isStepLocked },
     filters: filters.filters,
     filterOptions: filters.filterOptions,

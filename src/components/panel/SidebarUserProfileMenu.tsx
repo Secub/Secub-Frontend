@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import { SecubIcon } from "../ui";
-import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { getCurrentUser } from "../../services/auth/currentUser";
+import { logoutAuthSession } from "../../services/auth/session";
 import {
   clearSelectedProgramId,
   getSelectedProgram,
@@ -15,13 +16,17 @@ function getInitials(name: string) {
   return `${firstInitial}${secondInitial}`.toUpperCase();
 }
 
-function logoutCurrentUser() {
-  clearSelectedProgramId();
-  navigateToRoute(ROUTES.access);
+async function logoutCurrentUser() {
+  try {
+    await logoutAuthSession();
+  } finally {
+    clearSelectedProgramId();
+    navigateToRoute(ROUTES.access);
+  }
 }
 
 export default function SidebarUserProfileMenu() {
-  const currentUser = getCurrentMockUser();
+  const currentUser = getCurrentUser();
   const selectedProgram = getSelectedProgram();
   const roleLabel = currentUser.cargo;
   const profileSubtitle = selectedProgram
@@ -32,9 +37,7 @@ export default function SidebarUserProfileMenu() {
     [currentUser.nombre],
   );
 
-  const handleLogout = () => {
-    logoutCurrentUser();
-  };
+  const handleLogout = () => void logoutCurrentUser();
 
   return (
     <div className="space-y-2.5">

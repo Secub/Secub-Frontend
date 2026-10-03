@@ -1,4 +1,4 @@
-import { TARGET_COMPLIANCE } from "./dashboard.mock";
+import { TARGET_COMPLIANCE } from "./dashboard.constants";
 import type {
   CourseMeasurement,
   CompetenceCatalog,
@@ -13,7 +13,7 @@ import type {
   PlanCatalog,
 } from "./dashboard.types";
 import { showNotification } from "../../../shared/feedback";
-import { storageClient } from "../../../shared/browser";
+import { notifyCycleCompletion, sendMeasurementReminder } from "../../../services/notifications";
 
 export const INITIAL_DASHBOARD_FILTERS: DashboardFiltersState = {
   seccionalId: "",
@@ -319,14 +319,19 @@ export function getDashboardMetrics(courses: EnrichedCourse[], cycles: EnrichedC
   };
 }
 
-export function simulateReportDownload(label: string) {
-  // Integración futura: conectar aquí jsPDF, endpoint de reportes o servicio documental institucional.
-  showNotification(`${label}: descarga simulada. Aquí se conectará la generación real del PDF.`);
-}
-
-export function simulateEvidenceDownload(fileName: string) {
-  // Integración futura: reemplazar por descarga real desde repositorio de evidencias.
-  showNotification(`Descarga simulada: ${fileName}`);
+export function downloadEvidenceFile(fileReference: string) {
+  const value = fileReference.trim();
+  if (/^https?:\/\//i.test(value)) {
+    const link = document.createElement("a");
+    link.href = value;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return;
+  }
+  showNotification("SECUB no tiene una ubicación descargable registrada para este archivo.");
 }
 
 export interface MeasurementReminderEmailPayload {
@@ -338,16 +343,21 @@ export interface MeasurementReminderEmailPayload {
   courseName?: string;
 }
 
-export function requestMeasurementReminderEmail(payload: MeasurementReminderEmailPayload) {
-  // TODO: reemplazar esta simulación por backend/directorio institucional cuando exista el servicio real.
-  // El backend deberá resolver destinatario institucional, enviar recordatorio y registrar trazabilidad.
-  showNotification(
-    `Solicitud simulada de recordatorio: curso ${payload.courseName ?? payload.courseId}, ${payload.pendingRa ?? 0} RA pendientes.`,
-  );
+export async function requestMeasurementReminderEmail(payload: MeasurementReminderEmailPayload) {
+  if (!payload.cicloId) throw new Error("El curso no está asociado a un ciclo de medición.");
+  const notification = await sendMeasurementReminder({
+    cycleId: payload.cicloId,
+    courseId: payload.courseId,
+    courseName: payload.courseName ?? payload.courseId,
+    pendingRa: payload.pendingRa ?? 0,
+  });
+  showNotification(notification.emailStatus === "sent"
+    ? "El recordatorio se registró en SECUB y se envió al correo institucional."
+    : "El recordatorio quedó registrado en SECUB, pero el correo no pudo enviarse.");
 }
 
 export function notifyTeacherMeasurementReminder(course: EnrichedCourse) {
-  requestMeasurementReminderEmail({
+  return requestMeasurementReminderEmail({
     courseId: course.id,
     teacherId: course.teacherId,
     teacherEmail: course.teacherEmail || undefined,
@@ -399,35 +409,8 @@ export function syncDashboardFiltersByCycle(
   };
 }
 
-const DIRECTOR_COMPLETION_NOTIFICATION_KEY = "secub-dashboard-director-cycle-completion:v2";
-
-function getDirectorCompletionNotificationKey(cycleId: string) {
-  return `${DIRECTOR_COMPLETION_NOTIFICATION_KEY}:${cycleId}`;
-}
-
-function hasDirectorCompletionNotificationRequest(cycleId: string) {
-  try {
-    return Boolean(storageClient.get(getDirectorCompletionNotificationKey(cycleId)));
-  } catch {
-    // Si localStorage no está disponible, no se bloquea el Dashboard.
-    return false;
-  }
-}
-
-function markDirectorCompletionNotificationRequest(cycleId: string) {
-  try {
-    // Solución provisional de frontend para evitar múltiples llamadas mientras no exista backend.
-    // A futuro debe reemplazarse por un estado persistido desde backend, por ejemplo:
-    // completionNotificationSent, directorNotifiedAt o el campo institucional que defina la API.
-    storageClient.set(getDirectorCompletionNotificationKey(cycleId), new Date().toISOString());
-  } catch {
-    // Si localStorage no está disponible, se permite continuar sin interrumpir la experiencia.
-  }
-}
-
 export function shouldNotifyDirectorCycleCompletion(cycle: EnrichedCycle) {
-  if (cycle.progress < 100 || cycle.hasImprovementPlan) return false;
-  return !hasDirectorCompletionNotificationRequest(cycle.id);
+  return cycle.progress >= 100 && !cycle.hasImprovementPlan;
 }
 
 export function buildDirectorCycleCompletionPayload(
@@ -445,31 +428,8 @@ export function buildDirectorCycleCompletionPayload(
   };
 }
 
-export function notifyDirectorCycleCompletionService(
-  payload: DirectorCycleCompletionNotificationPayload,
-) {
-  // Punto de integración futura con backend.
-  // Cuando exista el endpoint/directorio institucional, esta función deberá:
-  // 1. Consultar la Dirección de programa asociada al programa académico usando payload.academicProgramId.
-  // 2. Obtener su correo institucional desde el directorio o servicio de usuarios.
-  // 3. Enviar la notificación de cierre de fase del ciclo completado.
-  // 4. Registrar en backend que la notificación ya fue enviada para evitar duplicados
-  //    mediante un campo persistido como completionNotificationSent o directorNotifiedAt.
-  //
-  // No se inventan correos ni se simula un envío real desde frontend.
-  void payload;
-}
-
 export function requestDirectorCycleCompletionNotification(cycle: EnrichedCycle) {
   const payload = buildDirectorCycleCompletionPayload(cycle);
-
-  notifyDirectorCycleCompletionService(payload);
-  markDirectorCompletionNotificationRequest(cycle.id);
+  return notifyCycleCompletion(payload.cycleId);
 }
 
-export function simulateImprovementPlanAction(cycle: EnrichedCycle) {
-  // Integración futura: reemplazar por navegación o endpoint real del módulo Plan de mejora.
-  showNotification(
-    `Plan de mejora - ${cycle.name}: integración pendiente con el módulo o endpoint institucional correspondiente.`,
-  );
-}

@@ -11,7 +11,7 @@ import MeasurementSummaryCards, {
 } from "./components/MeasurementSummaryCards";
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
-import { simulateEvidenceDownload } from "./dashboard.utils";
+import { downloadEvidenceFile } from "./dashboard.utils";
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
@@ -183,7 +183,7 @@ export default function DashboardPage() {
             selectedCompetenceId={dashboard.detailCompetenceId}
             onCourseChange={dashboard.selectDetailCourse}
             onCompetenceChange={dashboard.setDetailCompetenceId}
-            onDownloadFile={simulateEvidenceDownload}
+            onDownloadFile={downloadEvidenceFile}
             onOpenRaDetail={dashboard.setSelectedRa}
           />
         </div>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
 
           <CompetenceResultsPanel
             results={dashboard.consolidatedResults}
-            onDownloadFile={simulateEvidenceDownload}
+            onDownloadFile={downloadEvidenceFile}
             onOpenRaDetail={dashboard.setSelectedRa}
           />
         </div>

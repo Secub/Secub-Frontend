@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { subscribeToMockBackendChanges } from "../../../../services/mockBackend";
 import { getMeasurementContext, type MeasurementContext } from "../../../../services/measurements";
-import { getCurrentDashboardUser, getDashboardData } from "../dashboard.mock";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
 import { buildDashboardDataFromApi } from "../dashboard.api";
 import {
   applyUserScopeToCourses,
@@ -13,12 +12,9 @@ import {
 } from "../dashboard.utils";
 
 export function useDashboardData() {
-  const [backendVersion, setBackendVersion] = useState(0);
   const [measurementContext, setMeasurementContext] = useState<MeasurementContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-
-  useEffect(() => subscribeToMockBackendChanges(() => setBackendVersion((current) => current + 1)), []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -36,12 +32,24 @@ export function useDashboardData() {
     return () => controller.abort();
   }, []);
 
-  const user = getCurrentDashboardUser();
-  void backendVersion;
-  const localData = getDashboardData();
+  const currentUser = getCurrentUser();
+  const user = {
+    id: currentUser.id,
+    name: currentUser.nombre,
+    email: currentUser.email,
+    role: currentUser.role,
+    label: currentUser.cargo,
+    scope: {
+      seccionalId: currentUser.scope.seccionalId,
+      facultadId: currentUser.scope.facultadId,
+      programaId: currentUser.scope.programaId,
+      planId: currentUser.scope.planId,
+      docenteId: currentUser.role === "docente" ? currentUser.id : undefined,
+    },
+  };
   const dashboardData = measurementContext
-    ? buildDashboardDataFromApi(measurementContext, localData)
-    : localData;
+    ? buildDashboardDataFromApi(measurementContext)
+    : { catalogs: { seccionales: [], facultades: [], programas: [], planes: [], teachers: [], competences: [] }, cycles: [], courses: [] };
   const isTeacher = user.role === "docente";
   const isDirector = user.role === "director";
 
@@ -61,7 +69,7 @@ export function useDashboardData() {
   useEffect(() => {
     scopedCycles.forEach((cycle) => {
       if (shouldNotifyDirectorCycleCompletion(cycle)) {
-        requestDirectorCycleCompletionNotification(cycle);
+        void requestDirectorCycleCompletionNotification(cycle).catch(() => undefined);
       }
     });
   }, [scopedCycles]);

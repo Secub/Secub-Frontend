@@ -1,11 +1,11 @@
 import type { RefObject } from "react";
 import type { SelectOption } from "../../../components/ui/Select";
-import type { CentralMockUser } from "../../../services/auth/mockUser";
+import type { CurrentUser } from "../../../services/auth/currentUser";
 import type { CursoSintesis } from "../ciclo/ciclo.types";
 
 export type BadgeVariant = "neutral" | "info" | "success" | "warning" | "danger" | "accent";
 
-export interface CicloDemoRecord {
+export interface MeasurementCycleRecord {
   id: string;
   nombre?: string;
   periodo?: string;
@@ -19,13 +19,13 @@ export interface CicloDemoRecord {
   estado?: string;
 }
 
-export interface ResultadoAprendizajeDemoRecord {
+export interface LearningOutcomeRecord {
   id?: string;
   numero?: number;
   descripcion?: string;
 }
 
-export interface CompetenciaRaDemoRecord {
+export interface CompetenceRaRecord {
   id: string;
   seccionalId?: string;
   facultadId?: string;
@@ -34,10 +34,10 @@ export interface CompetenciaRaDemoRecord {
   estado?: "activo" | "inactivo";
   nombre?: string;
   descripcion?: string;
-  resultadosAprendizaje?: ResultadoAprendizajeDemoRecord[];
+  resultadosAprendizaje?: LearningOutcomeRecord[];
 }
 
-export interface MapeoDemoRecord {
+export interface CompetencyMappingRecord {
   id: string;
   programaId?: string;
   planId?: string;
@@ -132,7 +132,7 @@ export interface AsignarRARefs {
 }
 
 export interface AsignarRAAccess {
-  currentUser: CentralMockUser;
+  currentUser: CurrentUser;
   canRead: boolean;
   canManage: boolean;
   canDelete: boolean;

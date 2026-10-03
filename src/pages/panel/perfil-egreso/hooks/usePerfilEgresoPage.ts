@@ -3,8 +3,7 @@ import {
   isAcademicWorkflowBaseStepInherited,
   isAcademicWorkflowStepLocked,
 } from "../../../../components/panel";
-import { mockBackend } from "../../../../services/mockBackend";
-import { getCurrentUser } from "../perfil-egreso.mock";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
 import {
   createGraduationProfile,
   deleteGraduationProfile,
@@ -62,15 +61,6 @@ function buildCatalogs(context: GraduationProfileContext): Catalogs {
   };
 }
 
-function syncWorkflowRecord(record: PerfilEgresoRecord, user: ReturnType<typeof getCurrentUser>) {
-  try {
-    mockBackend.upsert<PerfilEgresoRecord>("perfilEgreso", record, user);
-  } catch {
-    // El backend es la fuente de verdad. Este espejo solo mantiene compatible
-    // el indicador del flujo académico mientras los demás módulos siguen en mock.
-  }
-}
-
 function areFiltersEqual(first: FiltersState, second: FiltersState) {
   return (
     first.seccionalId === second.seccionalId &&
@@ -110,7 +100,6 @@ export function usePerfilEgresoPage() {
       .then(([context, profileRecords]) => {
         setCatalogs(buildCatalogs(context));
         setRecords(profileRecords);
-        profileRecords.forEach((record) => syncWorkflowRecord(record, currentUser));
       })
       .catch((reason: unknown) => {
         if (controller.signal.aborted) return;
@@ -197,11 +186,6 @@ export function usePerfilEgresoPage() {
     try {
       await deleteGraduationProfile(recordToDelete.id);
       setRecords((current) => current.filter((record) => record.id !== recordToDelete.id));
-      try {
-        mockBackend.remove<PerfilEgresoRecord>("perfilEgreso", recordToDelete.id, currentUser);
-      } catch {
-        // El registro ya fue eliminado en la fuente de verdad.
-      }
       if (selectedRecord?.id === recordToDelete.id) {
         setSelectedRecord(null);
         setDetailOpen(false);
@@ -267,7 +251,6 @@ export function usePerfilEgresoPage() {
           ? [record, ...current]
           : current.map((item) => (item.id === record.id ? record : item)),
       );
-      syncWorkflowRecord(record, currentUser);
       setFormOpen(false);
       setSelectedRecord(null);
       showNotification({

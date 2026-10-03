@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import {
-  PERSISTED_DEMO_SEARCH_PARAMS,
+  PERSISTED_SEARCH_PARAMS,
   ROUTES,
   buildRouteWithSearch,
   navigateToRoute,
@@ -8,7 +8,7 @@ import {
   pickSearchParams,
 } from "./appRoutes";
 import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
-import { getCurrentMockUser } from "../services/auth/mockUser";
+import { getCurrentUser } from "../services/auth/currentUser";
 import { useInactivityLogout } from "../services/auth/useInactivityLogout";
 import { hasSelectedProgram } from "../services/programSelection";
 import ChunkErrorBoundary, { clearChunkReloadFlag } from "./router/ChunkErrorBoundary";
@@ -32,7 +32,7 @@ export default function AppRouter() {
   const [authResolved, setAuthResolved] = useState(
     () => !panelRoute || Boolean(getStoredAuthSession()),
   );
-  const currentRole = getCurrentMockUser().role;
+  const currentRole = getCurrentUser().role;
   const needsProgramSelection = panelRoute && authResolved && !hasSelectedProgram();
   const permissionRedirect = panelRoute && !needsProgramSelection
     ? getPanelRouteAccessRedirect(normalizedPath, currentRole)
@@ -61,8 +61,7 @@ export default function AppRouter() {
   useEffect(() => {
     if (!needsProgramSelection) return;
 
-    const params = pickSearchParams(location.search, PERSISTED_DEMO_SEARCH_PARAMS);
-    params.set("role", params.get("role") ?? "director");
+    const params = pickSearchParams(location.search, PERSISTED_SEARCH_PARAMS);
     navigateToRoute(buildRouteWithSearch(ROUTES.programSelector, params), {
       replace: true,
     });
@@ -71,7 +70,7 @@ export default function AppRouter() {
   useEffect(() => {
     if (!permissionRedirect) return;
 
-    const params = pickSearchParams(location.search, PERSISTED_DEMO_SEARCH_PARAMS);
+    const params = pickSearchParams(location.search, PERSISTED_SEARCH_PARAMS);
     navigateToRoute(buildRouteWithSearch(permissionRedirect, params), {
       replace: true,
     });

@@ -5,7 +5,7 @@ import { preloadRoutesWhenIdle } from "../../app/router/routePrefetch";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
 import PanelMobileNavigation from "./sidebar/PanelMobileNavigation";
-import { getCurrentMockUser } from "../../services/auth/mockUser";
+import { getCurrentUser } from "../../services/auth/currentUser";
 import {
   academicWorkflowSteps,
   getAcademicWorkflowState,
@@ -15,6 +15,7 @@ import {
 } from "./academicWorkflow";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import { getBrowserSearchParams } from "../../shared/browser";
+import NotificationCenter from "./NotificationCenter";
 
 interface PanelLayoutProps {
   children: ReactNode;
@@ -33,7 +34,7 @@ export default function PanelLayout({
   actions,
   breadcrumbItems,
 }: PanelLayoutProps) {
-  const currentUser = getCurrentMockUser();
+  const currentUser = getCurrentUser();
   const shouldHideActionsForDocente =
     currentUser.role === "docente" && isAcademicWorkflowStep(currentStep);
   const workflowProgress = useAcademicWorkflowProgress();
@@ -43,7 +44,7 @@ export default function PanelLayout({
   );
   const isWorkflowCompleted = workflowState === "completed";
   const wasCompletedRef = useRef(isWorkflowCompleted);
-  const hasMountedRef = useRef(false);
+  const hasHydratedWorkflowRef = useRef(false);
   const [showCompletionAlert, setShowCompletionAlert] = useState(false);
 
   useEffect(() => {
@@ -80,8 +81,10 @@ export default function PanelLayout({
   };
 
   useEffect(() => {
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
+    if (Object.keys(workflowProgress).length === 0) return;
+
+    if (!hasHydratedWorkflowRef.current) {
+      hasHydratedWorkflowRef.current = true;
       wasCompletedRef.current = isWorkflowCompleted;
       return;
     }
@@ -91,7 +94,7 @@ export default function PanelLayout({
     }
 
     wasCompletedRef.current = isWorkflowCompleted;
-  }, [isWorkflowCompleted]);
+  }, [isWorkflowCompleted, workflowProgress]);
 
   return (
     <div className="min-h-screen bg-[var(--secub-bg)] text-[var(--secub-text)]">
@@ -117,11 +120,10 @@ export default function PanelLayout({
                 ) : null}
               </div>
 
-              {!shouldHideActionsForDocente && actions ? (
-                <div className="flex shrink-0 flex-wrap items-center gap-3">
-                  {actions}
-                </div>
-              ) : null}
+              <div className="flex shrink-0 flex-wrap items-center gap-3">
+                <NotificationCenter />
+                {!shouldHideActionsForDocente ? actions : null}
+              </div>
             </div>
 
             {children}

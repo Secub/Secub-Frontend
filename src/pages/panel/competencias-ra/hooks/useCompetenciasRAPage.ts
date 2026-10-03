@@ -11,10 +11,8 @@ import {
   updateCompetency,
   type CompetencyContext,
 } from '../../../../services/competencies';
-import { listCompetencyMappings } from '../../../../services/competencyMappings';
-import { mockBackend } from '../../../../services/mockBackend';
+import { getCurrentUser } from '../../../../services/auth/currentUser';
 import { showNotification } from '../../../../shared/feedback';
-import { getCurrentUser } from '../CompetenciasRa.mock';
 import type {
   Catalogs,
   CompetenciasRaEnriched,
@@ -54,18 +52,6 @@ function buildCatalogs(context: CompetencyContext): Catalogs {
   };
 }
 
-function syncWorkflowRecord(
-  record: CompetenciasRaFormacionRecord,
-  user: ReturnType<typeof getCurrentUser>,
-) {
-  try {
-    mockBackend.upsert<CompetenciasRaFormacionRecord>('competenciasRa', record, user);
-  } catch {
-    // El backend es la fuente de verdad. El espejo conserva el flujo académico
-    // mientras los módulos siguientes continúan utilizando datos locales.
-  }
-}
-
 export function useCompetenciasRAPage() {
   const currentUser = useMemo(() => getCurrentUser(), []);
   const [catalogs, setCatalogs] = useState<Catalogs>(EMPTY_CATALOGS);
@@ -83,17 +69,6 @@ export function useCompetenciasRAPage() {
   const [formValues, setFormValues] = useState<FormState>(() => getEmptyFormState(currentUser));
   const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | null>(null);
 
-  const syncWorkflowMappings = useCallback(async () => {
-    try {
-      const mappings = await listCompetencyMappings();
-      mappings.forEach((mapping) => {
-        mockBackend.upsert('mapeosCompetencias', mapping, currentUser);
-      });
-    } catch {
-      // El backend conserva el mapeo; esta copia solo actualiza el progreso local del flujo.
-    }
-  }, [currentUser]);
-
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
@@ -107,7 +82,6 @@ export function useCompetenciasRAPage() {
         setMaxCompetenciesPerPlan(context.maxCompetenciasPorPlan);
         setCyclePlanIds(new Set(context.planesConCiclo));
         setRecords(competencyRecords);
-        competencyRecords.forEach((record) => syncWorkflowRecord(record, currentUser));
       })
       .catch((reason: unknown) => {
         if (controller.signal.aborted) return;
@@ -171,21 +145,13 @@ export function useCompetenciasRAPage() {
         ? current.map((item) => (item.id === record.id ? record : item))
         : [...current, record];
     });
-    syncWorkflowRecord(record, currentUser);
-    void syncWorkflowMappings();
     const enriched = enrichCompetenciasRa([record], catalogs)[0];
     setSelectedRecord((current) => current?.id === record.id ? enriched : current);
-  }, [catalogs, currentUser, syncWorkflowMappings]);
+  }, [catalogs]);
 
   const removeRecordState = useCallback((recordId: string) => {
     setRecords((current) => current.filter((record) => record.id !== recordId));
-    try {
-      mockBackend.remove<CompetenciasRaFormacionRecord>('competenciasRa', recordId, currentUser);
-    } catch {
-      // El registro ya fue eliminado de la fuente de verdad.
-    }
-    void syncWorkflowMappings();
-  }, [currentUser, syncWorkflowMappings]);
+  }, []);
 
   const openCreateModal = () => {
     if (!permissions.canCreate || loading) return;

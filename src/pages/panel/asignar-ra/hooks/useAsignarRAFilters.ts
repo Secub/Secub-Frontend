@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAsignarRaPermissions } from "../../../../config/access/permissions";
-import type { CicloDemoRecord } from "../AsignarRA.types";
+import type { MeasurementCycleRecord } from "../AsignarRA.types";
+import type { CicloCatalogs } from "../../ciclo/ciclo.types";
 import { getCycleCourses } from "../AsignarRA.utils";
-import { asignarRAAcademicCatalogs as academicCatalogs, asignarRACurrentUser as currentUser } from "./asignarRA.shared";
+import { asignarRACurrentUser as currentUser } from "./asignarRA.shared";
 
 interface UseAsignarRAFiltersParams {
-  cyclesSource: CicloDemoRecord[];
+  cyclesSource: MeasurementCycleRecord[];
+  academicCatalogs: CicloCatalogs;
   resetFeedback: () => void;
 }
 
-export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarRAFiltersParams) {
+export function useAsignarRAFilters({ cyclesSource, academicCatalogs, resetFeedback }: UseAsignarRAFiltersParams) {
   const [selectedSeccionalId, setSelectedSeccionalId] = useState(() => currentUser.scope.seccionalId ?? "");
   const [selectedFacultadId, setSelectedFacultadId] = useState(() => currentUser.scope.facultadId ?? "");
   const [selectedProgramId, setSelectedProgramId] = useState(
@@ -35,7 +37,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
       academicCatalogs.seccionales
         .filter((seccional) => (currentUser.scope.seccionalId ? seccional.id === currentUser.scope.seccionalId : true))
         .map((seccional) => ({ label: seccional.nombre, value: seccional.id })),
-    [],
+    [academicCatalogs.seccionales],
   );
 
   const facultadOptions = useMemo(
@@ -48,7 +50,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
           return true;
         })
         .map((facultad) => ({ label: facultad.nombre, value: facultad.id })),
-    [selectedSeccionalId],
+    [academicCatalogs.facultades, selectedSeccionalId],
   );
 
   const programOptions = useMemo(() => {
@@ -62,7 +64,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
         return true;
       })
       .map((program) => ({ label: program.nombre, value: program.id }));
-  }, [scopedProgramId, selectedFacultadId, selectedSeccionalId]);
+  }, [academicCatalogs.programas, scopedProgramId, selectedFacultadId, selectedSeccionalId]);
 
   const planOptions = useMemo(() => {
     return academicCatalogs.planes
@@ -72,7 +74,7 @@ export function useAsignarRAFilters({ cyclesSource, resetFeedback }: UseAsignarR
         return true;
       })
       .map((plan) => ({ label: plan.estado === "inactivo" ? `${plan.nombre} (Inactivo)` : plan.nombre, value: plan.id }));
-  }, [scopedPlanId, selectedProgramId]);
+  }, [academicCatalogs.planes, scopedPlanId, selectedProgramId]);
 
   const cycles = useMemo(() => {
     return cyclesSource.filter((cycle) => {

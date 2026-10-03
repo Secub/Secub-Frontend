@@ -1,5 +1,4 @@
 import { httpClient } from '../../infrastructure/api';
-import { sessionStorageClient } from '../../shared/browser';
 
 export interface AuthContext {
   context_id: string;
@@ -28,21 +27,14 @@ export interface AuthSession {
   selected_context_id: string | null;
 }
 
-export const AUTH_SESSION_STORAGE_KEY = 'secub:auth-session:v1';
+let currentSession: AuthSession | null = null;
 
 export function persistAuthSession(session: AuthSession): void {
-  sessionStorageClient.set(AUTH_SESSION_STORAGE_KEY, JSON.stringify(session));
+  currentSession = session;
 }
 
 export function getStoredAuthSession(): AuthSession | null {
-  const raw = sessionStorageClient.get(AUTH_SESSION_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AuthSession;
-  } catch {
-    sessionStorageClient.remove(AUTH_SESSION_STORAGE_KEY);
-    return null;
-  }
+  return currentSession;
 }
 
 export async function fetchAuthSession(): Promise<AuthSession> {
@@ -61,5 +53,5 @@ export async function selectAuthContext(contextId: string): Promise<AuthSession>
 
 export async function logoutAuthSession(): Promise<void> {
   await httpClient.post<void>('/auth/logout');
-  sessionStorageClient.remove(AUTH_SESSION_STORAGE_KEY);
+  currentSession = null;
 }

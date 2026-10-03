@@ -2,7 +2,7 @@ import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../components/ui";
 import type {
   AsignacionRaRecord,
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   MedicionRaRecord,
 } from "../AsignarRA.types";
 import {
@@ -13,7 +13,7 @@ import {
 } from "../AsignarRA.utils";
 
 interface AsignarRACompetenceAccordionProps {
-  competencia: CompetenciaRaDemoRecord;
+  competencia: CompetenceRaRecord;
   competenciaIndex: number;
   isExpanded: boolean;
   selectedRaIds: string[];
@@ -22,7 +22,7 @@ interface AsignarRACompetenceAccordionProps {
   getRaAssignment: (competenciaId: string, raId: string) => AsignacionRaRecord | undefined;
   isRaSelected: (competenciaId: string, raId: string) => boolean;
   onToggleAccordion: (competenciaId: string) => void;
-  onToggleRa: (competencia: CompetenciaRaDemoRecord, raId?: string) => void;
+  onToggleRa: (competencia: CompetenceRaRecord, raId?: string) => void;
 }
 
 export function AsignarRACompetenceAccordion({

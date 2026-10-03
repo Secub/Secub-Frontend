@@ -1,6 +1,6 @@
 import { httpClient } from "../infrastructure/api";
 import type {
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CursoAsis,
   MapeoCompetenciasRecord,
   NivelCompromisoItem,
@@ -26,7 +26,7 @@ export interface CompetencyMappingContext {
     totalSemestres: number;
   }>;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
 }
 
 export function getCompetencyMappingContext(signal?: AbortSignal) {

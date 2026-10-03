@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { mockBackend } from "../../../../services/mockBackend";
-import { getCurrentCicloUser } from "../ciclo.mock";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
 import { getCyclePermissions } from "../../../../config/access/permissions";
 import type { CicloCatalogs, CicloEnriched, CicloFilters as CicloFiltersState, CicloFormState, CicloMedicion } from "../ciclo.types";
 import { createCycle, deleteCycle, getCycleContext, listCycles, updateCycle } from "../../../../services/cycles";
-import { listCompetencyMappings } from "../../../../services/competencyMappings";
 import { showNotification } from "../../../../shared/feedback";
 import {
   INITIAL_CICLO_FILTERS,
@@ -15,7 +13,7 @@ import {
   mapCycleToForm,
 } from "../ciclo.utils";
 
-const user = getCurrentCicloUser();
+const user = getCurrentUser();
 const EMPTY_CATALOGS: CicloCatalogs = {
   seccionales: [],
   facultades: [],
@@ -70,10 +68,9 @@ export function useCicloPage() {
     setLoadError(null);
     setMappingReady(false);
     try {
-      const [context, records, mappings] = await Promise.all([
+      const [context, records] = await Promise.all([
         getCycleContext(signal),
         listCycles(signal),
-        listCompetencyMappings(signal),
       ]);
       if (signal?.aborted) return;
       const { scope } = context;
@@ -92,14 +89,6 @@ export function useCicloPage() {
       });
       setCycles(records);
       setMappingReady(context.mapeoFinalizado);
-      mappings.forEach((mapping) => {
-        try { mockBackend.upsert("mapeosCompetencias", mapping, user); }
-        catch { /* El backend conserva la fuente de verdad. */ }
-      });
-      records.forEach((record) => {
-        try { mockBackend.upsert("ciclosMedicion", record, user); }
-        catch { /* El backend conserva la fuente de verdad. */ }
-      });
     } catch (reason) {
       if (signal?.aborted) return;
       setLoadError(reason instanceof Error ? reason.message : "No fue posible cargar los ciclos de medición.");
@@ -186,8 +175,6 @@ export function useCicloPage() {
         const exists = current.some((cycle) => cycle.id === saved.id);
         return exists ? current.map((cycle) => cycle.id === saved.id ? saved : cycle) : [saved, ...current];
       });
-      try { mockBackend.upsert("ciclosMedicion", saved, user); }
-      catch { /* El backend conserva la fuente de verdad. */ }
       setSavedMessage(
         modalMode === "edit"
           ? "El ciclo se actualizó correctamente con la selección de cursos de Síntesis."
@@ -223,8 +210,6 @@ export function useCicloPage() {
     try {
       await deleteCycle(cycleToDelete.id);
       setCycles((current) => current.filter((cycle) => cycle.id !== cycleToDelete.id));
-      try { mockBackend.remove<CicloMedicion>("ciclosMedicion", cycleToDelete.id, user); }
-      catch { /* El registro ya fue eliminado del backend. */ }
       setSavedMessage("El ciclo fue eliminado correctamente.");
       setCycleToDelete(null);
     } catch (reason) {

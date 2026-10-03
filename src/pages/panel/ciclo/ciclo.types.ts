@@ -58,6 +58,8 @@ export interface CursoSintesis {
   programaId: string;
   planId: string;
   docente: string;
+  docenteId?: string;
+  docenteEmail?: string;
   tipoVinculacion: string;
   competenciasAsignadas: number;
   nivelCompromiso: NivelCompromiso;

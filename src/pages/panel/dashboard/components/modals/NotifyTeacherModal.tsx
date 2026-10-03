@@ -15,8 +15,8 @@ export default function NotifyTeacherModal({
   return (
     <Modal
       open={Boolean(notifyCourse)}
-      title="Preparar correo recordatorio"
-      description="Esta acción prepara una solicitud simulada. Luego se conectará con backend y directorio institucional."
+      title="Enviar correo recordatorio"
+      description="SECUB registrará la notificación y enviará el recordatorio al correo institucional del docente de tiempo completo."
       size="md"
       onClose={onClose}
       footer={
@@ -25,7 +25,7 @@ export default function NotifyTeacherModal({
             Cancelar
           </Button>
           <Button variant="primary" onClick={onConfirm}>
-            Preparar recordatorio
+            Enviar recordatorio
           </Button>
         </div>
       }
@@ -33,7 +33,7 @@ export default function NotifyTeacherModal({
       {notifyCourse ? (
         <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5">
           <p className="text-sm leading-6 text-[var(--color-gray-3)]">
-            Se preparará un recordatorio para <strong>{notifyCourse.teacherName}</strong> por el curso{" "}
+            Se enviará un recordatorio para <strong>{notifyCourse.teacherName}</strong> por el curso{" "}
             <strong>{notifyCourse.name}</strong>, que tiene{" "}
             <strong>{notifyCourse.pendingRa}</strong> RA pendientes de medición.
           </p>

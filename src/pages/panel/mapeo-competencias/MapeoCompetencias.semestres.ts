@@ -1,7 +1,7 @@
 import { NIVELES_COMPROMISO, NUCLEOS, SAFE_FALLBACK_TOTAL_SEMESTERS } from "./MapeoCompetencias.constants";
 import type {
   BadgeVariant,
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CursoAsis,
   MapeoCompetenciasEstado,
   MapeoCompetenciasRecord,
@@ -130,7 +130,7 @@ export function readNivelesFromRecord(record?: MapeoCompetenciasRecord | null) {
 export function hasSemesterAssignments(
   semester: number,
   coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   nivelesDraft: NivelesDraft,
 ) {
   const cursos = coursesBySemester[semester] ?? [];
@@ -144,7 +144,7 @@ export function hasSemesterAssignments(
 export function isSemesterFlowComplete(
   semester: number,
   coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   nivelesDraft: NivelesDraft,
   isConfirmed = false,
 ) {
@@ -213,7 +213,7 @@ export function serializeSemestresClasificados(
 export function buildSemestresResumen(
   record: MapeoCompetenciasRecord | undefined | null,
   cursos: CursoAsis[],
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   total = SAFE_FALLBACK_TOTAL_SEMESTERS,
 ): SemestreResumen[] {
   const semestres = record?.semestresClasificados ?? serializeSemestresClasificados(buildEmptyNucleosDraft(total), record?.planId ?? "", total);
@@ -248,7 +248,7 @@ export function buildSemestresResumen(
 
 export function hasCompleteLevelMapping(
   cursos: CursoAsis[],
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   nivelesDraft: NivelesDraft,
 ) {
   if (!cursos.length || !competencias.length) return false;

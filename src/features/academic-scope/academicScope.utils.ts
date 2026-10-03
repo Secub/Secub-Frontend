@@ -1,4 +1,3 @@
-import { secubLugares, type SecubLugarCatalog } from "../../data/secubAcademicPrograms";
 import type {
   AcademicScopeCatalogs,
   AcademicScopeErrors,
@@ -7,7 +6,7 @@ import type {
 
 export function getDefaultLugarBySeccional(
   seccionalId: string,
-  lugares: readonly SecubLugarCatalog[] = secubLugares,
+  lugares: readonly { id: string; seccionalId: string }[] = [],
 ) {
   if (!seccionalId) return "";
   return lugares.find((lugar) => lugar.seccionalId === seccionalId)?.id ?? "";

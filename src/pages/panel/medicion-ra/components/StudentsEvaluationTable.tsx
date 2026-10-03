@@ -1,7 +1,7 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useMemo, useState, type ChangeEvent } from "react";
 import { IconButton, Modal, Table, type TableColumn } from "../../../../components/ui";
-import { performanceLevels } from "../medicion-ra.mock";
+import { performanceLevels } from "../constants/medicionRA.constants";
 import { getLevelLabel } from "../medicion-ra.utils";
 import type {
   Competence,

@@ -2,14 +2,12 @@ import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
 
-import { mockBackend } from "../../../../services/mockBackend";
 import { deleteCompetencyMapping } from "../../../../services/competencyMappings";
 import { canManageMapeo, getAcademicModulePermissions } from "../../../../config/access/permissions";
 import type { SecubRole } from "../../../../config/access/roles";
 import type {
   MapeoCompetenciasEnriched,
   MapeoCompetenciasFilters as FiltersState,
-  MapeoCompetenciasRecord,
   SummaryMetric,
 } from "../MapeoCompetencias.types";
 import {
@@ -322,8 +320,6 @@ const buildExportRecords = (): ExportRecord[] => {
     }
 
     await deleteCompetencyMapping(recordToDelete.planId);
-    try { mockBackend.remove<MapeoCompetenciasRecord>("mapeosCompetencias", recordToDelete.id, currentUser); }
-    catch { /* El registro ya fue eliminado del backend. */ }
     await refresh();
     setRecordToDelete(null);
   };

@@ -46,3 +46,20 @@ export function updateCycle(cycleId: string, input: CycleInput) {
 export function deleteCycle(cycleId: string) {
   return httpClient.delete<void>(`/cycles/${encodeURIComponent(cycleId)}`);
 }
+
+export interface CycleImprovementPlan {
+  id: string;
+  cycleId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function getCycleImprovementPlan(cycleId: string) {
+  return httpClient.get<CycleImprovementPlan | null>(`/cycles/${encodeURIComponent(cycleId)}/improvement-plan`);
+}
+
+export function saveCycleImprovementPlan(cycleId: string, input: { title: string; description: string }) {
+  return httpClient.put<CycleImprovementPlan>(`/cycles/${encodeURIComponent(cycleId)}/improvement-plan`, input);
+}

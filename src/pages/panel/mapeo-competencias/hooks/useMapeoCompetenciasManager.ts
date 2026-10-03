@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { mockBackend } from "../../../../services/mockBackend";
 import { saveCompetencyMapping } from "../../../../services/competencyMappings";
 import { showNotification } from "../../../../shared/feedback";
 import type {
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CurrentUser,
   CursoAsis,
   MapeoCompetenciasRecord,
@@ -33,13 +32,13 @@ interface UseMapeoCompetenciasManagerParams {
   programaId: string;
   planId: string;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
   canManage: boolean;
   totalSemestres: number;
 }
 
 export function useMapeoCompetenciasManager({
-  currentUser,
+  currentUser: _currentUser,
   existingRecord,
   seccionalId,
   facultadId,
@@ -204,8 +203,6 @@ export function useMapeoCompetenciasManager({
         nivelesCompromiso: nextRecord.nivelesCompromiso,
         finalizar,
       });
-      try { mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", savedRecord, currentUser); }
-      catch { /* El backend conserva la fuente de verdad. */ }
       setFeedback(null);
 
       if (notifySuccess) {
@@ -272,7 +269,7 @@ export function useMapeoCompetenciasManager({
     if (!cursos.length) {
       setFeedback({
         type: "warning",
-        message: "No hay cursos cargados para este plan en ASIS/mock. No es posible finalizar el mapeo.",
+        message: "El servicio académico provisional no devolvió cursos para este plan. No es posible finalizar el mapeo.",
       });
       return null;
     }

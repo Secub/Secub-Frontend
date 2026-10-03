@@ -87,6 +87,10 @@ export async function request<T>(path: string, options: HttpRequestOptions = {})
     });
   }
 
+  if (method !== "GET" && typeof window !== "undefined") {
+    window.dispatchEvent(new Event("secub:workflow-changed"));
+  }
+
   return payload as T;
 }
 

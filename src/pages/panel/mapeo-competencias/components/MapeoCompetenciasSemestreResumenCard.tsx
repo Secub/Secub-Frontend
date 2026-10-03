@@ -62,8 +62,8 @@ export default function MapeoCompetenciasSemestreResumenCard({
         {semestre.cursos.length === 0 ? (
           <p className="rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] p-3 text-sm text-[var(--color-gray-3)]">
             {semestre.nucleo
-              ? "Semestre clasificado sin cursos cargados en ASIS/mock. No queda marcado como en progreso."
-              : "No hay cursos cargados para este semestre en ASIS/mock."}
+              ? "Semestre clasificado sin cursos devueltos por el servicio académico. No queda marcado como en progreso."
+              : "El servicio académico no devolvió cursos para este semestre."}
           </p>
         ) : semestre.niveles.length === 0 ? (
           <p className="rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] p-3 text-sm text-[var(--color-gray-3)]">

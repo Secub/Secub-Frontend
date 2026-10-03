@@ -1,5 +1,5 @@
 import { httpClient } from "../infrastructure/api";
-import type { MedicionRaDemoState } from "../pages/panel/medicion-ra/types/medicionRA.persistence.types";
+import type { CourseMeasurementState } from "../pages/panel/medicion-ra/types/medicionRA.persistence.types";
 
 export interface MeasurementContextCourse {
   id: string;
@@ -11,6 +11,7 @@ export interface MeasurementContextCourse {
   programaId: string;
   planId: string;
   semester: number;
+  credits: number;
   teacherId: string;
   teacherName: string;
   teacherEmail: string;
@@ -23,7 +24,19 @@ export interface MeasurementContextCourse {
   totalRa: number;
   evaluatedRa: number;
   measurementCompleted: boolean;
-  results: [];
+  results: Array<{
+    competenciaId?: string;
+    raId: string;
+    totalStudents: number;
+    approvedStudents: number;
+    notApprovedStudents: number;
+    instrumentFile: string;
+    instrumentDescription?: string;
+    evidenceFile: string;
+    improvementPlanFile?: string;
+    improvementPlanSummary?: string;
+  }>;
+  students: Array<{ id: string; code: string; name: string; email: string }>;
 }
 
 export interface MeasurementContext {
@@ -59,6 +72,7 @@ export interface MeasurementContext {
     fechaInicio: string;
     fechaFin: string;
     cursoIds: string[];
+    hasImprovementPlan?: boolean;
   }>;
   courses: MeasurementContextCourse[];
 }
@@ -71,7 +85,7 @@ export interface MeasurementAccess {
   teacherName: string;
   teacherEmail: string;
   contractType: string;
-  measurement: MedicionRaDemoState | null;
+  measurement: CourseMeasurementState | null;
 }
 
 export function getMeasurementContext(signal?: AbortSignal) {
@@ -88,9 +102,9 @@ export function getMeasurementAccess(cycleId: string, courseId: string, signal?:
 export function saveCourseMeasurement(
   cycleId: string,
   courseId: string,
-  measurement: MedicionRaDemoState,
+  measurement: CourseMeasurementState,
 ) {
-  return httpClient.put<MedicionRaDemoState>(
+  return httpClient.put<CourseMeasurementState>(
     `/ra-assignments/cycles/${encodeURIComponent(cycleId)}/courses/${encodeURIComponent(courseId)}/measurement`,
     measurement,
   );

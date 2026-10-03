@@ -4,8 +4,8 @@ import { deleteCourseRAAssignments, saveCourseRAAssignments } from "../../../../
 import type { CursoSintesis } from "../../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
-  CicloDemoRecord,
-  CompetenciaRaDemoRecord,
+  MeasurementCycleRecord,
+  CompetenceRaRecord,
   DraftSelections,
   MedicionRaRecord,
 } from "../AsignarRA.types";
@@ -24,10 +24,10 @@ interface UseAsignarRAActionsParams {
   selectedPlanId: string;
   courses: CursoSintesis[];
   pendingCourseIds: string[];
-  selectedCycle?: CicloDemoRecord;
+  selectedCycle?: MeasurementCycleRecord;
   selectedCourse?: CursoSintesis;
   selectedCourseAssignments: AsignacionRaRecord[];
-  courseCompetencias: CompetenciaRaDemoRecord[];
+  courseCompetencias: CompetenceRaRecord[];
   measurements: MedicionRaRecord[];
   coursesRef: RefObject<HTMLDivElement | null>;
   assignmentPanelRef: RefObject<HTMLDivElement | null>;
@@ -158,7 +158,7 @@ export function useAsignarRAActions({
     });
   };
 
-  const toggleRaSelection = (competencia: CompetenciaRaDemoRecord, raId?: string) => {
+  const toggleRaSelection = (competencia: CompetenceRaRecord, raId?: string) => {
     if (!canManage || !raId) return;
     resetFeedback();
 

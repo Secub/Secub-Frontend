@@ -2,8 +2,8 @@ import { Badge } from "../../../../components/ui";
 import type { CursoSintesis } from "../../ciclo/ciclo.types";
 import type {
   AsignacionRaRecord,
-  CicloDemoRecord,
-  CompetenciaRaDemoRecord,
+  MeasurementCycleRecord,
+  CompetenceRaRecord,
   CourseAssignmentStatus,
   DraftSelections,
   MedicionRaRecord,
@@ -14,9 +14,9 @@ import { AsignarRAEmptyState } from "./AsignarRAEmptyState";
 
 interface AsignarRACourseDetailProps {
   selectedCourse?: CursoSintesis;
-  selectedCycle?: CicloDemoRecord;
+  selectedCycle?: MeasurementCycleRecord;
   selectedCourseAssignments: AsignacionRaRecord[];
-  courseCompetencias: CompetenciaRaDemoRecord[];
+  courseCompetencias: CompetenceRaRecord[];
   draftSelections: DraftSelections;
   expandedCompetenciaIds: string[];
   measurements: MedicionRaRecord[];
@@ -27,7 +27,7 @@ interface AsignarRACourseDetailProps {
   onBackToCourses: () => void;
   onDelete: () => void;
   onToggleAccordion: (competenciaId: string) => void;
-  onToggleRa: (competencia: CompetenciaRaDemoRecord, raId?: string) => void;
+  onToggleRa: (competencia: CompetenceRaRecord, raId?: string) => void;
   getRaAssignment: (competenciaId: string, raId: string) => AsignacionRaRecord | undefined;
   isRaSelected: (competenciaId: string, raId: string) => boolean;
 }
