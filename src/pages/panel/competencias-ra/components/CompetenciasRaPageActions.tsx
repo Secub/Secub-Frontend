@@ -5,6 +5,8 @@ import type { CompetenciasRaEnriched } from "../CompetenciasRa.types";
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
 interface CompetenciasRaPageActionsProps {
   permissions: AcademicModulePermissions;
+  canCreate: boolean;
+  createDisabledReason: string;
   filteredRecords: CompetenciasRaEnriched[];
   onCreate: () => void;
   onExport: (format: "pdf" | "excel") => void;
@@ -12,6 +14,8 @@ interface CompetenciasRaPageActionsProps {
 
 export default function CompetenciasRaPageActions({
   permissions,
+  canCreate,
+  createDisabledReason,
   filteredRecords,
   onCreate,
   onExport,
@@ -25,7 +29,8 @@ export default function CompetenciasRaPageActions({
           variant="primary"
           leftIcon={<ActionIcon name="add" />}
           onClick={onCreate}
-          title="Crear una nueva competencia"
+          disabled={!canCreate}
+          title={canCreate ? "Crear una nueva competencia" : createDisabledReason}
         >
           Nueva competencia
         </Button>

@@ -20,6 +20,10 @@ export default defineConfig(({ command }) => ({
         target: "http://localhost:3000",
         changeOrigin: true,
       },
+      "/auth": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
     },
   },
   build: {
@@ -27,9 +31,7 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       output: {
         // Split stable vendors into their own long-cached chunks so the app
-        // shell streams and they survive across deploys. The dynamically
-        // imported @react-pdf/renderer and exceljs are left to default
-        // splitting so they stay out of the eager path.
+        // shell streams and they survive across deploys.
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id))
@@ -48,17 +50,12 @@ export default defineConfig(({ command }) => ({
   },
   optimizeDeps: {
     // Prebundle the heavy deps up front instead of discovering them
-    // mid-session (which forces a full-page reload in dev). @react-pdf and
-    // exceljs must stay prebundled — their CommonJS deps (base64-js, …) break
-    // when served unbundled, even though the app only reaches them via
-    // dynamic import().
+    // mid-session (which forces a full-page reload in dev).
     include: [
       "react",
       "react-dom",
       "react-dom/client",
       "motion/react",
-      "@react-pdf/renderer",
-      "exceljs",
     ],
   },
   plugins: [

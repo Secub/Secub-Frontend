@@ -1,27 +1,11 @@
 import { useState } from "react";
-import { mockBackend } from "../../../../services/mockBackend";
-import type { DashboardUser, EnrichedCycle } from "../dashboard.types";
-
-interface DashboardImprovementPlanRecord {
-  id: string;
-  cicloId: string;
-  programaId: string;
-  planId: string;
-  directorId: string;
-  userId: string;
-  descripcion: string;
-  titulo?: string;
-  fechaCreacion: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { getCycleImprovementPlan, saveCycleImprovementPlan } from "../../../../services/cycles";
+import type { EnrichedCycle } from "../dashboard.types";
 
 export function useDashboardImprovementPlan({
   isDirector,
-  user,
 }: {
   isDirector: boolean;
-  user: DashboardUser;
 }) {
   const [improvementCycle, setImprovementCycle] = useState<EnrichedCycle | null>(null);
   const [improvementDraft, setImprovementDraft] = useState("");
@@ -31,16 +15,16 @@ export function useDashboardImprovementPlan({
   const handleImprovementPlan = (cycle: EnrichedCycle) => {
     if (!isDirector || cycle.progress < 100) return;
 
-    const existingPlan = mockBackend.getById<DashboardImprovementPlanRecord>(
-      "planesMejora",
-      `plan-mejora-${cycle.id}`,
-      user,
-    );
-
     setImprovementCycle(cycle);
-    setImprovementDraft(existingPlan?.descripcion ?? "");
-    setImprovementTitle(existingPlan?.titulo ?? "");
+    setImprovementDraft("");
+    setImprovementTitle("");
     setImprovementError("");
+    void getCycleImprovementPlan(cycle.id)
+      .then((plan) => {
+        setImprovementDraft(plan?.description ?? "");
+        setImprovementTitle(plan?.title ?? "");
+      })
+      .catch((error: unknown) => setImprovementError(error instanceof Error ? error.message : "No fue posible cargar el plan de mejora."));
   };
 
   const handleCloseImprovementPlan = () => {
@@ -65,34 +49,12 @@ export function useDashboardImprovementPlan({
       return;
     }
 
-    const now = new Date().toISOString();
-    const existingPlan = mockBackend.getById<DashboardImprovementPlanRecord>(
-      "planesMejora",
-      `plan-mejora-${improvementCycle.id}`,
-      user,
-    );
-
-    // TODO backend: reemplazar este registro demo por el CRUD real de planes de mejora
-    // conectado al ciclo, programa, plan y director institucional autenticado.
-    mockBackend.upsert<DashboardImprovementPlanRecord>(
-      "planesMejora",
-      {
-        id: `plan-mejora-${improvementCycle.id}`,
-        cicloId: improvementCycle.id,
-        programaId: improvementCycle.programaId,
-        planId: improvementCycle.planId,
-        directorId: user.id,
-        userId: user.id,
-        descripcion: description,
-        titulo: improvementTitle?.trim() ?? "",
-        fechaCreacion: existingPlan?.fechaCreacion ?? now,
-        createdAt: existingPlan?.createdAt ?? now,
-        updatedAt: now,
-      },
-      user,
-    );
-
-    handleCloseImprovementPlan();
+    void saveCycleImprovementPlan(improvementCycle.id, {
+      title: improvementTitle.trim(),
+      description,
+    })
+      .then(handleCloseImprovementPlan)
+      .catch((error: unknown) => setImprovementError(error instanceof Error ? error.message : "No fue posible guardar el plan de mejora."));
   };
 
   return {

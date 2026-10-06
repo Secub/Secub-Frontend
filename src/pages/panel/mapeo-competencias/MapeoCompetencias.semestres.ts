@@ -1,7 +1,7 @@
 import { NIVELES_COMPROMISO, NUCLEOS, SAFE_FALLBACK_TOTAL_SEMESTERS } from "./MapeoCompetencias.constants";
 import type {
   BadgeVariant,
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CursoAsis,
   MapeoCompetenciasEstado,
   MapeoCompetenciasRecord,
@@ -130,7 +130,7 @@ export function readNivelesFromRecord(record?: MapeoCompetenciasRecord | null) {
 export function hasSemesterAssignments(
   semester: number,
   coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   nivelesDraft: NivelesDraft,
 ) {
   const cursos = coursesBySemester[semester] ?? [];
@@ -144,7 +144,7 @@ export function hasSemesterAssignments(
 export function isSemesterFlowComplete(
   semester: number,
   coursesBySemester: Record<number, CursoAsis[]>,
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   nivelesDraft: NivelesDraft,
   isConfirmed = false,
 ) {
@@ -157,6 +157,36 @@ export function shouldRequireSemesterConfirmation(isConfirmed = false) {
 
 export function areAllSemestersClassified(draft: NucleosDraft, total = SAFE_FALLBACK_TOTAL_SEMESTERS) {
   return buildSemesterNumbers(total).every((semester) => Boolean(draft[semester]));
+}
+
+const nucleoOrder: Record<NucleoFormacion, number> = {
+  fundamentacion: 0,
+  profesionalizacion: 1,
+  sintesis: 2,
+};
+
+export function canAssignNucleo(draft: NucleosDraft, semester: number, nucleo: NucleoFormacion) {
+  const nextOrder = nucleoOrder[nucleo];
+  const earlier = Object.entries(draft).some(([number, value]) =>
+    Number(number) < semester && value !== null && nucleoOrder[value] > nextOrder,
+  );
+  const later = Object.entries(draft).some(([number, value]) =>
+    Number(number) > semester && value !== null && nucleoOrder[value] < nextOrder,
+  );
+  if (earlier || later) return false;
+
+  const previous = draft[semester - 1];
+  const next = draft[semester + 1];
+  return (!previous || nextOrder - nucleoOrder[previous] <= 1)
+    && (!next || nucleoOrder[next] - nextOrder <= 1);
+}
+
+export function isNucleoSequenceValid(draft: NucleosDraft, total = SAFE_FALLBACK_TOTAL_SEMESTERS) {
+  return buildSemesterNumbers(total).every((semester) => {
+    const nucleo = draft[semester];
+    if (!nucleo) return true;
+    return canAssignNucleo(draft, semester, nucleo);
+  });
 }
 
 export function allNucleosRepresented(draft: NucleosDraft): boolean {
@@ -183,7 +213,7 @@ export function serializeSemestresClasificados(
 export function buildSemestresResumen(
   record: MapeoCompetenciasRecord | undefined | null,
   cursos: CursoAsis[],
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   total = SAFE_FALLBACK_TOTAL_SEMESTERS,
 ): SemestreResumen[] {
   const semestres = record?.semestresClasificados ?? serializeSemestresClasificados(buildEmptyNucleosDraft(total), record?.planId ?? "", total);
@@ -218,7 +248,7 @@ export function buildSemestresResumen(
 
 export function hasCompleteLevelMapping(
   cursos: CursoAsis[],
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   nivelesDraft: NivelesDraft,
 ) {
   if (!cursos.length || !competencias.length) return false;

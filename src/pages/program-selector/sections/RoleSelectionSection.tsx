@@ -1,23 +1,18 @@
 import { GoChevronLeft } from "react-icons/go";
 import LogoSECUB from "../../../assets/logos/logotipo_ConUSB.png";
 import { Button } from "../../../components/ui";
-import {
-  SECUB_ROLE_LABELS,
-  SECUB_ROLE_ORDER,
-  type SecubRole,
-} from "../../../config/access/roles";
+import { SECUB_ROLE_LABELS, type SecubRole } from "../../../config/access/roles";
 
 interface RoleSelectionSectionProps {
+  roles: SecubRole[];
+  userName: string;
   onSelectRole: (role: SecubRole) => void;
   onBack: () => void;
 }
 
-const selectableRoles = SECUB_ROLE_ORDER.map((role) => ({
-  role,
-  label: SECUB_ROLE_LABELS[role],
-}));
-
 export default function RoleSelectionSection({
+  roles,
+  userName,
   onSelectRole,
   onBack,
 }: RoleSelectionSectionProps) {
@@ -51,22 +46,32 @@ export default function RoleSelectionSection({
           Selecciona tu cargo
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-gray-3)] sm:text-base">
-          Selecciona el cargo con el que vas a ingresar a SECUB para continuar con tu programa académico.
+          {userName ? `Hola, ${userName}. ` : ""}
+          Elige el cargo con el que vas a ingresar a SECUB.
         </p>
       </div>
 
       <div className="mt-5 flex flex-wrap justify-center gap-2.5" aria-label="Cargos disponibles">
-        {selectableRoles.map((item) => (
-          <Button
-            key={item.role}
-            variant="accent"
-            size="md"
-            className="w-full rounded-full sm:w-[calc(50%-0.3125rem)]"
-            onClick={() => onSelectRole(item.role)}
+        {roles.length === 0 ? (
+          <div
+            role="status"
+            className="w-full rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5 text-center text-sm text-[var(--color-gray-3)]"
           >
-            {item.label}
-          </Button>
-        ))}
+            Tu sesión no tiene cargos disponibles.
+          </div>
+        ) : (
+          roles.map((role) => (
+            <Button
+              key={role}
+              variant="accent"
+              size="md"
+              className="w-full rounded-full sm:w-[calc(50%-0.3125rem)]"
+              onClick={() => onSelectRole(role)}
+            >
+              {SECUB_ROLE_LABELS[role]}
+            </Button>
+          ))
+        )}
       </div>
     </section>
   );

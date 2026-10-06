@@ -1,6 +1,61 @@
 import { useEffect, useMemo, useState } from "react";
+import { showNotification } from "../../../../shared/feedback";
 import type { CompetenceCatalog, DashboardCatalogs, EnrichedCourse, EnrichedCycle } from "../dashboard.types";
-import { getAvailableCompetences, simulateReportDownload } from "../dashboard.utils";
+import { getAvailableCompetences, getRaResultsForCourses } from "../dashboard.utils";
+
+interface DashboardReportRow {
+  course: string;
+  teacher: string;
+  competence: string;
+  learningOutcome: string;
+  students: string;
+  compliance: string;
+  status: string;
+}
+
+function reportRows(courses: EnrichedCourse[], catalogs: DashboardCatalogs, competenceIds?: Set<string>) {
+  return getRaResultsForCourses(courses, catalogs)
+    .filter((result) => !competenceIds || competenceIds.has(result.competenceId))
+    .map((result): DashboardReportRow => ({
+      course: `${result.courseCode} · ${result.courseName}`,
+      teacher: result.teacherName,
+      competence: `${result.competenceCode} · ${result.competenceName}`,
+      learningOutcome: `${result.raCode} · ${result.raName}`,
+      students: result.hasMeasurement
+        ? `${result.approvedStudents}/${result.totalStudents} aprobados`
+        : "Pendiente de medición",
+      compliance: result.hasMeasurement ? `${result.compliance}%` : "Pendiente",
+      status: result.hasMeasurement
+        ? (result.reachedTarget ? "Cumple" : "No cumple")
+        : "Pendiente",
+    }));
+}
+
+async function downloadCyclePdf(
+  cycle: EnrichedCycle,
+  courses: EnrichedCourse[],
+  catalogs: DashboardCatalogs,
+  competenceIds?: Set<string>,
+) {
+  const rows = reportRows(courses, catalogs, competenceIds);
+  if (rows.length === 0) throw new Error("El ciclo no tiene resultados disponibles para las competencias seleccionadas.");
+  const { downloadPdf } = await import("../../../../components/PdfTemplate");
+  await downloadPdf<DashboardReportRow>({
+    title: `Reporte de medición · ${cycle.name}`,
+    subtitle: `${cycle.programaName} · ${cycle.planName} · Periodo ${cycle.period}`,
+    footerText: "Generado por SECUB",
+    columns: [
+      { header: "Curso", widthPct: 20, accessor: (row) => row.course },
+      { header: "Docente", widthPct: 14, accessor: (row) => row.teacher },
+      { header: "Competencia", widthPct: 20, accessor: (row) => row.competence },
+      { header: "Resultado de aprendizaje", widthPct: 22, accessor: (row) => row.learningOutcome },
+      { header: "Estudiantes", widthPct: 10, accessor: (row) => row.students },
+      { header: "Cumplimiento", widthPct: 7, accessor: (row) => row.compliance },
+      { header: "Estado", widthPct: 7, accessor: (row) => row.status },
+    ],
+    records: rows,
+  }, `reporte-medicion-${cycle.period}.pdf`);
+}
 
 export function useDashboardReports({
   catalogs,
@@ -47,7 +102,10 @@ export function useDashboardReports({
     if (!isCycleClosed) return;
 
     if (isTeacher) {
-      simulateReportDownload(`Reporte individual docente - ${cycle.name}`);
+      const courses = scopedCourses.filter((course) => course.cycleId === cycle.id);
+      void downloadCyclePdf(cycle, courses, catalogs).catch((error: unknown) => {
+        showNotification(error instanceof Error ? error.message : "No fue posible generar el reporte.");
+      });
       return;
     }
 
@@ -63,10 +121,14 @@ export function useDashboardReports({
   };
 
   const handleDownloadConsolidatedReport = () => {
-    simulateReportDownload(
-      `Reporte consolidado ${reportCycle?.name ?? "sin ciclo"} - ${selectedReportCompetences.length} competencia(s)`,
-    );
-    setReportCycle(null);
+    if (!reportCycle) return;
+    const cycle = reportCycle;
+    const selected = new Set(selectedReportCompetences);
+    void downloadCyclePdf(cycle, reportCycleCourses, catalogs, selected)
+      .then(() => setReportCycle(null))
+      .catch((error: unknown) => {
+        showNotification(error instanceof Error ? error.message : "No fue posible generar el reporte consolidado.");
+      });
   };
 
   return {

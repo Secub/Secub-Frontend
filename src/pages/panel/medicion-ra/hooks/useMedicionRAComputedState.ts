@@ -15,7 +15,7 @@ import type {
   InstrumentByRa,
 } from "../medicion-ra.types";
 import { resolveMedicionRaContextForCourse } from "../utils/medicionRA.assignments";
-import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
+import { buildCourseMeasurementStateId } from "../utils/medicionRA.persistence";
 
 const EMPTY_COURSE: CourseRecord = {
   id: "",
@@ -72,9 +72,9 @@ export function useMedicionRAComputedState({
     [selectedCourse],
   );
 
-  const medicionRaDemoStateId = useMemo(
+  const courseMeasurementStateId = useMemo(
     () =>
-      buildMedicionRaDemoStateId({
+      buildCourseMeasurementStateId({
         userId,
         cicloId: medicionRaContext.cicloId,
         courseId: selectedCourse.id,
@@ -129,7 +129,7 @@ export function useMedicionRAComputedState({
   return {
     selectedCourse,
     medicionRaContext,
-    medicionRaDemoStateId,
+    courseMeasurementStateId,
     activeCompetence,
     activeCompetenceIndex,
     isLastCompetence,

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BackButton, PanelLayout } from "../../../components/panel";
+import { BackButton, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
@@ -13,7 +13,7 @@ import MeasurementSummaryCards, {
 } from "./components/MeasurementSummaryCards";
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
-import { simulateEvidenceDownload } from "./dashboard.utils";
+import { downloadEvidenceFile } from "./dashboard.utils";
 import { DASHBOARD_TOUR_IDS, DASHBOARD_TOUR_MARKERS, tourMarkerSelector } from "./dashboard.tour";
 import { useDashboardViewTours } from "./hooks/useDashboardViewTours";
 
@@ -51,7 +51,12 @@ export default function DashboardPage() {
     []
   );
 
-  const canShowTeacherTour = dashboard.isTeacher && dashboard.view === "control";
+  const canShowTeacherTour =
+    !dashboard.isLoading &&
+    !dashboard.loadError &&
+    dashboard.isTeacher &&
+    dashboard.view === "control" &&
+    dashboard.scopedCourses.length > 0;
 
   const { startTour: startTeacherTour } = useOnboardingTour({
     steps: teacherTourSteps,
@@ -146,6 +151,21 @@ export default function DashboardPage() {
         ? startViewTour
         : undefined;
 
+  if (dashboard.isLoading) {
+    return (
+      <PanelLayout currentStep="dashboard" title="Estado del ciclo" description="Seguimiento de ciclos, cursos y resultados de aprendizaje.">
+        <WorkflowStateCard title="Cargando estado del ciclo" description="Estamos consultando los ciclos y cursos registrados." />
+      </PanelLayout>
+    );
+  }
+
+  if (dashboard.loadError) {
+    return (
+      <PanelLayout currentStep="dashboard" title="Estado del ciclo" description="Seguimiento de ciclos, cursos y resultados de aprendizaje.">
+        <WorkflowStateCard variant="locked" title="No fue posible cargar el estado del ciclo" description={dashboard.loadError} />
+      </PanelLayout>
+    );
+  }
   if (dashboard.isTeacher && dashboard.scopedCourses.length === 0) {
     return (
       <PanelLayout
@@ -323,7 +343,7 @@ export default function DashboardPage() {
             selectedCompetenceId={dashboard.detailCompetenceId}
             onCourseChange={dashboard.selectDetailCourse}
             onCompetenceChange={dashboard.setDetailCompetenceId}
-            onDownloadFile={simulateEvidenceDownload}
+            onDownloadFile={downloadEvidenceFile}
             onOpenRaDetail={dashboard.setSelectedRa}
           />
         </div>
@@ -339,7 +359,7 @@ export default function DashboardPage() {
 
           <CompetenceResultsPanel
             results={dashboard.consolidatedResults}
-            onDownloadFile={simulateEvidenceDownload}
+            onDownloadFile={downloadEvidenceFile}
             onOpenRaDetail={dashboard.setSelectedRa}
           />
         </div>

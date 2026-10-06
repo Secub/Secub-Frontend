@@ -1,6 +1,6 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { Badge } from "../../../../components/ui";
-import { performanceLevels, TARGET_PERCENTAGE } from "../medicion-ra.mock";
+import { performanceLevels, TARGET_PERCENTAGE } from "../constants/medicionRA.constants";
 
 const toneClasses = {
   success: "border-[color:rgba(118,202,102,0.45)] bg-[color:rgba(118,202,102,0.12)]",

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Badge, Button, InfoModalTrigger, Select, Table, type TableColumn } from "../../../../components/ui";
 import type {
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CursoAsis,
   NivelCompromiso,
   NivelesDraft,
@@ -22,7 +22,7 @@ interface MapeoCompetenciasSemesterStepProps {
   totalSemestres: number;
   nucleo: NucleoFormacion | null;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
   nivelesDraft: NivelesDraft;
   disabled?: boolean;
   isConfirmed: boolean;
@@ -31,7 +31,7 @@ interface MapeoCompetenciasSemesterStepProps {
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;
 }
 
-function getCompetenciaDescription(competencia: CompetenciaRaDemoRecord) {
+function getCompetenciaDescription(competencia: CompetenceRaRecord) {
   const description = competencia.descripcion?.trim();
   const name = competencia.nombre?.trim();
 
@@ -152,7 +152,7 @@ export default function MapeoCompetenciasSemesterStep({
       ) : cursos.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-8 text-center">
           <p className="text-sm text-[var(--color-gray-3)]">
-            No hay cursos cargados para este semestre en ASIS/mock.
+            El servicio académico no devolvió cursos para este semestre.
           </p>
         </div>
       ) : competencias.length === 0 ? (
@@ -165,6 +165,7 @@ export default function MapeoCompetenciasSemesterStep({
         <Table
           columns={columns}
           data={cursos}
+          pagination={false}
           rowKey={(curso) => curso.id}
           minWidth={900}
           searchPlaceholder="Buscar curso por nombre, código o docente…"

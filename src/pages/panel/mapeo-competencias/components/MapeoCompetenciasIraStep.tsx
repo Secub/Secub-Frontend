@@ -5,7 +5,7 @@ import { FlowActionBar } from "../../../../components/panel";
 import { showNotification } from "../../../../shared/feedback";
 import MapeoCompetenciasCardInfoCompromiso from "./MapeoCompetenciasCardInfoCompromiso";
 import MapeoCompetenciasSemesterStep from "./MapeoCompetenciasSemesterStep";
-import type { CompetenciaRaDemoRecord, CursoAsis, NivelCompromiso, NivelesDraft, NucleoFormacion } from "../MapeoCompetencias.types";
+import type { CompetenceRaRecord, CursoAsis, NivelCompromiso, NivelesDraft, NucleoFormacion } from "../MapeoCompetencias.types";
 import { buildSemesterNumbers, getNucleoLabel, hasSemesterAssignments, isSemesterFlowComplete, shouldRequireSemesterConfirmation } from "../MapeoCompetencias.utils";
 
 interface MapeoCompetenciasIraStepProps {
@@ -16,7 +16,7 @@ interface MapeoCompetenciasIraStepProps {
   nucleosDraft: Record<number, NucleoFormacion | null>;
   nivelesDraft: NivelesDraft;
   coursesBySemester: Record<number, CursoAsis[]>;
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
   canManage: boolean;
   onActiveSemesterChange: (semester: number) => void;
   onNivelChange: (cursoId: string, competenciaId: string, nivel: NivelCompromiso | "") => void;

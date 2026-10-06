@@ -1,4 +1,4 @@
-import { TARGET_RA_PERCENTAGE } from "./dashboard-ra.mock";
+import { TARGET_RA_PERCENTAGE } from "./dashboard.constants";
 import type {
   CourseMeasurement,
   CourseSummary,
@@ -242,7 +242,7 @@ export function formatDate(date: string) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
-export function createMockDownload(fileName: string) {
+export function createBrowserDownload(fileName: string) {
   const blob = new Blob(
     [
       "SECUB - Simulación de descarga\n",

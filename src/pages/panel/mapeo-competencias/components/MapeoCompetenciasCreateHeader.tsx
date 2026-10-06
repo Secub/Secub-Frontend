@@ -1,11 +1,11 @@
-import type { CompetenciaRaDemoRecord, CursoAsis, PlanEstudio, ProgramaAcademico } from "../MapeoCompetencias.types";
+import type { CompetenceRaRecord, CursoAsis, PlanEstudio, ProgramaAcademico } from "../MapeoCompetencias.types";
 
 interface MapeoCompetenciasCreateHeaderProps {
   selectedPrograma?: ProgramaAcademico;
   selectedPlan?: PlanEstudio;
   totalSemestres: number;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
 }
 
 export default function MapeoCompetenciasCreateHeader({
@@ -25,13 +25,13 @@ export default function MapeoCompetenciasCreateHeader({
           {selectedPrograma?.nombre ?? "Sin programa"}
         </h2>
         <p className="mt-1 text-sm text-[var(--color-gray-3)]">
-          {selectedPlan?.nombre ?? "Sin plan"} · {totalSemestres} semestre(s) · {cursos.length} curso(s) ASIS/mock · {competencias.length} competencia(s) específica(s)
+          {selectedPlan?.nombre ?? "Sin plan"} · {totalSemestres} semestre(s) · {cursos.length} curso(s) del servicio académico · {competencias.length} competencia(s) específica(s)
         </p>
       </div>
 
       {cursos.length === 0 ? (
         <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--color-gray-3)]">
-          No hay cursos cargados para este plan en ASIS/mock. La clasificación de semestres puede continuar, pero el mapeo I-R-A-NA requiere cursos.
+          El servicio académico provisional no devolvió cursos para este plan. La clasificación de semestres puede continuar, pero el mapeo I-R-A-NA requiere cursos.
         </div>
       ) : null}
 

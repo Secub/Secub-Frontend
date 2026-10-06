@@ -1,475 +1,67 @@
-/**
- * PdfTemplate.tsx
- *
- * Plantilla reutilizable para generar PDFs desde el browser.
- * Usa: @react-pdf/renderer  →  npm install @react-pdf/renderer
- *
- * Uso rápido:
- *   import { downloadPdf } from "./PdfTemplate";
- *   await downloadPdf({ records, title, logoUrl });
- */
-
-// import React from "react";
-import {
-  pdf,
-  Document,
-  Page,
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  // Font,
-} from "@react-pdf/renderer";
+import { API_BASE_URL } from "../config/api.config";
 import { downloadFile } from "../shared/browser";
 
-// ─── Tipado de datos ────────────────────────────────────────────────────────
-
 export interface PdfColumn<T> {
-  /** Encabezado de columna */
   header: string;
-  /** Porcentaje de ancho relativo al total de columnas (suma debe ser 100) */
   widthPct: number;
-  /** Cómo extraer el valor de una fila */
   accessor: (row: T) => string;
 }
 
+export interface PdfTheme { primary: string; headerBg: string; rowAlt: string; text: string; muted: string }
+
 export interface PdfTemplateProps<T> {
-  /** Título principal del documento */
   title: string;
-  /** Subtítulo opcional (ej: nombre de seccional o filtro activo) */
   subtitle?: string;
-  /** URLs o base64 de logos a mostrar en la cabecera */
   logoUrl?: string;
-  /** URLs o base64 de logos a mostrar en la cabecera */
   logoUrl2?: string;
-  /** URLs o base64 de logos a mostrar en la cabecera */
   logoUrlfoot1?: string;
-  /** URLs o base64 de logos a mostrar en la cabecera */
   logoUrlfoot2?: string;
-  /** Texto de pie de página. Si se omite no se muestra. */
   footerText?: string;
-  /** Definición de columnas de la tabla */
   columns: PdfColumn<T>[];
-  /** Registros a mostrar */
   records: T[];
-  /** Paleta de colores (opcional — tiene defaults) */
   theme?: Partial<PdfTheme>;
 }
 
-export interface PdfTheme {
-  primary: string;   // color de encabezado de tabla y borde izquierdo
-  headerBg: string;  // fondo de fila de encabezado
-  rowAlt: string;    // fondo de filas alternadas
-  text: string;      // texto principal
-  muted: string;     // texto secundario / pie
-}
-
-const DEFAULT_THEME: PdfTheme = {
-  primary: "#030303",   // azul institucional
-  headerBg: "#EFF6FF",
-  rowAlt: "#F8FAFC",
-  text: "#1E293B",
-  muted: "#64748B",
-};
-
-// ─── Estilos ────────────────────────────────────────────────────────────────
-
-const buildStyles = (theme: PdfTheme) =>
-  StyleSheet.create({
-    page: {
-      paddingTop: 25,
-      paddingHorizontal: 25,
-      paddingBottom: 120,
-      fontFamily: "Helvetica",
-      fontSize: 9,
-      color: theme.text,
-    },
-
-    // Encabezado del documento 
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      // borderBottomWidth: 2,
-    },
-    logo: {
-      width: 130,
-      height: 130,
-      marginRight: 12,
-      objectFit: "contain",
-    },
-    logoUsb: {
-      width: 150,
-      height: 150,
-      marginRight: 12,
-      objectFit: "contain",
-    },
-    logoFooter1: {
-      width: 130,
-      height: 130,
-      objectFit: "contain",
-    },
-    logoFooter2: {
-      width: 90,
-      height: 90,
-      objectFit: "contain",
-    },
-    headerTexts: {
-      flex: 1,
-    },
-    title: {
-      fontSize: 16,
-      fontFamily: "Helvetica-Bold",
-      color: theme.primary,
-      marginBottom: 2,
-    },
-    subtitle: {
-      fontSize: 9,
-      color: theme.muted,
-    },
-    dateText: {
-      fontSize: 8,
-      color: theme.muted,
-      marginTop: 2,
-    },
-    // Tabla 
-    table: {
-      marginTop: 8,
-      marginBottom: 25,
-    },
-    tableRow: {
-      flexDirection: "row",
-      borderBottomWidth: 0.5,
-      borderBottomColor: "#CBD5E1",
-      alignItems: "stretch",
-    },
-    tableHeaderRow: {
-      flexDirection: "row",
-      backgroundColor: theme.headerBg,
-      borderLeftWidth: 3,
-      borderLeftColor: theme.primary,
-      minHeight: 24,
-      alignItems: "center",
-    },
-    tableRowAlt: {
-      backgroundColor: theme.rowAlt,
-    },
-    cell: {
-      paddingHorizontal: 6,
-      paddingVertical: 5,
-      justifyContent: "flex-start",
-    },
-    cellHeader: {
-      fontFamily: "Helvetica-Bold",
-      fontSize: 8,
-      color: theme.primary,
-      paddingHorizontal: 6,
-      paddingVertical: 5,
-    },
-    // Summary badge
-    summary: {
-      marginTop: 10,
-      marginBottom: 10,
-      flexDirection: "row",
-      justifyContent: "flex-end",
-    },
-    summaryBadge: {
-      backgroundColor: theme.headerBg,
-      borderRadius: 4,
-      paddingHorizontal: 8,
-      paddingVertical: 3,
-      fontSize: 8,
-      color: theme.primary,
-    },
-    // Pie de página
-    footer: {
-      position: "absolute",
-      bottom: 15,
-      left: 25,
-      right: 25,
-
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-
-      borderTopWidth: 0.5,
-      borderTopColor: "#CBD5E1",
-
-      paddingTop: 8,
-    },
-    footerLeft: {
-      width: "25%",
-      alignItems: "flex-start",
-    },
-
-    footerCenter: {
-      width: "50%",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-
-    footerRight: {
-      width: "25%",
-      alignItems: "flex-end",
-    },
+async function requestPdf(body: unknown) {
+  const response = await fetch(`${API_BASE_URL}/reports/pdf`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
-
-// ─── Componente interno del documento ───────────────────────────────────────
-
-function PdfDocument<T>({
-  title,
-  subtitle,
-  logoUrl,
-  logoUrl2,
-  logoUrlfoot1,
-  logoUrlfoot2,
-  // footerText,
-  columns,
-  records,
-  theme,
-}: PdfTemplateProps<T>) {
-  const t: PdfTheme = { ...DEFAULT_THEME, ...theme };
-  const styles = buildStyles(t);
-  const dateStr = new Date().toLocaleDateString("es-CO", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  return (
-    <Document>
-      <Page size="A4" style={styles.page} orientation="landscape">
-
-        {/* ── Encabezado ── */}
-        <View style={styles.header} fixed>
-          {logoUrl ? <Image src={logoUrl} style={styles.logoUsb}
-          /> : null}
-          <View style={styles.headerTexts}>
-            <Text style={styles.title}>{title}</Text>
-            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text>
-              : null} <Text style={styles.dateText}>Generado el {dateStr}</Text>
-          </View>
-          {logoUrl2 ? <Image src={logoUrl2} style={styles.logo}
-          /> : null}
-        </View>
-
-        {/* ── Tabla ── */}
-        <View style={styles.table}>
-
-          {/* Encabezado de columnas */}
-          <View style={styles.tableHeaderRow}>
-            {columns.map((col) => (
-              <Text
-                key={col.header}
-                style={[styles.cellHeader, { width: `${col.widthPct}%` }]}
-              >
-                {col.header}
-              </Text>
-            ))}
-          </View>
-
-          {/* Filas de datos */}
-          {records.map((row, rowIdx) => (
-            <View
-              key={rowIdx}
-              style={[
-                styles.tableRow,
-                rowIdx % 2 !== 0 ? styles.tableRowAlt : {},
-              ]}
-            >
-              {columns.map(col => (
-                <View
-                  style={[
-                    styles.cell,
-                    {
-                      width: `${col.widthPct}%`
-                    }
-                  ]}
-                >
-                  <Text>
-                    {col.accessor(row)}
-                  </Text>
-                </View>
-              ))
-              }
-            </View>
-          ))}
-        </View>
-
-        {/* ── Conteo de registros ── */}
-        <View style={styles.summary}>
-          <Text style={styles.summaryBadge}>
-            {records.length} registro{records.length === 1 ? "" : "s"}
-          </Text>
-        </View>
-
-        {/* ── Pie de página (fijo en todas las páginas) ── */}
-        <View style={styles.footer} fixed>
-
-          <View style={styles.footerLeft}>
-            <Image
-              src={logoUrlfoot1}
-              style={styles.logoFooter1}
-            />
-          </View>
-
-          <View style={styles.footerCenter}>
-            <Text
-              render={({ pageNumber, totalPages }) =>
-                `Página ${pageNumber} de ${totalPages}`
-              }
-            />
-          </View>
-
-          <View style={styles.footerRight}>
-            <Image
-              src={logoUrlfoot2}
-              style={styles.logoFooter2}
-            />
-          </View>
-
-        </View>
-      </Page>
-    </Document>
-  );
+  if (!response.ok) {
+    const error = await response.json().catch(() => null) as { message?: string } | null;
+    throw new Error(error?.message ?? "No fue posible generar el reporte PDF.");
+  }
+  return response.blob();
 }
 
-// ─── API pública ─────────────────────────────────────────────────────────────
-
-/**
- * Genera y descarga el PDF directamente en el browser.
- *
- * @example
- * await downloadPdf({
- *   title: "Competencias RAs",
- *   subtitle: "Facultad de Ingeniería",
- *   logoUrls: ["/logo.png"],
- *   columns: [
- *     { header: "Facultad",  widthPct: 20, accessor: (r) => r.facultadNombre },
- *     { header: "Programa",  widthPct: 30, accessor: (r) => r.programaNombre },
- *     { header: "Plan",      widthPct: 20, accessor: (r) => r.planNombre },
- *     { header: "Descripción", widthPct: 20, accessor: (r) => r.descripcion },
- *     { header: "Estado",    widthPct: 10, accessor: (r) => r.estado },
- *   ],
- *   records: exportRecords,
- * });
- */
-export async function downloadPdf<T>(
-  props: PdfTemplateProps<T>,
-  filename?: string,
-): Promise<void> {
-  const blob = await pdf(<PdfDocument {...props} />).toBlob();
-  const timestamp = new Date().toISOString().slice(0, 10);
-  downloadFile(blob, filename ?? `export-${timestamp}.pdf`, "application/pdf");
+function reportBody<T>(props: PdfTemplateProps<T>) {
+  const columns = props.columns.map((column, index) => ({ header: column.header, key: `column_${index}`, width: Math.max(8, Math.round(column.widthPct / 2)) }));
+  const records = props.records.map((record) => Object.fromEntries(props.columns.map((column, index) => [`column_${index}`, column.accessor(record)])));
+  return { title: props.title, subtitle: props.subtitle, footerText: props.footerText, columns, records };
 }
 
-/**
- * Devuelve un Blob del PDF (útil si necesitas subirlo a un servidor).
- */
-export async function buildPdfBlob<T>(
-  props: PdfTemplateProps<T>,
-): Promise<Blob> {
-  return pdf(<PdfDocument {...props} />).toBlob();
+export async function buildPdfBlob<T>(props: PdfTemplateProps<T>): Promise<Blob> {
+  return requestPdf(reportBody(props));
 }
 
-/**
- * Genera y descarga un PDF con estructura de carta formal que incluye
- * encabezado con logos, título del plan y cuerpo con la descripción.
- */
-export async function downloadLetterPdf(
-  params: {
-    title: string;
-    subtitle?: string;
-    logoUrl?: string;
-    logoUrl2?: string;
-    logoUrlfoot1?: string;
-    logoUrlfoot2?: string;
-    improvementTitle: string;
-    improvementDraft: string;
-    theme?: Partial<PdfTheme>;
-  },
-  filename?: string,
-): Promise<void> {
-  const {
-    title,
-    subtitle,
-    logoUrl,
-    logoUrl2,
-    logoUrlfoot1,
-    logoUrlfoot2,
-    improvementTitle,
-    improvementDraft,
-    theme,
-  } = params;
+export async function downloadPdf<T>(props: PdfTemplateProps<T>, filename?: string): Promise<void> {
+  const blob = await buildPdfBlob(props);
+  downloadFile(blob, filename ?? `export-${new Date().toISOString().slice(0, 10)}.pdf`, "application/pdf");
+}
 
-  const LetterDocument = () => {
-    const t: PdfTheme = { ...DEFAULT_THEME, ...theme };
-    const styles = buildStyles(t);
-    const dateStr = new Date().toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-    const paragraphs = (improvementDraft || "").split(/\n+/).filter(Boolean);
-
-    return (
-      <Document>
-        <Page size="A4" style={styles.page} orientation="portrait">
-          <View style={styles.header} fixed>
-            {logoUrl ? <Image src={logoUrl} style={styles.logoUsb} /> : null}
-            <View style={styles.headerTexts}></View>
-            {logoUrl2 ? <Image src={logoUrl2} style={styles.logo} /> : null}
-          </View>
-
-          <View style={{ paddingHorizontal: 6, marginBottom: 20 }}>
-            <View>
-              <Text style={styles.title}>{title}</Text>
-              {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-              <Text style={styles.dateText}>Generado el {dateStr}</Text>
-            </View>
-          </View>
-
-          <View style={{ marginTop: 20, paddingHorizontal: 6 }}>
-            {improvementTitle ? (
-              <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold", marginBottom: 15 }}>
-                {improvementTitle}
-              </Text>
-            ) : null}
-
-            {paragraphs.length > 0 ? (
-              paragraphs.map((p, i) => (
-                <Text key={i} style={{ marginBottom: 3, lineHeight: 1 }}>
-                  {p}
-                </Text>
-              ))
-            ) : (
-              <Text style={{ marginBottom: 3, lineHeight: 1 }}>-</Text>
-            )}
-
-            <View style={{ marginTop: 30 }}>
-              {/* <Text>Atentamente,</Text> */}
-              <Text style={{ marginTop: 30 }}>______________________________</Text>
-              <Text>Dirección de programa</Text>
-            </View>
-          </View>
-
-          <View style={styles.footer} fixed>
-            <View style={styles.footerLeft}>
-              {logoUrlfoot1 ? <Image src={logoUrlfoot1} style={styles.logoFooter1} /> : null}
-            </View>
-            <View style={styles.footerCenter}>
-              <Text render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`} />
-            </View>
-            <View style={styles.footerRight}>
-              {logoUrlfoot2 ? <Image src={logoUrlfoot2} style={styles.logoFooter2} /> : null}
-            </View>
-          </View>
-        </Page>
-      </Document>
-    );
-  };
-
-  const blob = await pdf(<LetterDocument />).toBlob();
-  const timestamp = new Date().toISOString().slice(0, 10);
-  downloadFile(blob, filename ?? `plan-mejora-${timestamp}.pdf`, "application/pdf");
+export async function downloadLetterPdf(params: {
+  title: string;
+  subtitle?: string;
+  logoUrl?: string;
+  logoUrl2?: string;
+  logoUrlfoot1?: string;
+  logoUrlfoot2?: string;
+  improvementTitle: string;
+  improvementDraft: string;
+  theme?: Partial<PdfTheme>;
+}, filename?: string): Promise<void> {
+  const blob = await requestPdf({ title: params.title, subtitle: params.subtitle, letterBody: `${params.improvementTitle}\n\n${params.improvementDraft}` });
+  downloadFile(blob, filename ?? `plan-mejora-${new Date().toISOString().slice(0, 10)}.pdf`, "application/pdf");
 }

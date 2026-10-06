@@ -1,6 +1,6 @@
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
-  PERSISTED_DEMO_SEARCH_PARAMS,
+  PERSISTED_SEARCH_PARAMS,
   ROUTES,
   buildRouteWithSearch,
   navigateToRoute,
@@ -8,7 +8,7 @@ import {
   pickSearchParams,
 } from "./appRoutes";
 import { getPanelRouteAccessRedirect } from "./panelRoutePermissions";
-import { getCurrentMockUser } from "../services/auth/mockUser";
+import { getCurrentUser } from "../services/auth/currentUser";
 import { useInactivityLogout } from "../services/auth/useInactivityLogout";
 import { hasSelectedProgram } from "../services/programSelection";
 import ChunkErrorBoundary, { clearChunkReloadFlag } from "./router/ChunkErrorBoundary";
@@ -16,6 +16,7 @@ import NotFoundPage from "./router/NotFoundPage";
 import PageLoadingState from "./router/PageLoadingState";
 import { resolveRoute } from "./router/routeConfig";
 import { useBrowserLocation } from "./router/useBrowserLocation";
+import { fetchAuthSession, getStoredAuthSession } from "../services/auth/session";
 
 function isPanelPath(pathname: string) {
   return pathname === ROUTES.panel || pathname.startsWith(`${ROUTES.panel}/`);
@@ -28,13 +29,27 @@ export default function AppRouter() {
     [location.pathname],
   );
   const panelRoute = isPanelPath(normalizedPath);
-  const currentRole = getCurrentMockUser().role;
-  const needsProgramSelection = panelRoute && !hasSelectedProgram();
+  const [authResolved, setAuthResolved] = useState(
+    () => !panelRoute || Boolean(getStoredAuthSession()),
+  );
+  const currentRole = getCurrentUser().role;
+  const needsProgramSelection = panelRoute && authResolved && !hasSelectedProgram();
   const permissionRedirect = panelRoute && !needsProgramSelection
     ? getPanelRouteAccessRedirect(normalizedPath, currentRole)
     : null;
 
   useInactivityLogout(panelRoute);
+
+  useEffect(() => {
+    if (!panelRoute || getStoredAuthSession()) {
+      setAuthResolved(true);
+      return;
+    }
+    setAuthResolved(false);
+    fetchAuthSession()
+      .catch(() => undefined)
+      .finally(() => setAuthResolved(true));
+  }, [panelRoute]);
 
   useEffect(() => {
     // Si llegamos hasta aquí es porque el árbol montó sin errores de chunk:
@@ -46,8 +61,7 @@ export default function AppRouter() {
   useEffect(() => {
     if (!needsProgramSelection) return;
 
-    const params = pickSearchParams(location.search, PERSISTED_DEMO_SEARCH_PARAMS);
-    params.set("role", params.get("role") ?? "director");
+    const params = pickSearchParams(location.search, PERSISTED_SEARCH_PARAMS);
     navigateToRoute(buildRouteWithSearch(ROUTES.programSelector, params), {
       replace: true,
     });
@@ -56,13 +70,13 @@ export default function AppRouter() {
   useEffect(() => {
     if (!permissionRedirect) return;
 
-    const params = pickSearchParams(location.search, PERSISTED_DEMO_SEARCH_PARAMS);
+    const params = pickSearchParams(location.search, PERSISTED_SEARCH_PARAMS);
     navigateToRoute(buildRouteWithSearch(permissionRedirect, params), {
       replace: true,
     });
   }, [location.search, permissionRedirect]);
 
-  if (needsProgramSelection || permissionRedirect) {
+  if ((panelRoute && !authResolved) || needsProgramSelection || permissionRedirect) {
     return <PageLoadingState />;
   }
 

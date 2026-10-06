@@ -36,6 +36,31 @@ const FOCUSABLE_SELECTOR = [
   "[tabindex]:not([tabindex='-1'])",
 ].join(",");
 
+let openModalCount = 0;
+let bodyOverflowBeforeFirstModal = "";
+let rootInertBeforeFirstModal = false;
+let lockedAppRoot: HTMLElement | null = null;
+
+function acquireModalPageLock() {
+  if (openModalCount === 0) {
+    bodyOverflowBeforeFirstModal = document.body.style.overflow;
+    lockedAppRoot = document.getElementById("root");
+    rootInertBeforeFirstModal = lockedAppRoot?.inert ?? false;
+    document.body.style.overflow = "hidden";
+    if (lockedAppRoot) lockedAppRoot.inert = true;
+  }
+  openModalCount += 1;
+}
+
+function releaseModalPageLock() {
+  openModalCount = Math.max(0, openModalCount - 1);
+  if (openModalCount > 0) return;
+
+  document.body.style.overflow = bodyOverflowBeforeFirstModal;
+  if (lockedAppRoot) lockedAppRoot.inert = rootInertBeforeFirstModal;
+  lockedAppRoot = null;
+}
+
 function getFocusableElements(container: HTMLElement) {
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
     .filter((element) => !element.hidden && element.getAttribute("aria-hidden") !== "true");
@@ -56,20 +81,19 @@ export function Modal({
   const descriptionId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
 
     const dialog = dialogRef.current;
-    const appRoot = document.getElementById("root");
     previousActiveElementRef.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
-
-    const previousBodyOverflow = document.body.style.overflow;
-    const rootWasInert = appRoot?.inert ?? false;
-    document.body.style.overflow = "hidden";
-    if (appRoot) appRoot.inert = true;
+    acquireModalPageLock();
 
     const focusTimer = window.setTimeout(() => {
       if (!dialog) return;
@@ -83,7 +107,7 @@ export function Modal({
 
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -114,11 +138,12 @@ export function Modal({
     return () => {
       window.clearTimeout(focusTimer);
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousBodyOverflow;
-      if (appRoot) appRoot.inert = rootWasInert;
-      previousActiveElementRef.current?.focus?.();
+      releaseModalPageLock();
+      if (previousActiveElementRef.current?.isConnected) {
+        previousActiveElementRef.current.focus();
+      }
     };
-  }, [onClose, open]);
+  }, [open]);
 
   if (!open || typeof document === "undefined") return null;
 

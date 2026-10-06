@@ -75,13 +75,13 @@ export interface CurrentUser {
   scope: UserScope;
 }
 
-export interface ResultadoAprendizajeDemoRecord {
+export interface LearningOutcomeRecord {
   id?: string;
   numero?: number;
   descripcion?: string;
 }
 
-export interface CompetenciaRaDemoRecord {
+export interface CompetenceRaRecord {
   id: string;
   propositoFormacionId?: string;
   seccionalId?: string;
@@ -93,7 +93,7 @@ export interface CompetenciaRaDemoRecord {
   nombre?: string;
   descripcion?: string;
   numero?: number;
-  resultadosAprendizaje?: ResultadoAprendizajeDemoRecord[];
+  resultadosAprendizaje?: LearningOutcomeRecord[];
 }
 
 export interface CursoAsis {
@@ -151,6 +151,8 @@ export interface MapeoCompetenciasRecord {
   programaId: string;
   planId: string;
   estado: MapeoCompetenciasEstado;
+  finalizado?: boolean;
+  bloqueadoPorCiclo?: boolean;
   descripcion: string;
   competenciaRaIds: string[];
   semestresClasificados: SemestreClasificado[];

@@ -16,6 +16,7 @@ interface CompetenciasRaCardProps {
   onView: (record: CompetenciasRaEnriched) => void;
   onAddRa: (record: CompetenciasRaEnriched) => void;
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
+  onDeleteRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
   canEdit: boolean;
   tourAnchor?: boolean;
 }
@@ -35,6 +36,7 @@ export default function CompetenciasRaCard({
   onView,
   onAddRa,
   onEditRa,
+  onDeleteRa,
   canEdit,
   tourAnchor,
 }: CompetenciasRaCardProps) {
@@ -167,12 +169,22 @@ export default function CompetenciasRaCard({
 
                   <div className="flex shrink-0 gap-2">
                     {canEdit ? (
-                      <IconButton
-                        variant="outline"
-                        icon={<ActionIcon name="edit" />}
-                        label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
-                        onClick={() => onEditRa(record, ra)}
-                      />
+                      <>
+                        <IconButton
+                          variant="outline"
+                          icon={<ActionIcon name="edit" />}
+                          label={`Editar ${getRaLabel(ra.numero)} de ${record.nombre}`}
+                          onClick={() => onEditRa(record, ra)}
+                        />
+                        <IconButton
+                          variant="danger"
+                          icon={<ActionIcon name="delete" />}
+                          label={`Eliminar ${getRaLabel(ra.numero)} de ${record.nombre}`}
+                          title={ra.asignado ? "Este RA ya fue asignado en un ciclo y no se puede eliminar." : "Eliminar RA"}
+                          disabled={ra.asignado}
+                          onClick={() => onDeleteRa(record, ra)}
+                        />
+                      </>
                     ) : null}
                   </div>
                 </div>

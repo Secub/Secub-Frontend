@@ -6,6 +6,7 @@ export interface ResultadoAprendizaje {
   id: string;
   numero: number;
   descripcion: string;
+  asignado?: boolean;
 }
 
 export interface Seccional {
@@ -49,6 +50,7 @@ export interface Catalogs {
 
 export interface UserScope {
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;
@@ -76,6 +78,7 @@ export interface CompetenciasRaFormacionRecord {
   descripcion: string;
   nombre: string;
   numero: number;
+  mapeada: boolean;
   resultadosAprendizaje: ResultadoAprendizaje[];
   createdAt: string;
   updatedAt: string;

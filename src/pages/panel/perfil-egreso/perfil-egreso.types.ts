@@ -53,6 +53,7 @@ export interface PerfilEgresoRecord {
 
 export interface CurrentUserScope {
   seccionalId?: string;
+  lugarId?: string;
   facultadId?: string;
   programaId?: string;
   academicProgramId?: string;

@@ -27,7 +27,7 @@ export function navigateToMapeoList(role: SecubRole) {
 }
 
 export function useMapeoCompetenciasCreatePage() {
-  const { currentUser, catalogs, cursos, competenciasRa, records } = useMapeoCompetenciasData();
+  const { currentUser, catalogs, cursos, competenciasRa, records, isLoaded, loadError } = useMapeoCompetenciasData();
   const permissions = getAcademicModulePermissions("mapeoCompetencias", currentUser.role);
   const initial = useMemo(() => readInitialFilters(), []);
   const [filters, setFilters] = useState<FiltersState>(() => ({
@@ -78,10 +78,11 @@ export function useMapeoCompetenciasCreatePage() {
   const programaEstado = getProgramaEstado(selectedPrograma, selectedPlan);
   const canManage = canManageMapeo(currentUser.role, programaEstado);
 
-  const existingRecord = useMemo<MapeoCompetenciasRecord | null>(() => {
+  const existingRecord = useMemo<MapeoCompetenciasRecord | null | undefined>(() => {
+    if (!isLoaded) return undefined;
     if (initial.id) return records.find((record) => record.id === initial.id) ?? null;
     return records.find((record) => record.programaId === filters.programaId && record.planId === filters.planId) ?? null;
-  }, [filters.planId, filters.programaId, initial.id, records]);
+  }, [filters.planId, filters.programaId, initial.id, isLoaded, records]);
 
   const cursosPlan = useMemo(
     () => getCursosByProgramPlan(cursos, filters.programaId, filters.planId),
@@ -152,14 +153,16 @@ export function useMapeoCompetenciasCreatePage() {
     setShowFinishConfirm(true);
   };
 
-  const handleConfirmFinish = () => {
-    const record = manager.tryFinish();
+  const handleConfirmFinish = async () => {
+    const record = await manager.tryFinish();
     setShowFinishConfirm(false);
     if (record) navigateToMapeoList(currentUser.role);
   };
 
   return {
     currentUser,
+    isLoaded,
+    loadError,
     catalogs,
     permissions,
     filters,

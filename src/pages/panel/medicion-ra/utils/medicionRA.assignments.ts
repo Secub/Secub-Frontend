@@ -1,214 +1,65 @@
-import {
-  DEMO_DOCENTE_SECUB,
-  LEGACY_DEMO_DOCENTE_IDS,
-  getCurrentMockUser,
-} from "../../../../services/auth/mockUser";
-import { mockBackend } from "../../../../services/mockBackend";
-import { getCicloCatalogs } from "../../ciclo/ciclo.mock";
-import { getStudentsByCourse } from "../../../../data/secubAcademicPrograms";
-import type { Competence, CourseRecord } from "../medicion-ra.types";
-import type {
-  AsignacionRaDemoRecord,
-  CicloDemoRecord,
-  CompetenciaDemoRecord,
-} from "../types/medicionRA.persistence.types";
+import type { MeasurementContext } from "../../../../services/measurements";
 import { getBrowserSearchParams } from "../../../../shared/browser";
-
-export function getCourseIdFromAssignment(asignacion: AsignacionRaDemoRecord) {
-  return asignacion.cursoId ?? asignacion.cursoIds?.[0] ?? "";
-}
-
-export function getCompetenciaIdFromAssignment(asignacion: AsignacionRaDemoRecord) {
-  return asignacion.competenciaRaId ?? asignacion.competenciaRaIds?.[0] ?? "";
-}
-
-export function getRaIdFromAssignment(asignacion: AsignacionRaDemoRecord) {
-  return asignacion.resultadoAprendizajeId ?? asignacion.resultadoAprendizajeIds?.[0] ?? "";
-}
-
-function normalizeComparableText(value?: string) {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-const docenteSecubCompatibleIds = new Set<string>([
-  DEMO_DOCENTE_SECUB.id,
-  ...LEGACY_DEMO_DOCENTE_IDS,
-]);
-
-const docenteSecubCompatibleNames = new Set(
-  [DEMO_DOCENTE_SECUB.nombre].map(normalizeComparableText),
-);
-
-const docenteSecubCompatibleEmails = new Set(
-  [DEMO_DOCENTE_SECUB.email].filter(Boolean).map(normalizeComparableText),
-);
-
-function isDocenteSecubDemoUser(user: ReturnType<typeof getCurrentMockUser>) {
-  return Boolean(
-    user.role === "docente" &&
-      (docenteSecubCompatibleIds.has(user.id) ||
-        normalizeComparableText(user.nombre) === normalizeComparableText(DEMO_DOCENTE_SECUB.nombre) ||
-        normalizeComparableText(user.email) === normalizeComparableText(DEMO_DOCENTE_SECUB.email)),
-  );
-}
-
-function isDemoDocenteAssignment(
-  asignacion: AsignacionRaDemoRecord,
-  course: { docente?: string } | undefined,
-) {
-  const docenteId = asignacion.docenteId ?? "";
-  const docenteNombre = normalizeComparableText(asignacion.docenteNombre);
-  const courseDocenteNombre = normalizeComparableText(course?.docente);
-  const docenteEmail = normalizeComparableText(asignacion.docenteEmail);
-
-  return Boolean(
-    docenteSecubCompatibleIds.has(docenteId) ||
-      docenteSecubCompatibleNames.has(docenteNombre) ||
-      docenteSecubCompatibleNames.has(courseDocenteNombre) ||
-      docenteSecubCompatibleEmails.has(docenteEmail),
-  );
-}
-
-function isAssignmentVisibleForDocente(
-  asignacion: AsignacionRaDemoRecord,
-  course: { docente?: string } | undefined,
-  user: ReturnType<typeof getCurrentMockUser>,
-) {
-  if (asignacion.docenteId) {
-    if (asignacion.docenteId === user.id) return true;
-
-    // Compatibilidad demo: las asignaciones creadas antes podían quedar guardadas
-    // con ids de Docente Psicología/Derecho o con el id anterior usr-docente-001.
-    return isDocenteSecubDemoUser(user) && isDemoDocenteAssignment(asignacion, course);
-  }
-
-  const docenteNombre = normalizeComparableText(asignacion.docenteNombre);
-  const courseDocenteNombre = normalizeComparableText(course?.docente);
-  const currentDocenteNombre = normalizeComparableText(user.nombre);
-
-  // Fallback demo solo para asignaciones antiguas que todavía no tengan docenteId.
-  // La lógica real debe depender del id institucional del docente.
-  return Boolean(
-    (currentDocenteNombre &&
-      (docenteNombre === currentDocenteNombre || courseDocenteNombre === currentDocenteNombre)) ||
-      (isDocenteSecubDemoUser(user) && isDemoDocenteAssignment(asignacion, course)),
-  );
-}
+import type { Competence, CourseRecord } from "../medicion-ra.types";
 
 export function getSearchCourseId() {
-  if (typeof window === "undefined") return "";
-  return getBrowserSearchParams().get("courseId") ?? "";
+  return typeof window === "undefined" ? "" : getBrowserSearchParams().get("courseId") ?? "";
 }
 
 export function getSearchCycleId() {
-  if (typeof window === "undefined") return "";
-  return getBrowserSearchParams().get("cycleId") ?? "";
+  return typeof window === "undefined" ? "" : getBrowserSearchParams().get("cycleId") ?? "";
 }
 
 export function resolveMedicionRaContextForCourse(course?: CourseRecord) {
-  const cicloId = course?.cycleId;
-  const currentUser = getCurrentMockUser();
-  const relatedCiclo = cicloId
-    ? mockBackend.getById<CicloDemoRecord>("ciclosMedicion", cicloId, currentUser)
-    : undefined;
-
-  return {
-    relatedCiclo,
-    cicloId,
-    asignacionRaIds: course?.assignmentIds ?? [],
-  };
+  return { cicloId: course?.cycleId, asignacionRaIds: course?.assignmentIds ?? [] };
 }
 
-export function buildCoursesFromRealAssignments(user: ReturnType<typeof getCurrentMockUser>): CourseRecord[] {
-  const assignments = mockBackend.list<AsignacionRaDemoRecord>("asignacionesRa", user);
-  if (assignments.length === 0) return [];
-
-  const cicloCatalogs = getCicloCatalogs();
-  const competencias = mockBackend.list<CompetenciaDemoRecord>("competenciasRa", user);
-  const cycles = mockBackend.list<CicloDemoRecord>("ciclosMedicion", user);
-  const docenteAssignments = assignments.filter((assignment) => {
-    const courseId = getCourseIdFromAssignment(assignment);
-    const course = cicloCatalogs.cursos.find((item) => item.id === courseId);
-    return isAssignmentVisibleForDocente(assignment, course, user);
+export function buildCoursesFromMeasurementContext(context: MeasurementContext): CourseRecord[] {
+  return context.courses.flatMap((course) => {
+    const cycle = context.ciclos.find((item) => item.id === course.cycleId);
+    const assignedRaIds = new Set(course.assignedRaIds);
+    const competences = course.competenceIds.flatMap((competenceId, index): Competence[] => {
+      const competence = context.competencias.find((item) => item.id === competenceId);
+      if (!competence) return [];
+      const learningResults = (competence.resultadosAprendizaje ?? [])
+        .filter((result) => result.id && assignedRaIds.has(result.id))
+        .map((result, resultIndex) => ({
+          id: result.id as string,
+          code: `RA${String(result.numero ?? resultIndex + 1).padStart(2, "0")}`,
+          title: `Resultado de Aprendizaje ${result.numero ?? resultIndex + 1}`,
+          description: result.descripcion ?? "Sin descripción registrada.",
+        }));
+      if (!learningResults.length) return [];
+      return [{
+        id: competence.id,
+        code: `C${index + 1}`,
+        title: competence.nombre ?? `Competencia ${index + 1}`,
+        description: competence.descripcion ?? "Sin descripción registrada.",
+        learningResults,
+      }];
+    });
+    if (!competences.length) return [];
+    return [{
+      id: course.id,
+      name: course.name,
+      code: course.code,
+      group: "Grupo institucional",
+      credits: course.credits,
+      period: cycle?.periodo ?? "",
+      program: context.scope.programaNombre,
+      studyPlan: context.planes.find((plan) => plan.id === course.planId)?.nombre ?? course.planId,
+      measurementCycle: cycle?.nombre ?? course.cycleId,
+      teacher: course.teacherName,
+      teacherId: course.teacherId,
+      teacherEmail: course.teacherEmail,
+      cycleId: course.cycleId,
+      seccionalId: course.seccionalId,
+      facultadId: course.facultadId,
+      programaId: course.programaId,
+      planId: course.planId,
+      competences,
+      students: course.students,
+      measurementCompleted: course.measurementCompleted,
+    } satisfies CourseRecord];
   });
-
-  const assignmentsByCourse = docenteAssignments.reduce<Record<string, AsignacionRaDemoRecord[]>>((acc, assignment) => {
-    const courseId = getCourseIdFromAssignment(assignment);
-    if (!courseId) return acc;
-    const groupKey = `${assignment.cicloId ?? "sin-ciclo"}__${courseId}`;
-    acc[groupKey] = [...(acc[groupKey] ?? []), assignment];
-    return acc;
-  }, {});
-
-  return Object.entries(assignmentsByCourse)
-    .map(([, courseAssignments]): CourseRecord | null => {
-      const courseId = getCourseIdFromAssignment(courseAssignments[0]);
-      const course = cicloCatalogs.cursos.find((item) => item.id === courseId);
-      if (!course) return null;
-
-      const cycle = cycles.find((item) => item.id === courseAssignments[0]?.cicloId);
-      const competenceGroups = courseAssignments.reduce<Record<string, AsignacionRaDemoRecord[]>>((acc, assignment) => {
-        const competenciaId = getCompetenciaIdFromAssignment(assignment);
-        if (!competenciaId) return acc;
-        acc[competenciaId] = [...(acc[competenciaId] ?? []), assignment];
-        return acc;
-      }, {});
-
-      const competences: Competence[] = Object.entries(competenceGroups)
-        .map(([competenciaId, competenciaAssignments], index) => {
-          const competencia = competencias.find((item) => item.id === competenciaId);
-          if (!competencia) return null;
-
-          const selectedRaIds = new Set(competenciaAssignments.map(getRaIdFromAssignment).filter(Boolean));
-          const learningResults = (competencia.resultadosAprendizaje ?? [])
-            .filter((ra) => selectedRaIds.has(ra.id))
-            .map((ra, raIndex) => ({
-              id: ra.id,
-              code: `RA${String(ra.numero ?? raIndex + 1).padStart(2, "0")}`,
-              title: `Resultado de Aprendizaje ${ra.numero ?? raIndex + 1}`,
-              description: ra.descripcion ?? "Sin descripción registrada.",
-            }));
-
-          if (learningResults.length === 0) return null;
-
-          return {
-            id: competencia.id,
-            code: `C${index + 1}`,
-            title: competencia.nombre ?? `Competencia ${index + 1}`,
-            description: competencia.descripcion ?? "Sin descripción registrada.",
-            learningResults,
-          } satisfies Competence;
-        })
-        .filter((item): item is Competence => Boolean(item));
-
-      if (competences.length === 0) return null;
-
-      return {
-        id: course.id,
-        name: course.nombre,
-        code: course.codigo,
-        group: "Grupo asignado",
-        credits: course.creditos,
-        period: cycle?.periodo ?? "Periodo del ciclo",
-        program: course.programaId,
-        studyPlan: course.planId,
-        measurementCycle: cycle?.nombre ?? cycle?.id ?? "Ciclo de medición",
-        teacher: courseAssignments[0]?.docenteNombre ?? course.docente,
-        teacherId: courseAssignments[0]?.docenteId,
-        teacherEmail: courseAssignments[0]?.docenteEmail,
-        cycleId: cycle?.id ?? courseAssignments[0]?.cicloId,
-        assignmentIds: courseAssignments.map((assignment) => assignment.id),
-        seccionalId: courseAssignments[0]?.seccionalId ?? cycle?.seccionalId,
-        facultadId: courseAssignments[0]?.facultadId ?? cycle?.facultadId,
-        programaId: courseAssignments[0]?.programaId ?? course.programaId,
-        planId: courseAssignments[0]?.planId ?? course.planId,
-        competences,
-        students: getStudentsByCourse(course.id).map(({ courseId: _courseId, ...student }) => student),
-      } satisfies CourseRecord;
-    })
-    .filter((item): item is CourseRecord => Boolean(item));
 }

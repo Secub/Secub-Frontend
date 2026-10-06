@@ -6,7 +6,7 @@ export const APP_BASE_PATH = rawBaseUrl === "/"
   ? ""
   : `/${rawBaseUrl.replace(/^\/+|\/+$/g, "")}`;
 export const APP_NAVIGATION_EVENT = "secub:navigation";
-export const PERSISTED_DEMO_SEARCH_PARAMS = ["role", "programId", "programaId"] as const;
+export const PERSISTED_SEARCH_PARAMS = ["view", "cycleId", "courseId", "status"] as const;
 
 function withBasePath(path: string) {
   const normalizedPath = path === "/" ? "" : `/${path.replace(/^\/+|\/+$/g, "")}`;
@@ -112,7 +112,7 @@ export function navigateToRoute(href: string, options: NavigateOptions = {}) {
   if (options.preserveSearch && !target.search) {
     target.search = pickSearchParams(
       location.search,
-      options.allowedSearchParams ?? PERSISTED_DEMO_SEARCH_PARAMS,
+      options.allowedSearchParams ?? PERSISTED_SEARCH_PARAMS,
     ).toString();
   }
 

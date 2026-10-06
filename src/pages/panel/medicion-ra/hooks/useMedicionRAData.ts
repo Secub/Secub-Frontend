@@ -1,62 +1,82 @@
-import { useMemo } from "react";
-import { getCurrentMockUser } from "../../../../services/auth/mockUser";
-import { mockBackend } from "../../../../services/mockBackend";
-import type { AsignacionRaDemoRecord, MedicionRaDemoState } from "../types/medicionRA.persistence.types";
-import { buildCoursesFromRealAssignments, getSearchCourseId, getSearchCycleId } from "../utils/medicionRA.assignments";
-import { buildMedicionRaDemoStateId } from "../utils/medicionRA.persistence";
-import { useMockBackendVersion } from "./useMockBackendVersion";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
+import { getMeasurementAccess, getMeasurementContext } from "../../../../services/measurements";
+import type { CourseMeasurementState } from "../types/medicionRA.persistence.types";
+import {
+  buildCoursesFromMeasurementContext,
+  getSearchCourseId,
+  getSearchCycleId,
+} from "../utils/medicionRA.assignments";
 
 export function useMedicionRAData() {
-  const currentUser = useMemo(() => getCurrentMockUser(), []);
-  const { backendVersion, ignoreNextBackendChangeRef } = useMockBackendVersion();
-
-  // `mockBackend.list`/`buildCoursesFromRealAssignments` releen y parsean el storage,
-  // devolviendo arrays y objetos nuevos en cada llamada. Sin memoizar, `availableCourses`
-  // cambia de referencia en cada render y arrastra esa inestabilidad a todo lo que se
-  // deriva de el (selectedCourse, etc.), lo que dispara de mas el efecto de hidratacion
-  // de la medicion y pisa cambios locales aun no guardados (p. ej. al avanzar de
-  // competencia). Se memoiza igual que persistedDemoState: solo se relee cuando cambia
-  // el usuario o cuando el backend realmente cambio (backendVersion).
-  const availableCourses = useMemo(() => {
-    const realAssignments = mockBackend.list<AsignacionRaDemoRecord>(
-      "asignacionesRa",
-      currentUser,
-    );
-
-    return realAssignments.length ? buildCoursesFromRealAssignments(currentUser) : [];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, backendVersion]);
-
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const ignoreNextBackendChangeRef = useRef(false);
+  const [availableCourses, setAvailableCourses] = useState<ReturnType<typeof buildCoursesFromMeasurementContext>>([]);
+  const [measurementsByCourse, setMeasurementsByCourse] = useState<Record<string, CourseMeasurementState>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const requestedCourseId = getSearchCourseId();
   const requestedCycleId = getSearchCycleId();
-  const initialCourseId =
-    requestedCourseId && requestedCycleId && availableCourses.some(
-      (course) => course.id === requestedCourseId && course.cycleId === requestedCycleId,
-    )
-      ? requestedCourseId
-      : "";
 
-  const selectedCourse = availableCourses.find(
-    (item) => item.id === initialCourseId && item.cycleId === requestedCycleId,
-  );
-  const initialStateId = buildMedicionRaDemoStateId({
-    userId: currentUser.id,
-    cicloId: selectedCourse?.cycleId,
-    courseId: initialCourseId,
-  });
-  const initialPersistedDemoState = mockBackend.getById<MedicionRaDemoState>(
-    "medicionesRa",
-    initialStateId,
-    currentUser,
+  useEffect(() => {
+    const controller = new AbortController();
+    setIsLoading(true);
+    setLoadError("");
+    void getMeasurementContext(controller.signal)
+      .then(async (context) => {
+        const courses = buildCoursesFromMeasurementContext(context).sort((left, right) => {
+          const leftRequested = left.id === requestedCourseId && left.cycleId === requestedCycleId;
+          const rightRequested = right.id === requestedCourseId && right.cycleId === requestedCycleId;
+          return Number(rightRequested) - Number(leftRequested);
+        });
+        const accessResults = await Promise.all(courses.map((course) =>
+          getMeasurementAccess(course.cycleId ?? "", course.id, controller.signal),
+        ));
+        if (controller.signal.aborted) return;
+        setAvailableCourses(courses);
+        setMeasurementsByCourse(Object.fromEntries(accessResults.flatMap((access) =>
+          access.measurement ? [[`${access.cycleId}::${access.courseId}`, access.measurement]] : [],
+        )));
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setLoadError(error instanceof Error ? error.message : "No fue posible cargar los cursos asignados.");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
+      });
+    return () => controller.abort();
+  }, [requestedCourseId, requestedCycleId]);
+
+  const initialCourse = availableCourses.find((course) =>
+    course.id === requestedCourseId && course.cycleId === requestedCycleId,
+  ) ?? availableCourses[0];
+  const initialCourseId = initialCourse?.id ?? "";
+  const initialPersistedState = initialCourse
+    ? measurementsByCourse[`${initialCourse.cycleId}::${initialCourse.id}`]
+    : undefined;
+
+  const updateMeasurementCache = useCallback(
+    (cycleId: string, courseId: string, measurement: CourseMeasurementState) => {
+      setMeasurementsByCourse((current) => ({
+        ...current,
+        [`${cycleId}::${courseId}`]: measurement,
+      }));
+    },
+    [],
   );
 
   return {
     currentUser,
-    backendVersion,
     ignoreNextBackendChangeRef,
     availableCourses,
+    measurementsByCourse,
     hasAvailableCourses: availableCourses.length > 0,
     initialCourseId,
-    initialPersistedDemoState,
+    initialPersistedState,
+    updateMeasurementCache,
+    isLoading,
+    loadError,
   };
 }

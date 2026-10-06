@@ -1,8 +1,7 @@
 import { isCompetenciaRaValidByLearningResults } from "../../../utils/learningResultsRules";
-import { getActiveAcademicPlanInstanceId } from "../../../services/mockBackend";
 import type {
   Catalogs,
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CursoAsis,
   MapeoCompetenciasEnriched,
   MapeoCompetenciasRecord,
@@ -25,7 +24,7 @@ import {
 } from "./MapeoCompetencias.semestres";
 
 export function getMapeoRecordId(programaId: string, planId: string) {
-  return `mapeo-${programaId}__${planId}__${getActiveAcademicPlanInstanceId()}`;
+  return `mapeo-${programaId}__${planId}`;
 }
 
 export function normalizeCursoAsis(course: CursoAsis): CursoAsis {
@@ -49,7 +48,7 @@ export function getCursosByProgramPlan(
 }
 
 export function getCompetenciasByProgramPlan(
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
   programaId: string,
   planId: string,
 ) {
@@ -65,7 +64,7 @@ export function getCompetenciasByProgramPlan(
     .sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
 }
 
-export function getCompetenciaDisplayName(competencia: CompetenciaRaDemoRecord, index: number) {
+export function getCompetenciaDisplayName(competencia: CompetenceRaRecord, index: number) {
   if (competencia.nombre) return competencia.nombre;
   if (competencia.descripcion) return competencia.descripcion;
   return `Competencia ${String(competencia.numero ?? index + 1).padStart(2, "0")}`;
@@ -83,7 +82,7 @@ export function enrichMapeoRecords(
   records: MapeoCompetenciasRecord[],
   catalogs: Catalogs,
   cursos: CursoAsis[],
-  competencias: CompetenciaRaDemoRecord[],
+  competencias: CompetenceRaRecord[],
 ): MapeoCompetenciasEnriched[] {
   return records.map((record) => {
     const seccional = catalogs.seccionales.find((item) => item.id === record.seccionalId);
@@ -124,7 +123,7 @@ export function buildNivelItemsFromDraft(params: {
   nucleosDraft: NucleosDraft;
   nivelesDraft: NivelesDraft;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
   totalSemestres?: number;
 }) {
   const { programaId, planId, nucleosDraft, nivelesDraft, cursos, competencias } = params;
@@ -179,7 +178,7 @@ export function buildMapeoRecord(params: {
   nucleosDraft: NucleosDraft;
   nivelesDraft: NivelesDraft;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
   totalSemestres?: number;
 }) {
   const now = new Date().toISOString();

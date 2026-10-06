@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import { SecubIcon } from "../../../components/ui/SecubIcon";
 import PanelLayout from "../../../components/panel/PanelLayout";
 import { ROUTES, navigateToRoute } from "../../../app/appRoutes";
+import { getCurrentUser } from "../../../services/auth/currentUser";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
-import { getCurrentMockUser } from "../../../services/auth/mockUser";
 import { clearSelectedProgramId, getSelectedProgram } from "../../../services/programSelection";
 import { SECUB_ROLE_LABELS } from "../../../config/access/roles";
 
 export default function UserSettingsPage() {
-  const currentUser = getCurrentMockUser();
+  const currentUser = getCurrentUser();
   const selectedProgram = getSelectedProgram();
   const displayUserName = currentUser.nombre;
   const displayEmail = currentUser.email;

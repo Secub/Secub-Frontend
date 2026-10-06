@@ -58,6 +58,7 @@ export interface CourseRecord {
   planId?: string;
   competences: Competence[];
   students: Student[];
+  measurementCompleted?: boolean;
 }
 
 export type CourseMeasurementStatus = "pending" | "in-progress" | "completed";

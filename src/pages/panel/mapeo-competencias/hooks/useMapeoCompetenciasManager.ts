@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { mockBackend } from "../../../../services/mockBackend";
+import { saveCompetencyMapping } from "../../../../services/competencyMappings";
 import { showNotification } from "../../../../shared/feedback";
 import type {
-  CompetenciaRaDemoRecord,
+  CompetenceRaRecord,
   CurrentUser,
   CursoAsis,
   MapeoCompetenciasRecord,
@@ -15,8 +15,10 @@ import {
   areAllSemestersClassified,
   buildEmptyNucleosDraft,
   buildMapeoRecord,
+  canAssignNucleo,
   getMappingKey,
   hasCompleteLevelMapping,
+  isNucleoSequenceValid,
   readNivelesFromRecord,
   readNucleosFromRecord,
 } from "../MapeoCompetencias.utils";
@@ -30,13 +32,13 @@ interface UseMapeoCompetenciasManagerParams {
   programaId: string;
   planId: string;
   cursos: CursoAsis[];
-  competencias: CompetenciaRaDemoRecord[];
+  competencias: CompetenceRaRecord[];
   canManage: boolean;
   totalSemestres: number;
 }
 
 export function useMapeoCompetenciasManager({
-  currentUser,
+  currentUser: _currentUser,
   existingRecord,
   seccionalId,
   facultadId,
@@ -72,18 +74,14 @@ export function useMapeoCompetenciasManager({
       return;
     }
 
-    setNucleosDraft(
-      existingRecord
-        ? readNucleosFromRecord(existingRecord, totalSemestres)
-        : buildEmptyNucleosDraft(totalSemestres)
-    );
-
-    setNivelesDraft(
-      existingRecord
-        ? readNivelesFromRecord(existingRecord)
-        : {}
-    );
-
+    const nextNucleosDraft = existingRecord
+      ? readNucleosFromRecord(existingRecord, totalSemestres)
+      : buildEmptyNucleosDraft(totalSemestres);
+    const nextNivelesDraft = existingRecord
+      ? readNivelesFromRecord(existingRecord)
+      : {};
+    setNucleosDraft(nextNucleosDraft);
+    setNivelesDraft(nextNivelesDraft);
     setActiveStep("nucleos");
     setActiveSemester(1);
     setFeedback(null);
@@ -98,7 +96,7 @@ export function useMapeoCompetenciasManager({
   }, [activeSemester, totalSemestres]);
 
   const classificationComplete = useMemo(
-    () => areAllSemestersClassified(nucleosDraft, totalSemestres) && allNucleosRepresented(nucleosDraft),
+    () => areAllSemestersClassified(nucleosDraft, totalSemestres) && allNucleosRepresented(nucleosDraft) && isNucleoSequenceValid(nucleosDraft, totalSemestres),
     [nucleosDraft, totalSemestres],
   );
 
@@ -120,6 +118,11 @@ export function useMapeoCompetenciasManager({
   }, [competencias, cursos, nivelesDraft]);
 
   function updateNucleo(semestreNumero: number, nucleo: NucleoFormacion | null) {
+    if (nucleo && !canAssignNucleo(nucleosDraft, semestreNumero, nucleo)) {
+      setFeedback({ type: "warning", message: "Los núcleos deben avanzar en orden: Fundamentación, Profesionalización y Síntesis, sin retroceder ni saltar etapas entre semestres." });
+      return;
+    }
+    setFeedback(null);
     setNucleosDraft((current) => ({
       ...current,
       [semestreNumero]: nucleo,
@@ -176,8 +179,13 @@ export function useMapeoCompetenciasManager({
     });
   }
 
-  function saveProgress(notifySuccess = true, draftOverride?: NivelesDraft) {
+  async function saveProgress(notifySuccess = true, draftOverride?: NivelesDraft, finalizar = false) {
     if (!canManage) return null;
+
+    if (!isNucleoSequenceValid(nucleosDraft, totalSemestres)) {
+      setFeedback({ type: "warning", message: "Corrige la secuencia de núcleos antes de guardar: cada semestre debe conservar el núcleo anterior o avanzar al siguiente." });
+      return null;
+    }
 
     if (!programaId || !planId) {
       setFeedback({
@@ -190,7 +198,11 @@ export function useMapeoCompetenciasManager({
     try {
       const nextNivelesDraft = draftOverride ?? nivelesDraft;
       const nextRecord = buildRecord(nextNivelesDraft);
-      mockBackend.upsert<MapeoCompetenciasRecord>("mapeosCompetencias", nextRecord, currentUser);
+      const savedRecord = await saveCompetencyMapping(planId, {
+        semestresClasificados: nextRecord.semestresClasificados,
+        nivelesCompromiso: nextRecord.nivelesCompromiso,
+        finalizar,
+      });
       setFeedback(null);
 
       if (notifySuccess) {
@@ -201,20 +213,21 @@ export function useMapeoCompetenciasManager({
         });
       }
 
-      return nextRecord;
-    } catch {
+      return savedRecord;
+    } catch (reason) {
       setFeedback({
         type: "danger",
-        message: "No fue posible guardar el progreso. Revisa la información e inténtalo nuevamente.",
+        message: reason instanceof Error ? reason.message : "No fue posible guardar el progreso. Inténtalo nuevamente.",
       });
       return null;
     }
   }
 
-  function tryContinueToMapeo() {
+  async function tryContinueToMapeo() {
     const isClassificationComplete =
       areAllSemestersClassified(nucleosDraft, totalSemestres) &&
-      allNucleosRepresented(nucleosDraft);
+      allNucleosRepresented(nucleosDraft) &&
+      isNucleoSequenceValid(nucleosDraft, totalSemestres);
 
     if (!isClassificationComplete) {
       setFeedback({
@@ -225,7 +238,7 @@ export function useMapeoCompetenciasManager({
     }
 
     const preparedNivelesDraft = fillMissingLevelsWithNoAplica();
-    const savedRecord = saveProgress(false, preparedNivelesDraft);
+    const savedRecord = await saveProgress(false, preparedNivelesDraft);
 
     if (!savedRecord) {
       return false;
@@ -238,10 +251,11 @@ export function useMapeoCompetenciasManager({
   }
 
 
-  function tryFinish() {
+  async function tryFinish() {
     const isClassificationComplete =
       areAllSemestersClassified(nucleosDraft, totalSemestres) &&
-      allNucleosRepresented(nucleosDraft);
+      allNucleosRepresented(nucleosDraft) &&
+      isNucleoSequenceValid(nucleosDraft, totalSemestres);
 
     if (!isClassificationComplete) {
       setActiveStep("nucleos");
@@ -255,7 +269,7 @@ export function useMapeoCompetenciasManager({
     if (!cursos.length) {
       setFeedback({
         type: "warning",
-        message: "No hay cursos cargados para este plan en ASIS/mock. No es posible finalizar el mapeo.",
+        message: "El servicio académico provisional no devolvió cursos para este plan. No es posible finalizar el mapeo.",
       });
       return null;
     }
@@ -276,7 +290,7 @@ export function useMapeoCompetenciasManager({
       return null;
     }
 
-    return saveProgress(false);
+    return saveProgress(false, undefined, true);
   }
 
   return {

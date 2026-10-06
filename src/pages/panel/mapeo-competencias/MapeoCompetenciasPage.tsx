@@ -18,6 +18,7 @@ import {
 import MapeoCompetenciasConsolidatedSection from "./components/MapeoCompetenciasConsolidatedSection";
 import { getMapeoAccessRestrictedDescription } from "../../../config/access/permissions";
 import type { MapeoCompetenciasEnriched } from "./MapeoCompetencias.types";
+import { isNucleoSequenceValid } from "./MapeoCompetencias.utils";
 import { useMapeoCompetenciasPage } from "./hooks/useMapeoCompetenciasPage";
 
 import { ActionIcon } from "../../../components/ui/ActionIcon";
@@ -28,11 +29,12 @@ function getNucleoCount(records: ReturnType<typeof useMapeoCompetenciasPage>["fi
 }
 
 function isConsolidatedMapeoComplete(record: MapeoCompetenciasEnriched | null) {
-  if (!record?.semestresResumen.length) return false;
+  if (!record?.semestresResumen.length || record.finalizado !== true) return false;
 
   const representedNucleos = new Set(record.semestresResumen.map((semestre) => semestre.nucleo).filter(Boolean));
   const classificationComplete =
     record.semestresResumen.every((semestre) => Boolean(semestre.nucleo)) &&
+    isNucleoSequenceValid(Object.fromEntries(record.semestresResumen.map((semestre) => [semestre.semestreNumero, semestre.nucleo])), record.semestresResumen.length) &&
     representedNucleos.has("fundamentacion") &&
     representedNucleos.has("profesionalizacion") &&
     representedNucleos.has("sintesis");
@@ -48,6 +50,9 @@ export default function MapeoCompetenciasPage() {
   const page = useMapeoCompetenciasPage();
   const {
     currentUser,
+    isLoaded,
+    loadError,
+    refresh,
     permissions,
     catalogs,
     hasRecords,
@@ -148,6 +153,10 @@ export default function MapeoCompetenciasPage() {
           title="Módulo no disponible"
           description={getMapeoAccessRestrictedDescription()}
         />
+      ) : !isLoaded ? (
+        <WorkflowStateCard title="Cargando mapeos de competencias" description="Consultando el programa, sus planes y los mapeos guardados." />
+      ) : loadError ? (
+        <WorkflowStateCard title="No fue posible cargar los mapeos" description={loadError} actionLabel="Reintentar" onAction={() => void refresh()} />
       ) : !hasRecords ? (
         <WorkflowStateCard
           title="Aún no hay mapeos de competencias específicas creados"
@@ -200,6 +209,12 @@ export default function MapeoCompetenciasPage() {
           {selectedPrograma?.estado === "inactivo" || selectedPlan?.estado === "inactivo" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
               Este programa académico está inactivo. Solo puedes visualizar la información.
+            </div>
+          ) : null}
+
+          {selectedRecord?.bloqueadoPorCiclo ? (
+            <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
+              Este mapeo ya tiene un ciclo de medición asociado. Puedes consultarlo, pero no editarlo.
             </div>
           ) : null}
 

@@ -31,7 +31,7 @@ export const SECUB_ROLE_LABELS: Record<SecubRole, string> = {
 };
 
 /**
- * Valida el contrato de rol recibido desde URL, mocks y, posteriormente, backend.
+ * Valida el rol recibido desde la sesión del backend.
  * No traduce alias históricos: un valor diferente de los cinco roles oficiales
  * se considera inválido y usa el fallback indicado.
  */

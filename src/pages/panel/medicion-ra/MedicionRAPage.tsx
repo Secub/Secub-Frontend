@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { ConfirmDialog } from "../../../components/ui";
-import { getCurrentMockUser } from "../../../services/auth/mockUser";
+import { getCurrentUser } from "../../../services/auth/currentUser";
+import { getMeasurementAccess, type MeasurementAccess } from "../../../services/measurements";
 import CompetenceStepper from "./components/CompetenceStepper";
 import EvaluationInstructions from "./components/EvaluationInstructions";
 import EvidenceImprovementSection from "./components/EvidenceImprovementSection";
@@ -12,7 +13,7 @@ import RaResultsCharts from "./components/RaResultsCharts";
 import StudentsEvaluationTable from "./components/StudentsEvaluationTable";
 import ValidationBanner from "./components/ValidationBanner";
 import { LOCKED_TOOLTIP, useMedicionRA } from "./hooks/useMedicionRA";
-import { buildCoursesFromRealAssignments, getSearchCourseId, getSearchCycleId } from "./utils/medicionRA.assignments";
+import { getSearchCourseId, getSearchCycleId } from "./utils/medicionRA.assignments";
 
 function MedicionRAAccessRestricted() {
   return (
@@ -31,7 +32,7 @@ function MedicionRAAccessRestricted() {
 }
 
 export default function MedicionRAPage() {
-  const currentUser = getCurrentMockUser();
+  const currentUser = getCurrentUser();
 
   if (currentUser.role !== "docente") {
     return <MedicionRAAccessRestricted />;
@@ -41,29 +42,64 @@ export default function MedicionRAPage() {
 }
 
 function MedicionRAContextGate() {
-  const currentUser = getCurrentMockUser();
-  const availableCourses = buildCoursesFromRealAssignments(currentUser);
   const requestedCourseId = getSearchCourseId();
   const requestedCycleId = getSearchCycleId();
-  const hasValidCourseContext = Boolean(
-    requestedCourseId &&
-      requestedCycleId &&
-      availableCourses.some(
-        (course) => course.id === requestedCourseId && course.cycleId === requestedCycleId,
-      ),
-  );
+  const [access, setAccess] = useState<MeasurementAccess | null>(null);
+  const [accessError, setAccessError] = useState("");
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
   useEffect(() => {
-    if (hasValidCourseContext) return;
+    if (!requestedCourseId || !requestedCycleId) {
+      setIsCheckingAccess(false);
+      return;
+    }
+    const controller = new AbortController();
+    setIsCheckingAccess(true);
+    setAccessError("");
+    void getMeasurementAccess(requestedCycleId, requestedCourseId, controller.signal)
+      .then((result) => {
+        setAccess(result);
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setAccessError(error instanceof Error ? error.message : "No fue posible validar el acceso a la medición.");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsCheckingAccess(false);
+      });
+    return () => controller.abort();
+  }, [requestedCourseId, requestedCycleId]);
 
-    navigateToRoute(
-      buildRouteWithSearch(ROUTES.panelDashboard, {
-        role: "docente",
-      }),
+  if (isCheckingAccess) {
+    return (
+      <PanelLayout currentStep="medicion-ra" title="Medición RA" description="Registro y seguimiento de Resultados de Aprendizaje asignados.">
+        <WorkflowStateCard title="Validando acceso" description="Estamos verificando la asignación docente y el tipo de contratación en ITIS." />
+      </PanelLayout>
     );
-  }, [hasValidCourseContext]);
+  }
 
-  if (!hasValidCourseContext) {
+  if (accessError) {
+    return (
+      <PanelLayout currentStep="medicion-ra" title="Medición RA" description="Registro y seguimiento de Resultados de Aprendizaje asignados.">
+        <WorkflowStateCard variant="locked" title="No fue posible validar el acceso" description={accessError} />
+      </PanelLayout>
+    );
+  }
+
+  if (access && !access.canGrade) {
+    return (
+      <PanelLayout currentStep="medicion-ra" title="Medición RA" description="Registro y seguimiento de Resultados de Aprendizaje asignados.">
+        <WorkflowStateCard
+          variant="locked"
+          title="No tienes permiso para calificar este curso"
+          description={`${access.reason ?? "Solo los docentes de tiempo completo pueden registrar la medición."} Docente registrado: ${access.teacherName}. Contratación: ${access.contractType}.`}
+        />
+      </PanelLayout>
+    );
+  }
+
+  if (!requestedCourseId || !requestedCycleId || !access) {
     return (
       <PanelLayout
         currentStep="medicion-ra"
@@ -110,6 +146,8 @@ function MedicionRAContent() {
     handleCancelFinishEvaluation,
     handleCloseFeedback,
     hasAvailableCourses,
+    isLoading,
+    loadError,
   } = useMedicionRA();
 
   const tourSteps = useMemo<OnboardingTourStep[]>(
@@ -163,7 +201,7 @@ function MedicionRAContent() {
     []
   );
 
-  const canShowTour = hasAvailableCourses;
+  const canShowTour = hasAvailableCourses && !isLoading && !loadError;
 
   const { startTour } = useOnboardingTour({
     steps: tourSteps,
@@ -172,8 +210,8 @@ function MedicionRAContent() {
     enabled: canShowTour,
   });
 
-  const handleFinishCourse = () => {
-    const didFinish = handleConfirmFinishEvaluation();
+  const handleFinishCourse = async () => {
+    const didFinish = await handleConfirmFinishEvaluation();
     if (!didFinish) return;
 
     navigateToRoute(
@@ -183,7 +221,7 @@ function MedicionRAContent() {
     );
   };
 
-  if (!hasAvailableCourses) {
+  if (isLoading || loadError || !hasAvailableCourses) {
     return (
       <PanelLayout
         currentStep="medicion-ra"
@@ -191,9 +229,9 @@ function MedicionRAContent() {
         description="Registro y seguimiento de Resultados de Aprendizaje asignados."
       >
         <WorkflowStateCard
-          variant="locked"
-          title="No tienes cursos asignados para medir"
-          description="Los cursos con Resultados de Aprendizaje asignados aparecerán aquí cuando estén disponibles."
+          variant={loadError ? "locked" : undefined}
+          title={isLoading ? "Cargando medición" : loadError ? "No fue posible cargar la medición" : "No tienes cursos asignados para medir"}
+          description={isLoading ? "Estamos consultando los cursos, estudiantes y RA en el servicio institucional." : loadError || "Los cursos con Resultados de Aprendizaje asignados aparecerán aquí cuando estén disponibles."}
         />
       </PanelLayout>
     );

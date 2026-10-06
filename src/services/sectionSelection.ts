@@ -1,5 +1,5 @@
-import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../app/appRoutes";
 import { storageClient } from "../shared/browser";
+import { showNotification } from "../shared/feedback";
 
 export const SECUB_SECTION_STORAGE_KEY = "secub:selected-section:v1";
 
@@ -27,5 +27,14 @@ export function getSelectedSection(): SecubSectionId | null {
 
 export function continueAccessAfterSectionSelection(sectionId: SecubSectionId) {
   persistSelectedSection(sectionId);
-  navigateToRoute(buildRouteWithSearch(ROUTES.programSelector, { role: "director" }));
+  if (sectionId !== "cali") {
+    showNotification({
+      title: "Acceso próximamente",
+      message: "Por ahora el inicio de sesión solo está habilitado para la seccional Cali.",
+      variant: "info",
+    });
+    return;
+  }
+
+  window.location.assign("/auth/microsoft?campus=USBCA");
 }

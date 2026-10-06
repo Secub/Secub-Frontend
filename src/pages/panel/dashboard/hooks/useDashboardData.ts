@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { subscribeToMockBackendChanges } from "../../../../services/mockBackend";
-import { getCurrentDashboardUser, getDashboardData } from "../dashboard.mock";
+import { getMeasurementContext, type MeasurementContext } from "../../../../services/measurements";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
+import { buildDashboardDataFromApi } from "../dashboard.api";
 import {
   applyUserScopeToCourses,
   applyUserScopeToCycles,
@@ -11,12 +12,44 @@ import {
 } from "../dashboard.utils";
 
 export function useDashboardData() {
-  const [, setBackendVersion] = useState(0);
+  const [measurementContext, setMeasurementContext] = useState<MeasurementContext | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-  useEffect(() => subscribeToMockBackendChanges(() => setBackendVersion((current) => current + 1)), []);
+  useEffect(() => {
+    const controller = new AbortController();
+    setIsLoading(true);
+    setLoadError("");
+    void getMeasurementContext(controller.signal)
+      .then(setMeasurementContext)
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setLoadError(error instanceof Error ? error.message : "No fue posible cargar el estado del ciclo.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
+      });
+    return () => controller.abort();
+  }, []);
 
-  const user = getCurrentDashboardUser();
-  const dashboardData = getDashboardData();
+  const currentUser = getCurrentUser();
+  const user = {
+    id: currentUser.id,
+    name: currentUser.nombre,
+    email: currentUser.email,
+    role: currentUser.role,
+    label: currentUser.cargo,
+    scope: {
+      seccionalId: currentUser.scope.seccionalId,
+      facultadId: currentUser.scope.facultadId,
+      programaId: currentUser.scope.programaId,
+      planId: currentUser.scope.planId,
+      docenteId: currentUser.role === "docente" ? currentUser.id : undefined,
+    },
+  };
+  const dashboardData = measurementContext
+    ? buildDashboardDataFromApi(measurementContext)
+    : { catalogs: { seccionales: [], facultades: [], programas: [], planes: [], teachers: [], competences: [] }, cycles: [], courses: [] };
   const isTeacher = user.role === "docente";
   const isDirector = user.role === "director";
 
@@ -36,7 +69,7 @@ export function useDashboardData() {
   useEffect(() => {
     scopedCycles.forEach((cycle) => {
       if (shouldNotifyDirectorCycleCompletion(cycle)) {
-        requestDirectorCycleCompletionNotification(cycle);
+        void requestDirectorCycleCompletionNotification(cycle).catch(() => undefined);
       }
     });
   }, [scopedCycles]);
@@ -48,5 +81,7 @@ export function useDashboardData() {
     isDirector,
     scopedCycles,
     scopedCourses,
+    isLoading,
+    loadError,
   };
 }

@@ -1,13 +1,17 @@
 import { GoArrowRight, GoBook, GoChevronLeft } from "react-icons/go";
 import LogoSECUB from "../../../assets/logos/logotipo_ConUSB.png";
-import { secubAcademicPrograms, type SecubProgramId } from "../../../data/secubAcademicPrograms";
+import type { AuthContext } from "../../../services/auth/session";
 
 interface ProgramSelectionSectionProps {
-  onSelectProgram: (programId: SecubProgramId) => void;
+  contexts: AuthContext[];
+  submittingContextId: string | null;
+  onSelectProgram: (context: AuthContext) => void;
   onBack: () => void;
 }
 
 export default function ProgramSelectionSection({
+  contexts,
+  submittingContextId,
   onSelectProgram,
   onBack,
 }: ProgramSelectionSectionProps) {
@@ -41,30 +45,31 @@ export default function ProgramSelectionSection({
           Selecciona tu programa académico
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-gray-3)] sm:text-base">
-          Selecciona el programa académico con el que vas a ingresar al panel de SECUB.
+          Elige uno de los programas asignados a tu cuenta institucional.
         </p>
       </div>
 
-      <div className="mt-5 grid gap-3" aria-label="Programas académicos disponibles">
-        {secubAcademicPrograms.length === 0 ? (
+      <div className="mt-5 grid max-h-[440px] gap-3 overflow-y-auto pr-1" aria-label="Programas académicos disponibles">
+        {contexts.length === 0 ? (
           <div
             role="status"
             className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-5 text-center"
           >
             <p className="font-heading text-base font-bold text-[var(--color-secondary-4)]">
-              No hay programas simulados cargados
+              No hay programas disponibles
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)]">
-              El catálogo quedó vacío para incorporar después una única fuente de datos controlada.
+              Tu sesión no tiene programas asociados para el cargo seleccionado.
             </p>
           </div>
         ) : (
-          secubAcademicPrograms.map((program) => (
+          contexts.map((context) => (
             <button
-              key={program.id}
+              key={context.context_id}
               type="button"
-              className="surface-card group flex items-center justify-between gap-4 p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--secub-primary)] hover:shadow-[0_18px_45px_rgba(24,34,51,0.10)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-primary)]"
-              onClick={() => onSelectProgram(program.id)}
+              disabled={submittingContextId !== null}
+              className="surface-card group flex items-center justify-between gap-4 p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--secub-primary)] hover:shadow-[0_18px_45px_rgba(24,34,51,0.10)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-primary)] disabled:cursor-wait disabled:opacity-60"
+              onClick={() => onSelectProgram(context)}
             >
               <span className="flex min-w-0 items-center gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--secub-primary)] text-xl text-[var(--secub-primary-text)]">
@@ -72,10 +77,10 @@ export default function ProgramSelectionSection({
                 </span>
                 <span className="min-w-0">
                   <span className="block font-heading text-lg font-bold text-[var(--color-secondary-4)]">
-                    {program.name}
+                    {context.program_name}
                   </span>
                   <span className="mt-1 block text-sm leading-5 text-[var(--color-gray-3)]">
-                    {program.faculty} · Plan {program.planVersion}
+                    {context.faculty_name} · {context.plan_name}
                   </span>
                 </span>
               </span>

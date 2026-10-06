@@ -1,7 +1,5 @@
 import { useCallback, useEffect } from "react";
-import type { MutableRefObject } from "react";
-import { mockBackend } from "../../../../services/mockBackend";
-import type { getCurrentMockUser } from "../../../../services/auth/mockUser";
+import type { getCurrentUser } from "../../../../services/auth/currentUser";
 import type {
   CourseRecord,
   EvaluationMatrix,
@@ -9,7 +7,8 @@ import type {
   ImprovementPlanState,
   InstrumentByRa,
 } from "../medicion-ra.types";
-import type { MedicionRaDemoState } from "../types/medicionRA.persistence.types";
+import type { CourseMeasurementState } from "../types/medicionRA.persistence.types";
+import { saveCourseMeasurement } from "../../../../services/measurements";
 import type { resolveMedicionRaContextForCourse } from "../utils/medicionRA.assignments";
 import {
   pickCourseCompetenceState,
@@ -54,33 +53,33 @@ export function useMedicionRAPersistence({
   evaluationsByCourse,
   evidenceByCompetence,
   hydratedStateId,
-  ignoreNextBackendChangeRef,
   improvementByCompetence,
   instrumentsByCourse,
   isSelectedCourseLocked,
   medicionRaContext,
-  medicionRaDemoStateId,
+  courseMeasurementStateId,
   selectedCourse,
   selectedCourseId,
+  onPersisted,
 }: {
   activeCompetenceId: string;
   completedCompetenceIds: string[];
-  currentUser: ReturnType<typeof getCurrentMockUser>;
+  currentUser: ReturnType<typeof getCurrentUser>;
   evaluationsByCourse: Record<string, EvaluationMatrix>;
   evidenceByCompetence: Record<string, EvidenceState>;
   hydratedStateId: string;
-  ignoreNextBackendChangeRef: MutableRefObject<boolean>;
   improvementByCompetence: Record<string, ImprovementPlanState>;
   instrumentsByCourse: Record<string, InstrumentByRa>;
   isSelectedCourseLocked: boolean;
   medicionRaContext: ReturnType<typeof resolveMedicionRaContextForCourse>;
-  medicionRaDemoStateId: string;
+  courseMeasurementStateId: string;
   selectedCourse: CourseRecord;
   selectedCourseId: string;
+  onPersisted: (cycleId: string, courseId: string, measurement: CourseMeasurementState) => void;
 }) {
   const persistSelectedCourse = useCallback(
-    (options: PersistSelectedCourseOptions = {}) => {
-      if (hydratedStateId !== medicionRaDemoStateId) return false;
+    async (options: PersistSelectedCourseOptions = {}) => {
+      if (hydratedStateId !== courseMeasurementStateId) return false;
 
       const courseEvaluations = pickCourseEvaluationState(
         evaluationsByCourse,
@@ -98,18 +97,16 @@ export function useMedicionRAPersistence({
         improvementByCompetence,
         selectedCourse.id,
       );
-      const { relatedCiclo, cicloId, asignacionRaIds } = medicionRaContext;
+      const { cicloId, asignacionRaIds } = medicionRaContext;
       const nextCompletedCompetenceIds =
         options.completedCompetenceIds ?? completedCompetenceIds;
       const nextIsEvaluationLocked =
         options.isEvaluationLocked ?? isSelectedCourseLocked;
       const nextCompleted = options.completed ?? nextIsEvaluationLocked;
 
-      ignoreNextBackendChangeRef.current = true;
-      mockBackend.upsert<MedicionRaDemoState>(
-        "medicionesRa",
-        {
-          id: medicionRaDemoStateId,
+      const measurement: CourseMeasurementState =
+      {
+          id: courseMeasurementStateId,
           cicloId,
           asignacionRaId: asignacionRaIds[0],
           asignacionRaIds,
@@ -123,13 +120,14 @@ export function useMedicionRAPersistence({
           isEvaluationLocked: nextIsEvaluationLocked,
           completed: nextCompleted,
           userId: currentUser.id,
-          seccionalId: selectedCourse.seccionalId ?? relatedCiclo?.seccionalId,
-          facultadId: selectedCourse.facultadId ?? relatedCiclo?.facultadId,
-          programaId: selectedCourse.programaId ?? relatedCiclo?.programaId,
-          planId: selectedCourse.planId ?? relatedCiclo?.planId,
-        },
-        currentUser,
-      );
+          seccionalId: selectedCourse.seccionalId,
+          facultadId: selectedCourse.facultadId,
+          programaId: selectedCourse.programaId,
+          planId: selectedCourse.planId,
+        };
+      if (!cicloId) return false;
+      const savedMeasurement = await saveCourseMeasurement(cicloId, selectedCourse.id, measurement);
+      onPersisted(cicloId, selectedCourse.id, savedMeasurement);
 
       return true;
     },
@@ -140,12 +138,12 @@ export function useMedicionRAPersistence({
       evaluationsByCourse,
       evidenceByCompetence,
       hydratedStateId,
-      ignoreNextBackendChangeRef,
       improvementByCompetence,
       instrumentsByCourse,
       isSelectedCourseLocked,
       medicionRaContext,
-      medicionRaDemoStateId,
+      onPersisted,
+      courseMeasurementStateId,
       selectedCourse,
       selectedCourseId,
     ],
@@ -176,10 +174,12 @@ export function useMedicionRAPersistence({
       hasTextStateProgress(courseImprovementPlans) ||
       isSelectedCourseLocked;
 
-    if (!hasProgress || hydratedStateId !== medicionRaDemoStateId) return;
+    if (!hasProgress || hydratedStateId !== courseMeasurementStateId) return;
 
     const timeoutId = window.setTimeout(
-      () => persistSelectedCourse(),
+      () => {
+        void persistSelectedCourse().catch(() => undefined);
+      },
       isSelectedCourseLocked ? 0 : 500,
     );
 
@@ -192,7 +192,7 @@ export function useMedicionRAPersistence({
     improvementByCompetence,
     instrumentsByCourse,
     isSelectedCourseLocked,
-    medicionRaDemoStateId,
+    courseMeasurementStateId,
     persistSelectedCourse,
     selectedCourse.id,
   ]);

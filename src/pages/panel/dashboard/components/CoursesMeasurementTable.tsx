@@ -23,31 +23,6 @@ interface CoursesMeasurementTableProps {
   tableId?: string;
 }
 
-// ----------- Funcion gestion de correos con mailto sin gestion interna -----------------
-
-const sendEmail = (course: EnrichedCourse) => {
-  const subject = encodeURIComponent(
-    `Medición pendiente - ${course.name}`
-  );
-
-  const body = encodeURIComponent(`
-Hola ${course.teacherName},
-
-Tiene pendiente la medición de los Resultados de Aprendizaje.
-
-Curso: ${course.name}
-Código: ${course.code}
-Periodo: ${course.period}
-
-Gracias.
-`);
-
-  window.open(
-    `mailto:${course.teacherEmail}?subject=${subject}&body=${body}`,
-    "_blank"
-  );
-};
-
 const statusVariant = {
   pendiente: "warning",
   finalizado: "success",
@@ -68,7 +43,7 @@ export default function CoursesMeasurementTable({
   mode,
   onMeasureCourse,
   onViewResults,
-  // onNotifyTeacher,
+  onNotifyTeacher,
   tableId,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
@@ -154,6 +129,10 @@ export default function CoursesMeasurementTable({
               }
               onMeasureCourse?.(course);
             }}
+            disabled={course.status === "pendiente" && course.canGrade === false}
+            title={course.status === "pendiente" && course.canGrade === false
+              ? course.gradeBlockedReason ?? "Solo los docentes de tiempo completo pueden registrar la medición."
+              : undefined}
             className="w-full max-w-[140px] px-3 text-center leading-tight"
           >
             {course.progress >= 100 || course.status === "finalizado" ? "Ver detalle" : "Medir"}
@@ -206,6 +185,9 @@ export default function CoursesMeasurementTable({
           </p>
           <p className="mt-1 break-words text-xs text-[var(--color-gray-4)]">
             {course.teacherEmail}
+          </p>
+          <p className="mt-1 text-xs text-[var(--color-gray-4)]">
+            {course.teacherContractType ?? "Sin contratación"}
           </p>
         </div>
       ),
@@ -265,7 +247,13 @@ export default function CoursesMeasurementTable({
               size="sm"
               icon={<ActionIcon name="email" />}
               label={`Enviar correo a ${course.teacherName}`}
-              onClick={() => sendEmail(course)}
+              onClick={() => onNotifyTeacher?.(course)}
+              disabled={!course.teacherEmail}
+              title={
+                course.teacherEmail
+                  ? `Enviar correo a ${course.teacherName}`
+                  : "El curso no tiene un docente con correo institucional asignado."
+              }
             />
           ) : null}
 

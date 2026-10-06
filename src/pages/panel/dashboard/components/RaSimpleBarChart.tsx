@@ -1,4 +1,4 @@
-import { TARGET_RA_PERCENTAGE } from "../dashboard-ra.mock";
+import { TARGET_RA_PERCENTAGE } from "../dashboard.constants";
 import type { RaResultSummary } from "../dashboard-ra.types";
 
 interface RaSimpleBarChartProps {

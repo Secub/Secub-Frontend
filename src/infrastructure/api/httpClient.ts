@@ -64,6 +64,7 @@ export async function request<T>(path: string, options: HttpRequestOptions = {})
 
   const response = await fetch(createUrl(path, options.query), {
     method,
+    credentials: "include",
     headers,
     body: options.body === undefined
       ? undefined
@@ -84,6 +85,10 @@ export async function request<T>(path: string, options: HttpRequestOptions = {})
       code,
       details: payload,
     });
+  }
+
+  if (method !== "GET" && typeof window !== "undefined") {
+    window.dispatchEvent(new Event("secub:workflow-changed"));
   }
 
   return payload as T;

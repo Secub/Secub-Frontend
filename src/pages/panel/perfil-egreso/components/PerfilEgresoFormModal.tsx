@@ -21,8 +21,9 @@ interface PerfilEgresoFormModalProps {
   initialValues: FormState;
   records: PerfilEgresoEnriched[]; //Validar si ya existe perfil con mismo plan de estudios
   record: PerfilEgresoEnriched | null;
+  submitting?: boolean;
   onClose: () => void;
-  onSubmit: (values: FormState) => void;
+  onSubmit: (values: FormState) => void | Promise<void>;
 }
 
 interface FormErrors extends AcademicScopeErrors {
@@ -37,6 +38,7 @@ export function PerfilEgresoFormModal({
   initialValues,
   records,
   record,
+  submitting = false,
   onClose,
   onSubmit,
 }: PerfilEgresoFormModalProps) {
@@ -112,9 +114,9 @@ export function PerfilEgresoFormModal({
   };
 
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSubmit(mode === "create" ? { ...form, estado: "activo" } : form);
+    await onSubmit(mode === "create" ? { ...form, estado: "activo" } : form);
   };
 
   return (
@@ -130,11 +132,15 @@ export function PerfilEgresoFormModal({
       size="lg"
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            {mode === "create" ? "Crear perfil" : "Guardar cambios"}
+          <Button variant="primary" onClick={() => void handleSubmit()} disabled={submitting}>
+            {submitting
+              ? "Guardando…"
+              : mode === "create"
+                ? "Crear perfil"
+                : "Guardar cambios"}
           </Button>
         </div>
       }

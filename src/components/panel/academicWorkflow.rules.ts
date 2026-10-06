@@ -59,6 +59,7 @@ export type AcademicRecord = {
   periodo?: string;
   deletedAt?: string;
   completed?: boolean;
+  finalizado?: boolean;
   isEvaluationLocked?: boolean;
   resultadosAprendizaje?: Array<{ id?: string; descripcion?: string }>;
 };
@@ -188,6 +189,7 @@ export function isCompetenciasRaLinkedToProposito(record: AcademicRecord, propos
 export function isMapeoCompetenciasLinkedToCompetencias(record: AcademicRecord, competenciasCompletas: AcademicRecord[]) {
   return (
     isActiveAcademicRecord(record) &&
+    record.finalizado === true &&
     hasValue(record.programaId) &&
     hasValue(record.planId) &&
     (hasMatchingId(record.competenciaRaId, competenciasCompletas) ||

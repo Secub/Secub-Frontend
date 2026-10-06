@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { mockInitialEvaluations, mockInitialInstruments } from "../medicion-ra.mock";
+import { useEffect, useRef, useState } from "react";
 import { normalizeEvaluationMatrix, normalizeInstrumentState } from "../medicion-ra.utils";
 import type {
   CourseRecord,
@@ -8,46 +7,47 @@ import type {
   ImprovementPlanState,
   InstrumentByRa,
 } from "../medicion-ra.types";
-import type { MedicionRaDemoState } from "../types/medicionRA.persistence.types";
+import type { CourseMeasurementState } from "../types/medicionRA.persistence.types";
 
 export function useMedicionRAHydration({
   availableCourses,
   selectedCourseId,
   selectedCourse,
-  persistedDemoState,
-  medicionRaDemoStateId,
-  initialPersistedDemoState,
+  persistedState,
+  courseMeasurementStateId,
+  initialPersistedState,
   setSelectedCourseId,
   setActiveCompetenceId,
 }: {
   availableCourses: CourseRecord[];
   selectedCourseId: string;
   selectedCourse: CourseRecord;
-  persistedDemoState?: MedicionRaDemoState;
-  medicionRaDemoStateId: string;
-  initialPersistedDemoState?: MedicionRaDemoState;
+  persistedState?: CourseMeasurementState;
+  courseMeasurementStateId: string;
+  initialPersistedState?: CourseMeasurementState;
   setSelectedCourseId: (courseId: string) => void;
   setActiveCompetenceId: (competenceId: string) => void;
 }) {
   const [evaluationsByCourse, setEvaluationsByCourse] = useState<Record<string, EvaluationMatrix>>(
-    initialPersistedDemoState?.evaluationsByCourse ?? mockInitialEvaluations,
+    initialPersistedState?.evaluationsByCourse ?? {},
   );
   const [instrumentsByCourse, setInstrumentsByCourse] = useState<Record<string, InstrumentByRa>>(
-    initialPersistedDemoState?.instrumentsByCourse ?? mockInitialInstruments,
+    initialPersistedState?.instrumentsByCourse ?? {},
   );
   const [evidenceByCompetence, setEvidenceByCompetence] = useState<Record<string, EvidenceState>>(
-    initialPersistedDemoState?.evidenceByCompetence ?? {},
+    initialPersistedState?.evidenceByCompetence ?? {},
   );
   const [improvementByCompetence, setImprovementByCompetence] = useState<Record<string, ImprovementPlanState>>(
-    initialPersistedDemoState?.improvementByCompetence ?? {},
+    initialPersistedState?.improvementByCompetence ?? {},
   );
   const [completedCompetenceIds, setCompletedCompetenceIds] = useState<string[]>(
-    initialPersistedDemoState?.completedCompetenceIds ?? [],
+    initialPersistedState?.completedCompetenceIds ?? [],
   );
   const [isSelectedCourseLocked, setIsSelectedCourseLocked] = useState(
-    initialPersistedDemoState?.isEvaluationLocked ?? false,
+    initialPersistedState?.isEvaluationLocked ?? false,
   );
-  const [hydratedStateId, setHydratedStateId] = useState(medicionRaDemoStateId);
+  const [hydratedStateId, setHydratedStateId] = useState(courseMeasurementStateId);
+  const lastHydratedStateIdRef = useRef("");
 
   useEffect(() => {
     if (!availableCourses.some((course) => course.id === selectedCourseId)) {
@@ -55,14 +55,16 @@ export function useMedicionRAHydration({
       return;
     }
 
-    if (persistedDemoState?.selectedCourseId === selectedCourse.id) {
-      setActiveCompetenceId(persistedDemoState.activeCompetenceId ?? selectedCourse.competences[0]?.id ?? "");
-      setEvaluationsByCourse(persistedDemoState.evaluationsByCourse ?? mockInitialEvaluations);
-      setInstrumentsByCourse(persistedDemoState.instrumentsByCourse ?? mockInitialInstruments);
-      setEvidenceByCompetence(persistedDemoState.evidenceByCompetence ?? {});
-      setImprovementByCompetence(persistedDemoState.improvementByCompetence ?? {});
-      setCompletedCompetenceIds(persistedDemoState.completedCompetenceIds ?? []);
-      setIsSelectedCourseLocked(persistedDemoState.isEvaluationLocked ?? false);
+    if (lastHydratedStateIdRef.current === courseMeasurementStateId) return;
+
+    if (persistedState?.selectedCourseId === selectedCourse.id) {
+      setActiveCompetenceId(persistedState.activeCompetenceId ?? selectedCourse.competences[0]?.id ?? "");
+      setEvaluationsByCourse(persistedState.evaluationsByCourse ?? {});
+      setInstrumentsByCourse(persistedState.instrumentsByCourse ?? {});
+      setEvidenceByCompetence(persistedState.evidenceByCompetence ?? {});
+      setImprovementByCompetence(persistedState.improvementByCompetence ?? {});
+      setCompletedCompetenceIds(persistedState.completedCompetenceIds ?? []);
+      setIsSelectedCourseLocked(persistedState.isEvaluationLocked ?? false);
     } else {
       setActiveCompetenceId(selectedCourse.competences[0]?.id ?? "");
       setEvaluationsByCourse((current) => ({
@@ -77,8 +79,9 @@ export function useMedicionRAHydration({
       setIsSelectedCourseLocked(false);
     }
 
-    setHydratedStateId(medicionRaDemoStateId);
-  }, [availableCourses, medicionRaDemoStateId, persistedDemoState, selectedCourse, selectedCourseId, setActiveCompetenceId, setSelectedCourseId]);
+    setHydratedStateId(courseMeasurementStateId);
+    lastHydratedStateIdRef.current = courseMeasurementStateId;
+  }, [availableCourses, courseMeasurementStateId, persistedState, selectedCourse, selectedCourseId, setActiveCompetenceId, setSelectedCourseId]);
 
   return {
     evaluationsByCourse,

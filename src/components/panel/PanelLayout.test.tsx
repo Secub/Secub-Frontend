@@ -5,6 +5,11 @@ import PanelLayout from "./PanelLayout";
 
 vi.mock("./PanelSidebar", () => ({ default: () => null }));
 vi.mock("./sidebar/PanelMobileNavigation", () => ({ default: () => null }));
+vi.mock("./NotificationCenter", () => ({ default: () => null }));
+vi.mock("./academicWorkflow", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./academicWorkflow")>();
+  return { ...actual, useAcademicWorkflowProgress: () => ({}) };
+});
 
 describe("PanelLayout tour replay", () => {
   it("does not render the tour button when no tour is provided", () => {

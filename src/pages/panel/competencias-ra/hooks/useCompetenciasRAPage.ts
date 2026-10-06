@@ -1,43 +1,124 @@
-import { useState } from "react";
-import { isAcademicWorkflowStepLocked } from "../../../../components/panel";
-import { mockBackend } from "../../../../services/mockBackend";
-import { getCurrentUser, getCatalogs } from "../CompetenciasRa.mock";
-import { getAcademicModulePermissions, shouldEnforceAcademicWorkflowLock } from "../../../../config/access/permissions";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isAcademicWorkflowStepLocked } from '../../../../components/panel';
 import {
-  buildRecordFromForm,
-  enrichCompetenciasRa,
-  getEmptyFormState,
-  MAX_RA_PER_COMPETENCIA,
-  getLearningResultsValidationMessage,
-} from "../CompetenciasRa.utils";
+  getAcademicModulePermissions,
+  shouldEnforceAcademicWorkflowLock,
+} from '../../../../config/access/permissions';
+import {
+  createCompetency,
+  getCompetencyContext,
+  listCompetencies,
+  updateCompetency,
+  type CompetencyContext,
+} from '../../../../services/competencies';
+import { getCurrentUser } from '../../../../services/auth/currentUser';
+import { showNotification } from '../../../../shared/feedback';
 import type {
-  FormState,
+  Catalogs,
   CompetenciasRaEnriched,
   CompetenciasRaFormacionRecord,
-} from "../CompetenciasRa.types";
-import { useCompetenciasRAFilters } from "./useCompetenciasRAFilters";
-import { useCompetenciasRAActions } from "./useCompetenciasRAActions";
-import { showNotification } from "../../../../shared/feedback";
+  FormState,
+} from '../CompetenciasRa.types';
+import {
+  enrichCompetenciasRa,
+  getEmptyFormState,
+} from '../CompetenciasRa.utils';
+import { useCompetenciasRAActions } from './useCompetenciasRAActions';
+import { useCompetenciasRAFilters } from './useCompetenciasRAFilters';
 
-const currentUser = getCurrentUser();
-const catalogs = getCatalogs();
+const MAX_COMPETENCIES_PER_PLAN = 4;
+
+const EMPTY_CATALOGS: Catalogs = {
+  seccionales: [],
+  lugares: [],
+  facultades: [],
+  programas: [],
+  planes: [],
+};
+
+function buildCatalogs(context: CompetencyContext): Catalogs {
+  const { scope } = context;
+  return {
+    seccionales: [{ id: scope.seccionalId, nombre: scope.seccionalNombre }],
+    lugares: [{ id: scope.lugarId, nombre: scope.lugarNombre, seccionalId: scope.seccionalId }],
+    facultades: [{ id: scope.facultadId, nombre: scope.facultadNombre, seccionalId: scope.seccionalId }],
+    programas: [{
+      id: scope.programaId,
+      nombre: scope.programaNombre,
+      facultadId: scope.facultadId,
+      seccionalId: scope.seccionalId,
+    }],
+    planes: context.planes,
+  };
+}
 
 export function useCompetenciasRAPage() {
-  const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>(() =>
-    mockBackend.list<CompetenciasRaFormacionRecord>("competenciasRa", currentUser),
-  );
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const [catalogs, setCatalogs] = useState<Catalogs>(EMPTY_CATALOGS);
+  const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>([]);
+  const [cyclePlanIds, setCyclePlanIds] = useState<Set<string>>(() => new Set());
+  const [maxCompetenciesPerPlan, setMaxCompetenciesPerPlan] = useState(MAX_COMPETENCIES_PER_PLAN);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadVersion, setReloadVersion] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<CompetenciasRaEnriched | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<"create" | "edit">("create");
-  const [formValues, setFormValues] = useState<FormState>(getEmptyFormState(currentUser));
-  const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | null>(null);
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [formValues, setFormValues] = useState<FormState>(() => getEmptyFormState(currentUser));
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | null>(null);
 
-  const permissions = getAcademicModulePermissions("competenciasRa", currentUser.role);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError(null);
+    Promise.all([
+      getCompetencyContext(controller.signal),
+      listCompetencies(controller.signal),
+    ])
+      .then(([context, competencyRecords]) => {
+        setCatalogs(buildCatalogs(context));
+        setMaxCompetenciesPerPlan(context.maxCompetenciasPorPlan);
+        setCyclePlanIds(new Set(context.planesConCiclo));
+        setRecords(competencyRecords);
+      })
+      .catch((reason: unknown) => {
+        if (controller.signal.aborted) return;
+        setLoadError(
+          reason instanceof Error
+            ? reason.message
+            : 'No fue posible cargar las competencias y RA.',
+        );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [currentUser, reloadVersion]);
+
+  const permissions = getAcademicModulePermissions('competenciasRa', currentUser.role);
   const isStepLocked =
     shouldEnforceAcademicWorkflowLock(currentUser.role) &&
-    isAcademicWorkflowStepLocked("competencias-ra");
+    isAcademicWorkflowStepLocked('competencias-ra');
   const hasRecords = records.length > 0;
+  const creatablePlans = useMemo(() => catalogs.planes.filter((plan) =>
+    plan.estado === 'activo' &&
+    !cyclePlanIds.has(plan.id) &&
+    records.filter((record) => record.planId === plan.id).length < maxCompetenciesPerPlan,
+  ), [catalogs.planes, cyclePlanIds, maxCompetenciesPerPlan, records]);
+  const canCreateCompetency = permissions.canCreate && creatablePlans.length > 0;
+  const createCompetencyDisabledReason = useMemo(() => {
+    const activePlans = catalogs.planes.filter((plan) => plan.estado === 'activo');
+    if (activePlans.length > 0 && activePlans.every((plan) => cyclePlanIds.has(plan.id))) {
+      return 'No puedes crear competencias porque el plan ya tiene un ciclo de medición.';
+    }
+    return 'Todos los planes disponibles ya tienen el máximo de 4 competencias.';
+  }, [catalogs.planes, cyclePlanIds]);
+  const formCatalogs = useMemo<Catalogs>(() => formMode === 'create'
+    ? { ...catalogs, planes: creatablePlans }
+    : catalogs,
+  [catalogs, creatablePlans, formMode]);
   const filtersState = useCompetenciasRAFilters({ records, catalogs, currentUser });
   const {
     filters,
@@ -50,19 +131,39 @@ export function useCompetenciasRAPage() {
     invalidCompetencias,
     handleFilterChange,
   } = filtersState;
+  const hasCycleLockedPlanInView = filters.planId
+    ? cyclePlanIds.has(filters.planId)
+    : cyclePlanIds.size > 0;
+  const hasAssignedRaInView = filteredRecords.some((record) =>
+    record.resultadosAprendizaje.some((ra) => ra.asignado),
+  );
 
-  const refreshRecordsState = (nextRecords: CompetenciasRaFormacionRecord[], selectedId?: string) => {
-    setRecords(nextRecords);
-    if (!selectedId) return;
+  const updateRecordState = useCallback((record: CompetenciasRaFormacionRecord) => {
+    setRecords((current) => {
+      const exists = current.some((item) => item.id === record.id);
+      return exists
+        ? current.map((item) => (item.id === record.id ? record : item))
+        : [...current, record];
+    });
+    const enriched = enrichCompetenciasRa([record], catalogs)[0];
+    setSelectedRecord((current) => current?.id === record.id ? enriched : current);
+  }, [catalogs]);
 
-    const refreshedRecord = enrichCompetenciasRa(nextRecords, catalogs).find((record) => record.id === selectedId);
-    setSelectedRecord(refreshedRecord ?? null);
-  };
+  const removeRecordState = useCallback((recordId: string) => {
+    setRecords((current) => current.filter((record) => record.id !== recordId));
+  }, []);
 
   const openCreateModal = () => {
-    if (!permissions.canCreate) return;
-
-    setFormMode("create");
+    if (!permissions.canCreate || loading) return;
+    if (!canCreateCompetency) {
+      showNotification({
+        title: 'No se puede crear la competencia',
+        message: createCompetencyDisabledReason,
+        variant: 'warning',
+      });
+      return;
+    }
+    setFormMode('create');
     setFormValues(getEmptyFormState(currentUser));
     setSelectedRecord(null);
     setFormOpen(true);
@@ -74,60 +175,99 @@ export function useCompetenciasRAPage() {
   };
 
   const raActions = useCompetenciasRAActions({
+    permissions,
     selectedRecord,
-    setRecords,
+    submitting,
+    setSubmitting,
     setSelectedRecord,
     setDetailOpen,
     setFormOpen,
-    refreshRecordsState,
+    updateRecordState,
+    removeRecordState,
   });
 
-  const handleFormSubmit = (values: FormState) => {
-    const canSubmit = formMode === "create" ? permissions.canCreate : permissions.canUpdate;
-    if (!canSubmit) {
-      setFormOpen(false);
+  const handleFormSubmit = async (values: FormState) => {
+    const canSubmit = formMode === 'create' ? permissions.canCreate : permissions.canUpdate;
+    if (!canSubmit || submitting) return;
+    if (
+      cyclePlanIds.has(values.planId) &&
+      (formMode === 'create' || selectedRecord?.planId !== values.planId)
+    ) {
+      showNotification({
+        title: 'Plan bloqueado por ciclo',
+        message: formMode === 'create'
+          ? 'No puedes crear competencias porque este plan ya tiene un ciclo de medición.'
+          : 'No puedes mover la competencia a un plan que ya tiene un ciclo de medición.',
+        variant: 'warning',
+      });
+      return;
+    }
+    const recordsForPlan = records.filter((record) =>
+      record.planId === values.planId && record.id !== selectedRecord?.id,
+    );
+    if (recordsForPlan.length >= maxCompetenciesPerPlan) {
+      showNotification({
+        title: 'Límite de competencias alcanzado',
+        message: 'Puedes crear máximo 4 competencias por programa y plan de estudios.',
+        variant: 'warning',
+      });
       return;
     }
 
-    const baseRecord = buildRecordFromForm(values, formMode === "edit" ? selectedRecord : null, records);
-    const relatedProposito = mockBackend
-      .list<{ id: string; programaId?: string; planId?: string }>("propositosFormacion", currentUser)
-      .find((item) => item.planId === baseRecord.planId || item.programaId === baseRecord.programaId);
-    const nextRecord = { ...baseRecord, propositoFormacionId: baseRecord.propositoFormacionId ?? relatedProposito?.id };
-    const validationMessage = getLearningResultsValidationMessage(nextRecord);
-
-    if (nextRecord.resultadosAprendizaje.length > MAX_RA_PER_COMPETENCIA) {
-      showNotification(validationMessage || "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos.");
-      return;
-    }
-
+    setSubmitting(true);
     try {
-      setRecords(
-        formMode === "create"
-          ? mockBackend.create<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser)
-          : mockBackend.update<CompetenciasRaFormacionRecord>("competenciasRa", nextRecord, currentUser),
-      );
+      const record = formMode === 'create'
+        ? await createCompetency({
+            planId: values.planId,
+            descripcion: values.descripcion.trim(),
+          })
+        : await updateCompetency(selectedRecord!.id, {
+            planId: values.planId,
+            descripcion: values.descripcion.trim(),
+            estado: values.estado,
+          });
+      updateRecordState(record);
+      setFilters({
+        seccionalId: values.seccionalId,
+        lugarId: values.lugarId,
+        facultadId: values.facultadId,
+        programaId: values.programaId,
+        planId: values.planId,
+        estado: 'activo',
+      });
+      setFormOpen(false);
+      setSelectedRecord(null);
+      showNotification({
+        message: formMode === 'create'
+          ? `${record.nombre} fue creada.`
+          : 'Los cambios de la competencia fueron guardados.',
+        variant: 'success',
+      });
     } catch (error) {
-      showNotification(error instanceof Error ? error.message : "No fue posible guardar la competencia.");
-      return;
+      showNotification({
+        title: 'No fue posible guardar',
+        message: error instanceof Error ? error.message : 'Intenta nuevamente.',
+        variant: 'error',
+      });
+    } finally {
+      setSubmitting(false);
     }
-
-    setFilters({
-      seccionalId: values.seccionalId,
-      lugarId: values.lugarId,
-      facultadId: values.facultadId,
-      programaId: values.programaId,
-      planId: values.planId,
-      estado: "activo",
-    });
-    setFormOpen(false);
-    setSelectedRecord(null);
   };
+
+  const reload = useCallback(() => setReloadVersion((current) => current + 1), []);
 
   return {
     currentUser,
     catalogs,
+    formCatalogs,
     permissions,
+    loading,
+    loadError,
+    submitting,
+    maxCompetenciesPerPlan,
+    canCreateCompetency,
+    createCompetencyDisabledReason,
+    reload,
     isStepLocked,
     hasRecords,
     filters,
@@ -141,12 +281,15 @@ export function useCompetenciasRAPage() {
     raModalMode: raActions.raModalMode,
     selectedRaRecord: raActions.selectedRaRecord,
     recordToDelete: raActions.recordToDelete,
+    raToDelete: raActions.raToDelete,
     raDraft: raActions.raDraft,
     raError: raActions.raError,
     roleScopedRecords,
     filteredRecords,
     availableFilterOptions,
     invalidCompetencias,
+    hasCycleLockedPlanInView,
+    hasAssignedRaInView,
     openCreateModal,
     openViewModal,
     openCreateRaModal: raActions.openCreateRaModal,
@@ -154,7 +297,9 @@ export function useCompetenciasRAPage() {
     handleSaveRa: raActions.handleSaveRa,
     handleSaveCompetenciaDescription: raActions.handleSaveCompetenciaDescription,
     handleDelete: raActions.handleDelete,
+    handleDeleteRa: raActions.handleDeleteRa,
     confirmDelete: raActions.confirmDelete,
+    confirmDeleteRa: raActions.confirmDeleteRa,
     handleFilterChange,
     handleFormSubmit,
     closeRaModal: raActions.closeRaModal,
@@ -164,6 +309,7 @@ export function useCompetenciasRAPage() {
     setFormOpen,
     setExportFormat,
     setRecordToDelete: raActions.setRecordToDelete,
+    setRaToDelete: raActions.setRaToDelete,
     setRaDraft: raActions.setRaDraft,
     setRaError: raActions.setRaError,
   };

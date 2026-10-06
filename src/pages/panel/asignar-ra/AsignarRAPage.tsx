@@ -24,6 +24,9 @@ export default function AsignarRAPage() {
   const isWorkflowActive = getAcademicWorkflowState(workflowProgress) !== "completed";
   const {
     access,
+    loading,
+    loadError,
+    refresh,
     filters,
     filterOptions,
     filterLocks,
@@ -176,7 +179,19 @@ export default function AsignarRAPage() {
       onReplayTour={canShowDetailTour ? startDetailTour : canShowTour ? startTour : undefined}
       tourLabel={canShowDetailTour ? "Ver guía del detalle" : undefined}
     >
-      {access.isStepLocked ? (
+      {loading ? (
+        <WorkflowStateCard
+          title="Cargando asignación de RA"
+          description="Estamos consultando los ciclos, cursos, competencias y resultados de aprendizaje guardados."
+        />
+      ) : loadError ? (
+        <WorkflowStateCard
+          title="No fue posible cargar la asignación de RA"
+          description={loadError}
+          actionLabel="Reintentar"
+          onAction={() => void refresh()}
+        />
+      ) : access.isStepLocked ? (
         <AsignarRAAccessState variant="locked-step" />
       ) : !access.canRead ? (
         <AsignarRAAccessState variant="docente" />
@@ -200,32 +215,31 @@ export default function AsignarRAPage() {
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
               <div id="asignar_ra-detalle-curso-panel" className="mt-3">
-              <AsignarRACourseDetail
-                selectedCourse={selectedCourse}
-                selectedCycle={selectedCycle}
-                selectedCourseAssignments={selectedCourseAssignments}
-                courseCompetencias={courseCompetencias}
-                draftSelections={draftSelections}
-                expandedCompetenciaIds={expandedCompetenciaIds}
-                measurements={measurements}
-                canManage={access.canManage}
-                canDelete={access.canDelete}
-                hasUnsavedChanges={hasUnsavedChanges()}
-                status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
-                onBackToCourses={handleBackToCourses}
-                onDelete={() => setShowDeleteConfirm(true)}
-                onToggleAccordion={toggleCompetenciaAccordion}
-                onToggleRa={toggleRaSelection}
-                getRaAssignment={getRaAssignment}
-                isRaSelected={isRaSelected}
-              />
+                <AsignarRACourseDetail
+                  selectedCourse={selectedCourse}
+                  selectedCycle={selectedCycle}
+                  selectedCourseAssignments={selectedCourseAssignments}
+                  courseCompetencias={courseCompetencias}
+                  draftSelections={draftSelections}
+                  expandedCompetenciaIds={expandedCompetenciaIds}
+                  measurements={measurements}
+                  canManage={access.canManage}
+                  canDelete={access.canDelete}
+                  hasUnsavedChanges={hasUnsavedChanges()}
+                  status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
+                  onBackToCourses={handleBackToCourses}
+                  onDelete={() => setShowDeleteConfirm(true)}
+                  onToggleAccordion={toggleCompetenciaAccordion}
+                  onToggleRa={toggleRaSelection}
+                  getRaAssignment={getRaAssignment}
+                  isRaSelected={isRaSelected}
+                />
               </div>
             </div>
           ) : (
             
             <>
               <div id="asignar-ra-filters-panel" ref={refs.filtersRef}>
-                
                 <AsignarRAFilters
                   filters={filters}
                   options={filterOptions}

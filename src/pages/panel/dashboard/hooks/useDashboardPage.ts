@@ -43,7 +43,6 @@ export function useDashboardPage() {
   });
   const improvementPlan = useDashboardImprovementPlan({
     isDirector: data.isDirector,
-    user: data.user,
   });
   const notifications = useDashboardNotifications();
   const breadcrumbs = useDashboardBreadcrumbs({
@@ -74,7 +73,7 @@ export function useDashboardPage() {
   const handleMeasureCourse = (course: EnrichedCourse) => {
     navigateToRoute(
       buildRouteWithSearch(ROUTES.panelMedicionRa, {
-        role: "docente",
+        role: data.user.role,
         cycleId: course.cycleId,
         courseId: course.id,
       }),

@@ -1,7 +1,6 @@
-import { useMemo } from "react";
 import { Badge, Button } from "../../../../components/ui";
 import type { CursoAsis, NucleoFormacion, NucleosDraft } from "../MapeoCompetencias.types";
-import { getNucleoLabel, getNucleoVariant } from "../MapeoCompetencias.utils";
+import { canAssignNucleo, getNucleoLabel, getNucleoVariant } from "../MapeoCompetencias.utils";
 
 interface NucleoSemestreCardProps {
   semestreNumero: number;
@@ -18,12 +17,6 @@ const NUCLEO_OPTIONS: NucleoFormacion[] = [
   "sintesis",
 ];
 
-const NUCLEO_ORDER: Record<NucleoFormacion, number> = {
-  fundamentacion: 0,
-  profesionalizacion: 1,
-  sintesis: 2,
-};
-
 export default function NucleoSemestreCard({
   semestreNumero,
   // cursos,
@@ -38,26 +31,8 @@ export default function NucleoSemestreCard({
   //   .map((curso) => curso.nombre)
   //   .join(" · ");
 
-  // Highest nucleo index selected in any earlier semester (enforces ascending order)
-  const prevMax = useMemo(() => {
-    const values = Object.entries(allNucleos)
-      .filter(([sem, n]) => Number(sem) < semestreNumero && n != null)
-      .map(([, n]) => NUCLEO_ORDER[n!]);
-    return values.length > 0 ? Math.max(...values) : -1;
-  }, [allNucleos, semestreNumero]);
-
-  // Lowest nucleo index selected in any later semester
-  const nextMin = useMemo(() => {
-    const values = Object.entries(allNucleos)
-      .filter(([sem, n]) => Number(sem) > semestreNumero && n != null)
-      .map(([, n]) => NUCLEO_ORDER[n!]);
-    return values.length > 0 ? Math.min(...values) : 3;
-  }, [allNucleos, semestreNumero]);
-
   const isOptionDisabled = (nucleo: NucleoFormacion) => {
-    if (disabled) return true;
-    const idx = NUCLEO_ORDER[nucleo];
-    return idx < prevMax || idx > nextMin;
+    return disabled || !canAssignNucleo(allNucleos, semestreNumero, nucleo);
   };
 
   return (

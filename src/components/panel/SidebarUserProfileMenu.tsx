@@ -1,19 +1,28 @@
-import { useState } from "react";
-import { buildRouteWithSearch, ROUTES, navigateToRoute } from "../../app/appRoutes";
+import { useMemo } from "react";
+import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import { SecubIcon } from "../ui";
-import { getAvailableMockProfiles, getCurrentMockUser } from "../../services/auth/mockUser";
+import { getCurrentUser } from "../../services/auth/currentUser";
+import { getStoredAuthSession, logoutAuthSession } from "../../services/auth/session";
 import {
   clearSelectedProgramId,
   getSelectedProgram,
 } from "../../services/programSelection";
-import { getBrowserLocation } from "../../shared/browser";
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   const firstInitial = parts[0]?.[0] ?? "U";
   const secondInitial = parts.length > 1 ? parts[parts.length - 1]?.[0] : "";
   return `${firstInitial}${secondInitial}`.toUpperCase();
+}
+
+async function logoutCurrentUser() {
+  try {
+    await logoutAuthSession();
+  } finally {
+    clearSelectedProgramId();
+    navigateToRoute(ROUTES.access);
+  }
 }
 
 interface SidebarUserProfileMenuProps {
@@ -24,42 +33,26 @@ interface SidebarUserProfileMenuProps {
   };
 }
 
-function logoutCurrentUser() {
-  clearSelectedProgramId();
-  navigateToRoute(ROUTES.access);
-}
-
-export default function SidebarUserProfileMenu({ tourIds }:SidebarUserProfileMenuProps) {
-  const currentUser = getCurrentMockUser();
-  const availableProfiles = getAvailableMockProfiles(currentUser);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMenuProps) {
+  const currentUser = getCurrentUser();
+  const session = getStoredAuthSession();
   const selectedProgram = getSelectedProgram();
+  const canChangeProgram = (session?.contexts.length ?? 0) > 1;
   const roleLabel = currentUser.cargo;
   const profileSubtitle = selectedProgram
     ? `${selectedProgram.name} · ${selectedProgram.faculty}`
     : currentUser.email;
-  const initials = getInitials(currentUser.nombre);
+  const initials = useMemo(
+    () => getInitials(currentUser.nombre),
+    [currentUser.nombre],
+  );
 
-  const handleLogout = () => {
-    logoutCurrentUser();
-  };
-
-  const handleProfileChange = (role: typeof availableProfiles[number]["role"]) => {
-    const location = getBrowserLocation();
-    const params = new URLSearchParams(location.search);
-    params.set("role", role);
-    navigateToRoute(buildRouteWithSearch(location.pathname, params), { replace: true });
-    setIsProfileMenuOpen(false);
-  };
+  const handleLogout = () => void logoutCurrentUser();
 
   return (
     <div className="space-y-2.5">
-      <button
-        type="button"
+      <div
         id={tourIds?.profile}
-        aria-expanded={availableProfiles.length > 1 ? isProfileMenuOpen : undefined}
-        aria-haspopup={availableProfiles.length > 1 ? "listbox" : undefined}
-        onClick={availableProfiles.length > 1 ? () => setIsProfileMenuOpen((value) => !value) : undefined}
         className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.055)] px-3 py-2.5 text-left"
         aria-label={`Perfil activo: ${roleLabel}. ${profileSubtitle}`}
       >
@@ -78,41 +71,18 @@ export default function SidebarUserProfileMenu({ tourIds }:SidebarUserProfileMen
             {profileSubtitle}
           </span>
         </span>
-        {availableProfiles.length > 1 ? (
-          <SecubIcon
-            name="chevron-down"
-            size={16}
-            weight="bold"
-            className={isProfileMenuOpen ? "rotate-180 text-[var(--color-white)]" : "text-[var(--color-secondary-2)]"}
-          />
-        ) : null}
-      </button>
+      </div>
 
-      {isProfileMenuOpen ? (
-        <div
-          className="rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.045)] p-1.5"
-          role="listbox"
-          aria-label="Perfiles disponibles"
+      {canChangeProgram ? (
+        <button
+          type="button"
+          onClick={() => navigateToRoute(ROUTES.programSelector)}
+          {...getRoutePrefetchProps(ROUTES.programSelector)}
+          className="flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-[color:rgba(217,221,231,0.12)] px-2 py-2 text-[0.82rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
         >
-          <p className="px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[var(--color-secondary-2)]">
-            Cambiar perfil
-          </p>
-          {availableProfiles.map((profile) => (
-            <button
-              key={profile.id}
-              type="button"
-              role="option"
-              aria-selected={profile.role === currentUser.role}
-              onClick={() => handleProfileChange(profile.role)}
-              className="flex w-full items-center justify-between rounded-[10px] px-2.5 py-2 text-left text-sm font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.07)] hover:text-[var(--color-white)]"
-            >
-              <span>{profile.label}</span>
-              {profile.role === currentUser.role ? (
-                <SecubIcon name="check" size={16} weight="bold" className="text-[var(--color-success)]" />
-              ) : null}
-            </button>
-          ))}
-        </div>
+          <SecubIcon name="book" size={17} weight="regular" />
+          <span>Cambiar programa</span>
+        </button>
       ) : null}
 
       <div

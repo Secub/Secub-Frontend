@@ -58,6 +58,8 @@ export interface CursoSintesis {
   programaId: string;
   planId: string;
   docente: string;
+  docenteId?: string;
+  docenteEmail?: string;
   tipoVinculacion: string;
   competenciasAsignadas: number;
   nivelCompromiso: NivelCompromiso;
@@ -79,6 +81,7 @@ export interface CicloMedicion {
   estado: CicloEstado;
   cursoIds: string[];
   progreso: number;
+  tieneAsignacionesRa?: boolean;
   responsableId: string;
   responsableNombre: string;
   createdAt: string;

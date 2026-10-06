@@ -2,13 +2,12 @@ import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../../app/appRoutes";
 
-import { mockBackend } from "../../../../services/mockBackend";
+import { deleteCompetencyMapping } from "../../../../services/competencyMappings";
 import { canManageMapeo, getAcademicModulePermissions } from "../../../../config/access/permissions";
 import type { SecubRole } from "../../../../config/access/roles";
 import type {
   MapeoCompetenciasEnriched,
   MapeoCompetenciasFilters as FiltersState,
-  MapeoCompetenciasRecord,
   SummaryMetric,
 } from "../MapeoCompetencias.types";
 import {
@@ -41,7 +40,7 @@ function buildEditPath(role: SecubRole, record: MapeoCompetenciasEnriched) {
 
 export function useMapeoCompetenciasPage() {
   const data = useMapeoCompetenciasData();
-  const { currentUser, catalogs, cursos, competenciasRa, records } = data;
+  const { currentUser, catalogs, cursos, competenciasRa, records, isLoaded, loadError, refresh } = data;
   const permissions = getAcademicModulePermissions("mapeoCompetencias", currentUser.role);
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...INITIAL_FILTERS,
@@ -89,7 +88,8 @@ export function useMapeoCompetenciasPage() {
     permissions.canUpdate &&
     currentUser.role === "director" &&
     selectedRecord?.programaEstado === "activo" &&
-    selectedRecord?.planEstado === "activo";
+    selectedRecord?.planEstado === "activo" &&
+    !selectedRecord.bloqueadoPorCiclo;
 
   const summaryMetrics = useMemo<SummaryMetric[]>(() => {
     const activeRecord = selectedRecord ?? filteredRecords[0];
@@ -311,7 +311,7 @@ const buildExportRecords = (): ExportRecord[] => {
   //   printMapeoCompetenciasPdf(filteredRecords);
   // };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!recordToDelete) return;
 
     if (!permissions.canDelete || !canManageMapeo(currentUser.role, selectedPrograma?.estado)) {
@@ -319,12 +319,16 @@ const buildExportRecords = (): ExportRecord[] => {
       return;
     }
 
-    mockBackend.remove<MapeoCompetenciasRecord>("mapeosCompetencias", recordToDelete.id, currentUser);
+    await deleteCompetencyMapping(recordToDelete.planId);
+    await refresh();
     setRecordToDelete(null);
   };
 
   return {
     currentUser,
+    isLoaded,
+    loadError,
+    refresh,
     catalogs,
     permissions,
     hasRecords,

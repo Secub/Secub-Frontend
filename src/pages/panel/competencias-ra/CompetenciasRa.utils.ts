@@ -309,7 +309,7 @@ export function getEmptyFormState(user: CurrentUser): FormState {
   return {
     seccionalId,
     facultadId: user.scope.facultadId ?? "",
-    lugarId: getDefaultLugarBySeccional(seccionalId),
+    lugarId: user.scope.lugarId ?? getDefaultLugarBySeccional(seccionalId),
     programaId: user.scope.programaId ?? "",
     planId: "",
     estado: "activo",
@@ -365,6 +365,7 @@ export function buildRecordFromForm(
     estado: form.estado,
     nombre: `Competencia ${numero}`,
     numero,
+    mapeada: original?.mapeada ?? false,
     descripcion: form.descripcion.trim(),
     resultadosAprendizaje: original?.resultadosAprendizaje ?? [],
     createdAt: original?.createdAt ?? now,

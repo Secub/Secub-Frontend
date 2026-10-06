@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Badge } from "../../../../components/ui";
 import { FlowActionBar } from "../../../../components/panel";
 import type { CursoAsis, NucleoFormacion, NucleosDraft } from "../MapeoCompetencias.types";
-import { buildSemesterNumbers } from "../MapeoCompetencias.utils";
+import { buildSemesterNumbers, isNucleoSequenceValid } from "../MapeoCompetencias.utils";
 import NucleoSemestreCard from "./NucleoSemestreCard";
 
 interface NucleosManagerProps {
@@ -94,6 +94,14 @@ export default function NucleosManager({
         <div className="rounded-lg border-l-4 border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-4">
           <p className="text-sm font-medium text-[var(--color-warning)]">
             Todos los semestres deben cubrir los tres núcleos: Fundamentación, Profesionalización y Síntesis. Ajusta la clasificación antes de continuar.
+          </p>
+        </div>
+      )}
+
+      {!isNucleoSequenceValid(value, totalSemestres) && (
+        <div className="rounded-lg border-l-4 border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-4">
+          <p className="text-sm font-medium text-[var(--color-warning)]">
+            Revisa la secuencia: cada semestre puede conservar el núcleo anterior o avanzar al siguiente, sin retroceder ni saltar etapas.
           </p>
         </div>
       )}

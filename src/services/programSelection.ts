@@ -1,46 +1,42 @@
-import {
-  getProgramById,
-  getProgramScope,
-  secubAcademicPrograms,
-  type SecubProgramId,
-} from "../data/secubAcademicPrograms";
-import { getBrowserSearchParams, storageClient } from "../shared/browser";
+import { getStoredAuthSession } from "./auth/session";
 
-export const SELECTED_PROGRAM_STORAGE_KEY = "secub:selected-program-id:v2";
-
-function normalizeProgramId(value?: string | null): SecubProgramId {
-  const normalized = String(value ?? "").trim().toLowerCase();
-  return secubAcademicPrograms.some((program) => program.id === normalized)
-    ? normalized
-    : "";
+function selectedContext() {
+  const session = getStoredAuthSession();
+  return session?.contexts.find((context) => context.context_id === session.selected_context_id);
 }
 
-export function readSelectedProgramId(): SecubProgramId {
-  const params = getBrowserSearchParams();
-  const fromQuery = normalizeProgramId(params.get("programaId") ?? params.get("programId"));
-  if (fromQuery) return fromQuery;
-
-  return normalizeProgramId(storageClient.get(SELECTED_PROGRAM_STORAGE_KEY));
+export function readSelectedProgramId() {
+  return selectedContext()?.program_codigo ?? "";
 }
 
 export function hasSelectedProgram() {
-  return Boolean(readSelectedProgramId());
+  return Boolean(selectedContext());
 }
 
 export function getSelectedProgram() {
-  return getProgramById(readSelectedProgramId());
+  const context = selectedContext();
+  if (!context) return undefined;
+  return {
+    id: context.program_codigo,
+    name: context.program_name,
+    faculty: context.faculty_name,
+    planId: context.plan_codigo,
+    planName: context.plan_name,
+  };
 }
 
 export function getSelectedProgramScope() {
-  return getProgramScope(readSelectedProgramId());
-}
-
-export function persistSelectedProgramId(programId: SecubProgramId) {
-  storageClient.set(SELECTED_PROGRAM_STORAGE_KEY, programId);
-  window.dispatchEvent(new CustomEvent("secub:selected-program-updated", { detail: { programId } }));
+  const context = selectedContext();
+  return {
+    seccionalId: context?.campus_codigo ?? "",
+    lugarId: context?.location_codigo ?? "",
+    facultadId: context?.faculty_codigo ?? "",
+    programaId: context?.program_codigo ?? "",
+    academicProgramId: context?.program_codigo ?? "",
+    planId: context?.plan_codigo ?? "",
+  };
 }
 
 export function clearSelectedProgramId() {
-  storageClient.remove(SELECTED_PROGRAM_STORAGE_KEY);
-  window.dispatchEvent(new CustomEvent("secub:selected-program-updated", { detail: { programId: "" } }));
+  window.dispatchEvent(new Event("secub:selected-program-updated"));
 }

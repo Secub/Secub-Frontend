@@ -1,21 +1,9 @@
 import { useEffect } from "react";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
-import { getBrowserLocation, sessionStorageClient, storageClient } from "../../shared/browser";
+import { getBrowserLocation } from "../../shared/browser";
+import { logoutAuthSession } from "./session";
 
 export const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
-
-const AUTH_STORAGE_KEYS = [
-  "secub:auth:user",
-  "secub:auth:token",
-  "secub:current-user",
-  "secub:session",
-  "secub:token",
-  "secub-auth-user",
-  "secub-auth-token",
-  "secub-current-user",
-  "secub-demo-user",
-  "secub-session",
-];
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
   "mousemove",
@@ -27,10 +15,7 @@ const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
 ];
 
 export function clearSecubAuthSession() {
-  AUTH_STORAGE_KEYS.forEach((key) => {
-    storageClient.remove(key);
-    sessionStorageClient.remove(key);
-  });
+  void logoutAuthSession().catch(() => undefined);
 }
 
 export function useInactivityLogout(enabled: boolean) {

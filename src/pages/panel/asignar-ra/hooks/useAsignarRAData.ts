@@ -1,42 +1,54 @@
 import { useCallback, useEffect, useState } from "react";
-import { mockBackend, subscribeToMockBackendChanges } from "../../../../services/mockBackend";
+import { getRAAssignmentContext } from "../../../../services/raAssignments";
 import type {
   AsignacionRaRecord,
-  CicloDemoRecord,
-  CompetenciaRaDemoRecord,
-  MapeoDemoRecord,
+  MeasurementCycleRecord,
+  CompetenceRaRecord,
+  CompetencyMappingRecord,
   MedicionRaRecord,
 } from "../AsignarRA.types";
-import { asignarRACurrentUser as currentUser } from "./asignarRA.shared";
+import type { CicloCatalogs } from "../../ciclo/ciclo.types";
 
+const EMPTY_CATALOGS: CicloCatalogs = { seccionales: [], facultades: [], programas: [], planes: [], cursos: [] };
 export function useAsignarRAData() {
-  const [records, setRecords] = useState<AsignacionRaRecord[]>(() =>
-    mockBackend.list<AsignacionRaRecord>("asignacionesRa", currentUser),
-  );
-  const [measurements, setMeasurements] = useState<MedicionRaRecord[]>(() =>
-    mockBackend.list<MedicionRaRecord>("medicionesRa", currentUser),
-  );
-  const [cyclesSource, setCyclesSource] = useState<CicloDemoRecord[]>(() =>
-    mockBackend.list<CicloDemoRecord>("ciclosMedicion", currentUser),
-  );
-  const [competenciasSource, setCompetenciasSource] = useState<CompetenciaRaDemoRecord[]>(() =>
-    mockBackend.list<CompetenciaRaDemoRecord>("competenciasRa", currentUser),
-  );
-  const [mapeosSource, setMapeosSource] = useState<MapeoDemoRecord[]>(() =>
-    mockBackend.list<MapeoDemoRecord>("mapeosCompetencias", currentUser),
-  );
+  const [records, setRecords] = useState<AsignacionRaRecord[]>([]);
+  const [measurements] = useState<MedicionRaRecord[]>([]);
+  const [cyclesSource, setCyclesSource] = useState<MeasurementCycleRecord[]>([]);
+  const [competenciasSource, setCompetenciasSource] = useState<CompetenceRaRecord[]>([]);
+  const [mapeosSource, setMapeosSource] = useState<CompetencyMappingRecord[]>([]);
+  const [academicCatalogs, setAcademicCatalogs] = useState<CicloCatalogs>(EMPTY_CATALOGS);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const refreshBackendState = useCallback(() => {
-    setRecords(mockBackend.list<AsignacionRaRecord>("asignacionesRa", currentUser));
-    setMeasurements(mockBackend.list<MedicionRaRecord>("medicionesRa", currentUser));
-    setCyclesSource(mockBackend.list<CicloDemoRecord>("ciclosMedicion", currentUser));
-    setCompetenciasSource(mockBackend.list<CompetenciaRaDemoRecord>("competenciasRa", currentUser));
-    setMapeosSource(mockBackend.list<MapeoDemoRecord>("mapeosCompetencias", currentUser));
+  const refreshBackendState = useCallback(async (signal?: AbortSignal) => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const context = await getRAAssignmentContext(signal);
+      if (signal?.aborted) return;
+      setRecords(context.asignaciones);
+      setCyclesSource(context.ciclos);
+      setCompetenciasSource(context.competencias);
+      setMapeosSource(context.mapeos);
+      setAcademicCatalogs({
+        seccionales: [{ id: context.scope.seccionalId, nombre: context.scope.seccionalNombre }],
+        facultades: [{ id: context.scope.facultadId, nombre: context.scope.facultadNombre, seccionalId: context.scope.seccionalId }],
+        programas: [{ id: context.scope.programaId, nombre: context.scope.programaNombre, facultadId: context.scope.facultadId, seccionalId: context.scope.seccionalId, estado: "activo" }],
+        planes: context.planes,
+        cursos: context.ciclos.flatMap((cycle) => cycle.cursos ?? []),
+      });
+    } catch (reason) {
+      if (signal?.aborted) return;
+      setLoadError(reason instanceof Error ? reason.message : "No fue posible cargar la asignación de RA.");
+    } finally {
+      if (!signal?.aborted) setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    refreshBackendState();
-    return subscribeToMockBackendChanges(refreshBackendState);
+    const controller = new AbortController();
+    void refreshBackendState(controller.signal);
+    return () => controller.abort();
   }, [refreshBackendState]);
 
   return {
@@ -45,6 +57,9 @@ export function useAsignarRAData() {
     cyclesSource,
     competenciasSource,
     mapeosSource,
+    academicCatalogs,
+    loading,
+    loadError,
     refreshBackendState,
   };
 }

@@ -129,7 +129,7 @@ export function getSynthesisCourses(catalogs: CicloCatalogs, programaId: string,
       curso.nucleo === "Síntesis" &&
       curso.asignadoANucleoSintesis &&
       curso.competenciasAsignadas > 0 &&
-      curso.nivelCompromiso !== "",
+      curso.nivelCompromiso === "A",
   );
 }
 
@@ -163,6 +163,13 @@ export function getCourseEligibility(
     return {
       selectable: false,
       reason: "El curso aún no está confirmado dentro del núcleo de Síntesis.",
+    };
+  }
+
+  if (course.nivelCompromiso !== "A") {
+    return {
+      selectable: false,
+      reason: "El curso debe tener al menos una competencia en nivel Afianza.",
     };
   }
 

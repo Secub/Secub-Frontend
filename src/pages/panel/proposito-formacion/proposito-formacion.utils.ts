@@ -7,7 +7,6 @@ import type {
   PropositoFilters,
   PropositoFormacionRecord,
 } from "./proposito-formacion.types";
-import { createClientId } from "../../../shared/ids";
 import { downloadFile } from "../../../shared/browser";
 import {
   getActivePlansByProgram,
@@ -288,7 +287,7 @@ export function getEmptyFormState(user: CurrentUser): FormState {
   return {
     seccionalId,
     facultadId: user.scope.facultadId ?? "",
-    lugarId: getDefaultLugarBySeccional(seccionalId),
+    lugarId: user.scope.lugarId ?? getDefaultLugarBySeccional(seccionalId),
     programaId: user.scope.programaId ?? "",
     planId: "",
     estado: "activo",
@@ -305,26 +304,6 @@ export function mapRecordToForm(record: PropositoEnriched): FormState {
     planId: record.planId,
     estado: record.estado,
     descripcion: record.descripcion,
-  };
-}
-
-export function buildRecordFromForm(
-  form: FormState,
-  original: PropositoEnriched | null,
-): PropositoFormacionRecord {
-  const now = new Date().toISOString();
-
-  return {
-    id: original?.id ?? createClientId("pf"),
-    seccionalId: form.seccionalId,
-    facultadId: form.facultadId,
-    lugarId: form.lugarId,
-    programaId: form.programaId,
-    planId: form.planId,
-    estado: form.estado,
-    descripcion: form.descripcion.trim(),
-    createdAt: original?.createdAt ?? now,
-    updatedAt: now,
   };
 }
 
