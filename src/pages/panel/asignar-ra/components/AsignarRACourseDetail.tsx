@@ -79,7 +79,7 @@ export function AsignarRACourseDetail({
 
         </div>
 
-        <div className="mt-8">
+        <div id="asignar-ra-competencias-section" className="mt-8">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">Competencias del curso</h3>

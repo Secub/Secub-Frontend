@@ -37,7 +37,7 @@ export default function CompetenciasRaCardGrid({
 
   return (
     <div className="grid auto-rows-max grid-cols-1 gap-6">
-      {data.map((record) => {
+      {data.map((record, index) => {
         const canEditRecord = canEditAcademicRecord("competenciasRa", role, record.estado) && permissions.canUpdate;
 
         return (
@@ -49,6 +49,7 @@ export default function CompetenciasRaCardGrid({
             onEditRa={onEditRa}
             onDeleteRa={onDeleteRa}
             canEdit={canEditRecord}
+            tourAnchor={index === 0}
           />
         );
       })}

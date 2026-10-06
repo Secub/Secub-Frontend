@@ -13,6 +13,7 @@ interface DashboardFiltersProps {
   user: DashboardUser;
   catalogs: DashboardCatalogs;
   cycles: EnrichedCycle[];
+  tourId?: string;
   filters: DashboardFiltersState;
   onFilterChange: <K extends keyof DashboardFiltersState>(
     key: K,
@@ -34,6 +35,7 @@ export default function DashboardFilters({
   user,
   catalogs,
   cycles,
+  tourId,
   filters,
   onFilterChange,
   onReset,
@@ -82,7 +84,7 @@ export default function DashboardFilters({
   const cycleOptions = cycles.map((cycle) => ({ label: cycle.name, value: cycle.id }));
 
   return (
-    <section className="surface-card p-6" aria-label="Filtros del dashboard de medición">
+    <section id={tourId} className="surface-card p-6" aria-label="Filtros del dashboard de medición">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">

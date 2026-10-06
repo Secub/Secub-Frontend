@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import { ConfirmDialog } from "../../../components/ui";
 import { getCurrentUser } from "../../../services/auth/currentUser";
 import { getMeasurementAccess, type MeasurementAccess } from "../../../services/measurements";
@@ -149,6 +150,66 @@ function MedicionRAContent() {
     loadError,
   } = useMedicionRA();
 
+  const tourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#medicion-competence-stepper",
+        title: "Progreso por competencias",
+        content: "Avanza entre las competencias del curso para evaluar sus RA asociados.",
+        order: 1,
+      },
+      {
+        target: "#medicion-evaluation-levels",
+        title: "Niveles de desempeño",
+        content: "Estos son los niveles que puedes asignar a cada estudiante al evaluar un Resultado de Aprendizaje.",
+        order: 2,
+      },
+      {
+        target: "#medicion-instrument-first-ra",
+        title: "Instrumento de Evaluación",
+        content: "Cada RA conserva su descripción individual. La evidencia se carga una sola vez al final de la competencia.",
+        order: 3,
+      },
+      {
+        target: "#medicion-students-table",
+        title: "Medición de Resultados de Aprendizaje",
+        content: "Asigna el nivel de desempeño de cada estudiante para los Resultados de Aprendizaje de esta competencia.",
+        order: 4,
+      },
+      {
+        target: "#medicion-ra-results-first",
+        title: "Resultado de Aprendizaje",
+        content: "Consulta el gráfico porcentual de los RA asociados a la competencia seleccionada.",
+        order: 5,
+        forceTop: false,
+      },
+      {
+        target: "#medicion-evidencia-competencia",
+        title: "Evidencia de la competencia",
+        content: "Adjunta un único archivo de soporte para toda la competencia seleccionada. Este archivo aplica para los RA evaluados en esta competencia.",
+        order: 6,
+        forceTop: false,
+      },
+      {
+        target: "#medicion-plan-mejora",
+        title: "Plan de mejora",
+        content: "Registra el análisis y las acciones propuestas para el seguimiento de la competencia seleccionada.",
+        order: 7,
+        forceTop: false,
+      },
+    ],
+    []
+  );
+
+  const canShowTour = hasAvailableCourses && !isLoading && !loadError;
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_medicion_ra_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
+
   const handleFinishCourse = async () => {
     const didFinish = await handleConfirmFinishEvaluation();
     if (!didFinish) return;
@@ -181,6 +242,7 @@ function MedicionRAContent() {
       currentStep="medicion-ra"
       title="Medición RA"
       description="Calificación de Resultados de Aprendizaje, instrumentos, evidencias y planes de mejora por competencia."
+      onReplayTour={canShowTour ? startTour : undefined}
     >
       <div className="space-y-6 pb-24">
         <CompetenceStepper

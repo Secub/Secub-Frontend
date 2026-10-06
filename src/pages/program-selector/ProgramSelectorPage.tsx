@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { GoArrowRight, GoBook, GoChevronLeft } from "react-icons/go";
-import LogoSECUB from "../../assets/logos/logotipo_ConUSB.png";
+import CampusMosaic from "../../components/shared/CampusMosaic";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
-import {
-  SECUB_ROLE_LABELS,
-  isSecubRole,
-  type SecubRole,
-} from "../../config/access/roles";
+import { isSecubRole, type SecubRole } from "../../config/access/roles";
 import {
   fetchAuthSession,
   selectAuthContext,
@@ -14,14 +9,23 @@ import {
   type AuthSession,
 } from "../../services/auth/session";
 import { showNotification } from "../../shared/feedback";
+import ProgramSelectionSection from "./sections/ProgramSelectionSection";
+import RoleSelectionSection from "./sections/RoleSelectionSection";
+
+type ProgramSelectorStep = "role" | "program";
 
 function normalizeRole(role: string): SecubRole | null {
   const normalized = role.trim().toLowerCase();
   return isSecubRole(normalized) ? normalized : null;
 }
 
+function buildDashboardUrl(role: SecubRole) {
+  return `${ROUTES.panelDashboard}?role=${role}`;
+}
+
 export default function ProgramSelectorPage() {
   const [session, setSession] = useState<AuthSession | null>(null);
+  const [step, setStep] = useState<ProgramSelectorStep>("role");
   const [selectedRole, setSelectedRole] = useState<SecubRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [submittingContextId, setSubmittingContextId] = useState<string | null>(null);
@@ -32,11 +36,19 @@ export default function ProgramSelectorPage() {
     fetchAuthSession()
       .then((current) => {
         if (!active) return;
-        const roles = current.roles
+        const availableRoles = current.roles
           .map(normalizeRole)
           .filter((role): role is SecubRole => role !== null);
+        const selectedContext = current.contexts.find(
+          (context) => context.context_id === current.selected_context_id,
+        );
+        const currentRole = selectedContext ? normalizeRole(selectedContext.role) : null;
+
         setSession(current);
-        setSelectedRole(roles.includes("director") ? "director" : (roles[0] ?? null));
+        setSelectedRole(
+          currentRole ??
+          (availableRoles.includes("director") ? "director" : (availableRoles[0] ?? null)),
+        );
       })
       .catch((reason: unknown) => {
         if (!active) return;
@@ -45,6 +57,7 @@ export default function ProgramSelectorPage() {
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -65,14 +78,20 @@ export default function ProgramSelectorPage() {
     [selectedRole, session],
   );
 
+  const handleSelectRole = (role: SecubRole) => {
+    setSelectedRole(role);
+    setStep("program");
+  };
+
   const handleSelectProgram = async (context: AuthContext) => {
     const role = normalizeRole(context.role);
     if (!role) return;
+
     setSubmittingContextId(context.context_id);
     try {
       const updated = await selectAuthContext(context.context_id);
       setSession(updated);
-      navigateToRoute(`${ROUTES.panelDashboard}?role=${role}`);
+      navigateToRoute(buildDashboardUrl(role));
     } catch (reason) {
       showNotification({
         title: "No fue posible ingresar",
@@ -85,106 +104,51 @@ export default function ProgramSelectorPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--color-surface-soft)] px-4 py-5 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] w-full max-w-5xl flex-col gap-5">
-        <header className="flex shrink-0 flex-wrap items-center justify-between gap-4">
+    <main className="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-6">
+      <div className="absolute -inset-5 -z-20 scale-105 blur-[5px]" aria-hidden="true">
+        <CampusMosaic hideTitles layout="fill" className="h-full w-full" />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-black/65" />
+
+      {loading ? (
+        <div
+          role="status"
+          className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-white/55 bg-white/95 p-8 text-center text-[var(--color-gray-3)] shadow-[0_30px_90px_rgba(5,18,35,0.38)]"
+        >
+          Consultando tu sesión de SECUB…
+        </div>
+      ) : error ? (
+        <div
+          role="alert"
+          className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-[var(--color-error)] bg-white/95 p-8 text-center shadow-[0_30px_90px_rgba(5,18,35,0.38)]"
+        >
+          <p className="font-heading font-bold text-[var(--color-secondary-4)]">
+            No se pudo cargar el acceso
+          </p>
+          <p className="mt-2 text-sm text-[var(--color-gray-3)]">{error}</p>
           <button
             type="button"
             onClick={() => navigateToRoute(ROUTES.access)}
-            className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] px-3 py-2 text-sm font-semibold text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-4)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+            className="mt-5 rounded-full bg-[var(--color-primary-1)] px-5 py-2 font-semibold text-white"
           >
-            <GoChevronLeft aria-hidden="true" />
-            Volver al acceso
+            Volver a iniciar sesión
           </button>
-          <img src={LogoSECUB} alt="SECUB" className="h-9 w-auto object-contain sm:h-20" />
-        </header>
-
-        <section className="flex flex-1 flex-col justify-center gap-5">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="inline-flex rounded-[var(--radius-pill)] bg-[var(--color-secondary-1)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-white)]">
-              SECUB · Datos académicos
-            </p>
-            <h1 className="mt-4 font-heading text-3xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-4xl">
-              Selecciona programa y rol
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-[var(--color-gray-3)] sm:text-base">
-              {session ? `Hola, ${session.full_name}. Elige cómo vas a ingresar.` : "Cargando tus asignaciones académicas…"}
-            </p>
-          </div>
-
-          {loading ? (
-            <div role="status" className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-white p-8 text-center text-[var(--color-gray-3)]">
-              Consultando tu sesión de SECUB…
-            </div>
-          ) : error ? (
-            <div role="alert" className="rounded-[var(--radius-2xl)] border border-[var(--color-error)] bg-white p-8 text-center">
-              <p className="font-heading font-bold text-[var(--color-secondary-4)]">No se pudo cargar el acceso</p>
-              <p className="mt-2 text-sm text-[var(--color-gray-3)]">{error}</p>
-              <button type="button" onClick={() => navigateToRoute(ROUTES.access)} className="mt-5 rounded-full bg-[var(--color-primary-1)] px-5 py-2 font-semibold text-white">
-                Volver a iniciar sesión
-              </button>
-            </div>
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-              <section className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5" aria-labelledby="role-selector-title">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">1. Rol</p>
-                <h2 id="role-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">Selecciona tu rol</h2>
-                <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                  {roles.map((role) => {
-                    const selected = role === selectedRole;
-                    const label = SECUB_ROLE_LABELS[role];
-                    return (
-                      <button
-                        key={role}
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => setSelectedRole(role)}
-                        className={`rounded-[var(--radius-lg)] border px-4 py-3 text-left transition-all ${selected ? "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.10)] shadow-[inset_4px_0_0_var(--color-success)]" : "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] hover:border-[var(--color-secondary-2)]"}`}
-                      >
-                        <span className="flex items-center gap-3">
-                          <span className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${selected ? "bg-[var(--color-success)] text-white" : "bg-white text-[var(--color-secondary-4)]"}`}>{label.slice(0, 2).toUpperCase()}</span>
-                          <span className="font-heading text-sm font-bold text-[var(--color-secondary-4)]">{label}</span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-
-              <section className="rounded-[var(--radius-2xl)] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_45px_rgba(24,34,51,0.08)] sm:p-5" aria-labelledby="program-selector-title">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-secondary-1)]">2. Programa</p>
-                <h2 id="program-selector-title" className="mt-1 font-heading text-xl font-bold text-[var(--color-secondary-4)]">Selecciona el programa académico</h2>
-                <div className="mt-4 grid max-h-[440px] gap-3 overflow-y-auto pr-1">
-                  {contexts.length === 0 ? (
-                    <div role="status" className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-gray-6)] p-5 text-center text-sm text-[var(--color-gray-3)]">
-                      No hay programas asignados para este rol.
-                    </div>
-                  ) : contexts.map((context) => (
-                    <button
-                      key={context.context_id}
-                      type="button"
-                      disabled={submittingContextId !== null}
-                      onClick={() => void handleSelectProgram(context)}
-                      className="group rounded-[var(--radius-xl)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4 text-left transition-all hover:border-[var(--color-secondary-2)] hover:bg-white disabled:opacity-60"
-                    >
-                      <span className="flex items-center justify-between gap-4">
-                        <span className="flex min-w-0 items-center gap-3">
-                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-secondary-1)] text-xl text-white"><GoBook aria-hidden="true" /></span>
-                          <span className="min-w-0">
-                            <span className="block font-heading text-lg font-bold text-[var(--color-secondary-4)]">{context.program_name}</span>
-                            <span className="mt-1 block text-sm text-[var(--color-gray-3)]">{context.faculty_name} · {context.plan_name}</span>
-                          </span>
-                        </span>
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--color-gray-6)] group-hover:bg-[var(--color-secondary-1)] group-hover:text-white"><GoArrowRight aria-hidden="true" /></span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
-        </section>
-      </div>
+        </div>
+      ) : step === "role" ? (
+        <RoleSelectionSection
+          roles={roles}
+          userName={session?.full_name ?? ""}
+          onSelectRole={handleSelectRole}
+          onBack={() => navigateToRoute(ROUTES.access)}
+        />
+      ) : (
+        <ProgramSelectionSection
+          contexts={contexts}
+          submittingContextId={submittingContextId}
+          onSelectProgram={(context) => void handleSelectProgram(context)}
+          onBack={() => setStep("role")}
+        />
+      )}
     </main>
   );
 }

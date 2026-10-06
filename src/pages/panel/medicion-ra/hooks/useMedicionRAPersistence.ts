@@ -60,6 +60,7 @@ export function useMedicionRAPersistence({
   courseMeasurementStateId,
   selectedCourse,
   selectedCourseId,
+  onPersisted,
 }: {
   activeCompetenceId: string;
   completedCompetenceIds: string[];
@@ -74,6 +75,7 @@ export function useMedicionRAPersistence({
   courseMeasurementStateId: string;
   selectedCourse: CourseRecord;
   selectedCourseId: string;
+  onPersisted: (cycleId: string, courseId: string, measurement: CourseMeasurementState) => void;
 }) {
   const persistSelectedCourse = useCallback(
     async (options: PersistSelectedCourseOptions = {}) => {
@@ -124,7 +126,8 @@ export function useMedicionRAPersistence({
           planId: selectedCourse.planId,
         };
       if (!cicloId) return false;
-      await saveCourseMeasurement(cicloId, selectedCourse.id, measurement);
+      const savedMeasurement = await saveCourseMeasurement(cicloId, selectedCourse.id, measurement);
+      onPersisted(cicloId, selectedCourse.id, savedMeasurement);
 
       return true;
     },
@@ -139,6 +142,7 @@ export function useMedicionRAPersistence({
       instrumentsByCourse,
       isSelectedCourseLocked,
       medicionRaContext,
+      onPersisted,
       courseMeasurementStateId,
       selectedCourse,
       selectedCourseId,

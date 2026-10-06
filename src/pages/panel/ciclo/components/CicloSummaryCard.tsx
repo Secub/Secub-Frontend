@@ -21,6 +21,7 @@ interface CicloSummaryCardProps {
   onEdit: (ciclo: CicloEnriched) => void;
   onDelete: (ciclo: CicloEnriched) => void;
   onDuplicate: (ciclo: CicloEnriched) => void;
+  highlightId?: string;
 }
 
 const statusVariant = {
@@ -45,6 +46,7 @@ export default function CicloSummaryCard({
   onEdit,
   onDelete,
   onDuplicate,
+  highlightId,
 }: CicloSummaryCardProps) {
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
@@ -93,7 +95,7 @@ export default function CicloSummaryCard({
   };
 
   return (
-    <article className="surface-card p-6">
+    <article id={highlightId} className="surface-card p-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">

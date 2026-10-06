@@ -6,6 +6,7 @@ import {
   Table,
   type TableColumn,
 } from "../../../../components/ui";
+import { DASHBOARD_TOUR_MARKERS, tourMarker } from "../dashboard.tour";
 import type { EnrichedCourse } from "../dashboard.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
@@ -19,6 +20,7 @@ interface CoursesMeasurementTableProps {
   onViewResults: (course: EnrichedCourse) => void;
   onNotifyTeacher?: (course: EnrichedCourse) => void;
   canNotifyTeacher?: boolean;
+  tableId?: string;
 }
 
 const statusVariant = {
@@ -42,6 +44,7 @@ export default function CoursesMeasurementTable({
   onMeasureCourse,
   onViewResults,
   onNotifyTeacher,
+  tableId,
 }: CoursesMeasurementTableProps) {
   const teacherColumns: TableColumn<EnrichedCourse>[] = [
     {
@@ -114,7 +117,7 @@ export default function CoursesMeasurementTable({
       title: "Acción",
       sortable: false,
       render: (course) => (
-        <div className="flex items-center justify-center">
+        <div {...tourMarker(DASHBOARD_TOUR_MARKERS.courseAction)} className="flex items-center justify-center">
           <Button
             variant="outline"
             size="sm"
@@ -234,7 +237,10 @@ export default function CoursesMeasurementTable({
       title: "Acciones",
       sortable: false,
       render: (course) => (
-        <div className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5">
+        <div
+          {...tourMarker(DASHBOARD_TOUR_MARKERS.courseAction)}
+          className="mx-auto flex w-fit flex-row items-center justify-center gap-0.5"
+        >
           {course.status === "pendiente" ? (
             <IconButton
               variant="outline"
@@ -289,17 +295,19 @@ export default function CoursesMeasurementTable({
         </div>
       ) : null}
 
-      <Table
-        columns={mode === "teacher" ? teacherColumns : supervisorColumns}
-        data={courses}
-        rowKey={(course) => `${course.cycleId}-${course.id}`}
-        emptyMessage={
-          mode === "teacher"
-            ? "No hay cursos para los filtros seleccionados."
-            : "No hay cursos pendientes para el ciclo seleccionado."
-        }
-        searchPlaceholder="Buscar por curso, código, docente, programa o periodo…"
-      />
+      <div id={tableId}>
+        <Table
+          columns={mode === "teacher" ? teacherColumns : supervisorColumns}
+          data={courses}
+          rowKey={(course) => `${course.cycleId}-${course.id}`}
+          emptyMessage={
+            mode === "teacher"
+              ? "No hay cursos para los filtros seleccionados."
+              : "No hay cursos pendientes para el ciclo seleccionado."
+          }
+          searchPlaceholder="Buscar por curso, código, docente, programa o periodo…"
+        />
+      </div>
     </section>
   );
 }

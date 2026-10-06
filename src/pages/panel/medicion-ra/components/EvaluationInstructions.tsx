@@ -40,7 +40,7 @@ export default function EvaluationInstructions() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-4">
+      <div id="medicion-evaluation-levels" className="mt-6 grid gap-4 lg:grid-cols-4">
         {performanceLevels.map((level) => (
           <article
             key={level.value}

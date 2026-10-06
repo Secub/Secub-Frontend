@@ -16,6 +16,7 @@ import {
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
 import { getBrowserSearchParams } from "../../shared/browser";
 import NotificationCenter from "./NotificationCenter";
+import TourReplayButton from "./TourReplayButton";
 
 interface PanelLayoutProps {
   children: ReactNode;
@@ -24,6 +25,8 @@ interface PanelLayoutProps {
   description?: string;
   actions?: ReactNode;
   breadcrumbItems?: BreadcrumbItem[];
+  onReplayTour?: () => void;
+  tourLabel?: string;
 }
 
 export default function PanelLayout({
@@ -33,6 +36,8 @@ export default function PanelLayout({
   description,
   actions,
   breadcrumbItems,
+  onReplayTour,
+  tourLabel,
 }: PanelLayoutProps) {
   const currentUser = getCurrentUser();
   const shouldHideActionsForDocente =
@@ -109,9 +114,15 @@ export default function PanelLayout({
 
             <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div>
-                <h1 className="font-heading text-3xl font-semibold tracking-tight text-[var(--color-secondary-4)] md:text-[2rem]">
-                  {title}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-heading text-3xl font-semibold tracking-tight text-[var(--color-secondary-4)] md:text-[2rem]">
+                    {title}
+                  </h1>
+
+                  {onReplayTour ? (
+                    <TourReplayButton onClick={onReplayTour} label={tourLabel} />
+                  ) : null}
+                </div>
 
                 {description ? (
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--color-gray-3)]">

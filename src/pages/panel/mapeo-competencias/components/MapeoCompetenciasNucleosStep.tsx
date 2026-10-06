@@ -27,7 +27,9 @@ export default function MapeoCompetenciasNucleosStep({
 }: MapeoCompetenciasNucleosStepProps) {
   return (
     <div className="space-y-6">
-      <MapeoCompetenciasCardInfoNucleos />
+      <div id="mapeo-nucleos-step">
+        <MapeoCompetenciasCardInfoNucleos />
+      </div>
 
       <NucleosManager
         value={nucleosDraft}

@@ -27,7 +27,7 @@ export default function CicloListSection({ cycles, user, activeCycle, onView, on
       </div>
 
       {cycles.length > 0 ? (
-        cycles.map((cycle) => (
+        cycles.map((cycle, index) => (
           <CicloSummaryCard
             key={cycle.id}
             ciclo={cycle}
@@ -37,6 +37,7 @@ export default function CicloListSection({ cycles, user, activeCycle, onView, on
             onEdit={onEdit}
             onDelete={onDelete}
             onDuplicate={onDuplicate}
+            highlightId={index === 0 ? "ciclo-list-section" : undefined}
           />
         ))
       ) : (

@@ -3,7 +3,7 @@ import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import { SecubIcon } from "../ui";
 import { getCurrentUser } from "../../services/auth/currentUser";
-import { logoutAuthSession } from "../../services/auth/session";
+import { getStoredAuthSession, logoutAuthSession } from "../../services/auth/session";
 import {
   clearSelectedProgramId,
   getSelectedProgram,
@@ -25,9 +25,19 @@ async function logoutCurrentUser() {
   }
 }
 
-export default function SidebarUserProfileMenu() {
+interface SidebarUserProfileMenuProps {
+  tourIds?: {
+    profile: string;
+    settings: string;
+    logout: string;
+  };
+}
+
+export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMenuProps) {
   const currentUser = getCurrentUser();
+  const session = getStoredAuthSession();
   const selectedProgram = getSelectedProgram();
+  const canChangeProgram = (session?.contexts.length ?? 0) > 1;
   const roleLabel = currentUser.cargo;
   const profileSubtitle = selectedProgram
     ? `${selectedProgram.name} · ${selectedProgram.faculty}`
@@ -42,6 +52,7 @@ export default function SidebarUserProfileMenu() {
   return (
     <div className="space-y-2.5">
       <div
+        id={tourIds?.profile}
         className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.055)] px-3 py-2.5 text-left"
         aria-label={`Perfil activo: ${roleLabel}. ${profileSubtitle}`}
       >
@@ -62,6 +73,18 @@ export default function SidebarUserProfileMenu() {
         </span>
       </div>
 
+      {canChangeProgram ? (
+        <button
+          type="button"
+          onClick={() => navigateToRoute(ROUTES.programSelector)}
+          {...getRoutePrefetchProps(ROUTES.programSelector)}
+          className="flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-[color:rgba(217,221,231,0.12)] px-2 py-2 text-[0.82rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+        >
+          <SecubIcon name="book" size={17} weight="regular" />
+          <span>Cambiar programa</span>
+        </button>
+      ) : null}
+
       <div
         className="grid grid-cols-2 gap-2"
         role="group"
@@ -69,6 +92,7 @@ export default function SidebarUserProfileMenu() {
       >
         <button
           type="button"
+          id={tourIds?.settings}
           onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
           {...getRoutePrefetchProps(ROUTES.panelSettings)}
           className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
@@ -79,6 +103,7 @@ export default function SidebarUserProfileMenu() {
 
         <button
           type="button"
+          id={tourIds?.logout}
           onClick={handleLogout}
           className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.12)] hover:text-[color:rgba(255,137,137,1)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(235,87,87,0.26)]"
         >

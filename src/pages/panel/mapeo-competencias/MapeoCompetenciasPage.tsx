@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import {
   FlowActionBar,
@@ -9,6 +10,7 @@ import {
   useAcademicWorkflowProgress,
 } from "../../../components/panel/academicWorkflow";
 import { Button } from "../../../components/ui";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import {
   MapeoCompetenciasAccessState,
   MapeoCompetenciasFilters,
@@ -97,9 +99,51 @@ export default function MapeoCompetenciasPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCiclo, { role: currentUser.role }));
   };
 
+  const canShowTour = hasRecords && permissions.canRead;
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [];
+
+    if (filteredRecords.length > 0) {
+      steps.push({
+        target: "#mapeo-summary-cards",
+        title: "Resumen por núcleo",
+        content: "Aquí ves cuántos semestres hay clasificados en cada núcleo de formación.",
+        order: 1,
+      });
+    }
+
+    steps.push({
+      target: "#mapeo-competencias-filters",
+      title: "Filtros",
+      content: "Filtra los mapeos por programa, plan de estudios u otros criterios.",
+      order: 2,
+    });
+
+    if (filteredRecords.length > 0) {
+      steps.push({
+        target: "#mapeo-consolidated-header",
+        title: "Mapeo consolidado",
+        content: "Aquí ves la malla curricular consolidada con los niveles I-R-A-NA asignados por semestre y curso.",
+        order: 3,
+      });
+    }
+
+    return steps;
+  }, [filteredRecords.length]);
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_mapeo_competencias_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+    // El mapeo consolidado no se renderiza hasta que se eligen los filtros requeridos.
+    allowPartialTargets: true,
+  });
+
   return (
     <PanelLayout
       currentStep="mapeo-competencias"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Mapeo de Competencias"
       description="Asignación I-R-A-NA y visualización de la malla curricular por semestres y cursos."
       actions={exportActions}
@@ -123,7 +167,7 @@ export default function MapeoCompetenciasPage() {
       ) : (
         <div className="space-y-6">
           {filteredRecords.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div id="mapeo-summary-cards" className="grid gap-4 md:grid-cols-3">
               <article className="surface-card rounded-lg p-5 text-center">
                 <p className="text-sm font-semibold text-[var(--color-gray-3)]">Fundamentación</p>
                 <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{fundamentacionCount}</p>
@@ -152,13 +196,15 @@ export default function MapeoCompetenciasPage() {
             </div>
           ) : null}
 
-          <MapeoCompetenciasFilters
-            filters={filters}
-            catalogs={catalogs}
-            permissions={permissions}
-            currentUser={currentUser}
-            onChange={setFilters}
-          />
+          <div id="mapeo-competencias-filters">
+            <MapeoCompetenciasFilters
+              filters={filters}
+              catalogs={catalogs}
+              permissions={permissions}
+              currentUser={currentUser}
+              onChange={setFilters}
+            />
+          </div>
 
           {selectedPrograma?.estado === "inactivo" || selectedPlan?.estado === "inactivo" ? (
             <div className="rounded-[var(--radius-lg)] border border-[var(--color-warning)] bg-[var(--color-surface-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-gray-3)]">
@@ -179,6 +225,7 @@ export default function MapeoCompetenciasPage() {
             onCreate={handleCreate}
             editableRecordId={canOpenEdit ? selectedRecord?.id : undefined}
             onEdit={handleEdit}
+            tourAnchor
           />
 
           {isWorkflowActive && permissions.canUpdate && filteredRecords.length > 0 ? (

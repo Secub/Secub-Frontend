@@ -1,5 +1,6 @@
 export { default as PanelLayout } from "./PanelLayout";
 export { default as PanelSidebar } from "./PanelSidebar";
+export { default as TourReplayButton } from "./TourReplayButton";
 export { default as FlowActionBar } from "./FlowActionBar";
 export { default as BackButton } from "./BackButton";
 export type { PanelStepKey } from "./panelNavigation";

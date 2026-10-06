@@ -15,6 +15,9 @@ import PropositoListSection from "./components/PropositoListSection";
 import PropositoPageActions from "./components/PropositoPageActions";
 import { usePropositoFormacionPage } from "./hooks/usePropositoFormacionPage";
 import { INITIAL_FILTERS } from "./proposito-formacion.utils";
+import { useMemo } from "react";
+// TOUR: import del hook y el tipo de pasos
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
 export default function PropositoFormacionPage() {
   const page = usePropositoFormacionPage();
@@ -67,18 +70,61 @@ export default function PropositoFormacionPage() {
 
   const hasPageActions =
     permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
+
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#proposito-filters-panel",
+        title: "Filtros",
+        content: "Filtra los propósitos de formación por programa, estado u otros criterios.",
+        order: 1,
+      },
+      {
+        target: "#proposito-list-section",
+        title: "Listado de propósitos",
+        content: "Aquí ves los propósitos de formación registrados, con su estado y detalle.",
+        order: 2,
+      },
+    ];
+
+    // Las acciones solo se renderizan para quien puede crear o exportar.
+    if (hasPageActions) {
+      steps.push({
+        target: "#proposito-page-actions",
+        title: "Acciones",
+        content: "Desde aquí puedes crear un nuevo propósito o exportarlos en PDF/Excel.",
+        order: 3,
+      });
+    }
+
+    return steps;
+  }, [hasPageActions]);
+
+  const canShowTour = !isStepLocked && hasRecords && !isInheritedBaseStep;
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_proposito_formacion_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
+
+  // TOUR: envuelto en <div id="proposito-page-actions"> para poder resaltarlo
   const pageActions = hasPageActions ? (
-    <PropositoPageActions
-      permissions={permissions}
-      filteredRecords={filteredRecords}
-      onCreate={openCreateModal}
-      onExport={setExportFormat}
-    />
+    <div id="proposito-page-actions">
+      <PropositoPageActions
+        permissions={permissions}
+        filteredRecords={filteredRecords}
+        onCreate={openCreateModal}
+        onExport={setExportFormat}
+      />
+    </div>
   ) : undefined;
 
   return (
     <PanelLayout
       currentStep="proposito-formacion"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Propósito de Formación"
       description={
         permissions.canUpdate
@@ -119,17 +165,20 @@ export default function PropositoFormacionPage() {
         />
       ) : (
         <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
-          <PropositoFiltersPanel
-            user={currentUser}
-            permissions={permissions}
-            filters={filters}
-            filterOptions={availableFilterOptions}
-            filteredCount={filteredRecords.length}
-            totalCount={roleScopedRecords.length}
-            onFilterChange={handleFilterChange}
-            onReset={() => setFilters(INITIAL_FILTERS)}
-            activeRecords={filteredRecords}
-          />
+          {/* TOUR: id agregado para el paso 1 */}
+          <div id="proposito-filters-panel">
+            <PropositoFiltersPanel
+              user={currentUser}
+              permissions={permissions}
+              filters={filters}
+              filterOptions={availableFilterOptions}
+              filteredCount={filteredRecords.length}
+              totalCount={roleScopedRecords.length}
+              onFilterChange={handleFilterChange}
+              onReset={() => setFilters(INITIAL_FILTERS)}
+              activeRecords={filteredRecords}
+            />
+          </div>
 
           <PropositoListSection
             data={filteredRecords}

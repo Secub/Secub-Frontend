@@ -18,6 +18,7 @@ interface CompetenciasRaCardProps {
   onEditRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
   onDeleteRa: (record: CompetenciasRaEnriched, ra: ResultadoAprendizaje) => void;
   canEdit: boolean;
+  tourAnchor?: boolean;
 }
 
 function getRaLabel(numero: number) {
@@ -37,6 +38,7 @@ export default function CompetenciasRaCard({
   onEditRa,
   onDeleteRa,
   canEdit,
+  tourAnchor,
 }: CompetenciasRaCardProps) {
   const [expandedRAs, setExpandedRAs] = useState(false);
 
@@ -49,7 +51,10 @@ export default function CompetenciasRaCard({
   const canAddMoreRa = canEdit && canAddLearningResult(record);
 
   return (
-    <div className="relative flex flex-col rounded-lg border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-6 transition-all hover:shadow-md">
+    <div
+      id={tourAnchor ? "competencias-ra-card" : undefined}
+      className="relative flex flex-col rounded-lg border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-6 transition-all hover:shadow-md"
+    >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           <Badge
@@ -91,6 +96,7 @@ export default function CompetenciasRaCard({
 
       <div className="mt-auto border-t border-[var(--color-gray-6)] pt-4">
         <button
+          id={tourAnchor ? "competencias-ra-card-ra-toggle" : undefined}
           type="button"
           onClick={() => setExpandedRAs(!expandedRAs)}
           className="group flex w-full items-center justify-between gap-4 rounded-2xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary-1)] focus:ring-offset-2"

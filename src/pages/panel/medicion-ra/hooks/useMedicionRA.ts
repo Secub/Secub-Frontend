@@ -23,6 +23,7 @@ export function useMedicionRA() {
     hasAvailableCourses,
     initialCourseId,
     initialPersistedState,
+    updateMeasurementCache,
     isLoading,
     loadError,
   } = useMedicionRAData();
@@ -129,6 +130,7 @@ export function useMedicionRA() {
     courseMeasurementStateId: computed.courseMeasurementStateId,
     selectedCourse: computed.selectedCourse,
     selectedCourseId: selection.selectedCourseId,
+    onPersisted: updateMeasurementCache,
   });
 
   const validation = useMedicionRAValidation({

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, IconButton, Table, type TableColumn } from "../../../../components/ui";
+import { DASHBOARD_TOUR_IDS, DASHBOARD_TOUR_MARKERS, tourMarker } from "../dashboard.tour";
 import type { EnrichedRaResult } from "../dashboard.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
@@ -284,7 +285,10 @@ function RaResultsTable({
   ];
 
   return (
-    <div className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white">
+    <div
+      {...tourMarker(DASHBOARD_TOUR_MARKERS.resultsRaTable)}
+      className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white"
+    >
       <Table
         columns={columns}
         data={results}
@@ -305,7 +309,10 @@ function CompetenceSupportFiles({
   const supportGroups = useMemo(() => buildCompetenceSupportGroups(results), [results]);
 
   return (
-    <section className="rounded-[22px] border border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-5">
+    <section
+      {...tourMarker(DASHBOARD_TOUR_MARKERS.resultsSupport)}
+      className="rounded-[22px] border border-[var(--color-gray-5)] bg-[var(--color-surface-soft)] p-5"
+    >
       <div>
         <h3 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">
           Soportes de la competencia
@@ -415,7 +422,7 @@ export default function CompetenceResultsPanel({
 
   return (
     <section className="space-y-5">
-      <div className="surface-card rounded-[24px] p-6">
+      <div id={DASHBOARD_TOUR_IDS.resultsSummary} className="surface-card rounded-[24px] p-6">
         <div className="flex flex-wrap justify-center gap-10">
           {groups.map((group, index) => (
             <CompetencePie key={group.id} group={group} index={index} />
@@ -425,12 +432,13 @@ export default function CompetenceResultsPanel({
 
       <div className="surface-card rounded-[24px] p-6">
         <div className="space-y-5">
-          {groups.map((group) => {
+          {groups.map((group, index) => {
             const expanded = expandedCompetenceIds.includes(group.id);
 
             return (
               <article
                 key={group.id}
+                id={index === 0 ? DASHBOARD_TOUR_IDS.resultsCompetence : undefined}
                 className="rounded-[22px] border border-[var(--color-gray-5)] bg-white p-5"
               >
                 <button

@@ -76,7 +76,7 @@ export default function EvidenceImprovementSection({
 
   return (
     <section className="grid gap-6 xl:grid-cols-2">
-      <article className="surface-card p-6">
+      <article id="medicion-evidencia-competencia" className="surface-card p-6">
         <div className="mb-5">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
@@ -219,7 +219,7 @@ export default function EvidenceImprovementSection({
         </div>
       </article>
 
-      <article className="surface-card p-6">
+      <article id="medicion-plan-mejora" className="surface-card p-6">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">

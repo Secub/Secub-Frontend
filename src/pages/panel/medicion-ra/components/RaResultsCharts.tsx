@@ -44,9 +44,10 @@ export default function RaResultsCharts({
         </div>
       ) : (
         <div className="grid gap-5 xl:grid-cols-3">
-          {results.map((result) => (
+          {results.map((result, index) => (
             <article
               key={result.raId}
+              id={index === 0 ? "medicion-ra-results-first" : undefined}
               className="rounded-[22px] border border-[var(--color-gray-6)] bg-white p-5 shadow-sm"
             >
               <div className="flex items-start justify-between gap-4">

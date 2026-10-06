@@ -1,4 +1,9 @@
-import { BackButton, FlowActionBar, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import {
+  BackButton,
+  FlowActionBar,
+  PanelLayout,
+  WorkflowStateCard,
+} from "../../../components/panel";
 import {
   getAcademicWorkflowState,
   useAcademicWorkflowProgress,
@@ -9,6 +14,9 @@ import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
 import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
+import { useEffect, useMemo, useRef } from "react";
+// TOUR: import del hook y el tipo de pasos
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
 export default function AsignarRAPage() {
   const asignarRA = useAsignarRA();
@@ -73,10 +81,94 @@ export default function AsignarRAPage() {
     : false;
   const courseDetailBreadcrumbItems = isCourseDetailView
     ? [
-        { label: "Asignar RA", onClick: handleBackToCourses },
-        { label: selectedCourse?.nombre ?? "Detalle del curso" },
-      ]
+      { label: "Asignar RA", onClick: handleBackToCourses },
+      { label: selectedCourse?.nombre ?? "Detalle del curso" },
+    ]
     : undefined;
+
+  const tourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#asignar-ra-filters-panel",
+        title: "Filtros",
+        content: "Filtra los cursos de Síntesis por los criterios disponibles.",
+        order: 1,
+      },
+      {
+        target: "#asignar-ra-courses-panel",
+        title: "Cursos de Síntesis",
+        content: "Selecciona un curso para revisar y asignar sus resultados de aprendizaje.",
+        order: 2,
+      },
+    ],
+    []
+  );
+
+  const canShowTour = !isCourseDetailView && !access.isStepLocked && access.canRead;
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_asignar_ra_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
+
+  const detailTourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#asignar-ra-competencias-section",
+        title: "Competencias del curso",
+        content: "Aquí encontrarás las competencias asociadas al curso. Abre cada una para revisar sus Resultados de Aprendizaje.",
+        order: 1,
+      },
+      {
+        target: "#asignar-ra-application-selector",
+        title: "Aplicaciones de RA",
+        content: "Estas casillas representan las aplicaciones de los Resultados de Aprendizaje. Selecciona entre 1 y 4 RA para asignarlos a la competencia.",
+        order: 2,
+      },
+    ],
+    []
+  );
+
+  const canShowDetailTour =
+    isCourseDetailView &&
+    !access.isStepLocked &&
+    access.canRead &&
+    courseCompetencias.length > 0;
+
+  // TOUR: el paso de "Aplicaciones de RA" apunta a un elemento que solo existe en el DOM
+  // cuando la primera competencia esta expandida. Sin esto, la primera vez que se muestra
+  // el tour ese paso no encuentra su target y se descarta en silencio (allowPartialTargets),
+  // dejando visible solo el paso de Competencias. Se fuerza la expansion una sola vez por
+  // competencia para que el paso exista antes de que el tour arranque.
+  const detailTourExpandedForRef = useRef<string | null>(null);
+  const firstCompetenciaId = courseCompetencias[0]?.id;
+  useEffect(() => {
+    if (!canShowDetailTour) return;
+    if (!firstCompetenciaId || detailTourExpandedForRef.current === firstCompetenciaId) return;
+    detailTourExpandedForRef.current = firstCompetenciaId;
+    if (!expandedCompetenciaIds.includes(firstCompetenciaId)) {
+      toggleCompetenciaAccordion(firstCompetenciaId);
+    }
+  }, [canShowDetailTour, firstCompetenciaId, expandedCompetenciaIds, toggleCompetenciaAccordion]);
+
+  // El autoStart del tour no puede arrancar antes de que el acordeon ya este
+  // expandido: si arranca en la misma pasada de efectos que la expansion, puede
+  // ganar la carrera y construir el tour con la competencia aun colapsada
+  // (card sin el paso de RA, o sin mostrarse). Se gatea con el estado ya
+  // confirmado en el DOM, no con el orden de los efectos.
+  const isDetailTourTargetReady =
+    Boolean(firstCompetenciaId) && expandedCompetenciaIds.includes(firstCompetenciaId ?? "");
+
+  const { startTour: startDetailTour } = useOnboardingTour({
+    steps: detailTourSteps,
+    storageKey: "tour_asignar_ra_detalle_v1",
+    autoStart: canShowDetailTour && isDetailTourTargetReady,
+    enabled: canShowDetailTour && isDetailTourTargetReady,
+    // El selector de aplicaciones vive dentro de la competencia expandida.
+    allowPartialTargets: true,
+  });
 
   return (
     <PanelLayout
@@ -84,6 +176,8 @@ export default function AsignarRAPage() {
       title="Asignar Resultados de Aprendizaje"
       description="Seleccione un curso de Síntesis y asigne los RA que serán medidos."
       breadcrumbItems={courseDetailBreadcrumbItems}
+      onReplayTour={canShowDetailTour ? startDetailTour : canShowTour ? startTour : undefined}
+      tourLabel={canShowDetailTour ? "Ver guía del detalle" : undefined}
     >
       {loading ? (
         <WorkflowStateCard
@@ -118,29 +212,31 @@ export default function AsignarRAPage() {
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
-              <AsignarRACourseDetail
-                selectedCourse={selectedCourse}
-                selectedCycle={selectedCycle}
-                selectedCourseAssignments={selectedCourseAssignments}
-                courseCompetencias={courseCompetencias}
-                draftSelections={draftSelections}
-                expandedCompetenciaIds={expandedCompetenciaIds}
-                measurements={measurements}
-                canManage={access.canManage}
-                canDelete={access.canDelete}
-                hasUnsavedChanges={hasUnsavedChanges()}
-                status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
-                onBackToCourses={handleBackToCourses}
-                onDelete={() => setShowDeleteConfirm(true)}
-                onToggleAccordion={toggleCompetenciaAccordion}
-                onToggleRa={toggleRaSelection}
-                getRaAssignment={getRaAssignment}
-                isRaSelected={isRaSelected}
-              />
+              <div id="asignar_ra-detalle-curso-panel" className="mt-3">
+                <AsignarRACourseDetail
+                  selectedCourse={selectedCourse}
+                  selectedCycle={selectedCycle}
+                  selectedCourseAssignments={selectedCourseAssignments}
+                  courseCompetencias={courseCompetencias}
+                  draftSelections={draftSelections}
+                  expandedCompetenciaIds={expandedCompetenciaIds}
+                  measurements={measurements}
+                  canManage={access.canManage}
+                  canDelete={access.canDelete}
+                  hasUnsavedChanges={hasUnsavedChanges()}
+                  status={selectedCourse ? getCourseStatus(selectedCourse.id) : undefined}
+                  onBackToCourses={handleBackToCourses}
+                  onDelete={() => setShowDeleteConfirm(true)}
+                  onToggleAccordion={toggleCompetenciaAccordion}
+                  onToggleRa={toggleRaSelection}
+                  getRaAssignment={getRaAssignment}
+                  isRaSelected={isRaSelected}
+                />
+              </div>
             </div>
           ) : (
             <>
-              <div ref={refs.filtersRef}>
+              <div id="asignar-ra-filters-panel" ref={refs.filtersRef}>
                 <AsignarRAFilters
                   filters={filters}
                   options={filterOptions}
@@ -157,18 +253,18 @@ export default function AsignarRAPage() {
                 />
               </div>
 
-              {!selectedCycle ? (
-                <WorkflowStateCard
-                  title="Selecciona el ciclo de medición"
-                  description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
-                />
-              ) : !courses.length ? (
-                <WorkflowStateCard
-                  title="No hay cursos de Síntesis disponibles"
-                  description="El ciclo seleccionado no tiene cursos de Síntesis asociados. Revisa Creación del ciclo antes de asignar RA."
-                />
-              ) : (
-                <div ref={refs.coursesRef}>
+              <div id="asignar-ra-courses-panel" ref={refs.coursesRef}>
+                {!selectedCycle ? (
+                  <WorkflowStateCard
+                    title="Selecciona el ciclo de medición"
+                    description="El módulo no toma el primer ciclo en silencio cuando existen varios. Elige el periodo académico para cargar cursos, competencias y asignaciones."
+                  />
+                ) : !courses.length ? (
+                  <WorkflowStateCard
+                    title="No hay cursos de Síntesis disponibles"
+                    description="El ciclo seleccionado no tiene cursos de Síntesis asociados. Revisa Creación del ciclo antes de asignar RA."
+                  />
+                ) : (
                   <AsignarRACoursesTable
                     rows={courseRows}
                     totalCourses={courses.length}
@@ -176,8 +272,8 @@ export default function AsignarRAPage() {
                     canManage={access.canManage}
                     onSelectCourse={handleSelectCourse}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
 

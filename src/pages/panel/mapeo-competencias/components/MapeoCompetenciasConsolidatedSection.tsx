@@ -17,6 +17,7 @@ interface MapeoCompetenciasConsolidatedSectionProps {
   onCreate: () => void;
   editableRecordId?: string;
   onEdit?: (record: MapeoCompetenciasEnriched) => void;
+  tourAnchor?: boolean;
   onNivelChange?: (
     recordId: string,
     cursoId: string,
@@ -32,6 +33,7 @@ export default function MapeoCompetenciasConsolidatedSection({
   onCreate,
   editableRecordId,
   onEdit,
+  tourAnchor,
 }: MapeoCompetenciasConsolidatedSectionProps) {
   if (!hasRequiredFilters) {
     return (
@@ -67,12 +69,15 @@ export default function MapeoCompetenciasConsolidatedSection({
 
   return (
     <section className="space-y-6">
-      {records.map((record) => (
+      {records.map((record, index) => (
         <article
           key={record.id}
           className="surface-card overflow-hidden rounded-xl p-6"
         >
-          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div
+            id={tourAnchor && index === 0 ? "mapeo-consolidated-header" : undefined}
+            className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+          >
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-1)]">
                 Visualización de malla curricular

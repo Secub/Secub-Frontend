@@ -18,6 +18,9 @@ import CicloPageActions from "./components/CicloPageActions";
 import CicloSavedMessage from "./components/CicloSavedMessage";
 import { useCicloPage } from "./hooks/useCicloPage";
 import { INITIAL_CICLO_FILTERS } from "./ciclo.utils";
+import { useMemo } from "react";
+// TOUR: import del hook y el tipo de pasos
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
 export default function CicloPage() {
   const page = useCicloPage();
@@ -67,17 +70,60 @@ export default function CicloPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelAsignarRa, { role: user.role }));
   };
 
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#ciclo-filters-panel",
+        title: "Filtros",
+        content: "Filtra los ciclos de medición por programa, estado u otros criterios.",
+        order: 1,
+      },
+      {
+        target: "#ciclo-list-section",
+        title: "Listado de ciclos",
+        content: "Aquí ves los ciclos de medición registrados, con su periodo, estado y cursos seleccionados.",
+        order: 2,
+      },
+    ];
+
+    // Las acciones solo se renderizan para quien puede crear ciclos.
+    if (permissions.canCreateCycle) {
+      steps.push({
+        target: "#ciclo-page-actions",
+        title: "Acciones",
+        content: "Desde aquí puedes crear un nuevo ciclo de medición si no existe uno activo.",
+        order: 3,
+      });
+    }
+
+    return steps;
+  }, [permissions.canCreateCycle]);
+
+  const canShowTour = !isStepLocked && hasCycles;
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_ciclo_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+    // El listado solo existe si los filtros actuales devuelven ciclos.
+    allowPartialTargets: true,
+  });
+
   const pageActions = (
+    <div id="ciclo-page-actions">
     <CicloPageActions
       canCreate={canCreateCycle}
       disabledReason={activeCycleLockMessage ?? undefined}
       onCreate={openCreateModal}
     />
+    </div>
   );
 
   return (
     <PanelLayout
       currentStep="ciclo"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Creación del ciclo"
       description="Configuración del periodo de 1.5 años y selección de cursos del núcleo de Síntesis para el mapeo curricular."
       actions={!isStepLocked && hasCycles && permissions.canCreateCycle ? pageActions : undefined}
@@ -114,17 +160,19 @@ export default function CicloPage() {
         <div className="space-y-6 pb-24">
           <CicloSavedMessage message={savedMessage} onClose={() => setSavedMessage("")} />
 
-          <CicloFilters
-            user={user}
-            permissions={permissions}
-            catalogs={catalogs}
-            filters={filters}
-            baseCycles={roleScopedCycles}
-            filteredCount={filteredCycles.length}
-            totalCount={roleScopedCycles.length}
-            onFilterChange={handleFilterChange}
-            onReset={() => setFilters(INITIAL_CICLO_FILTERS)}
-          />
+          <div id="ciclo-filters-panel">
+            <CicloFilters
+              user={user}
+              permissions={permissions}
+              catalogs={catalogs}
+              filters={filters}
+              baseCycles={roleScopedCycles}
+              filteredCount={filteredCycles.length}
+              totalCount={roleScopedCycles.length}
+              onFilterChange={handleFilterChange}
+              onReset={() => setFilters(INITIAL_CICLO_FILTERS)}
+            />
+          </div>
 
           <CicloListSection
             cycles={filteredCycles}

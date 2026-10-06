@@ -1,6 +1,7 @@
 import { SecubIcon } from "../../../../components/ui/SecubIcon";
 import { useMemo, useState } from "react";
 import { Button, Select, Table, type SelectOption, type TableColumn } from "../../../../components/ui";
+import { DASHBOARD_TOUR_IDS } from "../dashboard.tour";
 import type { EnrichedCourse, EnrichedRaResult } from "../dashboard.types";
 
 import { ActionIcon } from "../../../../components/ui/ActionIcon";
@@ -161,7 +162,7 @@ function ResultsCharts({
   const measuredResults = results.filter((result) => result.hasMeasurement);
 
   return (
-    <section className="surface-card rounded-[24px] p-6">
+    <section id={DASHBOARD_TOUR_IDS.detailCharts} className="surface-card rounded-[24px] p-6">
       <div className="mb-6 flex items-center justify-center gap-3">
         <SecubIcon name="chart-up" weight="fill" className="text-xl text-[var(--color-secondary-1)]" />
         <h2 className="text-center font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
@@ -198,7 +199,7 @@ function SupportFilesPanel({
   const groups = useMemo(() => buildCompetenceSupportGroups(results), [results]);
 
   return (
-    <article className="surface-card rounded-[24px] p-6">
+    <article id={DASHBOARD_TOUR_IDS.detailSupport} className="surface-card rounded-[24px] p-6">
       <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">
         Soportes de la competencia
       </h2>
@@ -274,7 +275,7 @@ function SupportFilesPanel({
 
 function ImprovementPlanPanel({ result }: { result?: EnrichedRaResult }) {
   return (
-    <article className="surface-card rounded-[24px] p-6">
+    <article id={DASHBOARD_TOUR_IDS.detailImprovement} className="surface-card rounded-[24px] p-6">
       <h2 className="font-heading text-xl font-semibold text-[var(--color-secondary-4)]">Plan de Mejora</h2>
 
       <div className="mt-5 space-y-5">
@@ -402,7 +403,7 @@ export default function ResultsMeasurementPanel({
 
   return (
     <section className="space-y-5">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div id={DASHBOARD_TOUR_IDS.detailFilters} className="grid gap-4 md:grid-cols-2">
         <Select
           placeholder="Todas las competencias"
           value={selectedCompetenceId}
@@ -420,12 +421,14 @@ export default function ResultsMeasurementPanel({
 
       <ResultsCharts results={filteredResults} onOpenRaDetail={onOpenRaDetail} />
 
-      <Table
-        columns={columns}
-        data={filteredResults}
-        rowKey={(result) => result.key}
-        emptyMessage="No hay resultados de medición para mostrar."
-      />
+      <div id={DASHBOARD_TOUR_IDS.detailTable}>
+        <Table
+          columns={columns}
+          data={filteredResults}
+          rowKey={(result) => result.key}
+          emptyMessage="No hay resultados de medición para mostrar."
+        />
+      </div>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <SupportFilesPanel results={filteredResults} onDownloadFile={onDownloadFile} />

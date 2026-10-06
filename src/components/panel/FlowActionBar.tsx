@@ -26,6 +26,7 @@ interface FlowActionBarProps {
   nextLabel?: string;
   nextDisabled?: boolean;
   nextTitle?: string;
+  nextButtonId?: string;
   onNext?: () => void;
   showFinish?: boolean;
   finishLabel?: string;
@@ -65,6 +66,7 @@ export default function FlowActionBar({
   nextLabel = "Siguiente paso",
   nextDisabled = false,
   nextTitle,
+  nextButtonId,
   onNext,
   showFinish = false,
   finishLabel = "Finalizar",
@@ -183,6 +185,7 @@ export default function FlowActionBar({
 
             {shouldShowNext ? (
               <Button
+                id={nextButtonId}
                 variant="primary"
                 leftIcon={<ActionIcon name="next" />}
                 onClick={onNext}

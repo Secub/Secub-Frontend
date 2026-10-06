@@ -54,6 +54,7 @@ export default function InstrumentSection({
           return (
             <article
               key={ra.id}
+              id={index === 0 ? "medicion-instrument-first-ra" : undefined}
               data-validation-field={`instrument-description-${ra.id}`}
               data-validation-error={descriptionError ? "true" : undefined}
               className={[

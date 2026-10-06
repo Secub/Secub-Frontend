@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   FlowActionBar,
   PanelLayout,
@@ -7,6 +8,7 @@ import {
 import { getAcademicWorkflowState, useAcademicWorkflowProgress } from "../../../components/panel/academicWorkflow";
 import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../../app/appRoutes";
 import { ConfirmDialog } from "../../../components/ui";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import PerfilEgresoDetailModal from "./components/PerfilEgresoDetailModal";
 import PerfilEgresoExportModal from "./components/PerfilEgresoExportModal";
 import PerfilEgresoFilters from "./components/PerfilEgresoFilters";
@@ -68,17 +70,56 @@ export default function PerfilEgresoPage() {
   const hasPageActions =
     permissions.canCreate || permissions.canExportPdf || permissions.canExportExcel;
   const pageActions = hasPageActions ? (
-    <PerfilEgresoPageActions
-      permissions={permissions}
-      filteredRecords={filteredRecords}
-      onCreate={openCreateModal}
-      onExport={setExportFormat}
-    />
+    <div id="perfil-egreso-page-actions">
+      <PerfilEgresoPageActions
+        permissions={permissions}
+        filteredRecords={filteredRecords}
+        onCreate={openCreateModal}
+        onExport={setExportFormat}
+      />
+    </div>
   ) : undefined;
+
+  const canShowTour = !isStepLocked && hasRecords;
+  const tourSteps = useMemo<OnboardingTourStep[]>(() => {
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#perfil-egreso-filters-panel",
+        title: "Filtros",
+        content: "Filtra los perfiles de egreso por programa u otros criterios.",
+        order: 1,
+      },
+      {
+        target: "#perfil-egreso-list-table",
+        title: "Listado de perfiles de egreso",
+        content: "Aquí ves los perfiles de egreso registrados, con su estado y detalle.",
+        order: 2,
+      },
+    ];
+
+    if (hasPageActions && !isInheritedBaseStep) {
+      steps.push({
+        target: "#perfil-egreso-page-actions",
+        title: "Acciones",
+        content: "Desde aquí puedes crear un nuevo perfil de egreso o exportarlos en PDF/Excel.",
+        order: 3,
+      });
+    }
+
+    return steps;
+  }, [hasPageActions, isInheritedBaseStep]);
+
+  const { startTour } = useOnboardingTour({
+    steps: tourSteps,
+    storageKey: "tour_perfil_egreso_v1",
+    autoStart: canShowTour,
+    enabled: canShowTour,
+  });
 
   return (
     <PanelLayout
       currentStep="perfil-egreso"
+      onReplayTour={canShowTour ? startTour : undefined}
       title="Perfil de Egreso"
       description={
         permissions.canUpdate
@@ -119,14 +160,16 @@ export default function PerfilEgresoPage() {
         />
       ) : (
         <div className={showFlowActionBar ? "space-y-6 pb-24" : "space-y-6"}>
-          <PerfilEgresoFilters
-            user={currentUser}
-            permissions={permissions}
-            filters={filters}
-            filterOptions={availableFilterOptions}
-            onFilterChange={handleFilterChange}
-            onReset={() => setFilters(INITIAL_FILTERS)}
-          />
+          <div id="perfil-egreso-filters-panel">
+            <PerfilEgresoFilters
+              user={currentUser}
+              permissions={permissions}
+              filters={filters}
+              filterOptions={availableFilterOptions}
+              onFilterChange={handleFilterChange}
+              onReset={() => setFilters(INITIAL_FILTERS)}
+            />
+          </div>
 
           <PerfilEgresoListSection
             data={filteredRecords}

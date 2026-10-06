@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { BackButton, PanelLayout, WorkflowStateCard } from "../../../components/panel";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -12,9 +14,160 @@ import MeasurementSummaryCards, {
 import ResultsMeasurementPanel from "./components/ResultsMeasurementPanel";
 import { useDashboardPage } from "./hooks/useDashboardPage";
 import { downloadEvidenceFile } from "./dashboard.utils";
+import { DASHBOARD_TOUR_IDS, DASHBOARD_TOUR_MARKERS, tourMarkerSelector } from "./dashboard.tour";
+import { useDashboardViewTours } from "./hooks/useDashboardViewTours";
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
+
+  const teacherTourSteps = useMemo<OnboardingTourStep[]>(
+    () => [
+      {
+        target: "#dashboard-summary-cards",
+        title: "Resumen del ciclo",
+        content: "Aquí ves el resumen de tus cursos: totales, completados, pendientes y tu avance general.",
+        order: 1,
+      },
+      {
+        target: "#dashboard-filters-panel",
+        title: "Filtros",
+        content: "Ajusta la información visible por ciclo y estado.",
+        order: 2,
+      },
+      {
+        target: "#dashboard-courses-table",
+        title: "Cursos asignados",
+        content: "Consulta el avance de tus cursos, mide los pendientes y abre el detalle de los completados.",
+        order: 3,
+      },
+      {
+        target: `#dashboard-courses-table ${tourMarkerSelector(DASHBOARD_TOUR_MARKERS.courseAction)}`,
+        title: "Acción del curso",
+        content:
+          "Usa este botón para medir los Resultados de Aprendizaje pendientes de un curso o abrir su detalle si ya está completo.",
+        order: 4,
+      },
+    ],
+    []
+  );
+
+  const canShowTeacherTour =
+    !dashboard.isLoading &&
+    !dashboard.loadError &&
+    dashboard.isTeacher &&
+    dashboard.view === "control" &&
+    dashboard.scopedCourses.length > 0;
+
+  const { startTour: startTeacherTour } = useOnboardingTour({
+    steps: teacherTourSteps,
+    storageKey: "tour_dashboard_docente_v1",
+    autoStart: canShowTeacherTour,
+    enabled: canShowTeacherTour,
+    // Sin cursos para los filtros actuales no hay tabla ni acciones: el tour sigue con lo visible.
+    allowPartialTargets: true,
+  });
+
+  const tourCyclesSnapshot = JSON.stringify(
+    dashboard.filteredCycles.map(({ id, name }) => ({ id, name })),
+  );
+  const tourCycles = useMemo(
+    () => JSON.parse(tourCyclesSnapshot) as Array<{ id: string; name: string }>,
+    [tourCyclesSnapshot],
+  );
+  const supervisorTourSteps = useMemo<OnboardingTourStep[]>(() => {
+    if (dashboard.isTeacher || dashboard.view !== "control") return [];
+
+    const steps: OnboardingTourStep[] = [
+      {
+        target: "#dashboard-summary-card-1",
+        title: "Ciclo activo",
+        content: "Consulta cuántos ciclos tienen mediciones pendientes.",
+        order: 1,
+      },
+      {
+        target: "#dashboard-summary-card-2",
+        title: "Ciclos finalizados",
+        content: "Consulta cuántos ciclos completaron la medición y el plan de mejora.",
+        order: 2,
+      },
+      {
+        target: "#dashboard-summary-card-3",
+        title: "Cursos pendientes",
+        content: "Consulta cuántos cursos todavía tienen resultados de aprendizaje por medir.",
+        order: 3,
+      },
+      {
+        target: "#dashboard-summary-card-4",
+        title: "Cursos finalizados",
+        content: "Consulta cuántos cursos completaron su medición.",
+        order: 4,
+      },
+      {
+        target: "#dashboard-filters",
+        title: "Filtros",
+        content: "Filtra la información visible por ciclo, programa, plan, estado y los criterios disponibles para tu perfil.",
+        order: 5,
+      },
+      ...tourCycles.map((cycle, index) => ({
+        target: `#dashboard-cycle-card-${index}`,
+        title: cycle.name,
+        content: "Consulta el avance, el estado y las acciones disponibles para este ciclo de medición.",
+        order: index + 6,
+      })),
+    ];
+
+    const lastCycleIndex = tourCycles.length - 1;
+    if (lastCycleIndex >= 0) {
+      const actionSteps = [
+        ["pending", "Ver pendientes", "Revisa los cursos que aún tienen mediciones de RA pendientes."],
+        ["results", "Ver resultados", "Consulta los resultados consolidados por competencia y resultado de aprendizaje."],
+        // El plan de mejora y el reporte consolidado solo existen para el director.
+        ...(dashboard.isDirector
+          ? ([
+              ["improvement", "Plan de mejora", "Carga o actualiza el plan de mejora del ciclo cuando la medición esté completa."],
+              ["report", "Descargar reporte", "Descarga el reporte consolidado cuando el ciclo y su plan de mejora estén completos."],
+            ] as const)
+          : []),
+      ] as const;
+
+      actionSteps.forEach(([action, title, content], index) => {
+        steps.push({
+          target: `#dashboard-last-cycle-${action}`,
+          title,
+          content,
+          order: lastCycleIndex + index + 7,
+        });
+      });
+    }
+
+    return steps;
+  }, [dashboard.isTeacher, dashboard.isDirector, dashboard.view, tourCycles]);
+
+  const canShowSupervisorTour =
+    !dashboard.isTeacher && dashboard.view === "control" && dashboard.filteredCycles.length > 0;
+
+  const { startTour: startSupervisorTour } = useOnboardingTour({
+    steps: supervisorTourSteps,
+    storageKey: dashboard.isDirector ? "tour_dashboard_director_v2" : "tour_dashboard_supervisor_v1",
+    autoStart: canShowSupervisorTour,
+    enabled: canShowSupervisorTour,
+    allowPartialTargets: true,
+  });
+
+  const { canShowViewTour, startViewTour } = useDashboardViewTours({
+    view: dashboard.view,
+    isTeacher: dashboard.isTeacher,
+    hasConsolidatedResults: dashboard.consolidatedResults.length > 0,
+  });
+
+  const replayTour = canShowTeacherTour
+    ? startTeacherTour
+    : canShowSupervisorTour
+      ? startSupervisorTour
+      : canShowViewTour
+        ? startViewTour
+        : undefined;
+
   if (dashboard.isLoading) {
     return (
       <PanelLayout currentStep="dashboard" title="Estado del ciclo" description="Seguimiento de ciclos, cursos y resultados de aprendizaje.">
@@ -66,27 +219,34 @@ export default function DashboardPage() {
       title={dashboard.layoutTitle}
       description={dashboard.layoutDescription}
       breadcrumbItems={dashboard.breadcrumbItems}
+      onReplayTour={replayTour}
     >
       {dashboard.view === "control" ? (
         <div className="space-y-6">
-          <MeasurementSummaryCards
-            items={
-              dashboard.isTeacher
-                ? buildTeacherSummaryItems(dashboard.metrics)
-                : buildSupervisorSummaryItems(dashboard.metrics)
-            }
-          />
+          <div id="dashboard-summary-cards">
+            <MeasurementSummaryCards
+              tourId={canShowSupervisorTour ? "dashboard-summary" : undefined}
+              items={
+                dashboard.isTeacher
+                  ? buildTeacherSummaryItems(dashboard.metrics)
+                  : buildSupervisorSummaryItems(dashboard.metrics)
+              }
+            />
+          </div>
 
           {dashboard.isTeacher ? (
             <>
-              <DashboardFilters
-                user={dashboard.user}
-                catalogs={dashboard.dashboardData.catalogs}
-                cycles={dashboard.scopedCycles}
-                filters={dashboard.filters}
-                onFilterChange={dashboard.handleFilterChange}
-                onReset={dashboard.handleResetFilters}
-              />
+              <div id="dashboard-filters-panel">
+                <DashboardFilters
+                  user={dashboard.user}
+                  catalogs={dashboard.dashboardData.catalogs}
+                  cycles={dashboard.scopedCycles}
+                  tourId={canShowSupervisorTour ? "dashboard-filters" : undefined}
+                  filters={dashboard.filters}
+                  onFilterChange={dashboard.handleFilterChange}
+                  onReset={dashboard.handleResetFilters}
+                />
+              </div>
 
               <CoursesMeasurementTable
                 title="Cursos asignados"
@@ -95,6 +255,7 @@ export default function DashboardPage() {
                 mode="teacher"
                 onMeasureCourse={dashboard.handleMeasureCourse}
                 onViewResults={dashboard.handleViewCourseDetail}
+                tableId="dashboard-courses-table"
               />
             </>
           ) : (
@@ -103,6 +264,7 @@ export default function DashboardPage() {
                 user={dashboard.user}
                 catalogs={dashboard.dashboardData.catalogs}
                 cycles={dashboard.scopedCycles}
+                tourId={canShowSupervisorTour ? "dashboard-filters" : undefined}
                 filters={dashboard.filters}
                 onFilterChange={dashboard.handleFilterChange}
                 onReset={dashboard.handleResetFilters}
@@ -149,10 +311,12 @@ export default function DashboardPage() {
             onClick={dashboard.goBackToControl}
           />
 
+
           <DashboardFilters
             user={dashboard.user}
             catalogs={dashboard.dashboardData.catalogs}
             cycles={dashboard.scopedCycles}
+            tourId={DASHBOARD_TOUR_IDS.coursesFilters}
             filters={dashboard.filters}
             onFilterChange={dashboard.handleFilterChange}
             onReset={dashboard.handleResetFilters}
@@ -160,6 +324,7 @@ export default function DashboardPage() {
 
           <CoursesMeasurementTable
             courses={dashboard.coursesForSelectedView}
+            tableId={DASHBOARD_TOUR_IDS.coursesTable}
             mode={dashboard.isTeacher ? "teacher" : "supervisor"}
             onMeasureCourse={dashboard.handleMeasureCourse}
             onNotifyTeacher={dashboard.setNotifyCourse}
@@ -175,6 +340,7 @@ export default function DashboardPage() {
             label={`Volver a ${dashboard.coursesBreadcrumbLabel.toLowerCase()}`}
             onClick={dashboard.goBackToCourses}
           />
+
 
           <ResultsMeasurementPanel
             results={dashboard.detailResults}
@@ -195,6 +361,7 @@ export default function DashboardPage() {
             label="Volver al Estado del ciclo"
             onClick={dashboard.goBackToControl}
           />
+
 
           <CompetenceResultsPanel
             results={dashboard.consolidatedResults}

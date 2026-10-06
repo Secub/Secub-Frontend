@@ -34,14 +34,16 @@ export default function PropositoListSection({
 
       </div>
 
-      <PropositoTable
-        data={data}
-        role={role}
-        permissions={permissions}
-        onView={onView}
-        onEdit={onEdit}
-        onDelete={onDelete}
-      />
+      <div id="proposito-list-section">
+        <PropositoTable
+          data={data}
+          role={role}
+          permissions={permissions}
+          onView={onView}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
     </div>
   );
 }

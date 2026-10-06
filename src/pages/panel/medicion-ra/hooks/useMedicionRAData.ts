@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCurrentUser } from "../../../../services/auth/currentUser";
 import { getMeasurementAccess, getMeasurementContext } from "../../../../services/measurements";
 import type { CourseMeasurementState } from "../types/medicionRA.persistence.types";
@@ -57,6 +57,16 @@ export function useMedicionRAData() {
     ? measurementsByCourse[`${initialCourse.cycleId}::${initialCourse.id}`]
     : undefined;
 
+  const updateMeasurementCache = useCallback(
+    (cycleId: string, courseId: string, measurement: CourseMeasurementState) => {
+      setMeasurementsByCourse((current) => ({
+        ...current,
+        [`${cycleId}::${courseId}`]: measurement,
+      }));
+    },
+    [],
+  );
+
   return {
     currentUser,
     ignoreNextBackendChangeRef,
@@ -65,6 +75,7 @@ export function useMedicionRAData() {
     hasAvailableCourses: availableCourses.length > 0,
     initialCourseId,
     initialPersistedState,
+    updateMeasurementCache,
     isLoading,
     loadError,
   };

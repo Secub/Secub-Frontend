@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { normalizeEvaluationMatrix, normalizeInstrumentState } from "../medicion-ra.utils";
 import type {
   CourseRecord,
@@ -47,12 +47,15 @@ export function useMedicionRAHydration({
     initialPersistedState?.isEvaluationLocked ?? false,
   );
   const [hydratedStateId, setHydratedStateId] = useState(courseMeasurementStateId);
+  const lastHydratedStateIdRef = useRef("");
 
   useEffect(() => {
     if (!availableCourses.some((course) => course.id === selectedCourseId)) {
       setSelectedCourseId(availableCourses[0]?.id ?? "");
       return;
     }
+
+    if (lastHydratedStateIdRef.current === courseMeasurementStateId) return;
 
     if (persistedState?.selectedCourseId === selectedCourse.id) {
       setActiveCompetenceId(persistedState.activeCompetenceId ?? selectedCourse.competences[0]?.id ?? "");
@@ -77,6 +80,7 @@ export function useMedicionRAHydration({
     }
 
     setHydratedStateId(courseMeasurementStateId);
+    lastHydratedStateIdRef.current = courseMeasurementStateId;
   }, [availableCourses, courseMeasurementStateId, persistedState, selectedCourse, selectedCourseId, setActiveCompetenceId, setSelectedCourseId]);
 
   return {
