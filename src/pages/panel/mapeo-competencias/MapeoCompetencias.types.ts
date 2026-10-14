@@ -5,7 +5,7 @@ export type ProgramaEstado = "activo" | "inactivo";
 
 export type NucleoFormacion =
   | "fundamentacion"
-  | "profesionalizacion"
+  | "profesional"
   | "sintesis";
 
 export type NivelCompromiso =

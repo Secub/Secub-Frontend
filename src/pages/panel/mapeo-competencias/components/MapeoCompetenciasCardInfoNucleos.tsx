@@ -14,8 +14,8 @@ const nucleosInfo = [
     tone: "border-[color:rgba(160,195,255,0.65)] bg-[color:rgba(160,195,255,0.18)]",
   },
   {
-    title: "Profesionalización",
-    eyebrow: "Núcleo profesionalización",
+    title: "Profesional",
+    eyebrow: "Núcleo profesional",
     description:
       "Se refiere a la estructura conceptual requerida para la formación del profesional en su disciplina o profesión.",
     tone: "border-[color:rgba(14,101,217,0.24)] bg-[color:rgba(14,101,217,0.08)]",

@@ -119,7 +119,7 @@ export function useMapeoCompetenciasManager({
 
   function updateNucleo(semestreNumero: number, nucleo: NucleoFormacion | null) {
     if (nucleo && !canAssignNucleo(nucleosDraft, semestreNumero, nucleo)) {
-      setFeedback({ type: "warning", message: "Los núcleos deben avanzar en orden: Fundamentación, Profesionalización y Síntesis, sin retroceder ni saltar etapas entre semestres." });
+      setFeedback({ type: "warning", message: "Los núcleos deben avanzar en orden: Fundamentación, Profesional y Síntesis, sin retroceder ni saltar etapas entre semestres." });
       return;
     }
     setFeedback(null);

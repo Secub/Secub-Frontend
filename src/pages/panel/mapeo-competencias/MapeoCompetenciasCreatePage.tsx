@@ -55,7 +55,7 @@ export default function MapeoCompetenciasCreatePage() {
         target: "#mapeo-nucleos-step",
         title: "Núcleos de Formación",
         content:
-          "Consulta la descripción de cada núcleo (fundamentación, profesionalización o síntesis) antes de clasificar los semestres.",
+          "Consulta la descripción de cada núcleo (fundamentación, profesional o síntesis) antes de clasificar los semestres.",
         order: 2,
       },
     ];

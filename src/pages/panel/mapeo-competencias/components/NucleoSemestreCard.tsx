@@ -13,7 +13,7 @@ interface NucleoSemestreCardProps {
 
 const NUCLEO_OPTIONS: NucleoFormacion[] = [
   "fundamentacion",
-  "profesionalizacion",
+  "profesional",
   "sintesis",
 ];
 

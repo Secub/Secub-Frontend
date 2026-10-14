@@ -161,7 +161,7 @@ export function areAllSemestersClassified(draft: NucleosDraft, total = SAFE_FALL
 
 const nucleoOrder: Record<NucleoFormacion, number> = {
   fundamentacion: 0,
-  profesionalizacion: 1,
+  profesional: 1,
   sintesis: 2,
 };
 
@@ -193,7 +193,7 @@ export function allNucleosRepresented(draft: NucleosDraft): boolean {
   const values = Object.values(draft).filter(Boolean) as NucleoFormacion[];
   return (
     values.includes("fundamentacion") &&
-    values.includes("profesionalizacion") &&
+    values.includes("profesional") &&
     values.includes("sintesis")
   );
 }

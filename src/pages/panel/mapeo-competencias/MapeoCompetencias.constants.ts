@@ -30,8 +30,8 @@ export const NUCLEOS: Array<{
     variant: "info",
   },
   {
-    value: "profesionalizacion",
-    label: "Profesionalización",
+    value: "profesional",
+    label: "Profesional",
     description: "Etapa intermedia donde el estudiante profundiza y aplica saberes disciplinares.",
     variant: "accent",
   },

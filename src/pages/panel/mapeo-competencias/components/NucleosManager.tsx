@@ -37,7 +37,7 @@ export default function NucleosManager({
         if (nucleo) summary[nucleo] += 1;
         return summary;
       },
-      { fundamentacion: 0, profesionalizacion: 0, sintesis: 0 } as Record<NucleoFormacion, number>,
+      { fundamentacion: 0, profesional: 0, sintesis: 0 } as Record<NucleoFormacion, number>,
     );
   }, [semesters, value]);
 
@@ -59,7 +59,7 @@ export default function NucleosManager({
 
           <div className="flex flex-wrap gap-2">
             <Badge variant="info">F: {nucleosSummary.fundamentacion}</Badge>
-            <Badge variant="accent">P: {nucleosSummary.profesionalizacion}</Badge>
+            <Badge variant="accent">P: {nucleosSummary.profesional}</Badge>
             <Badge variant="success">S: {nucleosSummary.sintesis}</Badge>
           </div>
         </div>
@@ -90,10 +90,10 @@ export default function NucleosManager({
         </div>
       ) : null}
 
-      {evaluatedCount === totalSemestres && (nucleosSummary.fundamentacion === 0 || nucleosSummary.profesionalizacion === 0 || nucleosSummary.sintesis === 0) && (
+      {evaluatedCount === totalSemestres && (nucleosSummary.fundamentacion === 0 || nucleosSummary.profesional === 0 || nucleosSummary.sintesis === 0) && (
         <div className="rounded-lg border-l-4 border-[var(--color-warning)] bg-[var(--color-surface-soft)] p-4">
           <p className="text-sm font-medium text-[var(--color-warning)]">
-            Todos los semestres deben cubrir los tres núcleos: Fundamentación, Profesionalización y Síntesis. Ajusta la clasificación antes de continuar.
+            Todos los semestres deben cubrir los tres núcleos: Fundamentación, Profesional y Síntesis. Ajusta la clasificación antes de continuar.
           </p>
         </div>
       )}

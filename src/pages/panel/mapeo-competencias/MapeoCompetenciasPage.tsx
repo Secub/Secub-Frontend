@@ -36,7 +36,7 @@ function isConsolidatedMapeoComplete(record: MapeoCompetenciasEnriched | null) {
     record.semestresResumen.every((semestre) => Boolean(semestre.nucleo)) &&
     isNucleoSequenceValid(Object.fromEntries(record.semestresResumen.map((semestre) => [semestre.semestreNumero, semestre.nucleo])), record.semestresResumen.length) &&
     representedNucleos.has("fundamentacion") &&
-    representedNucleos.has("profesionalizacion") &&
+    representedNucleos.has("profesional") &&
     representedNucleos.has("sintesis");
   const hasCoursesToMap = record.semestresResumen.some((semestre) => semestre.totalCeldas > 0);
   const levelMappingComplete = record.semestresResumen.every(
@@ -76,7 +76,7 @@ export default function MapeoCompetenciasPage() {
   const activeConsolidatedRecord = selectedRecord ?? filteredRecords[0] ?? null;
   const isMapeoComplete = isConsolidatedMapeoComplete(activeConsolidatedRecord);
   const fundamentacionCount = getNucleoCount(filteredRecords, "fundamentacion");
-  const profesionalizacionCount = getNucleoCount(filteredRecords, "profesionalizacion");
+  const profesionalCount = getNucleoCount(filteredRecords, "profesional");
   const sintesisCount = getNucleoCount(filteredRecords, "sintesis");
   const exportActions = hasRecords ? (
     <>
@@ -175,8 +175,8 @@ export default function MapeoCompetenciasPage() {
               </article>
 
               <article className="surface-card rounded-lg p-5 text-center">
-                <p className="text-sm font-semibold text-[var(--color-gray-3)]">Profesionalización</p>
-                <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{profesionalizacionCount}</p>
+                <p className="text-sm font-semibold text-[var(--color-gray-3)]">Profesional</p>
+                <p className="mt-3 text-3xl font-bold text-[var(--color-secondary-4)]">{profesionalCount}</p>
                 <p className="mt-1 text-xs text-[var(--color-gray-4)]">Semestres avanzados</p>
               </article>
 
