@@ -12,6 +12,11 @@ export const SECUB_SECTIONS = [
 
 export type SecubSectionId = (typeof SECUB_SECTIONS)[number]["id"];
 
+const microsoftCampusBySection: Partial<Record<SecubSectionId, string>> = {
+  cali: "USBCA",
+  bogota: "USBBO",
+};
+
 export function isSecubSectionId(value: unknown): value is SecubSectionId {
   return SECUB_SECTIONS.some((section) => section.id === value);
 }
@@ -27,14 +32,15 @@ export function getSelectedSection(): SecubSectionId | null {
 
 export function continueAccessAfterSectionSelection(sectionId: SecubSectionId) {
   persistSelectedSection(sectionId);
-  if (sectionId !== "cali") {
+  const campusCodigo = microsoftCampusBySection[sectionId];
+  if (!campusCodigo) {
     showNotification({
       title: "Acceso próximamente",
-      message: "Por ahora el inicio de sesión solo está habilitado para la seccional Cali.",
+      message: "Por ahora el inicio de sesión solo está habilitado para las seccionales Cali y Bogotá.",
       variant: "info",
     });
     return;
   }
 
-  window.location.assign("/auth/microsoft?campus=USBCA");
+  window.location.assign(`/auth/microsoft?campus=${encodeURIComponent(campusCodigo)}`);
 }

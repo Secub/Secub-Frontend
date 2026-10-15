@@ -7,10 +7,13 @@ import {
   canManageMapeo,
   getAcademicModulePermissions,
   getCyclePermissions,
+  getFilterPermissions,
+  getRoleScopedProgramSelection,
 } from "./permissions";
 import {
   DEFAULT_SECUB_ROLE,
   SECUB_ROLE_ORDER,
+  SECUB_ROLE_LABELS,
   normalizeSecubRole,
   type SecubRole,
 } from "./roles";
@@ -18,7 +21,7 @@ import {
 const NON_DIRECTOR_ROLES = SECUB_ROLE_ORDER.filter((r) => r !== "director");
 
 describe("normalizeSecubRole", () => {
-  it("passes the five canonical roles through unchanged", () => {
+  it("passes the canonical roles through unchanged", () => {
     for (const role of SECUB_ROLE_ORDER) {
       expect(normalizeSecubRole(role)).toBe(role);
     }
@@ -27,6 +30,8 @@ describe("normalizeSecubRole", () => {
   it("is case-insensitive and trims", () => {
     expect(normalizeSecubRole("  Director ")).toBe("director");
     expect(normalizeSecubRole("ADMINISTRADOR")).toBe("administrador");
+    expect(normalizeSecubRole(" Rector ")).toBe("rector");
+    expect(SECUB_ROLE_LABELS.rector).toBe("Rector");
   });
 
   it("falls back to the default role for unknown, empty, or nullish input", () => {
@@ -43,6 +48,16 @@ describe("normalizeSecubRole", () => {
 });
 
 describe("academic module permissions", () => {
+  it("gives Rector the campus consultation permissions of Vicerrector", () => {
+    for (const module of ACADEMIC_ACTION_MODULES) {
+      expect(getAcademicModulePermissions(module, "rector")).toEqual(getAcademicModulePermissions(module, "vicerrector"));
+    }
+    expect(getCyclePermissions("rector")).toEqual(getCyclePermissions("vicerrector"));
+    expect(getFilterPermissions("dashboard", "rector").canFilterBySeccional).toBe(false);
+    expect(getRoleScopedProgramSelection("rector", { seccionalId: "USBBO", programaId: "B100", facultadId: "BF1" }))
+      .toEqual({ seccionalId: "USBBO" });
+  });
+
   it("grants write actions only to director", () => {
     for (const module of ACADEMIC_ACTION_MODULES) {
       const director = getAcademicModulePermissions(module, "director");

@@ -40,6 +40,7 @@ export const FILTER_POLICY: Record<
 > = {
   perfilEgreso: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    rector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
@@ -47,6 +48,7 @@ export const FILTER_POLICY: Record<
   },
   propositoFormacion: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    rector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
@@ -54,6 +56,7 @@ export const FILTER_POLICY: Record<
   },
   competenciasRa: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    rector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByLugar: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
@@ -61,6 +64,7 @@ export const FILTER_POLICY: Record<
   },
   mapeoCompetencias: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByLugar: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    rector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByLugar: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
@@ -68,6 +72,7 @@ export const FILTER_POLICY: Record<
   },
   ciclo: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPeriodo: true, canFilterByEstado: true },
+    rector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPeriodo: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPeriodo: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPeriodo: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPeriodo: true, canFilterByEstado: true },
@@ -75,6 +80,7 @@ export const FILTER_POLICY: Record<
   },
   asignarRa: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true },
+    rector: { ...noFilters, canFilterByFacultad: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true },
     decano: { ...noFilters },
     director: { ...noFilters },
@@ -82,6 +88,7 @@ export const FILTER_POLICY: Record<
   },
   dashboard: {
     administrador: { ...noFilters, canFilterBySeccional: true, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
+    rector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     vicerrector: { ...noFilters, canFilterByFacultad: true, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     decano: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
     director: { ...noFilters, canFilterByPrograma: true, canFilterByPlan: true, canFilterByEstado: true },
@@ -146,6 +153,7 @@ const ACADEMIC_ACTION_POLICY: Record<
 > = {
   perfilEgreso: {
     administrador: readOnlyAcademicActions,
+    rector: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
@@ -153,6 +161,7 @@ const ACADEMIC_ACTION_POLICY: Record<
   },
   propositoFormacion: {
     administrador: readOnlyAcademicActions,
+    rector: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
@@ -160,6 +169,7 @@ const ACADEMIC_ACTION_POLICY: Record<
   },
   competenciasRa: {
     administrador: readOnlyAcademicActions,
+    rector: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
@@ -167,6 +177,7 @@ const ACADEMIC_ACTION_POLICY: Record<
   },
   mapeoCompetencias: {
     administrador: readOnlyAcademicActions,
+    rector: readOnlyAcademicActions,
     vicerrector: readOnlyAcademicActions,
     decano: readOnlyAcademicActions,
     director: directorAcademicActions,
@@ -252,6 +263,7 @@ const CYCLE_ACTION_POLICY: Record<
   Omit<CyclePermissions, "canFilterBySeccional" | "canFilterByFacultad" | "canFilterByPrograma" | "canFilterByPeriodo" | "canFilterByEstado">
 > = {
   administrador: { canReadSummary: true, canCreateCycle: false, canEditCycle: false, canDeleteCycle: false, canDuplicateCycle: false, canConfirmSelection: false },
+  rector: { canReadSummary: true, canCreateCycle: false, canEditCycle: false, canDeleteCycle: false, canDuplicateCycle: false, canConfirmSelection: false },
   vicerrector: { canReadSummary: true, canCreateCycle: false, canEditCycle: false, canDeleteCycle: false, canDuplicateCycle: false, canConfirmSelection: false },
   decano: { canReadSummary: true, canCreateCycle: false, canEditCycle: false, canDeleteCycle: false, canDuplicateCycle: false, canConfirmSelection: false },
   director: { canReadSummary: true, canCreateCycle: true, canEditCycle: true, canDeleteCycle: true, canDuplicateCycle: true, canConfirmSelection: true },
@@ -439,6 +451,7 @@ export function getRoleScopedProgramSelection(
   switch (role) {
     case "administrador":
       return {};
+    case "rector":
     case "vicerrector":
       return { seccionalId: selectedScope.seccionalId };
     case "decano":
