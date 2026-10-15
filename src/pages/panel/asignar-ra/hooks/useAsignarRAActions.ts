@@ -63,7 +63,7 @@ export function useAsignarRAActions({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLeaveCourseConfirm, setShowLeaveCourseConfirm] = useState(false);
   const [showFinishAcademicFlowConfirm, setShowFinishAcademicFlowConfirm] = useState(false);
-  const [pendingPrimaryAction, setPendingPrimaryAction] = useState<"next" | "finish" | null>(null);
+  const [pendingPrimaryAction, setPendingPrimaryAction] = useState<"save" | "next" | "finish" | null>(null);
 
   useEffect(() => {
     const nextDraft = buildDraftSelections(courseCompetencias, selectedCourseAssignments);
@@ -210,8 +210,13 @@ export function useAsignarRAActions({
     return orderedCandidates.find((course) => otherPendingIds.has(course.id))?.id;
   };
 
-  const continueAfterValidatedSave = async (action: "next" | "finish") => {
+  const continueAfterValidatedSave = async (action: "save" | "next" | "finish") => {
     if (!await persistCourseAssignments()) return;
+
+    if (action === "save") {
+      setFeedback("Asignación del curso guardada correctamente.");
+      return;
+    }
 
     if (action === "next") {
       const nextCourseId = getNextPendingCourseId();
@@ -232,7 +237,7 @@ export function useAsignarRAActions({
     setShowFinishAcademicFlowConfirm(true);
   };
 
-  const requestPrimaryAction = async (action: "next" | "finish") => {
+  const requestPrimaryAction = async (action: "save" | "next" | "finish") => {
     resetFeedback();
     const validationMessage = validateDraftSelections();
 
@@ -263,6 +268,9 @@ export function useAsignarRAActions({
     await continueAfterValidatedSave(action);
   };
 
+  const handleSaveCourseAssignments = () => {
+    void requestPrimaryAction("save");
+  };
   const handleSaveAndOpenNextCourse = () => {
     void requestPrimaryAction("next");
   };
@@ -345,6 +353,7 @@ export function useAsignarRAActions({
     setShowFinishAcademicFlowConfirm,
     handleSelectCourse,
     handleBackToCourses,
+    handleSaveCourseAssignments,
     handleSaveAndOpenNextCourse,
     handleSaveAndRequestFinish,
     handleConfirmMeasuredPrimaryAction,

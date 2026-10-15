@@ -57,6 +57,7 @@ export default function AsignarRAPage() {
     handleResetFilters,
     handleSelectCourse,
     handleBackToCourses,
+    handleSaveCourseAssignments,
     handleSaveAndOpenNextCourse,
     handleSaveAndRequestFinish,
     handleConfirmMeasuredPrimaryAction,
@@ -280,12 +281,12 @@ export default function AsignarRAPage() {
             </>
           )}
 
-          {isWorkflowActive && access.canManage && isCourseDetailView ? (
+          {access.canManage && isCourseDetailView ? (
             <FlowActionBar
               description={
                 hasOtherPendingCourses
                   ? "Valida y guarda la asignación actual para abrir automáticamente el siguiente curso pendiente."
-                  : "Valida y guarda la asignación del último curso antes de finalizar el flujo."
+                  : "Guarda los cambios de la asignación antes de volver a cursos."
               }
               actionsBefore={[
                 {
@@ -294,10 +295,13 @@ export default function AsignarRAPage() {
                   variant: "outline",
                 },
               ]}
+              showSaveProgress
+              saveLabel="Guardar cambios"
+              onSaveProgress={handleSaveCourseAssignments}
               showNext={hasOtherPendingCourses}
               nextLabel="Siguiente curso"
               onNext={handleSaveAndOpenNextCourse}
-              showFinish={!hasOtherPendingCourses}
+              showFinish={isWorkflowActive && !hasOtherPendingCourses}
               finishLabel="Finalizar"
               onFinish={handleSaveAndRequestFinish}
             />

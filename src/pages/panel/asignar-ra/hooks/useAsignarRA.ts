@@ -112,6 +112,7 @@ export function useAsignarRA() {
     handleResetFilters: filters.handleResetFilters,
     handleSelectCourse: actions.handleSelectCourse,
     handleBackToCourses: actions.handleBackToCourses,
+    handleSaveCourseAssignments: actions.handleSaveCourseAssignments,
     handleSaveAndOpenNextCourse: actions.handleSaveAndOpenNextCourse,
     handleSaveAndRequestFinish: actions.handleSaveAndRequestFinish,
     handleConfirmMeasuredPrimaryAction: actions.handleConfirmMeasuredPrimaryAction,
