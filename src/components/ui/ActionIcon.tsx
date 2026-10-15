@@ -28,6 +28,7 @@ export type ActionIconName =
   | "list"
   | "chart"
   | "info"
+  | "notification"
   | "search"
   | "settings"
   | "sign-out";

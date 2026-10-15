@@ -3,6 +3,7 @@ import type { Icon, IconWeight } from "@phosphor-icons/react";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  BellIcon,
   BookOpenIcon,
   CalendarIcon,
   CalendarPlusIcon,
@@ -78,6 +79,7 @@ export type SecubIconName =
   | "chart"
   | "chart-up"
   | "info"
+  | "notification"
   | "lightbulb"
   | "search"
   | "settings"
@@ -137,6 +139,7 @@ const secubIcons: Record<SecubIconName, Icon> = {
   chart: ChartBarIcon,
   "chart-up": ChartLineUpIcon,
   info: InfoIcon,
+  notification: BellIcon,
   lightbulb: LightbulbIcon,
   search: MagnifyingGlassIcon,
   settings: GearSixIcon,
