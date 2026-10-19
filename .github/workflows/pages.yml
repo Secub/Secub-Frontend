@@ -34,8 +34,14 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Typecheck
+        run: npm run typecheck
+
       - name: Lint
-        run: npm run lint
+        run: npm run lint:strict
+
+      - name: Test
+        run: npm run test
 
       - name: Build para GitHub Pages
         run: npm run build
