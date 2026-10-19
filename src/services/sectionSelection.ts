@@ -15,6 +15,7 @@ export type SecubSectionId = (typeof SECUB_SECTIONS)[number]["id"];
 const microsoftCampusBySection: Partial<Record<SecubSectionId, string>> = {
   cali: "USBCA",
   bogota: "USBBO",
+  cartagena: "USBCT",
 };
 
 export function isSecubSectionId(value: unknown): value is SecubSectionId {
@@ -36,7 +37,7 @@ export function continueAccessAfterSectionSelection(sectionId: SecubSectionId) {
   if (!campusCodigo) {
     showNotification({
       title: "Acceso próximamente",
-      message: "Por ahora el inicio de sesión solo está habilitado para las seccionales Cali y Bogotá.",
+      message: "Por ahora el inicio de sesión solo está habilitado para las seccionales Cali, Bogotá y Cartagena.",
       variant: "info",
     });
     return;

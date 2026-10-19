@@ -8,7 +8,7 @@ describe('sectionSelection', () => {
   beforeEach(() => window.localStorage.clear());
 
   it.each([
-    ['cali', 'USBCA'], ['bogota', 'USBBO'],
+    ['cali', 'USBCA'], ['bogota', 'USBBO'], ['cartagena', 'USBCT'],
   ] as const)('inicia el acceso de %s con su campus de Microsoft', (section, campus) => {
     const assign = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
     continueAccessAfterSectionSelection(section);
@@ -17,7 +17,7 @@ describe('sectionSelection', () => {
     expect(showNotification).not.toHaveBeenCalled();
   });
 
-  it.each(['medellin', 'cartagena'] as const)('mantiene %s pendiente sin redirigir', (section) => {
+  it.each(['medellin'] as const)('mantiene %s pendiente sin redirigir', (section) => {
     const assign = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
     continueAccessAfterSectionSelection(section);
     expect(assign).not.toHaveBeenCalled();
