@@ -1,9 +1,6 @@
-import { getStoredAuthSession } from "./auth/session";
+import { getSelectedAuthContext } from "./auth/session";
 
-function selectedContext() {
-  const session = getStoredAuthSession();
-  return session?.contexts.find((context) => context.context_id === session.selected_context_id);
-}
+const selectedContext = getSelectedAuthContext;
 
 export function readSelectedProgramId() {
   return selectedContext()?.program_codigo ?? "";

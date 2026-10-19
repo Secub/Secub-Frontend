@@ -1,5 +1,5 @@
 import { DEFAULT_SECUB_ROLE, SECUB_ROLE_LABELS, normalizeSecubRole, type SecubRole } from "../../config/access/roles";
-import { getStoredAuthSession } from "./session";
+import { getSelectedAuthContext, getStoredAuthSession } from "./session";
 
 export interface CurrentUser {
   id: string;
@@ -34,7 +34,7 @@ const EMPTY_USER: CurrentUser = {
 
 export function getCurrentUser(): CurrentUser {
   const authenticated = getStoredAuthSession();
-  const context = authenticated?.contexts.find((item) => item.context_id === authenticated.selected_context_id);
+  const context = getSelectedAuthContext();
   if (!authenticated || !context) return EMPTY_USER;
   const role = normalizeSecubRole(context.role);
   return {
