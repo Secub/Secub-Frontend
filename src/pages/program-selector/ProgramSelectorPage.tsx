@@ -129,7 +129,7 @@ export default function ProgramSelectorPage() {
           <button
             type="button"
             onClick={() => navigateToRoute(ROUTES.access)}
-            className="mt-5 rounded-full bg-[var(--color-primary-1)] px-5 py-2 font-semibold text-white"
+            className="mt-5 rounded-full bg-[var(--secub-primary)] px-5 py-2 font-semibold text-[var(--secub-primary-text)]"
           >
             Volver a iniciar sesión
           </button>

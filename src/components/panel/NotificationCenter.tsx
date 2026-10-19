@@ -17,7 +17,7 @@ export default function NotificationCenter() {
     <div className="relative">
       <button type="button" className="relative rounded-full border border-[var(--color-gray-6)] bg-white p-2 text-[var(--color-secondary-4)]" aria-label={`Notificaciones${unread ? `, ${unread} sin leer` : ""}`} onClick={() => setOpen((value) => !value)}>
         <ActionIcon name="notification" />
-        {unread ? <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[var(--color-primary-1)] px-1 text-center text-xs font-semibold text-white">{unread}</span> : null}
+        {unread ? <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[var(--secub-primary)] px-1 text-center text-xs font-semibold text-[var(--secub-primary-text)]">{unread}</span> : null}
       </button>
       {open ? (
         <div className="absolute right-0 z-50 mt-2 w-[min(24rem,calc(100vw-3rem))] rounded-2xl border border-[var(--color-gray-6)] bg-white p-3 shadow-xl">
