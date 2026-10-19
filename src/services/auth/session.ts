@@ -1,4 +1,5 @@
 import { httpClient } from '../../infrastructure/api';
+import { isSecubRole } from '../../config/access/roles';
 
 export interface AuthContext {
   context_id: string;
@@ -35,6 +36,19 @@ export function persistAuthSession(session: AuthSession): void {
 
 export function getStoredAuthSession(): AuthSession | null {
   return currentSession;
+}
+
+/**
+ * Contexto seleccionado de la sesión, solo si su rol es uno de los oficiales.
+ * Un rol desconocido se trata como "sin contexto": el router vuelve a pedir la
+ * selección y el selector descarta ese rol, así que nunca se entra al panel con
+ * un rol inválido.
+ */
+export function getSelectedAuthContext(): AuthContext | undefined {
+  const session = currentSession;
+  const context = session?.contexts.find((item) => item.context_id === session.selected_context_id);
+  if (!context) return undefined;
+  return isSecubRole(String(context.role ?? "").trim().toLowerCase()) ? context : undefined;
 }
 
 export async function fetchAuthSession(): Promise<AuthSession> {
