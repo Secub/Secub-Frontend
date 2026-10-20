@@ -48,6 +48,7 @@ html[data-contrast="high"] {
   --color-neutral-fill: #1f1f1f;
   --color-inverse-surface: #ffffff;
   --color-on-inverse: #000000;
+  --color-success-text: #00ff66;
   --color-surface: var(--secub-bg);
   --color-surface-soft: var(--secub-surface-soft);
   --color-surface-card: var(--secub-surface);

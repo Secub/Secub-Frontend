@@ -34,6 +34,34 @@
   --color-neutral-fill: #d9dde7;
   --color-inverse-surface: #182233;
   --color-on-inverse: #ffffff;
+  --color-success-text: #2f7d32;
+
+  /* Tintes: derivados de los roles, se adaptan solos al alto contraste */
+  --color-tint-link: color-mix(in srgb, var(--color-link) 10%, transparent);
+  --color-tint-link-strong: color-mix(in srgb, var(--color-link) 18%, transparent);
+  --color-border-link: color-mix(in srgb, var(--color-link) 45%, transparent);
+  --color-tint-success: color-mix(in srgb, var(--color-success) 12%, transparent);
+  --color-tint-success-strong: color-mix(in srgb, var(--color-success) 18%, transparent);
+  --color-border-success: color-mix(in srgb, var(--color-success) 50%, transparent);
+  --color-tint-danger: color-mix(in srgb, var(--color-error) 8%, transparent);
+  --color-tint-danger-strong: color-mix(in srgb, var(--color-error) 14%, transparent);
+  --color-border-danger: color-mix(in srgb, var(--color-error) 40%, transparent);
+  --color-ring-danger: color-mix(in srgb, var(--color-error) 20%, transparent);
+  --color-tint-warning: color-mix(in srgb, var(--color-warning) 16%, transparent);
+  --color-tint-warning-strong: color-mix(in srgb, var(--color-warning) 22%, transparent);
+  --color-border-warning: color-mix(in srgb, var(--color-warning) 55%, transparent);
+  --color-tint-accent: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --color-tint-info: color-mix(in srgb, var(--color-info) 20%, transparent);
+  --color-border-info: color-mix(in srgb, var(--color-info) 65%, transparent);
+  --color-tint-neutral: color-mix(in srgb, var(--color-secondary-3) 12%, transparent);
+  --color-surface-glass: color-mix(in srgb, var(--color-surface-card) 92%, transparent);
+
+  /* Barra lateral: siempre oscura en ambos modos */
+  --color-sidebar-hover: rgba(255, 255, 255, 0.055);
+  --color-sidebar-border: rgba(217, 221, 231, 0.12);
+  --color-sidebar-muted: rgba(179, 206, 226, 0.72);
+  --color-sidebar-disabled: rgba(179, 206, 226, 0.3);
+  --color-sidebar-danger: #ff8989;
 
   /* Superficies */
   --color-surface: #f3f4f6;

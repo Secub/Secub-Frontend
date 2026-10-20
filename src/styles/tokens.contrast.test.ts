@@ -73,6 +73,7 @@ const textPairs: Array<[label: string, text: string, background: string]> = [
   ["completed step marker", "--color-success-strong", "--color-success-soft"],
   ["completion alert icon and button", "--color-on-success-strong", "--color-success-strong"],
   ["disabled step text", "--color-step-disabled-text", "--color-step-disabled-bg"],
+  ["success text on cards", "--color-success-text", "--color-surface-card"],
 ];
 
 const modePairs = modes.flatMap(([mode, tokens]) =>
