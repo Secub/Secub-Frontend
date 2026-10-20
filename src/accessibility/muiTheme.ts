@@ -3,7 +3,8 @@ import type { ContrastMode } from "./AccessibilityProvider";
 
 // MUI styles are unlayered, so they beat Tailwind utilities and ignore the
 // `html[data-contrast="high"]` tokens. Its palette must follow the contrast
-// mode itself. Keep these values in sync with `src/styles/base.css`.
+// mode itself. These values mirror `src/styles/base.css`; muiTheme.test.ts
+// fails if they drift apart.
 const highContrastTheme = createTheme({
   palette: {
     mode: "dark",
