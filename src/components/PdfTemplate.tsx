@@ -36,14 +36,53 @@ async function requestPdf(body: unknown) {
   return response.blob();
 }
 
-function reportBody<T>(props: PdfTemplateProps<T>) {
+async function imageToDataUrl(imageUrl?: string): Promise<string | undefined> {
+  if (!imageUrl || imageUrl.startsWith("data:")) return imageUrl;
+
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`No fue posible cargar la imagen de la plantilla: ${imageUrl}`);
+  }
+  const image = await response.blob();
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        reject(new Error("No fue posible procesar una imagen de la plantilla PDF."));
+        return;
+      }
+      resolve(reader.result);
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("No fue posible procesar una imagen de la plantilla PDF."));
+    reader.readAsDataURL(image);
+  });
+}
+
+async function reportBody<T>(props: PdfTemplateProps<T>) {
   const columns = props.columns.map((column, index) => ({ header: column.header, key: `column_${index}`, width: Math.max(8, Math.round(column.widthPct / 2)) }));
   const records = props.records.map((record) => Object.fromEntries(props.columns.map((column, index) => [`column_${index}`, column.accessor(record)])));
-  return { title: props.title, subtitle: props.subtitle, footerText: props.footerText, columns, records };
+  const [logoUrl, logoUrl2, logoUrlfoot1, logoUrlfoot2] = await Promise.all([
+    imageToDataUrl(props.logoUrl),
+    imageToDataUrl(props.logoUrl2),
+    imageToDataUrl(props.logoUrlfoot1),
+    imageToDataUrl(props.logoUrlfoot2),
+  ]);
+  return {
+    title: props.title,
+    subtitle: props.subtitle,
+    logoUrl,
+    logoUrl2,
+    logoUrlfoot1,
+    logoUrlfoot2,
+    footerText: props.footerText,
+    theme: props.theme,
+    columns,
+    records,
+  };
 }
 
 export async function buildPdfBlob<T>(props: PdfTemplateProps<T>): Promise<Blob> {
-  return requestPdf(reportBody(props));
+  return requestPdf(await reportBody(props));
 }
 
 export async function downloadPdf<T>(props: PdfTemplateProps<T>, filename?: string): Promise<void> {
@@ -58,10 +97,27 @@ export async function downloadLetterPdf(params: {
   logoUrl2?: string;
   logoUrlfoot1?: string;
   logoUrlfoot2?: string;
+  footerText?: string;
   improvementTitle: string;
   improvementDraft: string;
   theme?: Partial<PdfTheme>;
 }, filename?: string): Promise<void> {
-  const blob = await requestPdf({ title: params.title, subtitle: params.subtitle, letterBody: `${params.improvementTitle}\n\n${params.improvementDraft}` });
+  const [logoUrl, logoUrl2, logoUrlfoot1, logoUrlfoot2] = await Promise.all([
+    imageToDataUrl(params.logoUrl),
+    imageToDataUrl(params.logoUrl2),
+    imageToDataUrl(params.logoUrlfoot1),
+    imageToDataUrl(params.logoUrlfoot2),
+  ]);
+  const blob = await requestPdf({
+    title: params.title,
+    subtitle: params.subtitle,
+    logoUrl,
+    logoUrl2,
+    logoUrlfoot1,
+    logoUrlfoot2,
+    footerText: params.footerText,
+    theme: params.theme,
+    letterBody: `${params.improvementTitle}\n\n${params.improvementDraft}`,
+  });
   downloadFile(blob, filename ?? `plan-mejora-${new Date().toISOString().slice(0, 10)}.pdf`, "application/pdf");
 }
