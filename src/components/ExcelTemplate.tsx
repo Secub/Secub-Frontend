@@ -23,7 +23,18 @@ async function requestExcel<T>(props: ExcelTemplateProps<T>) {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: props.title, subtitle: props.subtitle, footerText: props.footerText, columns, records }),
+    body: JSON.stringify({
+      title: props.title,
+      subtitle: props.subtitle,
+      logoUrl: props.logoUrl,
+      logoUrl2: props.logoUrl2,
+      logoFooter1: props.logoFooter1,
+      logoFooter2: props.logoFooter2,
+      footerText: props.footerText,
+      theme: props.theme,
+      columns,
+      records,
+    }),
   });
   if (!response.ok) {
     const error = await response.json().catch(() => null) as { message?: string } | null;
