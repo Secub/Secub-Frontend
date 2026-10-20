@@ -113,14 +113,14 @@ export default function ProgramSelectorPage() {
       {loading ? (
         <div
           role="status"
-          className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-white/55 bg-white/95 p-8 text-center text-[var(--color-gray-3)] shadow-[0_30px_90px_rgba(5,18,35,0.38)]"
+          className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-white/55 bg-[var(--color-surface-glass)] p-8 text-center text-[var(--color-gray-3)] shadow-[0_30px_90px_rgba(5,18,35,0.38)]"
         >
           Consultando tu sesión de SECUB…
         </div>
       ) : error ? (
         <div
           role="alert"
-          className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-[var(--color-error)] bg-white/95 p-8 text-center shadow-[0_30px_90px_rgba(5,18,35,0.38)]"
+          className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-[var(--color-error)] bg-[var(--color-surface-glass)] p-8 text-center shadow-[0_30px_90px_rgba(5,18,35,0.38)]"
         >
           <p className="font-heading font-bold text-[var(--color-secondary-4)]">
             No se pudo cargar el acceso

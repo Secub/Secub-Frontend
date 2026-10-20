@@ -85,7 +85,7 @@ export default function AboutSection() {
         </motion.div>
 
         <motion.div
-          className="mt-12 overflow-hidden rounded-[28px] border border-[var(--color-gray-6)] bg-white shadow-[0_20px_50px_-36px_rgba(15,23,42,0.22)]"
+          className="mt-12 overflow-hidden rounded-[28px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] shadow-[0_20px_50px_-36px_rgba(15,23,42,0.22)]"
           initial={{ opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
@@ -120,7 +120,7 @@ export default function AboutSection() {
                 type="button"
                 onClick={prevSlide}
                 aria-label="Ver slide anterior"
-                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[var(--color-secondary-4)] shadow-sm backdrop-blur transition hover:bg-white"
+                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-[var(--color-surface-glass)] text-[var(--color-secondary-4)] shadow-sm backdrop-blur transition hover:bg-[var(--color-surface-card)]"
               >
                 <ChevronLeft aria-hidden="true" size={18} />
               </button>
@@ -129,7 +129,7 @@ export default function AboutSection() {
                 type="button"
                 onClick={nextSlide}
                 aria-label="Ver siguiente slide"
-                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[var(--color-secondary-4)] shadow-sm backdrop-blur transition hover:bg-white"
+                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-[var(--color-surface-glass)] text-[var(--color-secondary-4)] shadow-sm backdrop-blur transition hover:bg-[var(--color-surface-card)]"
               >
                 <ChevronRight aria-hidden="true" size={18} />
               </button>

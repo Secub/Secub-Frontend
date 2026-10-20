@@ -2,7 +2,7 @@ import CampusMosaic from "../../../components/shared/CampusMosaic";
 
 export default function AccessVisualSection() {
   return (
-    <section className="relative hidden min-h-screen overflow-hidden bg-[#f4f4f4] lg:block">
+    <section className="relative hidden min-h-screen overflow-hidden bg-[var(--color-gray-7)] lg:block">
       <div className="absolute inset-0">
         <CampusMosaic
           hideTitles
@@ -25,7 +25,7 @@ export default function AccessVisualSection() {
           {Array.from({ length: 8 }).map((_, index) => (
             <span
               key={`access-top-dot-${index}`}
-              className="h-2.5 w-2.5 rounded-full bg-white/90"
+              className="h-2.5 w-2.5 rounded-full bg-[var(--color-white)]/90"
             />
           ))}
         </div>
@@ -34,13 +34,13 @@ export default function AccessVisualSection() {
           {Array.from({ length: 5 }).map((_, index) => (
             <span
               key={`access-bottom-dot-${index}`}
-              className="h-2.5 w-2.5 rounded-full bg-white/90"
+              className="h-2.5 w-2.5 rounded-full bg-[var(--color-white)]/90"
             />
           ))}
         </div>
 
-        <div className="absolute left-[23%] top-[44%] h-4 w-4 rounded-full bg-white shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
-        <div className="absolute right-[24%] top-[50%] h-4 w-4 rounded-full bg-white shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
+        <div className="absolute left-[23%] top-[44%] h-4 w-4 rounded-full bg-[var(--color-white)] shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
+        <div className="absolute right-[24%] top-[50%] h-4 w-4 rounded-full bg-[var(--color-white)] shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
 
         <div className="absolute left-[18%] top-[9%] h-10 w-10 border border-white/35" />
         <div className="absolute right-[18%] bottom-[10%] h-10 w-10 rounded-full border border-white/35" />

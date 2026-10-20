@@ -34,9 +34,9 @@ function BenefitCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.55, delay, ease: "easeOut" }}
-      className="rounded-[28px] border border-[var(--color-gray-6)] bg-white p-8"
+      className="rounded-[28px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-8"
     >
-      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-lg font-semibold text-white">
+      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-lg font-semibold text-[var(--color-on-status)]">
         ✓
       </div>
 
