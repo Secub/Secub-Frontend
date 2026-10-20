@@ -193,3 +193,21 @@ html[data-contrast="high"] .profile-action-card[data-active="true"] {
   color: var(--secub-primary-text);
 }
 
+/* The light-mode hover rules for the title and description are more specific
+   than the high contrast overrides above, so the active states repeat them. */
+html[data-contrast="high"] .profile-action-card:hover .profile-action-card__title,
+html[data-contrast="high"] .profile-action-card:hover .profile-action-card__description,
+html[data-contrast="high"] .profile-action-card:focus-visible .profile-action-card__title,
+html[data-contrast="high"] .profile-action-card:focus-visible .profile-action-card__description,
+html[data-contrast="high"] .profile-action-card[aria-expanded="true"] .profile-action-card__title,
+html[data-contrast="high"] .profile-action-card[aria-expanded="true"] .profile-action-card__description,
+html[data-contrast="high"] .profile-action-card[data-active="true"] .profile-action-card__title,
+html[data-contrast="high"] .profile-action-card[data-active="true"] .profile-action-card__description {
+  color: var(--secub-primary-text);
+}
+
+html[data-contrast="high"] .profile-action-card:focus-visible {
+  outline: 3px solid var(--secub-focus);
+  outline-offset: 3px;
+}
+

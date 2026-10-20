@@ -121,7 +121,7 @@ export default function LandingFooterSection() {
             <a
               href="#inicio"
               aria-label="Volver arriba"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
             >
               <GoChevronUp aria-hidden="true" className="text-[24px]" />
             </a>

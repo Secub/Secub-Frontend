@@ -293,7 +293,7 @@ html[data-contrast="high"] .accessibility-menu--sidebar .accessibility-menu__tri
   justify-content: center;
   border-radius: var(--radius-pill);
   background: var(--color-success-strong);
-  color: var(--color-white);
+  color: var(--color-on-success-strong);
   font-size: 1.5rem;
   font-weight: 900;
 }
@@ -323,7 +323,7 @@ html[data-contrast="high"] .accessibility-menu--sidebar .accessibility-menu__tri
   border: 1px solid var(--color-success-strong);
   border-radius: var(--radius-pill);
   background: var(--color-success-strong);
-  color: var(--color-white);
+  color: var(--color-on-success-strong);
   padding: 0.75rem 1.25rem;
   font-family: var(--font-heading);
   font-weight: 800;

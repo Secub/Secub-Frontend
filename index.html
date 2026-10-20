@@ -10,6 +10,19 @@
     <meta name="theme-color" content="#182233" />
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <title>SECUB</title>
+    <script>
+      // Applies the saved accessibility settings before the first paint, so high
+      // contrast does not flash the light theme. Mirrors AccessibilityProvider.
+      try {
+        var settings = JSON.parse(localStorage.getItem("secub-accessibility-settings") || "{}");
+        if (settings.contrast === "high") document.documentElement.dataset.contrast = "high";
+        if (settings.fontSize === "large" || settings.fontSize === "xlarge") {
+          document.documentElement.dataset.fontSize = settings.fontSize;
+        }
+      } catch (error) {
+        // Storage unavailable: AccessibilityProvider falls back to the defaults.
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

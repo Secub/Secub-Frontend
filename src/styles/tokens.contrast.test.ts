@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 // from disk (Vitest runs from the project root) to test the real values.
 const tokensCss = readFileSync("src/styles/tokens.css", "utf8");
 const baseCss = readFileSync("src/styles/base.css", "utf8");
+const progressCss = readFileSync("src/styles/progress.css", "utf8");
 
 const checker = new ColorContrastChecker();
 
@@ -33,9 +34,14 @@ function resolveTokens(tokens: Tokens): Tokens {
   return Object.fromEntries(Object.entries(tokens).map(([name, value]) => [name, resolve(value)]));
 }
 
-const rawNormal = readTokens(tokensCss, ":root");
+const highContrastSelector = 'html[data-contrast="high"]';
+const rawNormal = { ...readTokens(tokensCss, ":root"), ...readTokens(progressCss, ":root") };
 const normal = resolveTokens(rawNormal);
-const highContrast = resolveTokens({ ...rawNormal, ...readTokens(baseCss, 'html[data-contrast="high"]') });
+const highContrast = resolveTokens({
+  ...rawNormal,
+  ...readTokens(baseCss, highContrastSelector),
+  ...readTokens(progressCss, highContrastSelector),
+});
 
 const modes: Array<[mode: string, tokens: Tokens]> = [
   ["normal", normal],
@@ -63,6 +69,10 @@ const textPairs: Array<[label: string, text: string, background: string]> = [
   ["danger badge and danger button", "--color-on-error", "--color-error"],
   ["accent badge", "--color-on-status", "--color-primary"],
   ["landing section pill", "--color-on-status", "--color-secondary-2"],
+  ["completed step label on cards", "--color-success-strong", "--color-surface-card"],
+  ["completed step marker", "--color-success-strong", "--color-success-soft"],
+  ["completion alert icon and button", "--color-on-success-strong", "--color-success-strong"],
+  ["disabled step text", "--color-step-disabled-text", "--color-step-disabled-bg"],
 ];
 
 const modePairs = modes.flatMap(([mode, tokens]) =>
