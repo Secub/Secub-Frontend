@@ -1,13 +1,15 @@
 import AppRouter from "./app/AppRouter";
-import { AccessibilityProvider } from "./accessibility";
+import { AccessibilityProvider, MuiThemeBridge } from "./accessibility";
 import { FeedbackProvider } from "./shared/feedback";
 
 function App() {
   return (
     <AccessibilityProvider>
-      <FeedbackProvider>
-        <AppRouter />
-      </FeedbackProvider>
+      <MuiThemeBridge>
+        <FeedbackProvider>
+          <AppRouter />
+        </FeedbackProvider>
+      </MuiThemeBridge>
     </AccessibilityProvider>
   );
 }
