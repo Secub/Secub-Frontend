@@ -3,6 +3,13 @@ import { ROUTES } from "../../../app/appRoutes";
 import LogoUsbFooter from "../../../assets/logos/logo-usb-footer.png";
 import LogoAltaCalidad from "../../../assets/logos/logo-alta-calidad.png";
 
+const SECCIONALES = [
+  { name: "Bogotá", href: "https://www.usbbog.edu.co/" },
+  { name: "Medellín", href: "https://www.usbmed.edu.co/" },
+  { name: "Cali", href: "https://usbcali.edu.co/" },
+  { name: "Cartagena", href: "https://usbcartagena.edu.co/" },
+];
+
 export default function LandingFooterSection() {
   return (
     <footer className="mt-0">
@@ -70,16 +77,18 @@ export default function LandingFooterSection() {
               </h3>
 
               <ul className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-white">
-                <li>
-                  <a
-                    href="https://usbcali.edu.co/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition-opacity hover:opacity-80"
-                  >
-                    - Seccional Cali
-                  </a>
-                </li>
+                {SECCIONALES.map(({ name, href }) => (
+                  <li key={name}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="transition-opacity hover:opacity-80"
+                    >
+                      - Seccional {name}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -89,7 +98,7 @@ export default function LandingFooterSection() {
       <section className="bg-[var(--color-primary)] text-white">
         <div className="container-secub flex flex-col gap-4 py-5 md:flex-row md:items-center md:justify-between">
           <p className="text-left text-[0.98rem] leading-6">
-            Copyright © 2023 Universidad de San Buenaventura
+            Copyright © 2026 Universidad de San Buenaventura
           </p>
 
           <div className="flex items-center justify-between gap-6 md:justify-end">
