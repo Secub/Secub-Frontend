@@ -25,7 +25,7 @@ export default function WorkflowStateCard({
   return (
     <div className="surface-card p-8">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[var(--radius-xl)] bg-[var(--color-surface-soft)] text-[var(--color-secondary-1)]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[var(--radius-xl)] bg-[var(--color-surface-soft)] text-[var(--color-link)]">
           <SecubIcon name={stateIcon} weight={isLocked ? "fill" : "bold"} size={32} />
         </div>
 
@@ -53,7 +53,7 @@ export default function WorkflowStateCard({
         {helperText ? (
           <div className="mt-5 flex justify-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gray-6)] bg-white px-4 py-2 text-sm text-[var(--color-gray-3)]">
-              <SecubIcon name="shield-check" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
+              <SecubIcon name="shield-check" weight="fill" className="text-base text-[var(--color-link)]" />
               {helperText}
             </span>
           </div>

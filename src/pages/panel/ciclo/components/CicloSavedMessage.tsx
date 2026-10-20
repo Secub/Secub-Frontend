@@ -29,7 +29,7 @@ export default function CicloSavedMessage({ message, onClose, variant = "success
       {onClose ? (
         <button
           type="button"
-          className="font-semibold text-[var(--color-secondary-1)]"
+          className="font-semibold text-[var(--color-link)]"
           onClick={onClose}
         >
           Cerrar

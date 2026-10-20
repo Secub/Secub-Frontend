@@ -110,7 +110,7 @@ export default function CompetenciasRaCard({
               {getLearningResultsCountLabel(record)}
             </span>
           </span>
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-[var(--color-gray-4)] transition-colors group-hover:text-[var(--color-secondary-1)] group-focus-visible:text-[var(--color-secondary-1)]">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-[var(--color-gray-4)] transition-colors group-hover:text-[var(--color-link)] group-focus-visible:text-[var(--color-link)]">
             {expandedRAs ? <ActionIcon name="chevron-up" size="sm" /> : <ActionIcon name="chevron-down" size="sm" />}
           </span>
         </button>

@@ -24,7 +24,7 @@ export default function InstrumentSection({
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-link)]">
               <SecubIcon name="file" weight="fill" className="text-xl" />
             </span>
             <div>
@@ -68,7 +68,7 @@ export default function InstrumentSection({
               <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-[var(--radius-pill)] bg-[var(--color-secondary-4)] px-3 py-1 text-xs font-semibold text-[var(--color-white)]">
+                    <span className="rounded-[var(--radius-pill)] bg-[var(--color-inverse-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-on-inverse)]">
                       RA {String(index + 1).padStart(2, "0")}
                     </span>
                   </div>

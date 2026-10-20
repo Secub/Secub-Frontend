@@ -43,7 +43,7 @@ export default function ValidationBanner({
     >
       <div className="rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 shadow-[var(--shadow-lg)]">
         <div className="flex items-start gap-3">
-          <SecubIcon name={iconName} weight="fill" size={20} className="mt-0.5 text-[var(--color-secondary-1)]" />
+          <SecubIcon name={iconName} weight="fill" size={20} className="mt-0.5 text-[var(--color-link)]" />
 
           <div className="min-w-0 flex-1">
             <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">

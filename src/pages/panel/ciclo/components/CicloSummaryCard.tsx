@@ -132,7 +132,7 @@ export default function CicloSummaryCard({
                   aria-haspopup="menu"
                   aria-expanded={isActionsMenuOpen}
                   onClick={() => setIsActionsMenuOpen((isOpen) => !isOpen)}
-                  className="inline-flex h-10 w-10 shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 text-[var(--color-gray-4)] shadow-none transition-colors hover:bg-transparent hover:text-[var(--color-secondary-1)] focus-visible:bg-transparent focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none active:bg-transparent active:text-[var(--color-secondary-1)]"
+                  className="inline-flex h-10 w-10 shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 text-[var(--color-gray-4)] shadow-none transition-colors hover:bg-transparent hover:text-[var(--color-link)] focus-visible:bg-transparent focus-visible:text-[var(--color-link)] focus-visible:outline-none active:bg-transparent active:text-[var(--color-link)]"
                 >
                   <ActionIcon name="more" />
                 </button>
@@ -150,7 +150,7 @@ export default function CicloSummaryCard({
                         disabled={!canEdit}
                         title={!canEdit ? disabledReason : `Editar ciclo ${formatCicloTitle(ciclo)}`}
                         onClick={() => runMenuAction(() => onEdit(ciclo))}
-                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-link)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-link)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
                       >
                         <ActionIcon name="edit" size="sm" />
                         <span>Editar</span>
@@ -164,7 +164,7 @@ export default function CicloSummaryCard({
                         disabled={!canDuplicate}
                         title={!canDuplicate ? duplicateDisabledReason : "Duplicar ciclo"}
                         onClick={() => runMenuAction(() => onDuplicate(ciclo))}
-                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-secondary-1)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
+                        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-gray-3)] transition-colors hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-link)] focus-visible:bg-[var(--color-surface-soft)] focus-visible:text-[var(--color-link)] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-[var(--color-gray-5)] disabled:opacity-55"
                       >
                         <ActionIcon name="copy" size="sm" />
                         <span>Duplicar</span>
@@ -223,7 +223,7 @@ export default function CicloSummaryCard({
             Selección de cursos {ciclo.periodo}
           </h4>
           <span className="inline-flex items-center gap-2 text-xs font-medium text-[var(--color-gray-4)]">
-            <SecubIcon name="calendar" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
+            <SecubIcon name="calendar" weight="fill" className="text-base text-[var(--color-link)]" />
             Última actualización: {formatDateTime(ciclo.updatedAt)}
           </span>
         </div>
@@ -262,7 +262,7 @@ export default function CicloSummaryCard({
 
       <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-[var(--color-gray-3)]">
         <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-surface-soft)] px-4 py-2">
-          <SecubIcon name="verified" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
+          <SecubIcon name="verified" weight="fill" className="text-base text-[var(--color-link)]" />
           Responsable: {ciclo.responsableNombre}
         </span>
         <span className="rounded-full bg-[var(--color-surface-soft)] px-4 py-2">

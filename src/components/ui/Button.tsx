@@ -29,7 +29,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   ghost:
     "bg-transparent text-[var(--secub-text)] border border-transparent hover:bg-[var(--secub-surface-soft)] focus:ring-[color:var(--secub-secondary)]",
   danger:
-    "bg-[var(--color-error)] text-white border border-[var(--color-error)] hover:opacity-95 focus:ring-[color:var(--color-error)]",
+    "bg-[var(--color-error)] text-[var(--color-on-error)] border border-[var(--color-error)] hover:opacity-95 focus:ring-[color:var(--color-error)]",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

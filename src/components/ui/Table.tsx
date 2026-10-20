@@ -369,7 +369,7 @@ export function Table<T>({
                               }}
                               disabled={isDisabled}
                               className={[
-                                "text-xs font-medium text-[var(--color-gray-4)] transition-colors hover:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45",
+                                "text-xs font-medium text-[var(--color-gray-4)] transition-colors hover:text-[var(--color-link)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45",
                                 action.className ?? "",
                               ].join(" ")}
                               aria-label={title}

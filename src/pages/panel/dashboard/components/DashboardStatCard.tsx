@@ -9,7 +9,7 @@ interface DashboardStatCardProps {
 }
 
 const toneStyles = {
-  info: "bg-[color:rgba(160,195,255,0.22)] text-[var(--color-secondary-1)]",
+  info: "bg-[color:rgba(160,195,255,0.22)] text-[var(--color-link)]",
   success: "bg-[color:rgba(118,202,102,0.18)] text-[color:#2f7d32]",
   warning: "bg-[color:rgba(251,199,86,0.24)] text-[var(--color-secondary-4)]",
   danger: "bg-[color:rgba(235,87,87,0.12)] text-[var(--color-error)]",

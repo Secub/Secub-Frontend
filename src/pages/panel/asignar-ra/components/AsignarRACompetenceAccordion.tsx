@@ -67,7 +67,7 @@ export function AsignarRACompetenceAccordion({
             </span>
           ) : null}
         </span>
-        <span className="shrink-0 text-sm font-semibold text-[var(--color-secondary-1)]">
+        <span className="shrink-0 text-sm font-semibold text-[var(--color-link)]">
           {isExpanded ? "Ocultar RA" : "Ver RA"}
         </span>
       </button>
@@ -97,7 +97,7 @@ export function AsignarRACompetenceAccordion({
               >
                 <input
                   type="checkbox"
-                  className="mt-1 h-5 w-5 rounded border-[var(--color-gray-5)] text-[var(--color-secondary-1)] focus:ring-[var(--color-secondary-1)]"
+                  className="mt-1 h-5 w-5 rounded border-[var(--color-gray-5)] text-[var(--color-link)] focus:ring-[var(--color-secondary-1)]"
                   checked={selected}
                   disabled={isDisabled}
                   onChange={() => {

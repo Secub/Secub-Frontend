@@ -164,7 +164,7 @@ function ResultsCharts({
   return (
     <section id={DASHBOARD_TOUR_IDS.detailCharts} className="surface-card rounded-[24px] p-6">
       <div className="mb-6 flex items-center justify-center gap-3">
-        <SecubIcon name="chart-up" weight="fill" className="text-xl text-[var(--color-secondary-1)]" />
+        <SecubIcon name="chart-up" weight="fill" className="text-xl text-[var(--color-link)]" />
         <h2 className="text-center font-heading text-2xl font-semibold text-[var(--color-secondary-4)]">
           Gráficos de Resultados por RA
         </h2>

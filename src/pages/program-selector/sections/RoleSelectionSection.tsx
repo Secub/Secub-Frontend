@@ -36,7 +36,7 @@ export default function RoleSelectionSection({
           alt="SECUB · Universidad de San Buenaventura"
           className="mx-auto h-auto w-[190px] max-w-full object-contain sm:w-[220px]"
         />
-        <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-secondary-1)]">
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-link)]">
           Paso 1 de 2
         </p>
         <h1

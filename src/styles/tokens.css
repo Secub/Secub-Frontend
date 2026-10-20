@@ -25,7 +25,15 @@
   --color-info: #a0c3ff;
   --color-success: #76ca66;
   --color-warning: #fbc756;
-  --color-error: #eb5757;
+  --color-error: #c62828;
+
+  /* Roles semánticos: texto sobre rellenos y enlaces */
+  --color-link: #0e65d9;
+  --color-on-status: #182233;
+  --color-on-error: #ffffff;
+  --color-neutral-fill: #d9dde7;
+  --color-inverse-surface: #182233;
+  --color-on-inverse: #ffffff;
 
   /* Superficies */
   --color-surface: #f3f4f6;

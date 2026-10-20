@@ -69,7 +69,7 @@ export default function NucleosManager({
             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-gray-4)]">
               Progreso general
             </span>
-            <span className="text-sm font-semibold text-[var(--color-secondary-1)]">
+            <span className="text-sm font-semibold text-[var(--color-link)]">
               {completionPercentage}%
             </span>
           </div>

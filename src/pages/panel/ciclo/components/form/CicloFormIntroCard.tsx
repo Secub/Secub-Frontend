@@ -3,7 +3,7 @@ export default function CicloFormIntroCard() {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-4">
       <div className="flex gap-3">
-        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-white text-[var(--color-secondary-1)]">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-white text-[var(--color-link)]">
           <SecubIcon name="info" weight="fill" className="text-xl" />
         </span>
         <div>

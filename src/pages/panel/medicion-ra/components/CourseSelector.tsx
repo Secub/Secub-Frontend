@@ -116,7 +116,7 @@ export default function CourseSelector({
                   className={[
                     "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-lg",
                     isActive
-                      ? "border-[var(--color-secondary-1)] bg-[color:rgba(14,101,217,0.08)] text-[var(--color-secondary-1)]"
+                      ? "border-[var(--color-secondary-1)] bg-[color:rgba(14,101,217,0.08)] text-[var(--color-link)]"
                       : summary.status === "completed"
                         ? "border-[var(--color-success)] bg-[color:rgba(29,185,84,0.12)] text-[var(--color-secondary-4)]"
                         : "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] text-[var(--color-gray-4)]",

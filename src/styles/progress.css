@@ -49,7 +49,7 @@
 }
 
 .step-circle-progress__button--active .step-circle-progress__label {
-  color: var(--color-secondary-1);
+  color: var(--color-link);
 }
 
 .step-circle-progress__button--completed .step-circle-progress__marker {
@@ -79,7 +79,7 @@
 
 .step-circle-progress__button--pending:not(:disabled):hover .step-circle-progress__marker {
   border-color: var(--color-secondary-1);
-  color: var(--color-secondary-1);
+  color: var(--color-link);
 }
 
 

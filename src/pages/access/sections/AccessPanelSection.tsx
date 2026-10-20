@@ -33,7 +33,7 @@ export default function AccessPanelSection() {
           alt="SECUB · Universidad de San Buenaventura"
           className="mx-auto h-auto w-[230px] max-w-full object-contain sm:w-[280px]"
         />
-        <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-secondary-1)]">
+        <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-link)]">
           Acceso institucional
         </p>
         <h1 id="access-title" className="mt-2 font-heading text-3xl font-bold leading-tight text-[var(--color-secondary-4)] sm:text-4xl">

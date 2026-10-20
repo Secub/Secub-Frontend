@@ -41,7 +41,7 @@ export default function ResultsMeasurementSection({
         <button
           type="button"
           onClick={() => onOpenRaDetail(row)}
-          className="text-left font-semibold text-[var(--color-secondary-1)] hover:underline"
+          className="text-left font-semibold text-[var(--color-link)] hover:underline"
           title="Ver detalle informativo del RA"
           aria-label={`Ver detalle de ${row.competenceCode} ${row.raCode}`}
         >

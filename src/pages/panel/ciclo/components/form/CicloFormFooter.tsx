@@ -26,7 +26,7 @@ export default function CicloFormFooter({
     <div className="flex flex-col gap-4">
       <div className="grid gap-3 border-b border-[var(--color-gray-6)] pb-4 text-sm text-[var(--color-gray-3)] md:grid-cols-2">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] text-[var(--color-secondary-1)]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] text-[var(--color-link)]">
             <SecubIcon name="cycle" weight="fill" className="text-xl" />
           </span>
           <span>
@@ -36,7 +36,7 @@ export default function CicloFormFooter({
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] text-[var(--color-secondary-1)]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] text-[var(--color-link)]">
             <SecubIcon name="cycle" weight="fill" className="text-xl" />
           </span>
           <span>

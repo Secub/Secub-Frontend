@@ -22,7 +22,7 @@ export default function RaResultsCharts({
     <section className="surface-card p-6">
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-link)]">
             <SecubIcon name="chart-up" weight="fill" className="text-xl" />
           </span>
 

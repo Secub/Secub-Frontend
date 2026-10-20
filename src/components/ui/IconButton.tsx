@@ -21,15 +21,15 @@ const sizeStyles: Record<IconButtonSize, string> = {
 
 const variantStyles: Record<IconButtonVariant, string> = {
   primary:
-    "text-[var(--secub-secondary)] hover:text-[var(--color-secondary-1)] focus-visible:text-[var(--color-secondary-1)] active:text-[var(--color-secondary-1)]",
+    "text-[var(--color-link)] hover:text-[var(--color-link)] focus-visible:text-[var(--color-link)] active:text-[var(--color-link)]",
   primary_soft:
-    "text-[var(--color-secondary-1)] hover:text-[var(--secub-secondary)] focus-visible:text-[var(--secub-secondary)] active:text-[var(--secub-secondary)]",
+    "text-[var(--color-link)] hover:text-[var(--color-link)] focus-visible:text-[var(--color-link)] active:text-[var(--color-link)]",
   accent:
     "text-[var(--secub-primary)] hover:text-[var(--color-success)] focus-visible:text-[var(--color-success)] active:text-[var(--color-success)]",
   outline:
-    "text-[var(--color-gray-4)] hover:text-[var(--color-secondary-1)] focus-visible:text-[var(--color-secondary-1)] active:text-[var(--color-secondary-1)]",
+    "text-[var(--color-gray-4)] hover:text-[var(--color-link)] focus-visible:text-[var(--color-link)] active:text-[var(--color-link)]",
   ghost:
-    "text-[var(--color-gray-4)] hover:text-[var(--color-secondary-4)] focus-visible:text-[var(--color-secondary-1)] active:text-[var(--color-secondary-1)]",
+    "text-[var(--color-gray-4)] hover:text-[var(--color-secondary-4)] focus-visible:text-[var(--color-link)] active:text-[var(--color-link)]",
   danger:
     "text-[var(--color-error)] hover:text-[var(--color-error)] focus-visible:text-[var(--color-error)] active:text-[var(--color-error)]",
   danger_hover:
@@ -39,11 +39,11 @@ const variantStyles: Record<IconButtonVariant, string> = {
 };
 
 const selectedVariantStyles: Record<IconButtonVariant, string> = {
-  primary: "text-[var(--color-secondary-1)]",
-  primary_soft: "text-[var(--secub-secondary)]",
+  primary: "text-[var(--color-link)]",
+  primary_soft: "text-[var(--color-link)]",
   accent: "text-[var(--color-success)]",
-  outline: "text-[var(--color-secondary-1)]",
-  ghost: "text-[var(--color-secondary-1)]",
+  outline: "text-[var(--color-link)]",
+  ghost: "text-[var(--color-link)]",
   danger: "text-[var(--color-error)]",
   danger_hover: "text-[var(--color-error)]",
   inverse: "text-[var(--color-secondary-2)]",
