@@ -74,11 +74,11 @@ function SemesterFlow({
             >
               <span
                 className={[
-                  "inline-flex h-11 w-11 items-center justify-center rounded-full border-4 text-sm font-bold shadow-sm transition-all duration-200 group-focus-visible:ring-4 group-focus-visible:ring-[color:rgba(14,101,217,0.18)]",
+                  "inline-flex h-11 w-11 items-center justify-center rounded-full border-4 text-sm font-bold shadow-sm transition-all duration-200 group-focus-visible:ring-4 group-focus-visible:ring-[color:var(--secub-focus-soft)]",
                   isCompleted
                     ? "border-[var(--color-success)] bg-[var(--color-success)] text-[var(--color-on-status)]"
                     : isActive
-                      ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-white"
+                      ? "border-[var(--color-secondary-1)] bg-[var(--color-secondary-1)] text-[var(--secub-secondary-text)]"
                       : "border-[var(--color-secondary-4)] bg-[var(--secub-surface)] text-[var(--color-secondary-4)] group-hover:border-[var(--color-secondary-1)] group-hover:text-[var(--color-link)]",
                 ].join(" ")}
               >

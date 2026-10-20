@@ -170,9 +170,9 @@ export default function UserSettingsPage() {
               type="button"
               onClick={() => navigateToRoute(ROUTES.panelAccessibility, { preserveSearch: true })}
               id="settings-accessibility-card"
-              className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
+              className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(14,101,217,0.10)] text-xl text-[var(--color-link)]" aria-hidden="true">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:var(--color-tint-link)] text-xl text-[var(--color-link)]" aria-hidden="true">
                 <SecubIcon name="accessibility" weight="fill" />
               </span>
               <span className="min-w-0 flex-1">
@@ -190,9 +190,9 @@ export default function UserSettingsPage() {
               type="button"
               onClick={handleChangeProgram}
               id="settings-program-option-card"
-              className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.20)]"
+              className="group flex items-start gap-4 rounded-[var(--radius-xl)] border border-[var(--secub-border)] bg-[var(--secub-surface-soft)] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-secondary-2)] hover:bg-[var(--secub-surface)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:rgba(118,202,102,0.14)] text-xl text-[var(--color-success)]" aria-hidden="true">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[color:var(--color-tint-success-strong)] text-xl text-[var(--color-success)]" aria-hidden="true">
                 <SecubIcon name="book" weight="fill" />
               </span>
               <span className="min-w-0 flex-1">

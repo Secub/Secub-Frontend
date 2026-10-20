@@ -99,7 +99,7 @@ export default function EvidenceImprovementSection({
           className={[
             "rounded-[var(--radius-xl)] border border-dashed bg-[var(--color-surface-soft)] p-5",
             evidenceFileError
-              ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.12)]"
+              ? "border-[var(--color-error)] ring-4 ring-[color:var(--color-ring-danger)]"
               : "border-[var(--color-gray-6)]",
           ].join(" ")}
           title={disabled ? lockedTooltip : undefined}

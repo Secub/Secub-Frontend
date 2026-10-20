@@ -7,9 +7,9 @@ interface CicloSavedMessageProps {
 
 const messageStyles = {
   success:
-    "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.14)] text-[var(--color-secondary-4)]",
+    "border-[var(--color-success)] bg-[color:var(--color-tint-success-strong)] text-[var(--color-secondary-4)]",
   warning:
-    "border-amber-300 bg-amber-50 text-amber-800",
+    "border-[var(--color-border-warning)] bg-[var(--color-tint-warning)] text-[var(--secub-text)]",
 } as const;
 
 export default function CicloSavedMessage({ message, onClose, variant = "success" }: CicloSavedMessageProps) {

@@ -11,21 +11,21 @@ const nucleosInfo = [
     eyebrow: "Núcleo fundamentación",
     description:
       "Aborda lo genérico del campo de formación donde se sitúa la disciplina. Trabaja conceptos, métodos de aproximación al objeto de estudio y potencia capacidades para la lectura, la indagación, el razonamiento y la comunicación oral y escrita.",
-    tone: "border-[color:rgba(160,195,255,0.65)] bg-[color:rgba(160,195,255,0.18)]",
+    tone: "border-[color:var(--color-border-info)] bg-[color:var(--color-tint-info)]",
   },
   {
     title: "Profesional",
     eyebrow: "Núcleo profesional",
     description:
       "Se refiere a la estructura conceptual requerida para la formación del profesional en su disciplina o profesión.",
-    tone: "border-[color:rgba(14,101,217,0.24)] bg-[color:rgba(14,101,217,0.08)]",
+    tone: "border-[color:var(--color-border-link)] bg-[color:var(--color-tint-link)]",
   },
   {
     title: "Síntesis",
     eyebrow: "Núcleo síntesis",
     description:
       "Trabaja la contextualización, la síntesis y la aplicación del conocimiento para verificar la relación teoría-práctica, la conexión con el medio profesional y el aporte a la comunidad.",
-    tone: "border-[color:rgba(118,202,102,0.45)] bg-[color:rgba(118,202,102,0.12)]",
+    tone: "border-[color:var(--color-border-success)] bg-[color:var(--color-tint-success)]",
   },
 ] as const;
 
@@ -37,7 +37,7 @@ export default function MapeoCompetenciasCardInfoNucleos({
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-link)]">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:var(--color-tint-link)] text-[var(--color-link)]">
               <SecubIcon name="info" weight="fill" className="text-xl" />
             </span>
             <div>

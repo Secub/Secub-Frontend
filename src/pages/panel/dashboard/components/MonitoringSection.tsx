@@ -42,7 +42,7 @@ export default function MonitoringSection({
             const competenceRas = learningResults.filter((ra) => ra.competenceId === competence.id);
 
             return (
-              <article key={competence.id} className="rounded-[22px] border border-[var(--color-gray-6)] bg-white p-5 shadow-sm">
+              <article key={competence.id} className="rounded-[22px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-5 shadow-sm">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-gray-4)]">
@@ -80,7 +80,7 @@ export default function MonitoringSection({
                               return (
                                 <div
                                   key={`${ra.id}-${course.id}`}
-                                  className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white px-4 py-3 md:flex-row md:items-center md:justify-between"
+                                  className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] px-4 py-3 md:flex-row md:items-center md:justify-between"
                                 >
                                   <div>
                                     <p className="font-semibold text-[var(--color-secondary-4)]">

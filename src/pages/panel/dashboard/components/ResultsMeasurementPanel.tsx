@@ -214,7 +214,7 @@ function SupportFilesPanel({
           </p>
         ) : (
           groups.map((group) => (
-            <article key={group.id} className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-4">
+            <article key={group.id} className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-4">
               <h3 className="font-heading text-base font-semibold text-[var(--color-secondary-4)]">
                 {group.competenceLabel}
               </h3>
@@ -346,7 +346,7 @@ export default function ResultsMeasurementPanel({
       render: (result) => (
         <button
           type="button"
-          className="inline-flex items-center gap-2 font-heading font-semibold text-[var(--color-secondary-4)] underline-offset-2 hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+          className="inline-flex items-center gap-2 font-heading font-semibold text-[var(--color-secondary-4)] underline-offset-2 hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
           aria-label={`Ver detalle de ${result.raCode}`}
           onClick={() => {
             setSupportResultKey(result.key);

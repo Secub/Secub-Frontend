@@ -29,14 +29,14 @@ interface StudentsEvaluationTableProps {
 
 const selectTone: Record<string, string> = {
   sobresaliente:
-    "border-[color:rgba(118,202,102,0.45)] bg-[color:rgba(118,202,102,0.14)] text-[var(--color-secondary-4)]",
+    "border-[color:var(--color-border-success)] bg-[color:var(--color-tint-success-strong)] text-[var(--color-secondary-4)]",
   satisfactorio:
-    "border-[color:rgba(160,195,255,0.65)] bg-[color:rgba(160,195,255,0.20)] text-[var(--color-secondary-4)]",
+    "border-[color:var(--color-border-info)] bg-[color:var(--color-tint-info)] text-[var(--color-secondary-4)]",
   "en-desarrollo":
-    "border-[color:rgba(251,199,86,0.55)] bg-[color:rgba(251,199,86,0.18)] text-[var(--color-secondary-4)]",
+    "border-[color:var(--color-border-warning)] bg-[color:var(--color-tint-warning)] text-[var(--color-secondary-4)]",
   deficiente:
-    "border-[color:rgba(235,87,87,0.35)] bg-[color:rgba(235,87,87,0.10)] text-[var(--color-secondary-4)]",
-  "": "border-[var(--color-gray-6)] bg-white text-[var(--color-gray-4)]",
+    "border-[color:var(--color-border-danger)] bg-[color:var(--color-tint-danger)] text-[var(--color-secondary-4)]",
+  "": "border-[var(--color-gray-6)] bg-[var(--color-surface-card)] text-[var(--color-gray-4)]",
 };
 
 export default function StudentsEvaluationTable({
@@ -73,7 +73,7 @@ export default function StudentsEvaluationTable({
       ),
       sortValue: (student) => student.name,
       searchValue: (student) => `${student.name} ${student.email}`,
-      className: "sticky left-0 z-[1] w-[280px] bg-white",
+      className: "sticky left-0 z-[1] w-[280px] bg-[var(--color-surface-card)]",
       headerClassName: "sticky left-0 z-10 w-[280px] bg-[var(--color-surface-soft)]",
     },
     {
@@ -123,9 +123,9 @@ export default function StudentsEvaluationTable({
               aria-describedby={hasLevelError ? errorId : undefined}
               data-validation-field={`evaluation-${student.id}-${ra.id}`}
               className={[
-                "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.16)] disabled:cursor-not-allowed disabled:appearance-none disabled:pr-3",
+                "w-full rounded-xl border px-3 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-[color:var(--secub-focus-soft)] disabled:cursor-not-allowed disabled:appearance-none disabled:pr-3",
                 selectTone[selectedLevel],
-                hasLevelError ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.14)]" : "",
+                hasLevelError ? "border-[var(--color-error)] ring-4 ring-[color:var(--color-ring-danger)]" : "",
               ].join(" ")}
             >
               <option value="">Nivel de desempeño</option>
@@ -152,7 +152,7 @@ export default function StudentsEvaluationTable({
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(248,129,29,0.12)] text-[var(--color-primary)]">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:var(--color-tint-accent)] text-[var(--color-primary)]">
                 <SecubIcon name="people" weight="fill" className="text-xl" />
               </span>
               <div>

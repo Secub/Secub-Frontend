@@ -50,7 +50,7 @@ export default function ConsolidatedReportModal({
           return (
             <label
               key={competence.id}
-              className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-gray-6)] bg-white p-4 shadow-sm transition-colors hover:bg-[var(--color-surface-soft)]"
+              className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-4 shadow-sm transition-colors hover:bg-[var(--color-surface-soft)]"
             >
               <input
                 type="checkbox"

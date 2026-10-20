@@ -171,7 +171,7 @@ export function CompetenciasRaExportModal({
         }
 
         return (
-          <div className="flex flex-col divide-y divide-gray-200">
+          <div className="flex flex-col divide-y divide-[var(--color-gray-6)]">
             {ras.map((ra) => (
               <div
                 key={ra.id}

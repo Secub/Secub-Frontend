@@ -24,7 +24,7 @@ export default function InstrumentSection({
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-link)]">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:var(--color-tint-link)] text-[var(--color-link)]">
               <SecubIcon name="file" weight="fill" className="text-xl" />
             </span>
             <div>
@@ -60,7 +60,7 @@ export default function InstrumentSection({
               className={[
                 "rounded-[var(--radius-xl)] border bg-[var(--color-white)] p-5 shadow-[var(--shadow-sm)]",
                 descriptionError
-                  ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.12)]"
+                  ? "border-[var(--color-error)] ring-4 ring-[color:var(--color-ring-danger)]"
                   : "border-[var(--color-gray-6)]",
               ].join(" ")}
               title={disabled ? lockedTooltip : undefined}

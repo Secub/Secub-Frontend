@@ -42,7 +42,7 @@ export default function RaDetailModal({ selectedRa, onClose }: RaDetailModalProp
           </div>
 
           {selectedRa.improvementPlanSummary ? (
-            <div className="rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:rgba(251,199,86,0.16)] p-4">
+            <div className="rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:var(--color-tint-warning)] p-4">
               <p className="font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
                 Plan de mejora sugerido
               </p>

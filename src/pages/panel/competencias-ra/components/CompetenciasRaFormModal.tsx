@@ -145,7 +145,7 @@ export function CompetenciasRaFormModal({
       {formAlert ? (
         <div
           role="alert"
-          className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:rgba(235,87,87,0.08)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
+          className="mb-5 rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:var(--color-tint-danger)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
         >
           {formAlert}
         </div>

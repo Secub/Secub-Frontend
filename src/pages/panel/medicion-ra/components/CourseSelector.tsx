@@ -94,9 +94,9 @@ export default function CourseSelector({
               onClick={() => onCourseChange(course.id)}
               aria-current={isActive ? "true" : undefined}
               className={[
-                "rounded-[var(--radius-xl)] border bg-[var(--color-white)] p-4 text-left shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] focus:outline-none focus:ring-4 focus:ring-[color:rgba(14,101,217,0.18)]",
+                "rounded-[var(--radius-xl)] border bg-[var(--color-white)] p-4 text-left shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] focus:outline-none focus:ring-4 focus:ring-[color:var(--secub-focus-soft)]",
                 isActive
-                  ? "border-[var(--color-secondary-1)] ring-2 ring-[color:rgba(14,101,217,0.16)]"
+                  ? "border-[var(--color-secondary-1)] ring-2 ring-[color:var(--secub-focus-soft)]"
                   : summary.status === "completed"
                     ? "border-[var(--color-success)]"
                     : "border-[var(--color-gray-6)]",
@@ -116,9 +116,9 @@ export default function CourseSelector({
                   className={[
                     "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-lg",
                     isActive
-                      ? "border-[var(--color-secondary-1)] bg-[color:rgba(14,101,217,0.08)] text-[var(--color-link)]"
+                      ? "border-[var(--color-secondary-1)] bg-[color:var(--color-tint-link)] text-[var(--color-link)]"
                       : summary.status === "completed"
-                        ? "border-[var(--color-success)] bg-[color:rgba(29,185,84,0.12)] text-[var(--color-secondary-4)]"
+                        ? "border-[var(--color-success)] bg-[color:var(--color-tint-success)] text-[var(--color-secondary-4)]"
                         : "border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] text-[var(--color-gray-4)]",
                   ].join(" ")}
                   aria-hidden="true"
