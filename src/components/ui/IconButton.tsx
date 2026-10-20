@@ -35,7 +35,7 @@ const variantStyles: Record<IconButtonVariant, string> = {
   danger_hover:
     "text-[var(--color-gray-4)] hover:text-[var(--color-error)] focus-visible:text-[var(--color-error)] active:text-[var(--color-error)]",
   inverse:
-    "text-white hover:text-[var(--color-secondary-2)] focus-visible:text-[var(--color-secondary-2)] active:text-[var(--color-secondary-2)]",
+    "text-[var(--color-white)] hover:text-[var(--color-secondary-2)] focus-visible:text-[var(--color-secondary-2)] active:text-[var(--color-secondary-2)]",
 };
 
 const selectedVariantStyles: Record<IconButtonVariant, string> = {

@@ -42,7 +42,7 @@ export function Select({
     .join(" ") || undefined;
 
   const stateClass = error
-    ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:rgba(235,87,87,0.18)]"
+    ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:var(--color-ring-danger)]"
     : "border-[var(--secub-border)] focus:border-[var(--secub-secondary)] focus:ring-[color:var(--secub-focus-soft)]";
 
   return (

@@ -158,20 +158,20 @@ export default function PanelAcademicNavigation({
             aria-current={item.isCurrent ? "page" : undefined}
             aria-label={`Sección: ${item.label}. Estado: ${item.statusLabel}.`}
             className={[
-              "group flex w-full items-center gap-2.5 rounded-[12px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+              "group flex w-full items-center gap-2.5 rounded-[12px] border border-transparent px-2.5 py-2 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
               item.isLocked
                 ? "cursor-not-allowed opacity-55"
                 : item.isCurrent
-                  ? "cursor-pointer border-l-2 border-l-[var(--color-success)] bg-[color:rgba(118,202,102,0.12)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.10)]"
-                  : "cursor-pointer text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
+                  ? "cursor-pointer border-l-2 border-l-[var(--color-success)] bg-[color:var(--color-tint-success)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.10)]"
+                  : "cursor-pointer text-[var(--color-secondary-3)] hover:bg-[color:var(--color-sidebar-hover)] hover:text-[var(--color-white)]",
             ].join(" ")}
           >
             <span
               className={[
                 "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)] transition-colors",
                 item.isCurrent
-                  ? "bg-[color:rgba(118,202,102,0.14)] text-[var(--color-success)]"
-                  : "text-[color:rgba(217,221,231,0.70)] group-hover:text-[var(--color-white)]",
+                  ? "bg-[color:var(--color-tint-success-strong)] text-[var(--color-success)]"
+                  : "text-[color:var(--color-sidebar-muted)] group-hover:text-[var(--color-white)]",
               ].join(" ")}
               aria-hidden="true"
             >
@@ -196,12 +196,12 @@ export default function PanelAcademicNavigation({
           aria-current={item.isCurrent ? "step" : undefined}
           aria-label={`Paso ${item.stepNumber}: ${item.label}. Estado: ${item.statusLabel}.`}
           className={[
-            "group flex w-full items-start gap-2.5 rounded-[13px] border border-transparent px-2.5 py-2.5 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+            "group flex w-full items-start gap-2.5 rounded-[13px] border border-transparent px-2.5 py-2.5 text-left transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
             item.isLocked
               ? "cursor-not-allowed opacity-50"
               : item.isCurrent
-                ? "cursor-pointer border-[color:rgba(14,101,217,0.22)] bg-[color:rgba(14,101,217,0.16)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]"
-                : "cursor-pointer hover:bg-[color:rgba(255,255,255,0.05)]",
+                ? "cursor-pointer border-[color:var(--color-border-link)] bg-[color:var(--color-tint-link-strong)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]"
+                : "cursor-pointer hover:bg-[color:var(--color-sidebar-hover)]",
           ].join(" ")}
         >
           <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center" aria-hidden="true">
@@ -209,12 +209,12 @@ export default function PanelAcademicNavigation({
               className={[
                 "flex h-[18px] w-[18px] items-center justify-center rounded-[var(--radius-pill)] border transition-colors",
                 item.isLocked
-                  ? "border-[color:rgba(179,206,226,0.30)] text-[color:rgba(179,206,226,0.30)]"
+                  ? "border-[color:var(--color-sidebar-disabled)] text-[color:var(--color-sidebar-disabled)]"
                   : item.isCompleted
-                    ? "border-[var(--color-success)] bg-[color:rgba(118,202,102,0.12)] text-[var(--color-success)]"
+                    ? "border-[var(--color-success)] bg-[color:var(--color-tint-success)] text-[var(--color-success)]"
                     : item.isCurrent
                       ? "border-[var(--color-info)] text-[var(--color-info)]"
-                      : "border-[color:rgba(179,206,226,0.42)] text-[color:rgba(179,206,226,0.62)] group-hover:border-[color:rgba(179,206,226,0.62)]",
+                      : "border-[color:var(--color-sidebar-border)] text-[color:var(--color-sidebar-muted)] group-hover:border-[color:var(--color-sidebar-border)]",
               ].join(" ")}
             >
               {item.isCompleted ? (
@@ -231,7 +231,7 @@ export default function PanelAcademicNavigation({
                 item.isCurrent && !item.isLocked
                   ? "text-[var(--color-white)]"
                   : item.isLocked
-                    ? "text-[color:rgba(217,221,231,0.58)]"
+                    ? "text-[color:var(--color-sidebar-muted)]"
                     : item.isCompleted
                       ? "text-[var(--color-secondary-2)] group-hover:text-[var(--color-white)]"
                       : "text-[var(--color-secondary-3)] group-hover:text-[var(--color-white)]",
@@ -259,15 +259,15 @@ export default function PanelAcademicNavigation({
         aria-controls={academicMenuId}
         onClick={() => setIsAcademicMenuOpen((value) => !value)}
         className={[
-          "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+          "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
           isCurrentInsideAcademicWorkflow
-            ? "border-l-2 border-l-[var(--color-success)] bg-[color:rgba(118,202,102,0.13)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.12)]"
-            : "text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
+            ? "border-l-2 border-l-[var(--color-success)] bg-[color:var(--color-tint-success)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.12)]"
+            : "text-[var(--color-secondary-3)] hover:bg-[color:var(--color-sidebar-hover)] hover:text-[var(--color-white)]",
         ].join(" ")}
       >
         <SecubIcon name="book" size={22} weight="bold" />
         <span className="min-w-0 flex-1 truncate">Gestión Académica</span>
-        <span className="rounded-[var(--radius-pill)] bg-[color:rgba(118,202,102,0.12)] px-2 py-0.5 text-[0.72rem] font-bold leading-4 text-[var(--color-success)]">
+        <span className="rounded-[var(--radius-pill)] bg-[color:var(--color-tint-success)] px-2 py-0.5 text-[0.72rem] font-bold leading-4 text-[var(--color-success)]">
           {completedStepsCount}/{totalStepsCount}
         </span>
         <SecubIcon
@@ -287,7 +287,7 @@ export default function PanelAcademicNavigation({
           className={
             isWorkflowCompleted
               ? "mt-2"
-              : "ml-4 mt-2 border-l border-[color:rgba(217,221,231,0.12)] pl-2.5"
+              : "ml-4 mt-2 border-l border-[color:var(--color-sidebar-border)] pl-2.5"
           }
         >
           <nav

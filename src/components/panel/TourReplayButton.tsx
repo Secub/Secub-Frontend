@@ -19,7 +19,7 @@ export default function TourReplayButton({
       activeIcon={<SecubIcon name="lightbulb" size={22} weight="fill" />}
       variant="primary_soft"
       size="sm"
-      className={["rounded-[var(--radius-pill)] focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]", className]
+      className={["rounded-[var(--radius-pill)] focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]", className]
         .filter(Boolean)
         .join(" ")}
       onClick={() => onClick()}

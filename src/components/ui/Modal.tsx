@@ -153,7 +153,7 @@ export function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#182233]/45 px-4 py-8 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-footer-dark)]/45 px-4 py-8 backdrop-blur-[2px]"
       onMouseDown={handleBackdropMouseDown}
     >
       <div

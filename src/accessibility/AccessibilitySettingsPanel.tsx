@@ -72,7 +72,7 @@ export default function AccessibilitySettingsPanel() {
 
           <button
             type="button"
-            className="group flex min-h-16 w-full items-center justify-between gap-4 rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--secub-secondary)] hover:bg-[color:rgba(14,101,217,0.06)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)]"
+            className="group flex min-h-16 w-full items-center justify-between gap-4 rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--secub-secondary)] hover:bg-[color:var(--color-tint-link)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)]"
             aria-pressed={settings.contrast === "high"}
             onClick={toggleHighContrast}
           >
@@ -117,7 +117,7 @@ export default function AccessibilitySettingsPanel() {
               <button
                 key={option.value}
                 type="button"
-                className="group flex min-h-28 flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--secub-secondary)] hover:bg-[color:rgba(14,101,217,0.06)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)]"
+                className="group flex min-h-28 flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--secub-secondary)] hover:bg-[color:var(--color-tint-link)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus)]"
                 aria-pressed={settings.fontSize === option.value}
                 onClick={() => setFontSize(option.value)}
               >

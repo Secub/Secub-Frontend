@@ -92,7 +92,7 @@ export default function PanelMobileNavigation({ currentStep }: PanelMobileNaviga
             <div className="fixed inset-0 z-[80] flex xl:hidden">
               <button
                 type="button"
-                className="absolute inset-0 bg-[#182233]/55"
+                className="absolute inset-0 bg-[var(--color-footer-dark)]/55"
                 onClick={() => setOpen(false)}
                 aria-label="Cerrar menú"
               />

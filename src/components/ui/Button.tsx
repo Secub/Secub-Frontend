@@ -21,7 +21,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "bg-[var(--secub-secondary)] text-[var(--secub-secondary-text)] border border-[var(--secub-secondary)] hover:opacity-95 focus:ring-[color:var(--secub-secondary)]",
   primary_soft:
-    "bg-[color:rgba(14,101,217,0.08)] text-[var(--secub-text)] border border-[var(--secub-secondary)] hover:opacity-90 focus:ring-[color:var(--secub-secondary)]",
+    "bg-[color:var(--color-tint-link)] text-[var(--secub-text)] border border-[var(--secub-secondary)] hover:opacity-90 focus:ring-[color:var(--secub-secondary)]",
   accent:
     "bg-[var(--secub-primary)] text-[var(--secub-primary-text)] border border-[var(--secub-primary)] hover:opacity-95 focus:ring-[color:var(--secub-primary)]",
   outline:
