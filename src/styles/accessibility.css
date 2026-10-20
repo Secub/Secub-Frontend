@@ -371,6 +371,7 @@ html[data-contrast="high"] .footer-image-placeholder {
 
 html[data-contrast="high"] .bg-white,
 html[data-contrast="high"] .bg-white\/90,
+html[data-contrast="high"] .bg-white\/95,
 html[data-contrast="high"] .hover\:bg-white:hover {
   background-color: var(--secub-surface) !important;
 }

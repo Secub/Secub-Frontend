@@ -9,7 +9,7 @@ export default function ContactSection() {
     >
       <div className="container-secub grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div>
-          <span className="mb-4 inline-flex rounded-full bg-[var(--color-secondary-2)] px-4 py-1.5 font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
+          <span className="mb-4 inline-flex rounded-full bg-[var(--color-secondary-2)] px-4 py-1.5 font-heading text-sm font-semibold text-[var(--color-on-status)]">
             Contacto
           </span>
 

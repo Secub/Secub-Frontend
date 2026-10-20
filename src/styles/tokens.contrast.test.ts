@@ -62,6 +62,7 @@ const textPairs: Array<[label: string, text: string, background: string]> = [
   ["warning badge", "--color-on-status", "--color-warning"],
   ["danger badge and danger button", "--color-on-error", "--color-error"],
   ["accent badge", "--color-on-status", "--color-primary"],
+  ["landing section pill", "--color-on-status", "--color-secondary-2"],
 ];
 
 const modePairs = modes.flatMap(([mode, tokens]) =>
