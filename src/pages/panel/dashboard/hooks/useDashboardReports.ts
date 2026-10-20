@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { SECUB_PDF_BRANDING } from "../../../../config/pdfBranding";
 import { showNotification } from "../../../../shared/feedback";
 import type { CompetenceCatalog, DashboardCatalogs, EnrichedCourse, EnrichedCycle } from "../dashboard.types";
 import { getAvailableCompetences, getRaResultsForCourses } from "../dashboard.utils";
@@ -43,6 +44,7 @@ async function downloadCyclePdf(
   await downloadPdf<DashboardReportRow>({
     title: `Reporte de medición · ${cycle.name}`,
     subtitle: `${cycle.programaName} · ${cycle.planName} · Periodo ${cycle.period}`,
+    ...SECUB_PDF_BRANDING,
     footerText: "Generado por SECUB",
     columns: [
       { header: "Curso", widthPct: 20, accessor: (row) => row.course },
