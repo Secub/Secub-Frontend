@@ -14,12 +14,12 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  neutral: "bg-[var(--color-secondary-3)] text-[var(--color-secondary-4)]",
-  info: "bg-[var(--color-info)] text-[var(--color-secondary-4)]",
-  success: "bg-[var(--color-success)] text-[var(--color-secondary-4)]",
-  warning: "bg-[var(--color-warning)] text-[var(--color-secondary-4)]",
-  danger: "bg-[var(--color-error)] text-white",
-  accent: "bg-[var(--color-primary)] text-white",
+  neutral: "bg-[var(--color-neutral-fill)] text-[var(--color-secondary-4)]",
+  info: "bg-[var(--color-info)] text-[var(--color-on-status)]",
+  success: "bg-[var(--color-success)] text-[var(--color-on-status)]",
+  warning: "bg-[var(--color-warning)] text-[var(--color-on-status)]",
+  danger: "bg-[var(--color-error)] text-[var(--color-on-error)]",
+  accent: "bg-[var(--color-primary)] text-[var(--color-on-status)]",
 };
 
 export function Badge({

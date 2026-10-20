@@ -41,7 +41,7 @@ export default function CampusMosaic({
 
             {!hideTitles && (
               <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.58))] p-3 sm:p-4">
-                <p className="font-heading text-xs font-semibold text-white sm:text-sm md:text-base">
+                <p className="font-heading text-xs font-semibold text-[var(--color-white)] sm:text-sm md:text-base">
                   {campus.title}
                 </p>
               </div>

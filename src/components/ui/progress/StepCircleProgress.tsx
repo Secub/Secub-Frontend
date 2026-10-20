@@ -81,7 +81,7 @@ export default function StepCircleProgress({
                   aria-label={`${item.label}${isActive ? ", paso actual" : ""}${isCompleted ? ", completado" : ""}${isItemDisabled ? ", bloqueado" : ""}`}
                 >
                   <span
-                    className="step-circle-progress__marker inline-flex h-11 w-11 items-center justify-center rounded-full border-4 text-sm font-bold shadow-sm transition-all duration-200 group-focus-visible:ring-4 group-focus-visible:ring-[color:rgba(14,101,217,0.18)]"
+                    className="step-circle-progress__marker inline-flex h-11 w-11 items-center justify-center rounded-full border-4 text-sm font-bold shadow-sm transition-all duration-200 group-focus-visible:ring-4 group-focus-visible:ring-[color:var(--secub-focus-soft)]"
                     aria-hidden="true"
                   >
                     {isCompleted ? (

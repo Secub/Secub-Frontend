@@ -12,7 +12,7 @@ export function AsignarRADeleteZone({ canDelete, hasAssignments, onDelete }: Asi
   if (!canDelete || !hasAssignments) return null;
 
   return (
-    <div className="mt-8 rounded-[var(--radius-lg)] border border-[color:rgba(235,87,87,0.25)] bg-[color:rgba(235,87,87,0.05)] p-5">
+    <div className="mt-8 rounded-[var(--radius-lg)] border border-[color:var(--color-border-danger)] bg-[color:var(--color-tint-danger)] p-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h3 className="font-heading text-base font-semibold text-[var(--color-error)]">Eliminar asignación</h3>

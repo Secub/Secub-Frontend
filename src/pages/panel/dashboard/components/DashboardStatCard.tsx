@@ -9,11 +9,11 @@ interface DashboardStatCardProps {
 }
 
 const toneStyles = {
-  info: "bg-[color:rgba(160,195,255,0.22)] text-[var(--color-secondary-1)]",
-  success: "bg-[color:rgba(118,202,102,0.18)] text-[color:#2f7d32]",
-  warning: "bg-[color:rgba(251,199,86,0.24)] text-[var(--color-secondary-4)]",
-  danger: "bg-[color:rgba(235,87,87,0.12)] text-[var(--color-error)]",
-  accent: "bg-[color:rgba(248,129,29,0.14)] text-[var(--color-primary)]",
+  info: "bg-[color:var(--color-tint-info)] text-[var(--color-link)]",
+  success: "bg-[color:var(--color-tint-success-strong)] text-[color:var(--color-success-text)]",
+  warning: "bg-[color:var(--color-tint-warning-strong)] text-[var(--color-secondary-4)]",
+  danger: "bg-[color:var(--color-tint-danger-strong)] text-[var(--color-error)]",
+  accent: "bg-[color:var(--color-tint-accent)] text-[var(--color-primary)]",
 } as const;
 
 export default function DashboardStatCard({

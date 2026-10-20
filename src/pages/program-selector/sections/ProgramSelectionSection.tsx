@@ -17,7 +17,7 @@ export default function ProgramSelectionSection({
 }: ProgramSelectionSectionProps) {
   return (
     <section
-      className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-white/55 bg-white/95 p-6 shadow-[0_30px_90px_rgba(5,18,35,0.38)] backdrop-blur-sm sm:p-8"
+      className="w-full max-w-[620px] rounded-[var(--radius-2xl)] border border-white/55 bg-[var(--color-surface-glass)] p-6 shadow-[0_30px_90px_rgba(5,18,35,0.38)] backdrop-blur-sm sm:p-8"
       aria-labelledby="program-selector-title"
     >
       <button
@@ -35,7 +35,7 @@ export default function ProgramSelectionSection({
           alt="SECUB · Universidad de San Buenaventura"
           className="mx-auto h-auto w-[190px] max-w-full object-contain sm:w-[220px]"
         />
-        <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-secondary-1)]">
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-link)]">
           Paso 2 de 2
         </p>
         <h1

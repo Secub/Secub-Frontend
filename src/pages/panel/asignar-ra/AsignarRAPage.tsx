@@ -199,13 +199,13 @@ export default function AsignarRAPage() {
       ) : (
         <div className="space-y-6 pb-24">
           {feedback ? (
-            <div className="rounded-[var(--radius-lg)] border border-[color:rgba(118,202,102,0.55)] bg-[color:rgba(118,202,102,0.12)] px-5 py-4 text-sm font-medium text-[var(--color-secondary-4)]">
+            <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-border-success)] bg-[color:var(--color-tint-success)] px-5 py-4 text-sm font-medium text-[var(--color-secondary-4)]">
               {feedback}
             </div>
           ) : null}
 
           {errorMessage ? (
-            <div className="rounded-[var(--radius-lg)] border border-[color:rgba(235,87,87,0.45)] bg-[color:rgba(235,87,87,0.08)] px-5 py-4 text-sm font-medium text-[var(--color-error)]">
+            <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-border-danger)] bg-[color:var(--color-tint-danger)] px-5 py-4 text-sm font-medium text-[var(--color-error)]">
               {errorMessage}
             </div>
           ) : null}

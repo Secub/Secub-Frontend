@@ -83,7 +83,7 @@ export default function EvidenceImprovementSection({
               Evidencia de la competencia
             </h2>
 
-            <span className="rounded-[var(--radius-pill)] bg-[var(--color-secondary-4)] px-3 py-1 text-xs font-semibold text-[var(--color-white)]">
+            <span className="rounded-[var(--radius-pill)] bg-[var(--color-inverse-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-on-inverse)]">
               {activeCompetence.code}
             </span>
           </div>
@@ -99,14 +99,14 @@ export default function EvidenceImprovementSection({
           className={[
             "rounded-[var(--radius-xl)] border border-dashed bg-[var(--color-surface-soft)] p-5",
             evidenceFileError
-              ? "border-[var(--color-error)] ring-4 ring-[color:rgba(235,87,87,0.12)]"
+              ? "border-[var(--color-error)] ring-4 ring-[color:var(--color-ring-danger)]"
               : "border-[var(--color-gray-6)]",
           ].join(" ")}
           title={disabled ? lockedTooltip : undefined}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-3">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--secub-surface)] text-[var(--color-secondary-1)]">
+              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--secub-surface)] text-[var(--color-link)]">
                 <SecubIcon name="file" weight="fill" className="text-xl" />
               </span>
 

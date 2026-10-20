@@ -90,7 +90,7 @@ export default function CicloFormModal(props: CicloFormModalProps) {
         {form.showValidationAlert ? (
           <div
             role="alert"
-            className="rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:rgba(235,87,87,0.08)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
+            className="rounded-[var(--radius-lg)] border border-[var(--color-error)] bg-[color:var(--color-tint-danger)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
           >
             Completa la información obligatoria antes de crear o guardar el ciclo. Revisa el primer campo marcado.
           </div>

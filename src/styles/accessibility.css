@@ -35,7 +35,7 @@
 .accessibility-menu__trigger:hover {
   border-color: var(--secub-secondary);
   background: var(--secub-surface-soft);
-  color: var(--secub-secondary);
+  color: var(--color-link);
   transform: translateY(-1px);
 }
 
@@ -212,7 +212,7 @@
 .accessibility-menu__reset:hover {
   border-color: var(--secub-secondary);
   background: var(--secub-surface-soft);
-  color: var(--secub-secondary);
+  color: var(--color-link);
 }
 
 .accessibility-menu--section .accessibility-menu__panel {
@@ -293,7 +293,7 @@ html[data-contrast="high"] .accessibility-menu--sidebar .accessibility-menu__tri
   justify-content: center;
   border-radius: var(--radius-pill);
   background: var(--color-success-strong);
-  color: var(--color-white);
+  color: var(--color-on-success-strong);
   font-size: 1.5rem;
   font-weight: 900;
 }
@@ -323,7 +323,7 @@ html[data-contrast="high"] .accessibility-menu--sidebar .accessibility-menu__tri
   border: 1px solid var(--color-success-strong);
   border-radius: var(--radius-pill);
   background: var(--color-success-strong);
-  color: var(--color-white);
+  color: var(--color-on-success-strong);
   padding: 0.75rem 1.25rem;
   font-family: var(--font-heading);
   font-weight: 800;
@@ -371,6 +371,7 @@ html[data-contrast="high"] .footer-image-placeholder {
 
 html[data-contrast="high"] .bg-white,
 html[data-contrast="high"] .bg-white\/90,
+html[data-contrast="high"] .bg-white\/95,
 html[data-contrast="high"] .hover\:bg-white:hover {
   background-color: var(--secub-surface) !important;
 }

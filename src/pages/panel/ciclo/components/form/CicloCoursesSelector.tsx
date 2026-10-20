@@ -26,7 +26,7 @@ export default function CicloCoursesSelector({
       id="ciclo-courses-selector"
       data-validation-field="cursoIds"
       data-validation-error={error ? "true" : undefined}
-      className={[error ? "rounded-[var(--radius-lg)] border border-[var(--color-error)] p-3 ring-4 ring-[color:rgba(235,87,87,0.10)]" : ""].join(" ")}
+      className={[error ? "rounded-[var(--radius-lg)] border border-[var(--color-error)] p-3 ring-4 ring-[color:var(--color-ring-danger)]" : ""].join(" ")}
     >
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -53,8 +53,8 @@ export default function CicloCoursesSelector({
               <label
                 key={course.id}
                 className={[
-                  "flex cursor-pointer gap-4 rounded-[var(--radius-lg)] border bg-white p-4 shadow-sm transition-all",
-                  checked ? "border-[var(--color-secondary-1)] ring-4 ring-[color:rgba(14,101,217,0.10)]" : "border-[var(--color-gray-6)]",
+                  "flex cursor-pointer gap-4 rounded-[var(--radius-lg)] border bg-[var(--color-surface-card)] p-4 shadow-sm transition-all",
+                  checked ? "border-[var(--color-secondary-1)] ring-4 ring-[color:var(--secub-focus-soft)]" : "border-[var(--color-gray-6)]",
                   isReadOnly ? "cursor-not-allowed opacity-80" : "hover:border-[var(--color-secondary-1)]",
                 ].join(" ")}
               >
@@ -88,7 +88,7 @@ export default function CicloCoursesSelector({
                   </div>
 
                   {teacherAlert ? (
-                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:rgba(251,199,86,0.16)] px-3 py-2 text-sm text-[var(--color-gray-2)]">
+                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[color:var(--color-tint-warning)] px-3 py-2 text-sm text-[var(--color-gray-2)]">
                       <SecubIcon name="warning" weight="fill" className="shrink-0 text-base text-[var(--color-secondary-4)]" />
                       <Badge variant="warning">Caso excepcional</Badge>
                       <span>{teacherAlert}</span>

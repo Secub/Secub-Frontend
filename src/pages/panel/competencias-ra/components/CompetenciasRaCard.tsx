@@ -110,7 +110,7 @@ export default function CompetenciasRaCard({
               {getLearningResultsCountLabel(record)}
             </span>
           </span>
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-[var(--color-gray-4)] transition-colors group-hover:text-[var(--color-secondary-1)] group-focus-visible:text-[var(--color-secondary-1)]">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-[var(--color-gray-4)] transition-colors group-hover:text-[var(--color-link)] group-focus-visible:text-[var(--color-link)]">
             {expandedRAs ? <ActionIcon name="chevron-up" size="sm" /> : <ActionIcon name="chevron-down" size="sm" />}
           </span>
         </button>
@@ -156,7 +156,7 @@ export default function CompetenciasRaCard({
                   className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--color-gray-6)] bg-[var(--color-surface-soft)] p-3 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div className="flex min-w-0 gap-3 text-sm">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)] text-[0.7rem] font-semibold text-white">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)] text-[0.7rem] font-semibold text-[var(--secub-secondary-text)]">
                       {getRaLabel(ra.numero).replace("RA ", "")}
                     </div>
                     <div className="min-w-0">

@@ -62,7 +62,7 @@ function ServiceCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.55, delay, ease: "easeOut" }}
-      className="w-full rounded-[24px] border border-[var(--color-gray-6)] bg-white p-4 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-5"
+      className="w-full rounded-[24px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-4 shadow-[0_18px_50px_rgba(24,34,51,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(24,34,51,0.12)] md:p-5"
     >
       <div className="mb-5">
         <img
@@ -79,7 +79,7 @@ function ServiceCard({
           MODULO {step}
         </span>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-base font-semibold text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-primary)] font-heading text-base font-semibold text-[var(--color-on-status)]">
           {step}
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function ModulesSection() {
   return (
     <section
       id="modulos"
-      className="section-space border-y border-[var(--color-gray-6)] bg-white"
+      className="section-space border-y border-[var(--color-gray-6)] bg-[var(--color-surface-card)]"
     >
       <div className="container-secub">
         <motion.div

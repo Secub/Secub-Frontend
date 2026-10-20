@@ -108,15 +108,15 @@ export default function PanelSidebar({
       }
     >
       <div
-        className={`relative flex ${isDesktop ? "h-screen" : "h-full"} w-full flex-col overflow-hidden border-r border-[color:rgba(217,221,231,0.10)] bg-[var(--color-footer-dark)] text-[var(--color-white)]`}
+        className={`relative flex ${isDesktop ? "h-screen" : "h-full"} w-full flex-col overflow-hidden border-r border-[color:var(--color-sidebar-border)] bg-[var(--color-footer-dark)] text-[var(--color-white)]`}
       >
-        <div className="shrink-0 border-b border-[color:rgba(217,221,231,0.10)] px-4 pb-4 pt-5">
+        <div className="shrink-0 border-b border-[color:var(--color-sidebar-border)] px-4 pb-4 pt-5">
           <button
             type="button"
             onClick={() => goTo(dashboardItem.href)}
             {...getRoutePrefetchProps(dashboardItem.href)}
             id="panel-sidebar-logo"
-            className="inline-flex rounded-[12px] p-1.5 transition-colors hover:bg-[color:rgba(255,255,255,0.055)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+            className="inline-flex rounded-[12px] p-1.5 transition-colors hover:bg-[color:var(--color-sidebar-hover)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
             aria-label="Ir al dashboard de SECUB"
           >
             <img src={LogoSecub} alt="SECUB" className="h-9 w-auto object-contain" />
@@ -125,7 +125,7 @@ export default function PanelSidebar({
 
         <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-4">
           <nav className="space-y-3" aria-label="Navegación principal del panel">
-            <p className="px-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-[color:rgba(179,206,226,0.72)]">
+            <p className="px-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-[color:var(--color-sidebar-muted)]">
               Navegación
             </p>
             <ul className="space-y-1.5">
@@ -137,10 +137,10 @@ export default function PanelSidebar({
                   id="panel-sidebar-dashboard"
                   aria-current={currentStep === dashboardItem.key ? "page" : undefined}
                   className={[
-                    "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+                    "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
                     currentStep === dashboardItem.key
-                      ? "border-l-2 border-l-[var(--color-success)] bg-[color:rgba(118,202,102,0.13)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.12)]"
-                      : "text-[var(--color-secondary-3)] hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)]",
+                      ? "border-l-2 border-l-[var(--color-success)] bg-[color:var(--color-tint-success)] text-[var(--color-white)] shadow-[inset_0_0_0_1px_rgba(118,202,102,0.12)]"
+                      : "text-[var(--color-secondary-3)] hover:bg-[color:var(--color-sidebar-hover)] hover:text-[var(--color-white)]",
                   ].join(" ")}
                 >
                   <SecubIcon name={dashboardItem.icon} size={22} weight="bold" />
@@ -156,7 +156,7 @@ export default function PanelSidebar({
           </nav>
         </div>
 
-        <div className="shrink-0 space-y-3 border-t border-[color:rgba(217,221,231,0.10)] px-3 py-3">
+        <div className="shrink-0 space-y-3 border-t border-[color:var(--color-sidebar-border)] px-3 py-3">
           <SidebarUserProfileMenu
             tourIds={{
               profile: "panel-sidebar-profile",
@@ -179,8 +179,8 @@ export default function PanelSidebar({
             onKeyDown={handleResizeKeyDown}
             className={[
               "absolute inset-y-0 right-0 z-20 w-2 translate-x-1 cursor-col-resize touch-none outline-none transition-colors",
-              "after:absolute after:inset-y-3 after:left-1/2 after:w-px after:-translate-x-1/2 after:rounded-full after:bg-[color:rgba(217,221,231,0.12)] after:opacity-0 after:transition-opacity",
-              "hover:after:opacity-100 focus-visible:after:opacity-100 focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]",
+              "after:absolute after:inset-y-3 after:left-1/2 after:w-px after:-translate-x-1/2 after:rounded-full after:bg-[color:var(--color-sidebar-hover)] after:opacity-0 after:transition-opacity",
+              "hover:after:opacity-100 focus-visible:after:opacity-100 focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
               isResizingSidebar ? "after:opacity-100" : "",
             ].join(" ")}
           />

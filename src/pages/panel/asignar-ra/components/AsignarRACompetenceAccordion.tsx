@@ -46,7 +46,7 @@ export function AsignarRACompetenceAccordion({
       <button
         type="button"
         onClick={() => onToggleAccordion(competencia.id)}
-        className="flex w-full flex-col gap-4 p-5 text-left md:flex-row md:items-start md:justify-between focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+        className="flex w-full flex-col gap-4 p-5 text-left md:flex-row md:items-start md:justify-between focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
         aria-expanded={isExpanded}
       >
         <span className="min-w-0 flex-1">
@@ -67,7 +67,7 @@ export function AsignarRACompetenceAccordion({
             </span>
           ) : null}
         </span>
-        <span className="shrink-0 text-sm font-semibold text-[var(--color-secondary-1)]">
+        <span className="shrink-0 text-sm font-semibold text-[var(--color-link)]">
           {isExpanded ? "Ocultar RA" : "Ver RA"}
         </span>
       </button>
@@ -90,14 +90,14 @@ export function AsignarRACompetenceAccordion({
                 className={[
                   "flex cursor-pointer items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-all",
                   selected
-                    ? "border-[var(--color-secondary-1)] bg-[color:rgba(14,101,217,0.07)]"
+                    ? "border-[var(--color-secondary-1)] bg-[color:var(--color-tint-link)]"
                     : "border-[var(--color-gray-6)] bg-[var(--secub-surface)] hover:border-[var(--color-secondary-2)] hover:bg-[var(--color-surface-soft)]",
                   isDisabled ? "cursor-default opacity-90" : "",
                 ].join(" ")}
               >
                 <input
                   type="checkbox"
-                  className="mt-1 h-5 w-5 rounded border-[var(--color-gray-5)] text-[var(--color-secondary-1)] focus:ring-[var(--color-secondary-1)]"
+                  className="mt-1 h-5 w-5 rounded border-[var(--color-gray-5)] text-[var(--color-link)] focus:ring-[var(--color-secondary-1)]"
                   checked={selected}
                   disabled={isDisabled}
                   onChange={() => {

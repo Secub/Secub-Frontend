@@ -32,9 +32,9 @@ export function Textarea({
     .join(" ") || undefined;
 
   const stateClass = error
-    ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:rgba(235,87,87,0.18)]"
+    ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[color:var(--color-ring-danger)]"
     : success
-      ? "border-[var(--color-success)] focus:border-[var(--color-success)] focus:ring-[color:rgba(118,202,102,0.18)]"
+      ? "border-[var(--color-success)] focus:border-[var(--color-success)] focus:ring-[color:var(--color-border-success)]"
       : "border-[var(--secub-border)] focus:border-[var(--secub-secondary)] focus:ring-[color:var(--secub-focus-soft)]";
 
   return (

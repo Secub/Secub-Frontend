@@ -53,11 +53,11 @@ export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMe
     <div className="space-y-2.5">
       <div
         id={tourIds?.profile}
-        className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:rgba(217,221,231,0.12)] bg-[color:rgba(255,255,255,0.055)] px-3 py-2.5 text-left"
+        className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:var(--color-sidebar-border)] bg-[color:var(--color-sidebar-hover)] px-3 py-2.5 text-left"
         aria-label={`Perfil activo: ${roleLabel}. ${profileSubtitle}`}
       >
         <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-[color:rgba(118,202,102,0.16)] font-heading text-[0.78rem] font-bold text-[var(--color-success)] ring-1 ring-[color:rgba(118,202,102,0.24)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-[color:var(--color-tint-success-strong)] font-heading text-[0.78rem] font-bold text-[var(--color-success)] ring-1 ring-[color:var(--color-border-success)]"
           aria-hidden="true"
         >
           {initials}
@@ -78,7 +78,7 @@ export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMe
           type="button"
           onClick={() => navigateToRoute(ROUTES.programSelector)}
           {...getRoutePrefetchProps(ROUTES.programSelector)}
-          className="flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-[color:rgba(217,221,231,0.12)] px-2 py-2 text-[0.82rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+          className="flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-[color:var(--color-sidebar-border)] px-2 py-2 text-[0.82rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:var(--color-sidebar-hover)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
         >
           <SecubIcon name="book" size={17} weight="regular" />
           <span>Cambiar programa</span>
@@ -95,7 +95,7 @@ export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMe
           id={tourIds?.settings}
           onClick={() => navigateToRoute(ROUTES.panelSettings, { preserveSearch: true })}
           {...getRoutePrefetchProps(ROUTES.panelSettings)}
-          className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:rgba(255,255,255,0.055)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.28)]"
+          className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-secondary-2)] transition-colors hover:bg-[color:var(--color-sidebar-hover)] hover:text-[var(--color-white)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
         >
           <SecubIcon name="settings" size={18} weight="regular" />
           <span>Ajustes</span>
@@ -105,7 +105,7 @@ export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMe
           type="button"
           id={tourIds?.logout}
           onClick={handleLogout}
-          className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-error)] transition-colors hover:bg-[color:rgba(235,87,87,0.12)] hover:text-[color:rgba(255,137,137,1)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(235,87,87,0.26)]"
+          className="flex items-center justify-center gap-1.5 rounded-[10px] px-2 py-2 text-[0.875rem] font-semibold text-[var(--color-error)] transition-colors hover:bg-[color:var(--color-tint-danger-strong)] hover:text-[color:var(--color-sidebar-danger)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--color-ring-danger)]"
         >
           <SecubIcon name="sign-out" size={18} weight="regular" />
           <span>Salir</span>

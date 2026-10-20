@@ -17,7 +17,7 @@ export default function RaSimpleBarChart({ results }: RaSimpleBarChartProps) {
   }
 
   return (
-    <div className="rounded-[22px] border border-[var(--color-gray-6)] bg-white p-5 shadow-sm">
+    <div className="rounded-[22px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-5 shadow-sm">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="font-heading text-lg font-semibold text-[var(--color-secondary-4)]">

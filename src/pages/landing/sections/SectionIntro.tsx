@@ -11,7 +11,7 @@ export default function SectionIntro({
 }: SectionIntroProps) {
   return (
     <div className="mx-auto max-w-3xl text-center">
-      <span className="mb-4 inline-flex rounded-full bg-[var(--color-secondary-2)] px-4 py-1.5 font-heading text-sm font-semibold text-[var(--color-secondary-4)]">
+      <span className="mb-4 inline-flex rounded-full bg-[var(--color-secondary-2)] px-4 py-1.5 font-heading text-sm font-semibold text-[var(--color-on-status)]">
         {eyebrow}
       </span>
 

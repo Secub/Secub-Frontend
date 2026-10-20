@@ -87,7 +87,7 @@ export default function FeedbackProvider({ children }: FeedbackProviderProps) {
           aria-live={variant === "error" ? "assertive" : "polite"}
         >
           <div className="flex items-start gap-3">
-            <SecubIcon name={notificationIcon} weight="fill" size={20} className="mt-0.5 text-[var(--color-secondary-1)]" />
+            <SecubIcon name={notificationIcon} weight="fill" size={20} className="mt-0.5 text-[var(--color-link)]" />
             <div className="min-w-0 flex-1">
               {notification.title ? (
                 <p className="font-heading text-sm font-semibold text-[var(--color-secondary-4)]">

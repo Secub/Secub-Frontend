@@ -70,7 +70,7 @@ export default function CycleProgressCard({
       <div className="mt-5">
         <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[var(--color-gray-4)]">
           <span className="inline-flex items-center gap-2">
-            <SecubIcon name="checklist" weight="fill" className="text-base text-[var(--color-secondary-1)]" />
+            <SecubIcon name="checklist" weight="fill" className="text-base text-[var(--color-link)]" />
             {cycle.evaluatedRa} de {cycle.totalRa} RA evaluados
           </span>
           <span>{cycle.progress}% completado</span>

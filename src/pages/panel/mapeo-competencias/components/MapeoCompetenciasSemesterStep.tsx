@@ -138,7 +138,7 @@ export default function MapeoCompetenciasSemesterStep({
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={getNucleoVariant(nucleo)}>{getNucleoLabel(nucleo)}</Badge>
-          <span className="rounded-full border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-secondary-1)]">
+          <span className="rounded-full border border-[var(--color-gray-6)] bg-[var(--secub-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-link)]">
             {semestreNumero} de {totalSemestres}
           </span>
           

@@ -33,7 +33,7 @@ export function AsignarRACoursesTable({
           <button
             type="button"
             onClick={() => onSelectCourse(row.course.id)}
-            className="text-left font-heading text-sm font-semibold text-[var(--color-secondary-4)] hover:text-[var(--color-secondary-1)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+            className="text-left font-heading text-sm font-semibold text-[var(--color-secondary-4)] hover:text-[var(--color-link)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
           >
             {row.course.nombre}
           </button>

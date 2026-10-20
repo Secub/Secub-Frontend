@@ -18,7 +18,7 @@ export default function MapeoCompetenciasCreateHeader({
   return (
     <section className="surface-card p-5">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-secondary-1)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-link)]">
           Programa y plan seleccionados
         </p>
         <h2 className="mt-1 font-heading text-xl font-semibold text-[var(--color-secondary-4)]">

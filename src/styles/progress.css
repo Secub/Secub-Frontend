@@ -3,8 +3,19 @@
   --color-success-strong: #166534;
   --color-success-soft: #dcfce7;
   --color-success-border: #22c55e;
+  --color-on-success-strong: #ffffff;
   --color-step-disabled-text: #374151;
   --color-step-disabled-bg: #f8fafc;
+  --color-step-disabled-border: #9ca3af;
+}
+
+html[data-contrast="high"] {
+  --color-success-strong: #00ff66;
+  --color-success-soft: #0b2e1a;
+  --color-success-border: #00ff66;
+  --color-on-success-strong: #000000;
+  --color-step-disabled-text: #f3f4f6;
+  --color-step-disabled-bg: #1f1f1f;
   --color-step-disabled-border: #9ca3af;
 }
 
@@ -49,7 +60,7 @@
 }
 
 .step-circle-progress__button--active .step-circle-progress__label {
-  color: var(--color-secondary-1);
+  color: var(--color-link);
 }
 
 .step-circle-progress__button--completed .step-circle-progress__marker {
@@ -79,7 +90,7 @@
 
 .step-circle-progress__button--pending:not(:disabled):hover .step-circle-progress__marker {
   border-color: var(--color-secondary-1);
-  color: var(--color-secondary-1);
+  color: var(--color-link);
 }
 
 

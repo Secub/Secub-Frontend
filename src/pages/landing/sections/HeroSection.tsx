@@ -7,7 +7,7 @@ export default function HeroSection() {
   return (
     <section
       id="inicio"
-      className="relative min-h-[calc(100vh-80px)] overflow-hidden border-b border-[var(--color-gray-6)] bg-black"
+      className="relative min-h-[calc(100vh-80px)] overflow-hidden border-b border-[var(--color-gray-6)] bg-[var(--color-black)]"
     >
       <div className="absolute inset-0">
         <CampusMosaic
@@ -31,13 +31,13 @@ export default function HeroSection() {
           {Array.from({ length: 5 }).map((_, index) => (
             <span
               key={`hero-bottom-dot-${index}`}
-              className="h-2.5 w-2.5 rounded-full bg-white/90"
+              className="h-2.5 w-2.5 rounded-full bg-[var(--color-white)]/90"
             />
           ))}
         </div>
 
-        <div className="absolute left-[23%] top-[44%] h-4 w-4 rounded-full bg-white shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
-        <div className="absolute right-[24%] top-[50%] h-4 w-4 rounded-full bg-white shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
+        <div className="absolute left-[23%] top-[44%] h-4 w-4 rounded-full bg-[var(--color-white)] shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
+        <div className="absolute right-[24%] top-[50%] h-4 w-4 rounded-full bg-[var(--color-white)] shadow-[0_0_16px_7px_rgba(255,255,255,0.45)]" />
       </div>
 
       <motion.div
@@ -47,7 +47,7 @@ export default function HeroSection() {
         className="container-secub relative z-10 flex min-h-[calc(100vh-80px)] items-center justify-center py-16 lg:py-20"
       >
         <div className="mx-auto max-w-4xl text-center">
-          <h1 className="font-heading text-4xl font-semibold leading-[1.05] text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.65)] md:text-6xl xl:text-7xl">
+          <h1 className="font-heading text-4xl font-semibold leading-[1.05] text-[var(--color-white)] [text-shadow:0_4px_18px_rgba(0,0,0,0.65)] md:text-6xl xl:text-7xl">
             SECUB: Sistema de Evaluación Curricular Bonaventuriano
           </h1>
 

@@ -100,7 +100,7 @@ export function CompetenciasRaDetailModal({
         <div>
           <p className="text-sm font-medium text-[var(--color-gray-4)]">Número de Competencia</p>
           <div className="mt-2 inline-block rounded-full bg-[var(--color-secondary-1)] px-4 py-2">
-            <span className="text-base font-semibold text-white">{record.numero}</span>
+            <span className="text-base font-semibold text-[var(--secub-secondary-text)]">{record.numero}</span>
           </div>
         </div>
         <div>
@@ -141,7 +141,7 @@ export function CompetenciasRaDetailModal({
             {successMessage ? (
               <div
                 role="status"
-                className="rounded-[var(--radius-md)] border border-[var(--color-success)]/40 bg-[color:rgba(118,202,102,0.12)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
+                className="rounded-[var(--radius-md)] border border-[var(--color-success)]/40 bg-[color:var(--color-tint-success)] px-4 py-3 text-sm font-medium text-[var(--color-secondary-4)]"
               >
                 {successMessage}
               </div>
@@ -190,7 +190,7 @@ export function CompetenciasRaDetailModal({
               className="flex flex-col gap-3 rounded-md border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-3 sm:flex-row sm:items-start sm:justify-between"
             >
               <div className="flex min-w-0 gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)] text-xs font-semibold text-white">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary-1)] text-xs font-semibold text-[var(--secub-secondary-text)]">
                   {String(ra.numero).padStart(2, "0")}
                 </div>
                 <div className="min-w-0">

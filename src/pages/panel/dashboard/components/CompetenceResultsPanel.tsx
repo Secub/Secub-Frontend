@@ -173,7 +173,7 @@ function CompetencePie({ group, index }: { group: CompetenceGroup; index: number
               : `${group.name}, sin datos suficientes para graficar`
           }
         >
-          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-center font-heading text-lg font-semibold text-[var(--color-secondary-4)] shadow-sm">
+          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-center font-heading text-lg font-semibold text-[var(--color-secondary-4)] shadow-sm">
             {hasMeasurements ? `${compliance}%` : "—"}
           </span>
         </div>
@@ -287,7 +287,7 @@ function RaResultsTable({
   return (
     <div
       {...tourMarker(DASHBOARD_TOUR_MARKERS.resultsRaTable)}
-      className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-white"
+      className="overflow-hidden rounded-[20px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)]"
     >
       <Table
         columns={columns}
@@ -324,12 +324,12 @@ function CompetenceSupportFiles({
 
       <div className="mt-4 space-y-3">
         {supportGroups.length === 0 ? (
-          <p className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-white p-4 text-sm text-[var(--color-gray-4)]">
+          <p className="rounded-[var(--radius-md)] border border-dashed border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-4 text-sm text-[var(--color-gray-4)]">
             No hay soportes registrados para esta competencia.
           </p>
         ) : (
           supportGroups.map((group) => (
-            <article key={group.id} className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-white p-4">
+            <article key={group.id} className="rounded-[var(--radius-lg)] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-4">
               <p className="text-sm font-semibold text-[var(--color-secondary-4)]">
                 Curso: {group.courseName}
               </p>
@@ -439,12 +439,12 @@ export default function CompetenceResultsPanel({
               <article
                 key={group.id}
                 id={index === 0 ? DASHBOARD_TOUR_IDS.resultsCompetence : undefined}
-                className="rounded-[22px] border border-[var(--color-gray-5)] bg-white p-5"
+                className="rounded-[22px] border border-[var(--color-gray-5)] bg-[var(--color-surface-card)] p-5"
               >
                 <button
                   type="button"
                   onClick={() => toggleCompetence(group.id)}
-                  className="flex w-full flex-col gap-3 text-left md:flex-row md:items-center md:justify-between focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:rgba(14,101,217,0.22)]"
+                  className="flex w-full flex-col gap-3 text-left md:flex-row md:items-center md:justify-between focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]"
                   aria-expanded={expanded}
                 >
                   <span className="flex items-center gap-3">
@@ -471,7 +471,7 @@ export default function CompetenceResultsPanel({
                     {group.raGroups.map((raGroup) => (
                       <article
                         key={raGroup.id}
-                        className="rounded-[22px] border border-[var(--color-gray-5)] bg-white p-5"
+                        className="rounded-[22px] border border-[var(--color-gray-5)] bg-[var(--color-surface-card)] p-5"
                       >
                         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <div>

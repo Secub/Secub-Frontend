@@ -40,7 +40,7 @@ export default function Breadcrumb({ items = [] }: BreadcrumbProps) {
                   event.preventDefault();
                   navigateToRoute(item.href ?? "");
                 }}
-                className="font-medium text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-secondary-1)]"
+                className="font-medium text-[var(--color-gray-3)] transition-colors hover:text-[var(--color-link)]"
               >
                 {item.label}
               </a>

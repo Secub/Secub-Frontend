@@ -22,7 +22,7 @@ export default function RaResultsCharts({
     <section className="surface-card p-6">
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:var(--color-tint-link)] text-[var(--color-link)]">
             <SecubIcon name="chart-up" weight="fill" className="text-xl" />
           </span>
 
@@ -48,7 +48,7 @@ export default function RaResultsCharts({
             <article
               key={result.raId}
               id={index === 0 ? "medicion-ra-results-first" : undefined}
-              className="rounded-[22px] border border-[var(--color-gray-6)] bg-white p-5 shadow-sm"
+              className="rounded-[22px] border border-[var(--color-gray-6)] bg-[var(--color-surface-card)] p-5 shadow-sm"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -65,8 +65,8 @@ export default function RaResultsCharts({
                   className={[
                     "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
                     result.reachedTarget
-                      ? "bg-[color:rgba(118,202,102,0.16)] text-[var(--color-success)]"
-                      : "bg-[color:rgba(235,87,87,0.10)] text-[var(--color-error)]",
+                      ? "bg-[color:var(--color-tint-success-strong)] text-[var(--color-success)]"
+                      : "bg-[color:var(--color-tint-danger)] text-[var(--color-error)]",
                   ].join(" ")}
                 >
                   {result.reachedTarget ? (

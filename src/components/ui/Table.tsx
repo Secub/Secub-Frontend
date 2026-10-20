@@ -250,7 +250,7 @@ export function Table<T>({
                     scope="col"
                     sortDirection={orderBy === column.key ? order : false}
                     className={[
-                      "border-b border-[var(--secub-border)] px-5 py-4 text-left text-sm font-semibold text-[var(--color-secondary-4)]",
+                      "border-b border-[var(--secub-border)] px-5 py-4 text-left text-sm !font-bold text-[var(--color-secondary-4)]",
                       column.headerClassName ?? "",
                     ].join(" ")}
                     sx={{ fontFamily: "inherit" }}
@@ -275,7 +275,7 @@ export function Table<T>({
                     actionsColumnWidthClassName,
                     actionsHorizontalPaddingClassName,
                     actionsAlignmentClassName,
-                    "border-b border-[var(--secub-border)] py-4 text-sm font-semibold text-[var(--color-secondary-4)]",
+                    "border-b border-[var(--secub-border)] py-4 text-sm !font-bold text-[var(--color-secondary-4)]",
                   ].join(" ")}
                   sx={{ fontFamily: "inherit" }}
                 >
@@ -369,7 +369,7 @@ export function Table<T>({
                               }}
                               disabled={isDisabled}
                               className={[
-                                "text-xs font-medium text-[var(--color-gray-4)] transition-colors hover:text-[var(--color-secondary-1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45",
+                                "text-xs font-medium text-[var(--color-gray-4)] transition-colors hover:text-[var(--color-link)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45",
                                 action.className ?? "",
                               ].join(" ")}
                               aria-label={title}

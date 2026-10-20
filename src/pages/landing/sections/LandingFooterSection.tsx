@@ -3,10 +3,17 @@ import { ROUTES } from "../../../app/appRoutes";
 import LogoUsbFooter from "../../../assets/logos/logo-usb-footer.png";
 import LogoAltaCalidad from "../../../assets/logos/logo-alta-calidad.png";
 
+const SECCIONALES = [
+  { name: "Bogotá", href: "https://www.usbbog.edu.co/" },
+  { name: "Medellín", href: "https://www.usbmed.edu.co/" },
+  { name: "Cali", href: "https://usbcali.edu.co/" },
+  { name: "Cartagena", href: "https://usbcartagena.edu.co/" },
+];
+
 export default function LandingFooterSection() {
   return (
     <footer className="mt-0">
-      <section className="bg-[#1f1f22] text-white">
+      <section className="bg-[var(--color-footer-dark)] text-[var(--color-white)]">
         <div className="container-secub py-14 lg:py-10">
           <div className="grid gap-12 lg:grid-cols-[1.35fr_0.75fr_0.55fr] lg:items-start">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-10">
@@ -35,11 +42,11 @@ export default function LandingFooterSection() {
             </div>
 
             <div>
-              <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-white">
+              <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-[var(--color-white)]">
                 Universidad de San Buenaventura
               </h3>
 
-              <div className="mt-2 space-y-0.1 text-[0.98rem] leading-5 text-white">
+              <div className="mt-2 space-y-0.1 text-[0.98rem] leading-5 text-[var(--color-white)]">
                 <p className="font-heading font-semibold">Dirección:</p>
                 <p>Cra 9 # 123 - 76 Of. 602 - 603</p>
 
@@ -65,31 +72,33 @@ export default function LandingFooterSection() {
             </div>
 
             <div>
-              <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-white">
+              <h3 className="font-heading text-[1.15rem] font-semibold leading-tight text-[var(--color-white)]">
                 Seccional
               </h3>
 
-              <ul className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-white">
-                <li>
-                  <a
-                    href="https://usbcali.edu.co/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition-opacity hover:opacity-80"
-                  >
-                    - Seccional Cali
-                  </a>
-                </li>
+              <ul className="mt-2 space-y-0.5 text-[0.98rem] leading-8 text-[var(--color-white)]">
+                {SECCIONALES.map(({ name, href }) => (
+                  <li key={name}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="transition-opacity hover:opacity-80"
+                    >
+                      - Seccional {name}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-[var(--color-primary)] text-white">
+      <section className="bg-[var(--color-primary)] text-[var(--color-on-status)]">
         <div className="container-secub flex flex-col gap-4 py-5 md:flex-row md:items-center md:justify-between">
           <p className="text-left text-[0.98rem] leading-6">
-            Copyright © 2023 Universidad de San Buenaventura
+            Copyright © 2026 Universidad de San Buenaventura
           </p>
 
           <div className="flex items-center justify-between gap-6 md:justify-end">
@@ -112,7 +121,7 @@ export default function LandingFooterSection() {
             <a
               href="#inicio"
               aria-label="Volver arriba"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
             >
               <GoChevronUp aria-hidden="true" className="text-[24px]" />
             </a>

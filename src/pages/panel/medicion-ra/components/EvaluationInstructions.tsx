@@ -3,10 +3,10 @@ import { Badge } from "../../../../components/ui";
 import { performanceLevels, TARGET_PERCENTAGE } from "../constants/medicionRA.constants";
 
 const toneClasses = {
-  success: "border-[color:rgba(118,202,102,0.45)] bg-[color:rgba(118,202,102,0.12)]",
-  info: "border-[color:rgba(160,195,255,0.65)] bg-[color:rgba(160,195,255,0.18)]",
-  warning: "border-[color:rgba(251,199,86,0.55)] bg-[color:rgba(251,199,86,0.14)]",
-  danger: "border-[color:rgba(235,87,87,0.35)] bg-[color:rgba(235,87,87,0.08)]",
+  success: "border-[color:var(--color-border-success)] bg-[color:var(--color-tint-success)]",
+  info: "border-[color:var(--color-border-info)] bg-[color:var(--color-tint-info)]",
+  warning: "border-[color:var(--color-border-warning)] bg-[color:var(--color-tint-warning)]",
+  danger: "border-[color:var(--color-border-danger)] bg-[color:var(--color-tint-danger)]",
 } as const;
 
 export default function EvaluationInstructions() {
@@ -15,7 +15,7 @@ export default function EvaluationInstructions() {
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(14,101,217,0.10)] text-[var(--color-secondary-1)]">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:var(--color-tint-link)] text-[var(--color-link)]">
               <SecubIcon name="info" weight="fill" className="text-xl" />
             </span>
             <div>
