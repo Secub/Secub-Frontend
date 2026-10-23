@@ -128,7 +128,7 @@ export default function CompetenciasRaFormacionPage() {
       {
         target: "#competencias-ra-card-ra-toggle",
         title: "Resultados de Aprendizaje",
-        content: "Haz clic aquí para expandir y gestionar los Resultados de Aprendizaje (RA) de la competencia.",
+        content: "Haz clic aquí para ver los Resultados de Aprendizaje (RA) de la competencia. Usa el botón Agregar RA para crear uno nuevo.",
         order: 3,
       },
     ];
