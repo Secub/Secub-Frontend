@@ -23,6 +23,7 @@ vi.mock("../../../components/panel/academicWorkflow", () => ({
   getAcademicWorkflowState: () => state.completed ? "completed" : "inProgress",
 }));
 vi.mock("../../../components/OnboardingTour", () => ({
+  hasSeenOnboardingTour: () => false,
   useOnboardingTour: () => ({ startTour: vi.fn() }),
 }));
 vi.mock("./components/AsignarRACourseDetail", () => ({

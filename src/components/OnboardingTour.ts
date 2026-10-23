@@ -206,6 +206,10 @@ function readSeen(storageKey: string): boolean {
   }
 }
 
+export function hasSeenOnboardingTour(storageKey: string): boolean {
+  return readSeen(storageKey);
+}
+
 function markSeen(storageKey: string) {
   try {
     localStorage.setItem(storageKey, "true");

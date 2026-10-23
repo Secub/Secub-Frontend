@@ -14,9 +14,15 @@ import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
 import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // TOUR: import del hook y el tipo de pasos
-import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
+import {
+  hasSeenOnboardingTour,
+  useOnboardingTour,
+  type OnboardingTourStep,
+} from "../../../components/OnboardingTour";
+
+const DETAIL_TOUR_STORAGE_KEY = "tour_asignar_ra_detalle_v1";
 
 export default function AsignarRAPage() {
   const asignarRA = useAsignarRA();
@@ -142,13 +148,15 @@ export default function AsignarRAPage() {
   // cuando la primera competencia esta expandida. Sin esto, la primera vez que se muestra
   // el tour ese paso no encuentra su target y se descarta en silencio (allowPartialTargets),
   // dejando visible solo el paso de Competencias. Se fuerza la expansion una sola vez por
-  // competencia para que el paso exista antes de que el tour arranque.
+  // competencia para que el paso exista antes de que el tour arranque. Si el tour ya se
+  // vio no se abre nada: la competencia solo se expande sola en la primera visita.
   const detailTourExpandedForRef = useRef<string | null>(null);
   const firstCompetenciaId = courseCompetencias[0]?.id;
   useEffect(() => {
     if (!canShowDetailTour) return;
     if (!firstCompetenciaId || detailTourExpandedForRef.current === firstCompetenciaId) return;
     detailTourExpandedForRef.current = firstCompetenciaId;
+    if (hasSeenOnboardingTour(DETAIL_TOUR_STORAGE_KEY)) return;
     if (!expandedCompetenciaIds.includes(firstCompetenciaId)) {
       toggleCompetenciaAccordion(firstCompetenciaId);
     }
@@ -164,12 +172,30 @@ export default function AsignarRAPage() {
 
   const { startTour: startDetailTour } = useOnboardingTour({
     steps: detailTourSteps,
-    storageKey: "tour_asignar_ra_detalle_v1",
+    storageKey: DETAIL_TOUR_STORAGE_KEY,
     autoStart: canShowDetailTour && isDetailTourTargetReady,
     enabled: canShowDetailTour && isDetailTourTargetReady,
     // El selector de aplicaciones vive dentro de la competencia expandida.
     allowPartialTargets: true,
   });
+
+  // Al repetir la guia con la primera competencia cerrada, el paso de "Aplicaciones de RA"
+  // se descartaria en silencio. Se abre primero y el tour arranca cuando ya esta en el DOM.
+  const [isDetailTourReplayPending, setIsDetailTourReplayPending] = useState(false);
+  const replayDetailTour = useCallback(() => {
+    if (!firstCompetenciaId || isDetailTourTargetReady) {
+      startDetailTour();
+      return;
+    }
+    setIsDetailTourReplayPending(true);
+    toggleCompetenciaAccordion(firstCompetenciaId);
+  }, [firstCompetenciaId, isDetailTourTargetReady, startDetailTour, toggleCompetenciaAccordion]);
+
+  useEffect(() => {
+    if (!isDetailTourReplayPending || !isDetailTourTargetReady) return;
+    setIsDetailTourReplayPending(false);
+    startDetailTour();
+  }, [isDetailTourReplayPending, isDetailTourTargetReady, startDetailTour]);
 
   return (
     <PanelLayout
@@ -177,7 +203,7 @@ export default function AsignarRAPage() {
       title="Asignar Resultados de Aprendizaje"
       description="Seleccione un curso de Síntesis y asigne los RA que serán medidos."
       breadcrumbItems={courseDetailBreadcrumbItems}
-      onReplayTour={canShowDetailTour ? startDetailTour : canShowTour ? startTour : undefined}
+      onReplayTour={canShowDetailTour ? replayDetailTour : canShowTour ? startTour : undefined}
       tourLabel={canShowDetailTour ? "Ver guía del detalle" : undefined}
     >
       {loading ? (
