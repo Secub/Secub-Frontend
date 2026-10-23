@@ -107,6 +107,12 @@ export default function AsignarRAPage() {
         content: "Selecciona un curso para revisar y asignar sus resultados de aprendizaje.",
         order: 2,
       },
+      {
+        target: '[data-tour="asignar-ra-course-action"]',
+        title: "Abrir el curso",
+        content: "Haz clic en este botón para abrir el detalle del curso y asignar sus Resultados de Aprendizaje.",
+        order: 3,
+      },
     ],
     []
   );
@@ -118,6 +124,7 @@ export default function AsignarRAPage() {
     storageKey: "tour_asignar_ra_v1",
     autoStart: canShowTour,
     enabled: canShowTour,
+    allowPartialTargets: true,
   });
 
   const detailTourSteps = useMemo<OnboardingTourStep[]>(

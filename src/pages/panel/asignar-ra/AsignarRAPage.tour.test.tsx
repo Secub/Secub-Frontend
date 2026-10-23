@@ -9,6 +9,7 @@ const state = vi.hoisted(() => ({
   expandedCompetenciaIds: [] as string[],
   toggle: vi.fn(),
   startDetailTour: vi.fn(),
+  listTourOptions: undefined as undefined | { steps: Array<{ target: string }>; allowPartialTargets?: boolean },
 }));
 
 vi.mock("../../../components/panel", async () => ({
@@ -28,9 +29,10 @@ vi.mock("../../../components/panel/academicWorkflow", () => ({
 }));
 vi.mock("../../../components/OnboardingTour", () => ({
   hasSeenOnboardingTour: () => state.tourSeen,
-  useOnboardingTour: ({ storageKey }: { storageKey: string }) => ({
-    startTour: storageKey === "tour_asignar_ra_detalle_v1" ? state.startDetailTour : vi.fn(),
-  }),
+  useOnboardingTour: (options: { storageKey: string; steps: Array<{ target: string }>; allowPartialTargets?: boolean }) => {
+    if (options.storageKey === "tour_asignar_ra_v1") state.listTourOptions = options;
+    return { startTour: options.storageKey === "tour_asignar_ra_detalle_v1" ? state.startDetailTour : vi.fn() };
+  },
 }));
 vi.mock("./components/AsignarRACourseDetail", () => ({
   AsignarRACourseDetail: () => <div>Detalle del curso</div>,
@@ -91,5 +93,22 @@ describe("Asignar RA: tour del detalle y la primera competencia", () => {
     await userEvent.click(screen.getByRole("button", { name: "Ver guía" }));
     expect(state.toggle).not.toHaveBeenCalled();
     expect(state.startDetailTour).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Asignar RA: tour de la lista de cursos", () => {
+  it("explica la acción que abre el detalle del curso", () => {
+    render(<AsignarRAPage />);
+    const targets = state.listTourOptions?.steps.map((step) => step.target);
+    expect(targets).toEqual([
+      "#asignar-ra-filters-panel",
+      "#asignar-ra-courses-panel",
+      '[data-tour="asignar-ra-course-action"]',
+    ]);
+  });
+
+  it("no se bloquea cuando no hay cursos para señalar la acción", () => {
+    render(<AsignarRAPage />);
+    expect(state.listTourOptions?.allowPartialTargets).toBe(true);
   });
 });

@@ -85,7 +85,7 @@ export function AsignarRACoursesTable({
         // mx-auto + w-fit centers the icon regardless of the cell's actual
         // content width, instead of relying on `justify-center` inside a
         // full-width flex container.
-        <div className="mx-auto flex w-fit items-center">
+        <div className="mx-auto flex w-fit items-center" data-tour="asignar-ra-course-action">
           <AsignarRARowActions row={row} canManage={canManage} onSelectCourse={onSelectCourse} />
         </div>
       ),
