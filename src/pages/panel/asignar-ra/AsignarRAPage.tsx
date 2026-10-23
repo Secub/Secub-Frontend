@@ -15,7 +15,6 @@ import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-// TOUR: import del hook y el tipo de pasos
 import {
   hasSeenOnboardingTour,
   useOnboardingTour,
@@ -151,12 +150,6 @@ export default function AsignarRAPage() {
     access.canRead &&
     courseCompetencias.length > 0;
 
-  // TOUR: el paso de "Aplicaciones de RA" apunta a un elemento que solo existe en el DOM
-  // cuando la primera competencia esta expandida. Sin esto, la primera vez que se muestra
-  // el tour ese paso no encuentra su target y se descarta en silencio (allowPartialTargets),
-  // dejando visible solo el paso de Competencias. Se fuerza la expansion una sola vez por
-  // competencia para que el paso exista antes de que el tour arranque. Si el tour ya se
-  // vio no se abre nada: la competencia solo se expande sola en la primera visita.
   const detailTourExpandedForRef = useRef<string | null>(null);
   const firstCompetenciaId = courseCompetencias[0]?.id;
   useEffect(() => {
@@ -169,11 +162,6 @@ export default function AsignarRAPage() {
     }
   }, [canShowDetailTour, firstCompetenciaId, expandedCompetenciaIds, toggleCompetenciaAccordion]);
 
-  // El autoStart del tour no puede arrancar antes de que el acordeon ya este
-  // expandido: si arranca en la misma pasada de efectos que la expansion, puede
-  // ganar la carrera y construir el tour con la competencia aun colapsada
-  // (card sin el paso de RA, o sin mostrarse). Se gatea con el estado ya
-  // confirmado en el DOM, no con el orden de los efectos.
   const isDetailTourTargetReady =
     Boolean(firstCompetenciaId) && expandedCompetenciaIds.includes(firstCompetenciaId ?? "");
 
@@ -182,12 +170,9 @@ export default function AsignarRAPage() {
     storageKey: DETAIL_TOUR_STORAGE_KEY,
     autoStart: canShowDetailTour && isDetailTourTargetReady,
     enabled: canShowDetailTour && isDetailTourTargetReady,
-    // El selector de aplicaciones vive dentro de la competencia expandida.
     allowPartialTargets: true,
   });
 
-  // Al repetir la guia con la primera competencia cerrada, el paso de "Aplicaciones de RA"
-  // se descartaria en silencio. Se abre primero y el tour arranca cuando ya esta en el DOM.
   const [isDetailTourReplayPending, setIsDetailTourReplayPending] = useState(false);
   const replayDetailTour = useCallback(() => {
     if (!firstCompetenciaId || isDetailTourTargetReady) {
