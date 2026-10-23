@@ -55,22 +55,16 @@ export default function PanelSidebar({
         order: 3,
       },
       {
-        target: "#panel-sidebar-profile",
-        title: "Perfil activo",
-        content: "Aquí identificas el rol y el programa académico con los que estás trabajando.",
-        order: 4,
-      },
-      {
         target: "#panel-sidebar-settings",
         title: "Ajustes",
         content: "Abre las preferencias de usuario, accesibilidad y cambio de programa.",
-        order: 5,
+        order: 4,
       },
       {
         target: "#panel-sidebar-logout",
         title: "Salir",
         content: "Cierra la sesión actual y vuelve a la pantalla de acceso.",
-        order: 6,
+        order: 5,
       },
     ],
     [],
@@ -159,7 +153,6 @@ export default function PanelSidebar({
         <div className="shrink-0 space-y-3 border-t border-[color:var(--color-sidebar-border)] px-3 py-3">
           <SidebarUserProfileMenu
             tourIds={{
-              profile: "panel-sidebar-profile",
               settings: "panel-sidebar-settings",
               logout: "panel-sidebar-logout",
             }}

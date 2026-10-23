@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Badge, IconButton } from "../../../../components/ui";
+import { Badge, Button, IconButton } from "../../../../components/ui";
 import {
   MAX_RA_PER_COMPETENCIA,
   canAddLearningResult,
@@ -115,6 +115,24 @@ export default function CompetenciasRaCard({
           </span>
         </button>
 
+        {canEdit ? (
+          <div className="mt-3 flex justify-end">
+            <Button
+              variant="primary"
+              leftIcon={<ActionIcon name="add" />}
+              onClick={() => onAddRa(record)}
+              disabled={!canAddMoreRa}
+              title={
+                canAddMoreRa
+                  ? `Agregar Resultado de Aprendizaje a ${record.nombre}`
+                  : "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos."
+              }
+            >
+              Agregar RA
+            </Button>
+          </div>
+        ) : null}
+
         {canEdit && (raValidationMessage || maxReachedMessage) ? (
           <div
             role={raValidationMessage ? "alert" : undefined}
@@ -129,25 +147,9 @@ export default function CompetenciasRaCard({
 
         {expandedRAs ? (
           <div className="mt-3 space-y-3 rounded-2xl border border-[var(--color-gray-6)] bg-[var(--secub-surface)] p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm font-medium text-[var(--color-gray-4)]">
-                RA asociados a esta competencia
-              </p>
-              {canEdit ? (
-                <IconButton
-                  variant="outline"
-                  icon={<ActionIcon name="add" />}
-                  label={`Agregar Resultado de Aprendizaje a ${record.nombre}`}
-                  title={
-                    canAddMoreRa
-                      ? "Agregar Resultado de Aprendizaje"
-                      : "Ya alcanzaste el máximo de 4 resultados de aprendizaje permitidos."
-                  }
-                  onClick={() => onAddRa(record)}
-                  disabled={!canAddMoreRa}
-                />
-              ) : null}
-            </div>
+            <p className="text-sm font-medium text-[var(--color-gray-4)]">
+              RA asociados a esta competencia
+            </p>
 
             {raCount > 0 ? (
               record.resultadosAprendizaje.map((ra) => (

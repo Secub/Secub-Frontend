@@ -1,20 +1,8 @@
-import { useMemo } from "react";
 import { ROUTES, navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
 import { SecubIcon } from "../ui";
-import { getCurrentUser } from "../../services/auth/currentUser";
 import { getStoredAuthSession, logoutAuthSession } from "../../services/auth/session";
-import {
-  clearSelectedProgramId,
-  getSelectedProgram,
-} from "../../services/programSelection";
-
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const firstInitial = parts[0]?.[0] ?? "U";
-  const secondInitial = parts.length > 1 ? parts[parts.length - 1]?.[0] : "";
-  return `${firstInitial}${secondInitial}`.toUpperCase();
-}
+import { clearSelectedProgramId } from "../../services/programSelection";
 
 async function logoutCurrentUser() {
   try {
@@ -27,52 +15,19 @@ async function logoutCurrentUser() {
 
 interface SidebarUserProfileMenuProps {
   tourIds?: {
-    profile: string;
     settings: string;
     logout: string;
   };
 }
 
 export default function SidebarUserProfileMenu({ tourIds }: SidebarUserProfileMenuProps) {
-  const currentUser = getCurrentUser();
   const session = getStoredAuthSession();
-  const selectedProgram = getSelectedProgram();
   const canChangeProgram = (session?.contexts.length ?? 0) > 1;
-  const roleLabel = currentUser.cargo;
-  const profileSubtitle = selectedProgram
-    ? `${selectedProgram.name} · ${selectedProgram.faculty}`
-    : currentUser.email;
-  const initials = useMemo(
-    () => getInitials(currentUser.nombre),
-    [currentUser.nombre],
-  );
 
   const handleLogout = () => void logoutCurrentUser();
 
   return (
     <div className="space-y-2.5">
-      <div
-        id={tourIds?.profile}
-        className="flex w-full items-center gap-2.5 rounded-[14px] border border-[color:var(--color-sidebar-border)] bg-[color:var(--color-sidebar-hover)] px-3 py-2.5 text-left"
-        aria-label={`Perfil activo: ${roleLabel}. ${profileSubtitle}`}
-      >
-        <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-[color:var(--color-tint-success-strong)] font-heading text-[0.78rem] font-bold text-[var(--color-success)] ring-1 ring-[color:var(--color-border-success)]"
-          aria-hidden="true"
-        >
-          {initials}
-        </span>
-
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-heading text-[0.86rem] font-semibold leading-5 text-[var(--color-white)]">
-            {roleLabel}
-          </span>
-          <span className="block truncate text-[0.78rem] font-medium leading-4 text-[var(--color-secondary-2)]">
-            {profileSubtitle}
-          </span>
-        </span>
-      </div>
-
       {canChangeProgram ? (
         <button
           type="button"

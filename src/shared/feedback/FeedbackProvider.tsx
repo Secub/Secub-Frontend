@@ -82,7 +82,7 @@ export default function FeedbackProvider({ children }: FeedbackProviderProps) {
 
       {notification ? (
         <div
-          className="fixed bottom-5 right-5 z-[70] w-[min(92vw,420px)] rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 shadow-[var(--shadow-lg)]"
+          className="fixed left-1/2 top-20 z-[70] w-[min(92vw,420px)] -translate-x-1/2 xl:top-5 rounded-[var(--radius-lg)] border border-[var(--secub-border)] bg-[var(--secub-surface)] p-4 shadow-[var(--shadow-lg)]"
           role={variant === "error" ? "alert" : "status"}
           aria-live={variant === "error" ? "assertive" : "polite"}
         >

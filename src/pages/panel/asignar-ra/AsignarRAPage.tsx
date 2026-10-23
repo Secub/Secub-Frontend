@@ -14,9 +14,14 @@ import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
 import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
-import { useEffect, useMemo, useRef } from "react";
-// TOUR: import del hook y el tipo de pasos
-import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  hasSeenOnboardingTour,
+  useOnboardingTour,
+  type OnboardingTourStep,
+} from "../../../components/OnboardingTour";
+
+const DETAIL_TOUR_STORAGE_KEY = "tour_asignar_ra_detalle_v1";
 
 export default function AsignarRAPage() {
   const asignarRA = useAsignarRA();
@@ -101,6 +106,12 @@ export default function AsignarRAPage() {
         content: "Selecciona un curso para revisar y asignar sus resultados de aprendizaje.",
         order: 2,
       },
+      {
+        target: '[data-tour="asignar-ra-course-action"]',
+        title: "Abrir el curso",
+        content: "Haz clic en este botón para abrir el detalle del curso y asignar sus Resultados de Aprendizaje.",
+        order: 3,
+      },
     ],
     []
   );
@@ -112,6 +123,7 @@ export default function AsignarRAPage() {
     storageKey: "tour_asignar_ra_v1",
     autoStart: canShowTour,
     enabled: canShowTour,
+    allowPartialTargets: true,
   });
 
   const detailTourSteps = useMemo<OnboardingTourStep[]>(
@@ -138,38 +150,44 @@ export default function AsignarRAPage() {
     access.canRead &&
     courseCompetencias.length > 0;
 
-  // TOUR: el paso de "Aplicaciones de RA" apunta a un elemento que solo existe en el DOM
-  // cuando la primera competencia esta expandida. Sin esto, la primera vez que se muestra
-  // el tour ese paso no encuentra su target y se descarta en silencio (allowPartialTargets),
-  // dejando visible solo el paso de Competencias. Se fuerza la expansion una sola vez por
-  // competencia para que el paso exista antes de que el tour arranque.
   const detailTourExpandedForRef = useRef<string | null>(null);
   const firstCompetenciaId = courseCompetencias[0]?.id;
   useEffect(() => {
     if (!canShowDetailTour) return;
     if (!firstCompetenciaId || detailTourExpandedForRef.current === firstCompetenciaId) return;
     detailTourExpandedForRef.current = firstCompetenciaId;
+    if (hasSeenOnboardingTour(DETAIL_TOUR_STORAGE_KEY)) return;
     if (!expandedCompetenciaIds.includes(firstCompetenciaId)) {
       toggleCompetenciaAccordion(firstCompetenciaId);
     }
   }, [canShowDetailTour, firstCompetenciaId, expandedCompetenciaIds, toggleCompetenciaAccordion]);
 
-  // El autoStart del tour no puede arrancar antes de que el acordeon ya este
-  // expandido: si arranca en la misma pasada de efectos que la expansion, puede
-  // ganar la carrera y construir el tour con la competencia aun colapsada
-  // (card sin el paso de RA, o sin mostrarse). Se gatea con el estado ya
-  // confirmado en el DOM, no con el orden de los efectos.
   const isDetailTourTargetReady =
     Boolean(firstCompetenciaId) && expandedCompetenciaIds.includes(firstCompetenciaId ?? "");
 
   const { startTour: startDetailTour } = useOnboardingTour({
     steps: detailTourSteps,
-    storageKey: "tour_asignar_ra_detalle_v1",
+    storageKey: DETAIL_TOUR_STORAGE_KEY,
     autoStart: canShowDetailTour && isDetailTourTargetReady,
     enabled: canShowDetailTour && isDetailTourTargetReady,
-    // El selector de aplicaciones vive dentro de la competencia expandida.
     allowPartialTargets: true,
   });
+
+  const [isDetailTourReplayPending, setIsDetailTourReplayPending] = useState(false);
+  const replayDetailTour = useCallback(() => {
+    if (!firstCompetenciaId || isDetailTourTargetReady) {
+      startDetailTour();
+      return;
+    }
+    setIsDetailTourReplayPending(true);
+    toggleCompetenciaAccordion(firstCompetenciaId);
+  }, [firstCompetenciaId, isDetailTourTargetReady, startDetailTour, toggleCompetenciaAccordion]);
+
+  useEffect(() => {
+    if (!isDetailTourReplayPending || !isDetailTourTargetReady) return;
+    setIsDetailTourReplayPending(false);
+    startDetailTour();
+  }, [isDetailTourReplayPending, isDetailTourTargetReady, startDetailTour]);
 
   return (
     <PanelLayout
@@ -177,7 +195,7 @@ export default function AsignarRAPage() {
       title="Asignar Resultados de Aprendizaje"
       description="Seleccione un curso de Síntesis y asigne los RA que serán medidos."
       breadcrumbItems={courseDetailBreadcrumbItems}
-      onReplayTour={canShowDetailTour ? startDetailTour : canShowTour ? startTour : undefined}
+      onReplayTour={canShowDetailTour ? replayDetailTour : canShowTour ? startTour : undefined}
       tourLabel={canShowDetailTour ? "Ver guía del detalle" : undefined}
     >
       {loading ? (
