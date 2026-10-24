@@ -74,16 +74,10 @@ export default function PropositoFormacionPage() {
   const tourSteps = useMemo<OnboardingTourStep[]>(() => {
     const steps: OnboardingTourStep[] = [
       {
-        target: "#proposito-filters-panel",
-        title: "Filtros",
-        content: "Filtra los propósitos de formación por programa, estado u otros criterios.",
-        order: 1,
-      },
-      {
         target: "#proposito-list-section",
         title: "Listado de propósitos",
         content: "Aquí ves los propósitos de formación registrados, con su estado y detalle.",
-        order: 2,
+        order: 1,
       },
     ];
 
@@ -93,7 +87,7 @@ export default function PropositoFormacionPage() {
         target: "#proposito-page-actions",
         title: "Acciones",
         content: "Desde aquí puedes crear un nuevo propósito o exportarlos en PDF/Excel.",
-        order: 3,
+        order: 2,
       });
     }
 

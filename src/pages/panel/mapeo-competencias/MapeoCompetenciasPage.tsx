@@ -99,7 +99,7 @@ export default function MapeoCompetenciasPage() {
     navigateToRoute(buildRouteWithSearch(ROUTES.panelCiclo, { role: currentUser.role }));
   };
 
-  const canShowTour = hasRecords && permissions.canRead;
+  const canShowTour = hasRecords && permissions.canRead && filteredRecords.length > 0;
   const tourSteps = useMemo<OnboardingTourStep[]>(() => {
     const steps: OnboardingTourStep[] = [];
 
@@ -112,19 +112,12 @@ export default function MapeoCompetenciasPage() {
       });
     }
 
-    steps.push({
-      target: "#mapeo-competencias-filters",
-      title: "Filtros",
-      content: "Filtra los mapeos por programa, plan de estudios u otros criterios.",
-      order: 2,
-    });
-
     if (filteredRecords.length > 0) {
       steps.push({
         target: "#mapeo-consolidated-header",
         title: "Mapeo consolidado",
         content: "Aquí ves la malla curricular consolidada con los niveles I-R-A-NA asignados por semestre y curso.",
-        order: 3,
+        order: 2,
       });
     }
 

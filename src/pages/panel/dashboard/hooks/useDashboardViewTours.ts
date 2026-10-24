@@ -4,58 +4,46 @@ import type { DashboardView } from "../types/dashboard-page.types";
 
 export const coursesViewTourSteps: OnboardingTourStep[] = [
   {
-    target: `#${DASHBOARD_TOUR_IDS.coursesFilters}`,
-    title: "Filtros",
-    content: "Filtra los cursos por ciclo, programa, plan, estado y los criterios disponibles para tu perfil.",
-    order: 1,
-  },
-  {
     target: `#${DASHBOARD_TOUR_IDS.coursesTable}`,
     title: "Cursos",
     content:
       "Consulta el docente titular, el ciclo, los RA pendientes y el estado de cada curso. Puedes ordenar las columnas y buscar desde la tabla.",
-    order: 2,
+    order: 1,
   },
   {
     target: `#${DASHBOARD_TOUR_IDS.coursesTable} ${tourMarkerSelector(DASHBOARD_TOUR_MARKERS.courseAction)}`,
     title: "Acciones del curso",
     content:
       "Escribe al docente de un curso pendiente con el ícono de correo o abre el detalle del curso con el ícono del ojo.",
-    order: 3,
+    order: 2,
   },
 ];
 
 export const detailViewTourSteps: OnboardingTourStep[] = [
   {
-    target: `#${DASHBOARD_TOUR_IDS.detailFilters}`,
-    title: "Filtros",
-    content: "Filtra los resultados por competencia y por curso.",
-    order: 1,
-  },
-  {
     target: `#${DASHBOARD_TOUR_IDS.detailCharts}`,
     title: "Gráficos por RA",
     content: "Compara, para cada resultado de aprendizaje medido, el porcentaje de estudiantes que aprobó y el que no.",
-    order: 2,
+    order: 1,
   },
   {
     target: `#${DASHBOARD_TOUR_IDS.detailTable}`,
     title: "Resultados por RA",
     content:
       "Revisa los estudiantes, aprobados, no aprobados, cumplimiento y estado de cada RA. Haz clic en el código del RA para ver su detalle.",
-    order: 3,
+    order: 2,
   },
   {
     target: `#${DASHBOARD_TOUR_IDS.detailSupport}`,
     title: "Soportes de la competencia",
     content: "Consulta el instrumento de evaluación, la evidencia y el plan de mejora, agrupados por competencia.",
-    order: 4,
+    order: 3,
   },
   {
     target: `#${DASHBOARD_TOUR_IDS.detailImprovement}`,
     title: "Plan de mejora",
     content: "Muestra el análisis de resultados y las acciones propuestas para el RA seleccionado en la tabla.",
-    order: 5,
+    order: 4,
   },
 ];
 

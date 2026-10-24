@@ -95,22 +95,16 @@ export default function AsignarRAPage() {
   const tourSteps = useMemo<OnboardingTourStep[]>(
     () => [
       {
-        target: "#asignar-ra-filters-panel",
-        title: "Filtros",
-        content: "Filtra los cursos de Síntesis por los criterios disponibles.",
-        order: 1,
-      },
-      {
         target: "#asignar-ra-courses-panel",
         title: "Cursos de Síntesis",
         content: "Selecciona un curso para revisar y asignar sus resultados de aprendizaje.",
-        order: 2,
+        order: 1,
       },
       {
         target: '[data-tour="asignar-ra-course-action"]',
         title: "Abrir el curso",
         content: "Haz clic en este botón para abrir el detalle del curso y asignar sus Resultados de Aprendizaje.",
-        order: 3,
+        order: 2,
       },
     ],
     []

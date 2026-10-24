@@ -114,22 +114,16 @@ export default function CompetenciasRaFormacionPage() {
   const tourSteps = useMemo<OnboardingTourStep[]>(() => {
     const steps: OnboardingTourStep[] = [
       {
-        target: "#competencias-ra-filters-panel",
-        title: "Filtros",
-        content: "Filtra las competencias y sus Resultados de Aprendizaje por programa u otros criterios.",
-        order: 1,
-      },
-      {
         target: "#competencias-ra-card",
         title: "Competencia",
         content: "Cada tarjeta representa una competencia registrada, con su estado, programa y descripción.",
-        order: 2,
+        order: 1,
       },
       {
         target: "#competencias-ra-card-ra-toggle",
         title: "Resultados de Aprendizaje",
         content: "Haz clic aquí para ver los Resultados de Aprendizaje (RA) de la competencia. Usa el botón Agregar RA para crear uno nuevo.",
-        order: 3,
+        order: 2,
       },
     ];
 
@@ -138,7 +132,7 @@ export default function CompetenciasRaFormacionPage() {
         target: "#competencias-ra-page-actions",
         title: "Acciones",
         content: "Desde aquí puedes crear una nueva competencia o exportar el listado en PDF/Excel.",
-        order: 4,
+        order: 3,
       });
     }
 

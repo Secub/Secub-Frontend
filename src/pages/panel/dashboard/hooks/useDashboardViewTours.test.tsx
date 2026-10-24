@@ -95,6 +95,7 @@ describe("useDashboardViewTours", () => {
     ["results", resultsViewTourSteps, "tour_dashboard_results_v1"],
   ] as const)("auto starts the %s tour with all its steps", async (view, steps, storageKey) => {
     mountTargets([...steps]);
+    expect(steps.every((step) => !step.title?.toLowerCase().includes("filtro"))).toBe(true);
 
     const { result } = renderTours({ view });
 

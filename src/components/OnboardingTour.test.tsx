@@ -141,6 +141,22 @@ describe("useOnboardingTour", () => {
       expect(nextButton.disabled).toBe(false);
     });
 
+    it("uses a one-second first-run delay by default", async () => {
+      mountTarget("filters");
+      const nextButton = document.createElement("button");
+      nextButton.id = "tg-dialog-next-btn";
+      document.body.appendChild(nextButton);
+      const setTimeoutSpy = vi.spyOn(window, "setTimeout");
+
+      const { unmount } = renderHook(() =>
+        useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }),
+      );
+
+      await waitFor(() => expect(nextButton.disabled).toBe(true));
+      expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+      unmount();
+    });
+
     it("keeps normal controls when the tour has already been seen", async () => {
       localStorage.setItem("tour_a", "true");
       mountTarget("filters");

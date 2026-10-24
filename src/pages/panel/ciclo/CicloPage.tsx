@@ -85,16 +85,10 @@ export default function CicloPage() {
   const tourSteps = useMemo<OnboardingTourStep[]>(() => {
     const steps: OnboardingTourStep[] = [
       {
-        target: "#ciclo-filters-panel",
-        title: "Filtros",
-        content: "Filtra los ciclos de medición por programa, estado u otros criterios.",
-        order: 1,
-      },
-      {
         target: "#ciclo-list-section",
         title: "Listado de ciclos",
         content: "Aquí ves los ciclos de medición registrados, con su periodo, estado y cursos seleccionados.",
-        order: 2,
+        order: 1,
       },
     ];
 
@@ -104,7 +98,7 @@ export default function CicloPage() {
         target: "#ciclo-page-actions",
         title: "Acciones",
         content: "Desde aquí puedes crear un nuevo ciclo de medición si no existe uno activo.",
-        order: 3,
+        order: 2,
       });
     }
 

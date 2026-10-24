@@ -317,7 +317,7 @@ export function useOnboardingTour({
   allowDialogOverlap = false,
   forceVerticalPlacement = true,
   allowPartialTargets = false,
-  minimumFirstRunStepDurationMs = 3000,
+  minimumFirstRunStepDurationMs = 1000,
 }: UseOnboardingTourOptions) {
   const [tourId] = useState(() => Symbol("onboarding-tour"));
   const tourRef = useRef<TourGuideClient | null>(null);

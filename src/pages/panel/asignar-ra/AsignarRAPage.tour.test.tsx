@@ -101,7 +101,6 @@ describe("Asignar RA: tour de la lista de cursos", () => {
     render(<AsignarRAPage />);
     const targets = state.listTourOptions?.steps.map((step) => step.target);
     expect(targets).toEqual([
-      "#asignar-ra-filters-panel",
       "#asignar-ra-courses-panel",
       '[data-tour="asignar-ra-course-action"]',
     ]);

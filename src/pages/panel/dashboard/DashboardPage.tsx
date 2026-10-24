@@ -29,23 +29,17 @@ export default function DashboardPage() {
         order: 1,
       },
       {
-        target: "#dashboard-filters-panel",
-        title: "Filtros",
-        content: "Ajusta la información visible por ciclo y estado.",
-        order: 2,
-      },
-      {
         target: "#dashboard-courses-table",
         title: "Cursos asignados",
         content: "Consulta el avance de tus cursos, mide los pendientes y abre el detalle de los completados.",
-        order: 3,
+        order: 2,
       },
       {
         target: `#dashboard-courses-table ${tourMarkerSelector(DASHBOARD_TOUR_MARKERS.courseAction)}`,
         title: "Acción del curso",
         content:
           "Usa este botón para medir los Resultados de Aprendizaje pendientes de un curso o abrir su detalle si ya está completo.",
-        order: 4,
+        order: 3,
       },
     ],
     []
@@ -85,17 +79,11 @@ export default function DashboardPage() {
           "Consulta el resumen de los ciclos activos y finalizados, junto con los cursos pendientes y finalizados.",
         order: 1,
       },
-      {
-        target: "#dashboard-filters",
-        title: "Filtros",
-        content: "Filtra la información visible por ciclo, programa, plan, estado y los criterios disponibles para tu perfil.",
-        order: 2,
-      },
       ...tourCycles.map((cycle, index) => ({
         target: `#dashboard-cycle-card-${index}`,
         title: cycle.name,
         content: "Consulta el avance, el estado y las acciones disponibles para este ciclo de medición.",
-        order: index + 3,
+        order: index + 2,
       })),
     ];
 
@@ -118,7 +106,7 @@ export default function DashboardPage() {
           target: `#dashboard-last-cycle-${action}`,
           title,
           content,
-          order: lastCycleIndex + index + 4,
+          order: lastCycleIndex + index + 3,
         });
       });
     }
