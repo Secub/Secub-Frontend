@@ -6,6 +6,7 @@ export const APP_BASE_PATH = rawBaseUrl === "/"
   ? ""
   : `/${rawBaseUrl.replace(/^\/+|\/+$/g, "")}`;
 export const APP_NAVIGATION_EVENT = "secub:navigation";
+export const ACADEMIC_WORKFLOW_COMPLETION_TOUR_PARAM = "workflowCompleted";
 export const PERSISTED_SEARCH_PARAMS = ["view", "cycleId", "courseId", "status"] as const;
 
 function withBasePath(path: string) {

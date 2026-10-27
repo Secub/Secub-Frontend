@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import WorkflowCompletionAlert from "../WorkflowCompletionAlert";
-import { ROUTES, buildRouteWithSearch, navigateToRoute } from "../../app/appRoutes";
+import {
+  ACADEMIC_WORKFLOW_COMPLETION_TOUR_PARAM,
+  ROUTES,
+  buildRouteWithSearch,
+  navigateToRoute,
+} from "../../app/appRoutes";
 import { preloadRoutesWhenIdle } from "../../app/router/routePrefetch";
 import { Breadcrumb, type BreadcrumbItem } from "../ui";
 import PanelSidebar from "./PanelSidebar";
@@ -77,6 +82,7 @@ export default function PanelLayout({
     dashboardParams.delete("cycleId");
     dashboardParams.delete("courseId");
     dashboardParams.delete("status");
+    dashboardParams.set(ACADEMIC_WORKFLOW_COMPLETION_TOUR_PARAM, "true");
 
     setShowCompletionAlert(false);
     navigateToRoute(

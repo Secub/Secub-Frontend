@@ -1,6 +1,13 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BackButton, PanelLayout, WorkflowStateCard } from "../../../components/panel";
 import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
+import {
+  ACADEMIC_WORKFLOW_COMPLETION_TOUR_PARAM,
+  ROUTES,
+  buildRouteWithSearch,
+  navigateToRoute,
+} from "../../../app/appRoutes";
+import { getBrowserSearchParams } from "../../../shared/browser";
 import CompetenceResultsPanel from "./components/CompetenceResultsPanel";
 import CoursesMeasurementTable from "./components/CoursesMeasurementTable";
 import DashboardEmptyState from "./components/DashboardEmptyState";
@@ -19,6 +26,10 @@ import { useDashboardViewTours } from "./hooks/useDashboardViewTours";
 
 export default function DashboardPage() {
   const dashboard = useDashboardPage();
+  const [workflowCompletionTourRequested] = useState(
+    () => getBrowserSearchParams().get(ACADEMIC_WORKFLOW_COMPLETION_TOUR_PARAM) === "true",
+  );
+  const workflowCompletionTourStartedRef = useRef(false);
 
   const teacherTourSteps = useMemo<OnboardingTourStep[]>(
     () => [
@@ -55,7 +66,7 @@ export default function DashboardPage() {
   const { startTour: startTeacherTour } = useOnboardingTour({
     steps: teacherTourSteps,
     storageKey: "tour_dashboard_docente_v1",
-    autoStart: canShowTeacherTour,
+    autoStart: canShowTeacherTour && !workflowCompletionTourRequested,
     enabled: canShowTeacherTour,
     // Sin cursos para los filtros actuales no hay tabla ni acciones: el tour sigue con lo visible.
     allowPartialTargets: true,
@@ -115,12 +126,12 @@ export default function DashboardPage() {
   }, [dashboard.isTeacher, dashboard.isDirector, dashboard.view, tourCycles]);
 
   const canShowSupervisorTour =
-    !dashboard.isTeacher && dashboard.view === "control" && dashboard.filteredCycles.length > 0;
+    !dashboard.isTeacher && dashboard.view === "control" && dashboard.scopedCycles.length > 0;
 
   const { startTour: startSupervisorTour } = useOnboardingTour({
     steps: supervisorTourSteps,
     storageKey: dashboard.isDirector ? "tour_dashboard_director_v2" : "tour_dashboard_supervisor_v1",
-    autoStart: canShowSupervisorTour,
+    autoStart: canShowSupervisorTour && !workflowCompletionTourRequested,
     enabled: canShowSupervisorTour,
     allowPartialTargets: true,
   });
@@ -138,6 +149,47 @@ export default function DashboardPage() {
       : canShowViewTour
         ? startViewTour
         : undefined;
+
+  useEffect(() => {
+    if (
+      !workflowCompletionTourRequested ||
+      workflowCompletionTourStartedRef.current ||
+      dashboard.isLoading ||
+      dashboard.loadError ||
+      dashboard.view !== "control"
+    ) {
+      return;
+    }
+
+    const startCompletionTour = dashboard.isTeacher
+      ? canShowTeacherTour
+        ? startTeacherTour
+        : undefined
+      : canShowSupervisorTour
+        ? startSupervisorTour
+        : undefined;
+
+    if (!startCompletionTour) return;
+
+    workflowCompletionTourStartedRef.current = true;
+    const searchParams = getBrowserSearchParams();
+    searchParams.delete(ACADEMIC_WORKFLOW_COMPLETION_TOUR_PARAM);
+    navigateToRoute(buildRouteWithSearch(ROUTES.panelDashboard, searchParams), {
+      replace: true,
+      notify: false,
+    });
+    startCompletionTour();
+  }, [
+    workflowCompletionTourRequested,
+    dashboard.isLoading,
+    dashboard.loadError,
+    dashboard.view,
+    dashboard.isTeacher,
+    canShowTeacherTour,
+    canShowSupervisorTour,
+    startTeacherTour,
+    startSupervisorTour,
+  ]);
 
   if (dashboard.isLoading) {
     return (
