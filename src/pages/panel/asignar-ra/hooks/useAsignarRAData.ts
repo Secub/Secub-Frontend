@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getRAAssignmentContext } from "../../../../services/raAssignments";
 import type {
   AsignacionRaRecord,
@@ -19,13 +19,15 @@ export function useAsignarRAData() {
   const [academicCatalogs, setAcademicCatalogs] = useState<CicloCatalogs>(EMPTY_CATALOGS);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const hasLoadedRef = useRef(false);
 
   const refreshBackendState = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
+    if (!hasLoadedRef.current) setLoading(true);
     setLoadError(null);
     try {
       const context = await getRAAssignmentContext(signal);
       if (signal?.aborted) return;
+      hasLoadedRef.current = true;
       setRecords(context.asignaciones);
       setCyclesSource(context.ciclos);
       setCompetenciasSource(context.competencias);
