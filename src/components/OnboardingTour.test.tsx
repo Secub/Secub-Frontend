@@ -13,9 +13,10 @@ interface MockClient {
   afterStepChange?: () => void;
 }
 
-const { startMock, exitMock, instances } = vi.hoisted(() => ({
+const { startMock, exitMock, updatePositionsMock, instances } = vi.hoisted(() => ({
   startMock: vi.fn<() => Promise<unknown>>(),
   exitMock: vi.fn<() => Promise<unknown>>(),
+  updatePositionsMock: vi.fn<() => Promise<unknown>>(),
   instances: [] as unknown[],
 }));
 
@@ -26,9 +27,13 @@ vi.mock("@sjmc11/tourguidejs/dist/tour", () => {
     afterStepChange?: () => void;
     start = startMock;
     exit = exitMock;
+    updatePositions = updatePositionsMock;
+    tourSteps: unknown[];
+    activeStep = 0;
 
     constructor(options?: Record<string, unknown>) {
       this.options = options ?? {};
+      this.tourSteps = (this.options.steps as unknown[]) ?? [];
       instances.push(this);
     }
 
@@ -74,6 +79,7 @@ describe("useOnboardingTour", () => {
     instances.length = 0;
     startMock.mockReset().mockResolvedValue(true);
     exitMock.mockReset().mockResolvedValue(undefined);
+    updatePositionsMock.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -334,6 +340,49 @@ describe("useOnboardingTour", () => {
 
       // 140 (autoScrollOffset) + 30 (targetPadding)
       expect(target.style.scrollMargin).toContain("170px");
+    });
+
+    it("repositions the tour when an inner container scrolls", async () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      mountTarget("field", container);
+      renderHook(() => useOnboardingTour({ steps: stepsFor("field"), storageKey: "tour_a" }));
+
+      await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
+      updatePositionsMock.mockClear();
+
+      container.dispatchEvent(new Event("scroll"));
+
+      await waitFor(() => expect(updatePositionsMock).toHaveBeenCalled());
+    });
+
+    it("scrolls the inner container to make room for the dialog above a large target", async () => {
+      const container = document.createElement("div");
+      container.style.overflowY = "auto";
+      Object.defineProperty(container, "scrollHeight", { value: 2000 });
+      Object.defineProperty(container, "clientHeight", { value: 500 });
+      container.scrollTop = 300;
+      document.body.appendChild(container);
+      const target = mountTarget("courses", container);
+      vi.spyOn(target, "getBoundingClientRect").mockReturnValue(
+        { top: 50, left: 0, width: 400, height: 300, right: 400, bottom: 350, x: 0, y: 50 } as DOMRect,
+      );
+      const dialog = document.createElement("div");
+      dialog.className = "tg-dialog";
+      vi.spyOn(dialog, "getBoundingClientRect").mockReturnValue(
+        { top: 0, left: 0, width: 300, height: 150, right: 300, bottom: 150, x: 0, y: 0 } as DOMRect,
+      );
+      const backdrop = document.createElement("div");
+      backdrop.className = "tg-backdrop";
+      const windowScroll = vi.spyOn(window, "scrollBy").mockImplementation(() => undefined);
+
+      renderHook(() => useOnboardingTour({ steps: stepsFor("courses"), storageKey: "tour_a" }));
+      await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
+      document.body.append(dialog, backdrop);
+      dialog.style.top = "0px";
+
+      await waitFor(() => expect(container.scrollTop).toBe(180));
+      expect(windowScroll).not.toHaveBeenCalled();
     });
   });
 

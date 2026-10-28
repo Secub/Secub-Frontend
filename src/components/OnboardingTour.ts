@@ -110,6 +110,25 @@ function correctBackdropPosition(client: TourGuideClient): DOMRect | null {
   return rect;
 }
 
+function getScrollParent(element: Element): HTMLElement | null {
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    const { overflowY } = window.getComputedStyle(node);
+    if ((overflowY === "auto" || overflowY === "scroll") && node.scrollHeight > node.clientHeight) return node;
+  }
+  return null;
+}
+
+function scrollUpBy(target: Element, amount: number): number {
+  const container = getScrollParent(target);
+  const available = container ? container.scrollTop : window.scrollY;
+  const scrollAmount = Math.min(amount, available);
+  if (scrollAmount <= 0) return 0;
+
+  if (container) container.scrollTop -= scrollAmount;
+  else window.scrollBy(0, -scrollAmount);
+  return scrollAmount;
+}
+
 function correctSidePlacement(client: TourGuideClient) {
   const dialog = document.querySelector<HTMLElement>(".tg-dialog");
   if (!dialog) return;
@@ -131,13 +150,8 @@ function correctSidePlacement(client: TourGuideClient) {
   let targetTop = targetRect.top;
   const spaceAbove = targetTop;
 
-  if (spaceAbove < required) {
-    const scrollAmount = Math.min(required - spaceAbove, window.scrollY);
-    if (scrollAmount > 0) {
-      window.scrollBy(0, -scrollAmount);
-      targetTop += scrollAmount;
-    }
-  }
+  const target = getActiveStepTarget(client);
+  if (spaceAbove < required && target) targetTop += scrollUpBy(target, required - spaceAbove);
 
   let top = targetTop - dialogRect.height - gap;
   top = Math.min(Math.max(edgePadding, top), window.innerHeight - dialogRect.height - edgePadding);
@@ -186,11 +200,24 @@ function attachVerticalPlacementGuard(client: TourGuideClient) {
     }
   });
 
+  let repositionFrame: number | null = null;
+  const handleScroll = (event: Event) => {
+    if (event.target === document || event.target === window) return;
+    if (repositionFrame !== null) return;
+    repositionFrame = window.requestAnimationFrame(() => {
+      repositionFrame = null;
+      void Promise.resolve(client.updatePositions()).catch(() => undefined);
+    });
+  };
+
   observer.observe(document.body, { attributes: true, attributeFilter: ["style"], subtree: true });
+  document.addEventListener("scroll", handleScroll, true);
   scheduleCorrection();
 
   return () => {
     observer.disconnect();
+    document.removeEventListener("scroll", handleScroll, true);
+    if (repositionFrame !== null) window.cancelAnimationFrame(repositionFrame);
   };
 }
 
