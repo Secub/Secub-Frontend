@@ -92,7 +92,6 @@ export interface FilterState {
   selectedPlanId: string;
   selectedCycleId: string;
   courseFilterId: string;
-  courseSearchTerm: string;
 }
 
 export interface FilterOptions {
@@ -113,20 +112,12 @@ export interface FilterLocks {
   showFacultadFilter: boolean;
 }
 
-export interface SummaryMetrics {
-  totalCourses: number;
-  assignedCourses: number;
-  pendingCourses: number;
-  totalAssignedRa: number;
-}
-
 export interface CourseAssignmentStatus {
   label: "Pendiente" | "Asignado" | "Medido";
   variant: Extract<BadgeVariant, "warning" | "success">;
 }
 
 export interface AsignarRARefs {
-  filtersRef: RefObject<HTMLDivElement | null>;
   coursesRef: RefObject<HTMLDivElement | null>;
   assignmentPanelRef: RefObject<HTMLDivElement | null>;
 }

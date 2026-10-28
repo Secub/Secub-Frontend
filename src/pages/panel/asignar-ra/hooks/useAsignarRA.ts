@@ -1,12 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import { getAsignarRaPermissions } from "../../../../config/access/permissions";
-import { asignarRACurrentUser as currentUser } from "./asignarRA.shared";
+import { getCurrentUser } from "../../../../services/auth/currentUser";
 import { useAsignarRAActions } from "./useAsignarRAActions";
 import { useAsignarRAComputed } from "./useAsignarRAComputed";
 import { useAsignarRAData } from "./useAsignarRAData";
 import { useAsignarRAFilters } from "./useAsignarRAFilters";
 
 export function useAsignarRA() {
+  const [currentUser] = useState(getCurrentUser);
   const [feedback, setFeedback] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const resetFeedback = useCallback(() => {
@@ -14,7 +15,6 @@ export function useAsignarRA() {
     setErrorMessage("");
   }, []);
 
-  const filtersRef = useRef<HTMLDivElement | null>(null);
   const coursesRef = useRef<HTMLDivElement | null>(null);
   const assignmentPanelRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,6 +26,7 @@ export function useAsignarRA() {
   const isStepLocked = !data.loading && data.cyclesSource.length === 0;
 
   const filters = useAsignarRAFilters({
+    currentUser,
     cyclesSource: data.cyclesSource,
     academicCatalogs: data.academicCatalogs,
     resetFeedback,
@@ -37,11 +38,9 @@ export function useAsignarRA() {
     competenciasSource: data.competenciasSource,
     mapeosSource: data.mapeosSource,
     selectedCycle: filters.selectedCycle,
-    selectedCycleId: filters.filters.selectedCycleId,
     courses: filters.courses,
     selectedCourseId: filters.selectedCourseId,
     courseFilterId: filters.filters.courseFilterId,
-    courseSearchTerm: filters.filters.courseSearchTerm,
     canManage,
     setSelectedCourseId: filters.setSelectedCourseId,
   });
@@ -73,7 +72,7 @@ export function useAsignarRA() {
     filters: filters.filters,
     filterOptions: filters.filterOptions,
     filterLocks: filters.filterLocks,
-    refs: { filtersRef, coursesRef, assignmentPanelRef },
+    refs: { coursesRef, assignmentPanelRef },
     records: data.records,
     measurements: data.measurements,
     loading: data.loading,
@@ -95,11 +94,7 @@ export function useAsignarRA() {
     showDeleteConfirm: actions.showDeleteConfirm,
     showLeaveCourseConfirm: actions.showLeaveCourseConfirm,
     showFinishAcademicFlowConfirm: actions.showFinishAcademicFlowConfirm,
-    hasAnyAssignmentInCycle: computed.hasAnyAssignmentInCycle,
-    isCurrentCycleAssignmentComplete: computed.isCurrentCycleAssignmentComplete,
     pendingCourseIds: computed.pendingCourseIds,
-    summaryMetrics: computed.summaryMetrics,
-    setCourseSearchTerm: filters.setCourseSearchTerm,
     setShowDeleteConfirm: actions.setShowDeleteConfirm,
     setShowLeaveCourseConfirm: actions.setShowLeaveCourseConfirm,
     setShowFinishAcademicFlowConfirm: actions.setShowFinishAcademicFlowConfirm,
@@ -121,6 +116,7 @@ export function useAsignarRA() {
     handleConfirmFinishAcademicFlow: actions.handleConfirmFinishAcademicFlow,
     discardDraftAndReturnToCourses: actions.discardDraftAndReturnToCourses,
     toggleCompetenciaAccordion: actions.toggleCompetenciaAccordion,
+    expandCompetencia: actions.expandCompetencia,
     toggleRaSelection: actions.toggleRaSelection,
     getRaAssignment: actions.getRaAssignment,
     isRaSelected: actions.isRaSelected,

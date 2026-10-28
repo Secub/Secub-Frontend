@@ -11,7 +11,6 @@ import type {
   CompetencyMappingRecord,
   MedicionRaRecord,
   LearningOutcomeRecord,
-  SummaryMetrics,
 } from "./AsignarRA.types";
 
 export function getAssignmentId(cicloId: string, cursoId: string, competenciaId: string, raId: string) {
@@ -174,27 +173,4 @@ export function buildDraftSelections(
   });
 
   return nextDraft;
-}
-
-export function buildSummaryMetrics(
-  courses: CursoSintesis[],
-  records: AsignacionRaRecord[],
-  selectedCycleId: string,
-): SummaryMetrics {
-  const assignedCourseIds = new Set(
-    records
-      .filter((record) => record.cicloId === selectedCycleId && Boolean(getAssignmentCourseId(record)))
-      .map(getAssignmentCourseId),
-  );
-
-  const totalAssignedRa = records.filter(
-    (record) => record.cicloId === selectedCycleId && Boolean(getAssignmentRaId(record)),
-  ).length;
-
-  return {
-    totalCourses: courses.length,
-    assignedCourses: courses.filter((course) => assignedCourseIds.has(course.id)).length,
-    pendingCourses: courses.filter((course) => !assignedCourseIds.has(course.id)).length,
-    totalAssignedRa,
-  };
 }

@@ -14,14 +14,8 @@ import { AsignarRAAccessState } from "./components/AsignarRAAccessState";
 import { AsignarRACourseDetail } from "./components/AsignarRACourseDetail";
 import { AsignarRACoursesTable } from "./components/AsignarRACoursesTable";
 import { AsignarRAFilters } from "./components/AsignarRAFilters";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  hasSeenOnboardingTour,
-  useOnboardingTour,
-  type OnboardingTourStep,
-} from "../../../components/OnboardingTour";
-
-const DETAIL_TOUR_STORAGE_KEY = "tour_asignar_ra_detalle_v1";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useOnboardingTour, type OnboardingTourStep } from "../../../components/OnboardingTour";
 
 export default function AsignarRAPage() {
   const asignarRA = useAsignarRA();
@@ -74,6 +68,7 @@ export default function AsignarRAPage() {
     setShowLeaveCourseConfirm,
     setShowFinishAcademicFlowConfirm,
     toggleCompetenciaAccordion,
+    expandCompetencia,
     toggleRaSelection,
     getRaAssignment,
     isRaSelected,
@@ -110,12 +105,13 @@ export default function AsignarRAPage() {
     []
   );
 
-  const canShowTour = !isCourseDetailView && !access.isStepLocked && access.canRead;
+  const isPageReady = !loading && !loadError && !access.isStepLocked && access.canRead;
+  const canShowTour = isPageReady && !isCourseDetailView;
 
   const { startTour } = useOnboardingTour({
     steps: tourSteps,
     storageKey: "tour_asignar_ra_v1",
-    autoStart: canShowTour,
+    autoStart: canShowTour && courseRows.length > 0,
     enabled: canShowTour,
     allowPartialTargets: true,
   });
@@ -131,37 +127,24 @@ export default function AsignarRAPage() {
       {
         target: "#asignar-ra-application-selector",
         title: "Aplicaciones de RA",
-        content: "Estas casillas representan las aplicaciones de los Resultados de Aprendizaje. Selecciona entre 1 y 4 RA para asignarlos a la competencia.",
+        content: access.canManage
+          ? "Estas casillas representan las aplicaciones de los Resultados de Aprendizaje. Selecciona entre 1 y 4 RA para asignarlos a la competencia."
+          : "Estas casillas muestran los Resultados de Aprendizaje asignados a cada competencia.",
         order: 2,
       },
     ],
-    []
+    [access.canManage]
   );
 
-  const canShowDetailTour =
-    isCourseDetailView &&
-    !access.isStepLocked &&
-    access.canRead &&
-    courseCompetencias.length > 0;
+  const canShowDetailTour = isPageReady && isCourseDetailView && courseCompetencias.length > 0;
 
-  const detailTourExpandedForRef = useRef<string | null>(null);
   const firstCompetenciaId = courseCompetencias[0]?.id;
-  useEffect(() => {
-    if (!canShowDetailTour) return;
-    if (!firstCompetenciaId || detailTourExpandedForRef.current === firstCompetenciaId) return;
-    detailTourExpandedForRef.current = firstCompetenciaId;
-    if (hasSeenOnboardingTour(DETAIL_TOUR_STORAGE_KEY)) return;
-    if (!expandedCompetenciaIds.includes(firstCompetenciaId)) {
-      toggleCompetenciaAccordion(firstCompetenciaId);
-    }
-  }, [canShowDetailTour, firstCompetenciaId, expandedCompetenciaIds, toggleCompetenciaAccordion]);
-
   const isDetailTourTargetReady =
     Boolean(firstCompetenciaId) && expandedCompetenciaIds.includes(firstCompetenciaId ?? "");
 
   const { startTour: startDetailTour } = useOnboardingTour({
     steps: detailTourSteps,
-    storageKey: DETAIL_TOUR_STORAGE_KEY,
+    storageKey: "tour_asignar_ra_detalle_v1",
     autoStart: canShowDetailTour && isDetailTourTargetReady,
     enabled: canShowDetailTour && isDetailTourTargetReady,
     allowPartialTargets: true,
@@ -174,8 +157,8 @@ export default function AsignarRAPage() {
       return;
     }
     setIsDetailTourReplayPending(true);
-    toggleCompetenciaAccordion(firstCompetenciaId);
-  }, [firstCompetenciaId, isDetailTourTargetReady, startDetailTour, toggleCompetenciaAccordion]);
+    expandCompetencia(firstCompetenciaId);
+  }, [firstCompetenciaId, isDetailTourTargetReady, startDetailTour, expandCompetencia]);
 
   useEffect(() => {
     if (!isDetailTourReplayPending || !isDetailTourTargetReady) return;
@@ -222,12 +205,10 @@ export default function AsignarRAPage() {
             </div>
           ) : null}
 
-          
-          
           {isCourseDetailView ? (
             <div ref={refs.assignmentPanelRef}>
               <BackButton label="Volver a cursos" onClick={handleBackToCourses} />
-              <div id="asignar_ra-detalle-curso-panel" className="mt-3">
+              <div className="mt-3">
                 <AsignarRACourseDetail
                   selectedCourse={selectedCourse}
                   selectedCycle={selectedCycle}
@@ -250,9 +231,8 @@ export default function AsignarRAPage() {
               </div>
             </div>
           ) : (
-            
             <>
-              <div id="asignar-ra-filters-panel" ref={refs.filtersRef}>
+              <div id="asignar-ra-filters-panel">
                 <AsignarRAFilters
                   filters={filters}
                   options={filterOptions}
@@ -284,7 +264,7 @@ export default function AsignarRAPage() {
                   <AsignarRACoursesTable
                     rows={courseRows}
                     totalCourses={courses.length}
-                    isFiltered={Boolean(filters.courseFilterId || filters.courseSearchTerm)}
+                    isFiltered={Boolean(filters.courseFilterId)}
                     canManage={access.canManage}
                     onSelectCourse={handleSelectCourse}
                   />

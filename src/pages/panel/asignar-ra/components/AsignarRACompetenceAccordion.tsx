@@ -38,6 +38,7 @@ export function AsignarRACompetenceAccordion({
   onToggleRa,
 }: AsignarRACompetenceAccordionProps) {
   const ras = getLearningResults(competencia);
+  const tourTargetRaId = competenciaIndex === 0 ? ras.find((ra) => ra.id)?.id : undefined;
   const selectedCount = selectedRaIds.length;
   const hasValidationWarning = selectedCount === 0;
 
@@ -86,7 +87,7 @@ export function AsignarRACompetenceAccordion({
             return (
               <label
                 key={ra.id}
-                id={competenciaIndex === 0 && raIndex === 0 ? "asignar-ra-application-selector" : undefined}
+                id={ra.id === tourTargetRaId ? "asignar-ra-application-selector" : undefined}
                 className={[
                   "flex cursor-pointer items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-all",
                   selected

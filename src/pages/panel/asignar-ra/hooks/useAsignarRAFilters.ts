@@ -3,68 +3,68 @@ import { getAsignarRaPermissions } from "../../../../config/access/permissions";
 import type { MeasurementCycleRecord } from "../AsignarRA.types";
 import type { CicloCatalogs } from "../../ciclo/ciclo.types";
 import { getCycleCourses } from "../AsignarRA.utils";
-import { asignarRACurrentUser as currentUser } from "./asignarRA.shared";
+import type { CurrentUser } from "../../../../services/auth/currentUser";
 
 interface UseAsignarRAFiltersParams {
+  currentUser: CurrentUser;
   cyclesSource: MeasurementCycleRecord[];
   academicCatalogs: CicloCatalogs;
   resetFeedback: () => void;
 }
 
-export function useAsignarRAFilters({ cyclesSource, academicCatalogs, resetFeedback }: UseAsignarRAFiltersParams) {
-  const [selectedSeccionalId, setSelectedSeccionalId] = useState(() => currentUser.scope.seccionalId ?? "");
-  const [selectedFacultadId, setSelectedFacultadId] = useState(() => currentUser.scope.facultadId ?? "");
+export function useAsignarRAFilters({ currentUser, cyclesSource, academicCatalogs, resetFeedback }: UseAsignarRAFiltersParams) {
+  const { scope } = currentUser;
+  const [selectedSeccionalId, setSelectedSeccionalId] = useState(() => scope.seccionalId ?? "");
+  const [selectedFacultadId, setSelectedFacultadId] = useState(() => scope.facultadId ?? "");
   const [selectedProgramId, setSelectedProgramId] = useState(
-    () => currentUser.scope.programaId ?? currentUser.scope.academicProgramId ?? "",
+    () => scope.programaId ?? scope.academicProgramId ?? "",
   );
-  const [selectedPlanId, setSelectedPlanId] = useState(() => currentUser.scope.planId ?? "");
+  const [selectedPlanId, setSelectedPlanId] = useState(() => scope.planId ?? "");
   const [selectedCycleId, setSelectedCycleId] = useState("");
   const [courseFilterId, setCourseFilterId] = useState("");
-  const [courseSearchTerm, setCourseSearchTerm] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
-  const scopedProgramId = currentUser.scope.programaId ?? currentUser.scope.academicProgramId;
-  const scopedPlanId = currentUser.scope.planId;
+  const scopedProgramId = scope.programaId ?? scope.academicProgramId;
+  const scopedPlanId = scope.planId;
 
   const resetCourseFilters = useCallback(() => {
     setCourseFilterId("");
-    setCourseSearchTerm("");
     setSelectedCourseId("");
   }, []);
 
   const seccionalOptions = useMemo(
     () =>
       academicCatalogs.seccionales
-        .filter((seccional) => (currentUser.scope.seccionalId ? seccional.id === currentUser.scope.seccionalId : true))
+        .filter((seccional) => (scope.seccionalId ? seccional.id === scope.seccionalId : true))
         .map((seccional) => ({ label: seccional.nombre, value: seccional.id })),
-    [academicCatalogs.seccionales],
+    [academicCatalogs.seccionales, scope.seccionalId],
   );
 
   const facultadOptions = useMemo(
     () =>
       academicCatalogs.facultades
         .filter((facultad) => {
-          if (currentUser.scope.facultadId && facultad.id !== currentUser.scope.facultadId) return false;
-          if (currentUser.scope.seccionalId && facultad.seccionalId !== currentUser.scope.seccionalId) return false;
+          if (scope.facultadId && facultad.id !== scope.facultadId) return false;
+          if (scope.seccionalId && facultad.seccionalId !== scope.seccionalId) return false;
           if (selectedSeccionalId && facultad.seccionalId !== selectedSeccionalId) return false;
           return true;
         })
         .map((facultad) => ({ label: facultad.nombre, value: facultad.id })),
-    [academicCatalogs.facultades, selectedSeccionalId],
+    [academicCatalogs.facultades, scope.facultadId, scope.seccionalId, selectedSeccionalId],
   );
 
   const programOptions = useMemo(() => {
     return academicCatalogs.programas
       .filter((program) => {
         if (scopedProgramId && program.id !== scopedProgramId) return false;
-        if (currentUser.scope.seccionalId && program.seccionalId !== currentUser.scope.seccionalId) return false;
-        if (currentUser.scope.facultadId && program.facultadId !== currentUser.scope.facultadId) return false;
+        if (scope.seccionalId && program.seccionalId !== scope.seccionalId) return false;
+        if (scope.facultadId && program.facultadId !== scope.facultadId) return false;
         if (selectedSeccionalId && program.seccionalId !== selectedSeccionalId) return false;
         if (selectedFacultadId && program.facultadId !== selectedFacultadId) return false;
         return true;
       })
       .map((program) => ({ label: program.nombre, value: program.id }));
-  }, [academicCatalogs.programas, scopedProgramId, selectedFacultadId, selectedSeccionalId]);
+  }, [academicCatalogs.programas, scope.facultadId, scope.seccionalId, scopedProgramId, selectedFacultadId, selectedSeccionalId]);
 
   const planOptions = useMemo(() => {
     return academicCatalogs.planes
@@ -181,8 +181,8 @@ export function useAsignarRAFilters({ cyclesSource, academicCatalogs, resetFeedb
 
   const handleResetFilters = () => {
     resetFeedback();
-    setSelectedSeccionalId(currentUser.scope.seccionalId ?? "");
-    setSelectedFacultadId(currentUser.scope.facultadId ?? "");
+    setSelectedSeccionalId(scope.seccionalId ?? "");
+    setSelectedFacultadId(scope.facultadId ?? "");
     setSelectedProgramId(scopedProgramId ?? "");
     setSelectedPlanId(scopedPlanId ?? "");
     setSelectedCycleId("");
@@ -190,11 +190,11 @@ export function useAsignarRAFilters({ cyclesSource, academicCatalogs, resetFeedb
   };
 
   return {
-    filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId, courseSearchTerm },
+    filters: { selectedSeccionalId, selectedFacultadId, selectedProgramId, selectedPlanId, selectedCycleId, courseFilterId },
     filterOptions: { seccionalOptions, facultadOptions, programOptions, planOptions, cycleOptions, courseOptions },
     filterLocks: {
-      isSeccionalLocked: Boolean(currentUser.scope.seccionalId),
-      isFacultadLocked: Boolean(currentUser.scope.facultadId),
+      isSeccionalLocked: Boolean(scope.seccionalId),
+      isFacultadLocked: Boolean(scope.facultadId),
       isProgramLocked: Boolean(scopedProgramId),
       isPlanLocked: Boolean(scopedPlanId),
       showSeccionalFilter: getAsignarRaPermissions(currentUser.role).canFilterBySeccional,
@@ -205,7 +205,6 @@ export function useAsignarRAFilters({ cyclesSource, academicCatalogs, resetFeedb
     courses,
     selectedCourseId,
     setSelectedCourseId,
-    setCourseSearchTerm,
     resetCourseFilters,
     handleSeccionalChange,
     handleFacultadChange,

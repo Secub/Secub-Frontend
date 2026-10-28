@@ -66,10 +66,13 @@ export function useAsignarRAActions({
   const [pendingPrimaryAction, setPendingPrimaryAction] = useState<"save" | "next" | "finish" | null>(null);
 
   useEffect(() => {
-    const nextDraft = buildDraftSelections(courseCompetencias, selectedCourseAssignments);
-    setDraftSelections(nextDraft);
-    setExpandedCompetenciaIds(courseCompetencias.map((competencia) => competencia.id));
+    setDraftSelections(buildDraftSelections(courseCompetencias, selectedCourseAssignments));
   }, [courseCompetencias, selectedCourseAssignments]);
+
+  const competenciaIdsKey = courseCompetencias.map((competencia) => competencia.id).join("|");
+  useEffect(() => {
+    setExpandedCompetenciaIds(competenciaIdsKey ? competenciaIdsKey.split("|") : []);
+  }, [competenciaIdsKey]);
 
   const scrollToCourses = useCallback(() => {
     window.requestAnimationFrame(() => {
@@ -128,7 +131,6 @@ export function useAsignarRAActions({
     if (!selectedCourse) return "Selecciona un curso de Síntesis para asignar RA.";
     if (selectedCourse.nucleo !== "Síntesis") return "Solo se pueden asignar RA a cursos de Síntesis.";
     if (!courseCompetencias.length) return "El curso seleccionado no tiene competencias asociadas. Revisa el Mapeo de Competencias.";
-    if (!canManage) return "";
     return "";
   };
 
@@ -162,15 +164,18 @@ export function useAsignarRAActions({
     if (!canManage || !raId) return;
     resetFeedback();
 
+    const selectedRaIds = draftSelections[competencia.id] ?? [];
+    if (!selectedRaIds.includes(raId) && selectedRaIds.length >= 4) {
+      setErrorMessage("Máximo 4 Resultados de Aprendizaje por competencia.");
+      return;
+    }
+
     setDraftSelections((current) => {
       const currentRaIds = current[competencia.id] ?? [];
-      const isSelected = currentRaIds.includes(raId);
-
-      if (isSelected) return { ...current, [competencia.id]: currentRaIds.filter((currentRaId) => currentRaId !== raId) };
-      if (currentRaIds.length >= 4) {
-        setErrorMessage("Máximo 4 Resultados de Aprendizaje por competencia.");
-        return current;
+      if (currentRaIds.includes(raId)) {
+        return { ...current, [competencia.id]: currentRaIds.filter((currentRaId) => currentRaId !== raId) };
       }
+      if (currentRaIds.length >= 4) return current;
       return { ...current, [competencia.id]: [...currentRaIds, raId] };
     });
   };
@@ -341,6 +346,10 @@ export function useAsignarRAActions({
     );
   };
 
+  const expandCompetencia = useCallback((competenciaId: string) => {
+    setExpandedCompetenciaIds((current) => (current.includes(competenciaId) ? current : [...current, competenciaId]));
+  }, []);
+
   return {
     draftSelections,
     expandedCompetenciaIds,
@@ -362,6 +371,7 @@ export function useAsignarRAActions({
     handleConfirmFinishAcademicFlow,
     discardDraftAndReturnToCourses,
     toggleCompetenciaAccordion,
+    expandCompetencia,
     toggleRaSelection,
     getRaAssignment,
     isRaSelected,

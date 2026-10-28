@@ -9,7 +9,6 @@ import type {
   MedicionRaRecord,
 } from "../AsignarRA.types";
 import {
-  buildSummaryMetrics,
   getAssignmentCourseId,
   getCompetenciasForCycle,
   getCourseCompetencias,
@@ -25,11 +24,9 @@ interface UseAsignarRAComputedParams {
   competenciasSource: CompetenceRaRecord[];
   mapeosSource: CompetencyMappingRecord[];
   selectedCycle?: MeasurementCycleRecord;
-  selectedCycleId: string;
   courses: CursoSintesis[];
   selectedCourseId: string;
   courseFilterId: string;
-  courseSearchTerm: string;
   canManage: boolean;
   setSelectedCourseId: (courseId: string) => void;
 }
@@ -40,29 +37,15 @@ export function useAsignarRAComputed({
   competenciasSource,
   mapeosSource,
   selectedCycle,
-  selectedCycleId,
   courses,
   selectedCourseId,
   courseFilterId,
-  courseSearchTerm,
   canManage,
   setSelectedCourseId,
 }: UseAsignarRAComputedParams) {
-  const filteredCourses = useMemo(() => {
-    const normalizedSearch = courseSearchTerm.trim().toLowerCase();
-
-    return courses.filter((course) => {
-      const matchesSelect = courseFilterId ? course.id === courseFilterId : true;
-      const matchesSearch = normalizedSearch
-        ? `${course.codigo} ${course.nombre} ${course.docente}`.toLowerCase().includes(normalizedSearch)
-        : true;
-      return matchesSelect && matchesSearch;
-    });
-  }, [courseFilterId, courseSearchTerm, courses]);
-
-  const summaryMetrics = useMemo(
-    () => buildSummaryMetrics(courses, records, selectedCycleId),
-    [courses, records, selectedCycleId],
+  const filteredCourses = useMemo(
+    () => (courseFilterId ? courses.filter((course) => course.id === courseFilterId) : courses),
+    [courseFilterId, courses],
   );
 
   useEffect(() => {
@@ -91,19 +74,6 @@ export function useAsignarRAComputed({
       (record) => record.cicloId === selectedCycle.id && getAssignmentCourseId(record) === selectedCourse.id,
     );
   }, [records, selectedCourse, selectedCycle]);
-
-  const hasAnyAssignmentInCycle = useMemo(
-    () => Boolean(selectedCycleId && records.some((record) => record.cicloId === selectedCycleId)),
-    [records, selectedCycleId],
-  );
-
-  const isCurrentCycleAssignmentComplete = useMemo(() => {
-    if (!selectedCycle || !courses.length) return false;
-
-    return courses.every((course) =>
-      isCourseAssignmentComplete(course, selectedCycle, allCompetencias, mapeosSource, records),
-    );
-  }, [allCompetencias, courses, mapeosSource, records, selectedCycle]);
 
   const pendingCourseIds = useMemo(() => {
     if (!selectedCycle) return courses.map((course) => course.id);
@@ -174,10 +144,7 @@ export function useAsignarRAComputed({
     selectedCourse,
     selectedCourseAssignments,
     courseCompetencias,
-    hasAnyAssignmentInCycle,
-    isCurrentCycleAssignmentComplete,
     pendingCourseIds,
-    summaryMetrics,
     courseRows,
     getCourseAssignments,
     getCourseStatus,
