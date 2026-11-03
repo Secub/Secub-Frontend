@@ -247,7 +247,7 @@ export function PerfilEgresoExportModal({
           columns: PDF_COLUMNS,
           records: pdfRecords,
           theme: {
-            primary: "#474747",
+            primary: "#1D4ED8",
           },
         },
         `Perfil-Egreso-${timestamp}.pdf`,
@@ -273,7 +273,7 @@ export function PerfilEgresoExportModal({
         records: exportRows,
 
         theme: {
-          primary: "#474747",
+          primary: "#1D4ED8",
         },
       },
       `perfiles-egreso-${timestamp}.xlsx`,

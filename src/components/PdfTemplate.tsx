@@ -59,7 +59,7 @@ async function imageToDataUrl(imageUrl?: string): Promise<string | undefined> {
 }
 
 async function reportBody<T>(props: PdfTemplateProps<T>) {
-  const columns = props.columns.map((column, index) => ({ header: column.header, key: `column_${index}`, width: Math.max(8, Math.round(column.widthPct / 2)) }));
+  const columns = props.columns.map((column, index) => ({ header: column.header, key: `column_${index}`, width: Math.max(8, Math.round(column.widthPct / 2)), widthPct: column.widthPct }));
   const records = props.records.map((record) => Object.fromEntries(props.columns.map((column, index) => [`column_${index}`, column.accessor(record)])));
   const [logoUrl, logoUrl2, logoUrlfoot1, logoUrlfoot2] = await Promise.all([
     imageToDataUrl(props.logoUrl),

@@ -212,7 +212,7 @@ const handleDownload = async () => {
         columns: PDF_COLUMNS,
         records: pdfRecords,
         theme: {
-          primary: "#474747",
+          primary: "#1D4ED8",
         },
       },
       `propositos-formacion-${timestamp}.pdf`,
@@ -238,7 +238,7 @@ const handleDownload = async () => {
       records: exportRows,
 
       theme: {
-        primary: "#474747",
+        primary: "#1D4ED8",
       },
     },
     `propositos-formacion-${timestamp}.xlsx`,

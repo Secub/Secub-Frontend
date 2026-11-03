@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../config/api.config";
 import { downloadFile } from "../shared/browser";
 
-export interface ExcelColumn<T> { header: string; width: number; accessor: (row: T) => string }
+export interface ExcelColumn<T> { header: string; width: number; accessor: (row: T) => string | number | boolean | null }
 export interface ExcelTheme { primary: string; headerBg: string; rowAlt: string; text: string; muted: string }
 export interface ExcelTemplateProps<T> {
   title: string;

@@ -88,6 +88,19 @@ Los permisos del frontend solo ocultan opciones y limitan rutas; el backend vuel
 
 Los servicios de `src/services/` llaman a la API real mediante `httpClient` (`src/infrastructure/api/`). El contrato está en el Swagger y resumido en [`docs/BACKEND_INTEGRATION.md`](./docs/BACKEND_INTEGRATION.md).
 
+### Guías de introducción
+
+Las guías vistas se guardan en la base de datos por usuario y clave de versión, mediante
+`GET /api/onboarding-tours` y `PUT /api/onboarding-tours/:tourKey`. Antes de iniciarlas
+automáticamente se consulta el historial: cambiar de equipo, navegador, programa o rol
+conserva las guías ya vistas. El botón «Ver guía» permite repetirlas manualmente.
+
+Si falla la consulta, no se abre automáticamente una guía que podría estar ya vista.
+Los guardados pendientes se conservan por cuenta en el navegador y se reintentan al
+cargar las guías. Las marcas antiguas de localStorage no identificaban al usuario y
+no se importan a una cuenta: las guías previas al cambio pueden aparecer una vez.
+La migración `AddUserOnboardingTours1793577600000` crea la tabla del historial.
+
 ## Docker
 
 ```bash

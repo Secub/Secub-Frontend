@@ -38,7 +38,7 @@ describe("report template requests", () => {
       logoUrlfoot2: "data:image/png;base64,footer2",
       footerText: "Pie de página",
       theme: { primary: "#123456" },
-      columns: [{ header: "Nombre", key: "column_0", width: 20 }],
+      columns: [{ header: "Nombre", key: "column_0", width: 20, widthPct: 40 }],
       records: [{ column_0: "Registro" }],
     });
   });
@@ -75,5 +75,13 @@ describe("report template requests", () => {
       columns: [{ header: "Nombre", key: "column_0", width: 24 }],
       records: [{ column_0: "Registro" }],
     });
+  });
+
+  it("preserves numeric cells for Excel sorting and calculations", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(new ArrayBuffer(0)));
+    vi.stubGlobal("fetch", fetchMock);
+    await buildExcelBuffer({ title: "Mapeo", columns: [{ header: "Cursos", width: 12, accessor: (row: { courses: number }) => row.courses }], records: [{ courses: 6 }] });
+    const request = JSON.parse(fetchMock.mock.calls[0][1]?.body as string);
+    expect(request.records).toEqual([{ column_0: 6 }]);
   });
 });

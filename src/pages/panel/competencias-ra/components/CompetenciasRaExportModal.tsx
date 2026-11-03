@@ -255,7 +255,7 @@ export function CompetenciasRaExportModal({
           columns: PDF_COLUMNS,
           records: pdfRecords,
           theme: {
-            primary: "#474747",
+            primary: "#1D4ED8",
           },
         },
         `competencias-ra-${timestamp}.pdf`,

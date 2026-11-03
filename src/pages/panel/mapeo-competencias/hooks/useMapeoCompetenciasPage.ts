@@ -164,7 +164,7 @@ export function useMapeoCompetenciasPage() {
         columns: PDF_COLUMNS,
         records: buildExportRecords(),
         theme: {
-          primary: "#474747",
+          primary: "#1D4ED8",
         },
       },
       `Mapeo-Competencias-${timestamp}.pdf`,
@@ -282,7 +282,7 @@ const buildExportRecords = (): ExportRecord[] => {
     {
       header: "Semestre",
       width: 12,
-      accessor: (r) => String(r.semestre),
+      accessor: (r) => r.semestre,
     },
     {
       header: "Núcleo",
@@ -297,7 +297,7 @@ const buildExportRecords = (): ExportRecord[] => {
     {
       header: "Cursos",
       width: 12,
-      accessor: (r) => String(r.cursos),
+      accessor: (r) => r.cursos,
     },
     {
       header: "Niveles asignados",
