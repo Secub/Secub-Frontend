@@ -36,7 +36,7 @@ function savePendingLocally(userId: string, history: TourHistory) {
 function persistSeen(userId: string, history: TourHistory, tourKey: string): Promise<void> {
   const saving = history.saving.get(tourKey);
   if (saving) return saving;
-  const request = httpClient.put<void>(`/onboarding-tours/${encodeURIComponent(tourKey)}`)
+  const request = httpClient.put<void>(`/onboarding-tours/${encodeURIComponent(tourKey)}`, undefined, { affectsWorkflow: false })
     .then(() => {
       if (histories.get(userId) !== history) return;
       history.pending.delete(tourKey);

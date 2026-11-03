@@ -118,7 +118,7 @@ describe("useOnboardingTour", () => {
       expect(startMock).not.toHaveBeenCalled();
       resolve([]);
       await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
-      await waitFor(() => expect(httpClient.put).toHaveBeenCalledWith("/onboarding-tours/tour_a"));
+      await waitFor(() => expect(httpClient.put).toHaveBeenCalledWith("/onboarding-tours/tour_a", undefined, { affectsWorkflow: false }));
     });
 
     it("still allows manual replay of a saved guide", async () => {

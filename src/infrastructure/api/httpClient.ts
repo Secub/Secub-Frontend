@@ -11,6 +11,7 @@ export interface HttpRequestOptions {
   body?: unknown;
   signal?: AbortSignal;
   headers?: HeadersInit;
+  affectsWorkflow?: boolean;
 }
 
 type AccessTokenProvider = () => string | null | Promise<string | null>;
@@ -87,7 +88,7 @@ export async function request<T>(path: string, options: HttpRequestOptions = {})
     });
   }
 
-  if (method !== "GET" && typeof window !== "undefined") {
+  if (method !== "GET" && options.affectsWorkflow !== false && typeof window !== "undefined") {
     window.dispatchEvent(new Event("secub:workflow-changed"));
   }
 

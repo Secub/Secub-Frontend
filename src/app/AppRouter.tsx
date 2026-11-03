@@ -14,7 +14,7 @@ import { hasSelectedProgram } from "../services/programSelection";
 import ChunkErrorBoundary, { clearChunkReloadFlag } from "./router/ChunkErrorBoundary";
 import NotFoundPage from "./router/NotFoundPage";
 import PageLoadingState from "./router/PageLoadingState";
-import { resolveRoute } from "./router/routeConfig";
+import { preloadRoute, resolveRoute } from "./router/routeConfig";
 import { useBrowserLocation } from "./router/useBrowserLocation";
 import { fetchAuthSession, getStoredAuthSession } from "../services/auth/session";
 
@@ -39,6 +39,11 @@ export default function AppRouter() {
     : null;
 
   useInactivityLogout(panelRoute);
+
+  useEffect(() => {
+    // Descargar la página en paralelo con la sesión evita dos esperas consecutivas.
+    preloadRoute(normalizedPath);
+  }, [normalizedPath]);
 
   useEffect(() => {
     if (!panelRoute || getStoredAuthSession()) {

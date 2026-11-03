@@ -1,34 +1,10 @@
-import { useEffect, useState } from "react";
-import { getWorkflowStatus } from "../../services/workflow";
-import type { AcademicWorkflowProgress } from "./academicWorkflow.rules";
-import { rememberAcademicWorkflowProgress } from "./academicWorkflow.repository";
-
-const EMPTY_PROGRESS: AcademicWorkflowProgress = {};
+import { useCallback, useSyncExternalStore } from "react";
+import { getAcademicWorkflowContextKey } from "./academicWorkflow.repository";
+import { EMPTY_WORKFLOW_PROGRESS, readWorkflowSnapshot, subscribeWorkflowProgress } from "./academicWorkflow.store";
 
 export function useAcademicWorkflowProgress() {
-  const [progress, setProgress] = useState<AcademicWorkflowProgress>(EMPTY_PROGRESS);
-
-  useEffect(() => {
-    let controller = new AbortController();
-    const refresh = () => {
-      controller.abort();
-      controller = new AbortController();
-      void getWorkflowStatus(controller.signal)
-        .then((nextProgress) => {
-          rememberAcademicWorkflowProgress(nextProgress);
-          setProgress(nextProgress);
-        })
-        .catch(() => {
-          if (!controller.signal.aborted) setProgress(EMPTY_PROGRESS);
-        });
-    };
-    refresh();
-    window.addEventListener("secub:workflow-changed", refresh);
-    return () => {
-      controller.abort();
-      window.removeEventListener("secub:workflow-changed", refresh);
-    };
-  }, []);
-
-  return progress;
+  const key = getAcademicWorkflowContextKey();
+  const subscribe = useCallback((listener: () => void) => subscribeWorkflowProgress(key, listener), [key]);
+  const snapshot = useCallback(() => readWorkflowSnapshot(key), [key]);
+  return useSyncExternalStore(subscribe, snapshot, () => EMPTY_WORKFLOW_PROGRESS);
 }

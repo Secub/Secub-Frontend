@@ -1,4 +1,5 @@
 import { getCurrentUser } from "../../services/auth/currentUser";
+import { getStoredAuthSession } from "../../services/auth/session";
 import type { PanelStepKey } from "./panelNavigation";
 import {
   isAcademicWorkflowDataComplete,
@@ -8,27 +9,35 @@ import {
 } from "./academicWorkflow.rules";
 
 let latestProgress: AcademicWorkflowProgress = {};
+let latestContextKey = '';
+
+export function getAcademicWorkflowContextKey(): string {
+  const session = getStoredAuthSession();
+  return JSON.stringify([session?.user_id ?? '', session?.selected_context_id ?? '']);
+}
 
 export function readAcademicWorkflowProgress() {
-  return latestProgress;
+  return latestContextKey === getAcademicWorkflowContextKey() ? latestProgress : {};
 }
 
-export function rememberAcademicWorkflowProgress(progress: AcademicWorkflowProgress) {
+export function rememberAcademicWorkflowProgress(progress: AcademicWorkflowProgress, contextKey = getAcademicWorkflowContextKey()) {
+  if (contextKey !== getAcademicWorkflowContextKey()) return;
   latestProgress = progress;
+  latestContextKey = contextKey;
 }
 
-export function isAcademicWorkflowCompleted(progress: AcademicWorkflowProgress = latestProgress) {
+export function isAcademicWorkflowCompleted(progress: AcademicWorkflowProgress = readAcademicWorkflowProgress()) {
   return isAcademicWorkflowDataComplete(progress);
 }
 
 export function getAcademicWorkflowState(
-  progress: AcademicWorkflowProgress = latestProgress,
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ): AcademicWorkflowState {
   return isAcademicWorkflowDataComplete(progress) ? "completed" : "inProgress";
 }
 
 export function completeAcademicWorkflowFromCurrentProgress(
-  progress: AcademicWorkflowProgress = latestProgress,
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ) {
   if (getCurrentUser().role !== "director" || !isAcademicWorkflowDataComplete(progress)) return null;
   return { completed: true };
@@ -53,7 +62,7 @@ export function setAcademicWorkflowStepCompleted(_stepKey: PanelStepKey, _comple
 
 export function isAcademicWorkflowStepCompleted(
   stepKey: PanelStepKey,
-  progress: AcademicWorkflowProgress = latestProgress,
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ) {
   return Boolean(progress[stepKey]);
 }
@@ -64,7 +73,7 @@ export function canBypassAcademicWorkflowLock() {
 
 export function isAcademicWorkflowStepLocked(
   stepKey: PanelStepKey,
-  progress: AcademicWorkflowProgress = latestProgress,
+  progress: AcademicWorkflowProgress = readAcademicWorkflowProgress(),
 ) {
   return isAcademicWorkflowStepLockedForProgress(stepKey, progress, canBypassAcademicWorkflowLock());
 }

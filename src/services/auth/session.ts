@@ -62,13 +62,13 @@ export async function fetchAuthSession(): Promise<AuthSession> {
 export async function selectAuthContext(contextId: string): Promise<AuthSession> {
   const session = await httpClient.post<AuthSession>('/auth/context', {
     context_id: contextId,
-  });
+  }, { affectsWorkflow: false });
   persistAuthSession(session);
   return session;
 }
 
 export async function logoutAuthSession(): Promise<void> {
-  await httpClient.post<void>('/auth/logout');
+  await httpClient.post<void>('/auth/logout', undefined, { affectsWorkflow: false });
   currentSession = null;
   clearOnboardingTourCache();
 }
