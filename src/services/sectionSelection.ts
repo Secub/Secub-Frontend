@@ -1,5 +1,4 @@
 import { storageClient } from "../shared/browser";
-import { showNotification } from "../shared/feedback";
 
 export const SECUB_SECTION_STORAGE_KEY = "secub:selected-section:v1";
 
@@ -12,10 +11,11 @@ export const SECUB_SECTIONS = [
 
 export type SecubSectionId = (typeof SECUB_SECTIONS)[number]["id"];
 
-const microsoftCampusBySection: Partial<Record<SecubSectionId, string>> = {
+const microsoftCampusBySection: Record<SecubSectionId, string> = {
   cali: "USBCA",
   bogota: "USBBO",
   cartagena: "USBCT",
+  medellin: "USBME",
 };
 
 export function isSecubSectionId(value: unknown): value is SecubSectionId {
@@ -34,14 +34,5 @@ export function getSelectedSection(): SecubSectionId | null {
 export function continueAccessAfterSectionSelection(sectionId: SecubSectionId) {
   persistSelectedSection(sectionId);
   const campusCodigo = microsoftCampusBySection[sectionId];
-  if (!campusCodigo) {
-    showNotification({
-      title: "Acceso próximamente",
-      message: "Por ahora el inicio de sesión solo está habilitado para las seccionales Cali, Bogotá y Cartagena.",
-      variant: "info",
-    });
-    return;
-  }
-
   window.location.assign(`/auth/microsoft?campus=${encodeURIComponent(campusCodigo)}`);
 }
