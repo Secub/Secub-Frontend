@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { navigateToRoute } from "../../app/appRoutes";
 import { getRoutePrefetchProps } from "../../app/router/routePrefetch";
+import { getCurrentUser } from "../../services/auth/currentUser";
 import LogoSecub from "../../assets/logos/logo-secub-blanco.webp";
 import { SecubIcon } from "../ui";
 import { panelNavigation, type PanelStepKey } from "./panelNavigation";
@@ -34,6 +35,8 @@ export default function PanelSidebar({
   } = useResizableSidebar(isDesktop);
   const dashboardItem =
     panelNavigation.find((item) => item.key === "dashboard") ?? panelNavigation[0];
+  const seccionalesItem = panelNavigation.find((item) => item.key === "seccionales");
+  const isAdministrator = getCurrentUser().role === "administrador";
   const sidebarTourSteps = useMemo<OnboardingTourStep[]>(
     () => [
       {
@@ -141,6 +144,25 @@ export default function PanelSidebar({
                   <span className="truncate">Estado del ciclo</span>
                 </button>
               </li>
+              {isAdministrator && seccionalesItem ? (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => goTo(seccionalesItem.href)}
+                    {...getRoutePrefetchProps(seccionalesItem.href)}
+                    aria-current={currentStep === seccionalesItem.key ? "page" : undefined}
+                    className={[
+                      "group flex w-full items-center gap-2.5 rounded-[14px] border border-transparent px-3 py-2.5 text-left text-[0.875rem] font-semibold leading-5 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--secub-focus-soft)]",
+                      currentStep === seccionalesItem.key
+                        ? "border-l-2 border-l-[var(--color-success)] bg-[color:var(--color-tint-success)] text-[var(--color-white)]"
+                        : "text-[var(--color-secondary-3)] hover:bg-[color:var(--color-sidebar-hover)] hover:text-[var(--color-white)]",
+                    ].join(" ")}
+                  >
+                    <SecubIcon name={seccionalesItem.icon} size={22} weight="bold" />
+                    <span className="truncate">{seccionalesItem.label}</span>
+                  </button>
+                </li>
+              ) : null}
               <PanelAcademicNavigation
                 currentStep={currentStep}
                 onNavigate={onNavigate}

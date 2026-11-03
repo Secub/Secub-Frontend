@@ -8,7 +8,10 @@ El rol llega en la sesión del backend. Un rol que no sea uno de los seis oficia
 
 - Consulta global de la información académica, sin restricción de seccional.
 - Único rol que filtra por seccional.
-- No crea, actualiza ni elimina contenido académico ni ciclos.
+- Accede al módulo Seccionales para consultar organizaciones y gestionar usuarios y parámetros de medición.
+- No crea, actualiza ni elimina contenido académico ni ciclos académicos.
+
+El módulo Seccionales contiene Bogotá, Cali, Medellín y Cartagena. Hasta que el backend exponga operaciones administrativas para este módulo, la configuración de ciclos y usuarios creados desde la interfaz se conserva únicamente en el almacenamiento local del navegador; no se sincroniza entre dispositivos ni reemplaza la autorización del backend.
 
 ## Rector (`rector`)
 

@@ -25,6 +25,7 @@ export const ROUTES = {
 
   panel: withBasePath("/panel"),
   panelDashboard: withBasePath("/panel/dashboard"),
+  panelSeccionales: withBasePath("/panel/seccionales"),
   panelSettings: withBasePath("/panel/ajustes"),
   panelAccessibility: withBasePath("/panel/accesibilidad"),
 

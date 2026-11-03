@@ -5,6 +5,7 @@ import { ROUTES } from "./appRoutes";
 const panelRouteModules: Record<string, PanelModuleKey> = {
   [ROUTES.panel]: "dashboard",
   [ROUTES.panelDashboard]: "dashboard",
+  [ROUTES.panelSeccionales]: "seccionales",
   [ROUTES.panelSettings]: "settings",
   [ROUTES.panelAccessibility]: "accessibility",
   [ROUTES.panelPerfilEgreso]: "perfilEgreso",

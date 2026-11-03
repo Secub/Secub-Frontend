@@ -345,6 +345,7 @@ export function getAsignarRaPermissions(role: SecubRole): AsignarRaPermissions {
 
 export type PanelModuleKey =
   | "dashboard"
+  | "seccionales"
   | "settings"
   | "accessibility"
   | "perfilEgreso"
@@ -361,6 +362,7 @@ const NON_DOCENTE_ROLES: readonly SecubRole[] = SECUB_ROLE_ORDER.filter((role) =
 
 export const PANEL_MODULE_ACCESS: Record<PanelModuleKey, readonly SecubRole[]> = {
   dashboard: ALL_ROLES,
+  seccionales: ["administrador"],
   settings: ALL_ROLES,
   accessibility: ALL_ROLES,
   perfilEgreso: ALL_ROLES,

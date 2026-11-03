@@ -3,6 +3,7 @@ import type { SecubIconName } from "../ui/SecubIcon";
 
 export type PanelStepKey =
   | "dashboard"
+  | "seccionales"
   | "ajustes"
   | "accesibilidad"
   | "perfil-egreso"
@@ -29,6 +30,13 @@ export const panelNavigation: PanelNavigationItem[] = [
     description: "Resumen general",
     href: ROUTES.panelDashboard,
     icon: "chart",
+  },
+  {
+    key: "seccionales",
+    label: "Seccionales",
+    description: "Administrar organizaciones y usuarios",
+    href: ROUTES.panelSeccionales,
+    icon: "people",
   },
   {
     key: "perfil-egreso",
