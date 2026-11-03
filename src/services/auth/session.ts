@@ -1,5 +1,6 @@
 import { httpClient } from '../../infrastructure/api';
 import { isSecubRole } from '../../config/access/roles';
+import { clearOnboardingTourCache } from '../onboardingTours';
 
 export interface AuthContext {
   context_id: string;
@@ -31,6 +32,7 @@ export interface AuthSession {
 let currentSession: AuthSession | null = null;
 
 export function persistAuthSession(session: AuthSession): void {
+  if (currentSession?.user_id !== session?.user_id) clearOnboardingTourCache();
   currentSession = session;
 }
 
@@ -68,4 +70,5 @@ export async function selectAuthContext(contextId: string): Promise<AuthSession>
 export async function logoutAuthSession(): Promise<void> {
   await httpClient.post<void>('/auth/logout');
   currentSession = null;
+  clearOnboardingTourCache();
 }

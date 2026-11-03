@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TourGuideClient } from "@sjmc11/tourguidejs/dist/tour";
 import "@sjmc11/tourguidejs/src/scss/tour.scss";
+import { getStoredAuthSession } from "../services/auth/session";
+import { hasSeenUserTour, loadOnboardingTours, markUserTourSeen } from "../services/onboardingTours";
 
 export interface OnboardingTourStep {
   target: string;
@@ -225,7 +227,8 @@ function attachVerticalPlacementGuard(client: TourGuideClient) {
 // recurre a la memoria para no repetir el tour dentro de la misma sesion.
 const seenInMemory = new Set<string>();
 
-function readSeen(storageKey: string): boolean {
+function readSeen(storageKey: string, userId = getStoredAuthSession()?.user_id): boolean {
+  if (userId) return hasSeenUserTour(userId, storageKey);
   try {
     return localStorage.getItem(storageKey) === "true";
   } catch {
@@ -237,7 +240,11 @@ export function hasSeenOnboardingTour(storageKey: string): boolean {
   return readSeen(storageKey);
 }
 
-function markSeen(storageKey: string) {
+function markSeen(storageKey: string, userId?: string) {
+  if (userId) {
+    markUserTourSeen(userId, storageKey);
+    return;
+  }
   try {
     localStorage.setItem(storageKey, "true");
   } catch {
@@ -346,6 +353,7 @@ export function useOnboardingTour({
   allowPartialTargets = false,
   minimumFirstRunStepDurationMs = 1000,
 }: UseOnboardingTourOptions) {
+  const userId = getStoredAuthSession()?.user_id;
   const [tourId] = useState(() => Symbol("onboarding-tour"));
   const tourRef = useRef<TourGuideClient | null>(null);
   const verticalGuardCleanupRef = useRef<(() => void) | null>(null);
@@ -459,7 +467,7 @@ export function useOnboardingTour({
         rafId = null;
         if (cancelled) return;
 
-        const isFirstRun = !readSeen(storageKey);
+        const isFirstRun = !readSeen(storageKey, userId);
         const client = buildClient(isFirstRun);
         if (!client) {
           if (performance.now() < deadline) rafId = window.requestAnimationFrame(attempt);
@@ -478,7 +486,7 @@ export function useOnboardingTour({
 
         launchClient(client, isFirstRun)
           .then(() => {
-            if (isFirstRun) markSeen(storageKey);
+            if (isFirstRun && getStoredAuthSession()?.user_id === userId) markSeen(storageKey, userId);
             if (!cancelled) onStarted?.();
           })
           .catch(() => undefined);
@@ -493,17 +501,22 @@ export function useOnboardingTour({
         unsubscribe = null;
       };
     },
-    [buildClient, launchClient, storageKey, tourId],
+    [buildClient, launchClient, storageKey, tourId, userId],
   );
 
   const startTour = useCallback(() => {
     manualStartCancelRef.current?.();
-    manualStartCancelRef.current = null;
+    let cancelled = false;
+    let cancelScheduled: (() => void) | null = null;
+    manualStartCancelRef.current = () => { cancelled = true; cancelScheduled?.(); };
 
-    void destroyCurrentClient().then(() => {
-      manualStartCancelRef.current = scheduleStart();
+    const ready = userId ? loadOnboardingTours(userId).catch(() => undefined) : Promise.resolve();
+    void ready.then(async () => {
+      if (cancelled || getStoredAuthSession()?.user_id !== userId) return;
+      await destroyCurrentClient();
+      if (!cancelled) cancelScheduled = scheduleStart();
     });
-  }, [destroyCurrentClient, scheduleStart]);
+  }, [destroyCurrentClient, scheduleStart, userId]);
 
   const exitTour = useCallback(() => tourRef.current?.exit(), []);
 
@@ -512,13 +525,25 @@ export function useOnboardingTour({
 
     if (isTourSlotFree()) purgeOrphanTourDom();
 
-    const cancelAutoStart = autoStart && !readSeen(storageKey) ? scheduleStart() : null;
+    let cancelled = false;
+    let cancelAutoStart: (() => void) | null = null;
+    const startIfUnseen = () => {
+      if (!cancelled && getStoredAuthSession()?.user_id === userId && autoStart && !readSeen(storageKey, userId)) {
+        cancelAutoStart = scheduleStart();
+      }
+    };
+    if (userId) {
+      // Esperar al servidor evita repetir una guía vista en otro equipo.
+      // Si falla la consulta, se conserva la reproducción manual.
+      void loadOnboardingTours(userId).then(startIfUnseen).catch(() => undefined);
+    } else startIfUnseen();
 
     return () => {
+      cancelled = true;
       cancelAutoStart?.();
       void destroyCurrentClient();
     };
-  }, [autoStart, enabled, stableSteps, storageKey, scheduleStart, destroyCurrentClient]);
+  }, [autoStart, enabled, stableSteps, storageKey, scheduleStart, destroyCurrentClient, userId]);
 
   useEffect(
     () => () => {

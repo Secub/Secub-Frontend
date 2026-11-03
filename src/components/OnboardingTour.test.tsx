@@ -50,6 +50,10 @@ vi.mock("@sjmc11/tourguidejs/dist/tour", () => {
 });
 
 import { useOnboardingTour, type OnboardingTourStep } from "./OnboardingTour";
+import { persistAuthSession, type AuthSession } from "../services/auth/session";
+import { httpClient } from "../infrastructure/api";
+
+vi.mock("../infrastructure/api", () => ({ httpClient: { get: vi.fn(), put: vi.fn() } }));
 
 const tourInstances = () => instances as MockClient[];
 const startedInstance = () => tourInstances()[tourInstances().length - 1];
@@ -73,6 +77,9 @@ function stepsFor(...ids: string[]): OnboardingTourStep[] {
 
 describe("useOnboardingTour", () => {
   beforeEach(() => {
+    persistAuthSession(null as unknown as AuthSession);
+    vi.mocked(httpClient.get).mockReset().mockResolvedValue([]);
+    vi.mocked(httpClient.put).mockReset().mockResolvedValue(undefined);
     localStorage.clear();
     document.body.innerHTML = "";
     document.documentElement.style.scrollBehavior = "";
@@ -83,8 +90,61 @@ describe("useOnboardingTour", () => {
   });
 
   afterEach(() => {
+    persistAuthSession(null as unknown as AuthSession);
     vi.restoreAllMocks();
     document.body.innerHTML = "";
+  });
+
+  describe("authenticated history", () => {
+    beforeEach(() => {
+      persistAuthSession({ user_id: "USER-A" } as AuthSession);
+      mountTarget("filters");
+    });
+
+    it("does not auto start a guide already seen on another device", async () => {
+      vi.mocked(httpClient.get).mockResolvedValue(["tour_a"]);
+      renderHook(() => useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }));
+      await waitFor(() => expect(httpClient.get).toHaveBeenCalledWith("/onboarding-tours"));
+      await pause();
+      expect(startMock).not.toHaveBeenCalled();
+      expect(localStorage.getItem("tour_a")).toBeNull();
+    });
+
+    it("waits for the history response before deciding whether to start", async () => {
+      let resolve!: (keys: string[]) => void;
+      vi.mocked(httpClient.get).mockReturnValue(new Promise<string[]>((done) => { resolve = done; }));
+      renderHook(() => useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }));
+      await pause();
+      expect(startMock).not.toHaveBeenCalled();
+      resolve([]);
+      await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(httpClient.put).toHaveBeenCalledWith("/onboarding-tours/tour_a"));
+    });
+
+    it("still allows manual replay of a saved guide", async () => {
+      vi.mocked(httpClient.get).mockResolvedValue(["tour_a"]);
+      const { result } = renderHook(() => useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }));
+      await pause();
+      result.current.startTour();
+      await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
+      expect(startedInstance().options.closeButton).toBe(true);
+      expect(httpClient.put).not.toHaveBeenCalled();
+    });
+
+    it("skips automatic display when history cannot be loaded", async () => {
+      vi.mocked(httpClient.get).mockRejectedValue(new Error("offline"));
+      renderHook(() => useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }));
+      await pause();
+      expect(startMock).not.toHaveBeenCalled();
+    });
+
+    it("does not save seen status if the guide fails to start", async () => {
+      startMock.mockRejectedValueOnce(new Error("start failed"));
+      renderHook(() => useOnboardingTour({ steps: stepsFor("filters"), storageKey: "tour_a" }));
+      await waitFor(() => expect(startMock).toHaveBeenCalled());
+      await pause();
+      expect(httpClient.put).not.toHaveBeenCalled();
+    });
   });
 
   describe("auto start", () => {
