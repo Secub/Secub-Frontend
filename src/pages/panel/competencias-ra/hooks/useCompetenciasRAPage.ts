@@ -26,8 +26,6 @@ import {
 import { useCompetenciasRAActions } from './useCompetenciasRAActions';
 import { useCompetenciasRAFilters } from './useCompetenciasRAFilters';
 
-const MAX_COMPETENCIES_PER_PLAN = 4;
-
 const EMPTY_CATALOGS: Catalogs = {
   seccionales: [],
   lugares: [],
@@ -57,7 +55,6 @@ export function useCompetenciasRAPage() {
   const [catalogs, setCatalogs] = useState<Catalogs>(EMPTY_CATALOGS);
   const [records, setRecords] = useState<CompetenciasRaFormacionRecord[]>([]);
   const [cyclePlanIds, setCyclePlanIds] = useState<Set<string>>(() => new Set());
-  const [maxCompetenciesPerPlan, setMaxCompetenciesPerPlan] = useState(MAX_COMPETENCIES_PER_PLAN);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadVersion, setReloadVersion] = useState(0);
@@ -79,7 +76,6 @@ export function useCompetenciasRAPage() {
     ])
       .then(([context, competencyRecords]) => {
         setCatalogs(buildCatalogs(context));
-        setMaxCompetenciesPerPlan(context.maxCompetenciasPorPlan);
         setCyclePlanIds(new Set(context.planesConCiclo));
         setRecords(competencyRecords);
       })
@@ -104,16 +100,15 @@ export function useCompetenciasRAPage() {
   const hasRecords = records.length > 0;
   const creatablePlans = useMemo(() => catalogs.planes.filter((plan) =>
     plan.estado === 'activo' &&
-    !cyclePlanIds.has(plan.id) &&
-    records.filter((record) => record.planId === plan.id).length < maxCompetenciesPerPlan,
-  ), [catalogs.planes, cyclePlanIds, maxCompetenciesPerPlan, records]);
+    !cyclePlanIds.has(plan.id),
+  ), [catalogs.planes, cyclePlanIds]);
   const canCreateCompetency = permissions.canCreate && creatablePlans.length > 0;
   const createCompetencyDisabledReason = useMemo(() => {
     const activePlans = catalogs.planes.filter((plan) => plan.estado === 'activo');
     if (activePlans.length > 0 && activePlans.every((plan) => cyclePlanIds.has(plan.id))) {
       return 'No puedes crear competencias porque el plan ya tiene un ciclo de medición.';
     }
-    return 'Todos los planes disponibles ya tienen el máximo de 4 competencias.';
+    return 'No hay planes activos disponibles para crear competencias.';
   }, [catalogs.planes, cyclePlanIds]);
   const formCatalogs = useMemo<Catalogs>(() => formMode === 'create'
     ? { ...catalogs, planes: creatablePlans }
@@ -202,18 +197,6 @@ export function useCompetenciasRAPage() {
       });
       return;
     }
-    const recordsForPlan = records.filter((record) =>
-      record.planId === values.planId && record.id !== selectedRecord?.id,
-    );
-    if (recordsForPlan.length >= maxCompetenciesPerPlan) {
-      showNotification({
-        title: 'Límite de competencias alcanzado',
-        message: 'Puedes crear máximo 4 competencias por programa y plan de estudios.',
-        variant: 'warning',
-      });
-      return;
-    }
-
     setSubmitting(true);
     try {
       const record = formMode === 'create'
@@ -264,7 +247,6 @@ export function useCompetenciasRAPage() {
     loading,
     loadError,
     submitting,
-    maxCompetenciesPerPlan,
     canCreateCompetency,
     createCompetencyDisabledReason,
     reload,

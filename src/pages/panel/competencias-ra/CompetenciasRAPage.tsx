@@ -30,7 +30,6 @@ export default function CompetenciasRaFormacionPage() {
     loading,
     loadError,
     submitting,
-    maxCompetenciesPerPlan,
     canCreateCompetency,
     createCompetencyDisabledReason,
     reload,
@@ -283,9 +282,7 @@ export default function CompetenciasRaFormacionPage() {
           user={currentUser}
           catalogs={formCatalogs}
           initialValues={formValues}
-          records={roleScopedRecords}
           record={selectedRecord}
-          maxCompetenciesPerPlan={maxCompetenciesPerPlan}
           submitting={submitting}
           onClose={() => setFormOpen(false)}
           onSubmit={handleFormSubmit}

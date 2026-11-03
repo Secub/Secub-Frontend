@@ -19,9 +19,7 @@ interface CompetenciasRaFormModalProps {
   user: CurrentUser;
   catalogs: Catalogs;
   initialValues: FormState;
-  records: CompetenciasRaEnriched[];
   record: CompetenciasRaEnriched | null;
-  maxCompetenciesPerPlan?: number;
   submitting?: boolean;
   onClose: () => void;
   onSubmit: (values: FormState) => void | Promise<void>;
@@ -37,9 +35,7 @@ export function CompetenciasRaFormModal({
   user,
   catalogs,
   initialValues,
-  records,
   record,
-  maxCompetenciesPerPlan = 4,
   submitting = false,
   onClose,
   onSubmit,
@@ -76,13 +72,6 @@ export function CompetenciasRaFormModal({
 
     if (!form.descripcion.trim()) {
       nextErrors.descripcion = "Escribe tu competencia.";
-    }
-
-    const competencyCount = records.filter(
-      (item) => item.planId === form.planId && item.id !== record?.id,
-    ).length;
-    if (form.planId && competencyCount >= maxCompetenciesPerPlan) {
-      nextErrors.planId = `Este plan ya tiene el máximo de ${maxCompetenciesPerPlan} competencias.`;
     }
 
     const errorKeys = Object.keys(nextErrors);

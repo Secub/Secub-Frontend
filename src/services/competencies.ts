@@ -45,7 +45,6 @@ export interface CompetencyRecord {
 export interface CompetencyContext {
   scope: CompetencyScope;
   planes: CompetencyPlan[];
-  maxCompetenciasPorPlan: number;
   maxResultadosPorCompetencia: number;
   planesConCiclo: string[];
 }
